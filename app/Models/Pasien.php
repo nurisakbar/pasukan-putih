@@ -43,4 +43,5 @@ class Pasien extends Model
     }
 
 
+
 }

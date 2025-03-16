@@ -68,7 +68,7 @@
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export KOHORT HS
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
+                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Kunjungan Awal
                                 </a>
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
@@ -121,6 +121,12 @@
                                                             <a href="{{ route('kunjungan.skriningAdl', $kunjungan->id) }}" 
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('ttv.edit', $kunjungan->id) }}" 
+                                                               class="dropdown-item">
+                                                                <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
                                                         <li>

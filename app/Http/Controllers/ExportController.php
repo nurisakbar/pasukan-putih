@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KunjunganExport;
 use App\Exports\SasaranBulananExport;
 use App\Exports\JumlahSasaranExport;
+use App\Exports\KunjunganAwalExport;
 
 class ExportController extends Controller
 {
@@ -18,6 +19,15 @@ class ExportController extends Controller
             $request->input('tanggal_akhir'),
             $request->input('search')
         ), 'sasaran_bulanan.xlsx');
+    }
+    public function exportKunjuganAwal(Request $request) 
+    {
+        return Excel::download(new KunjunganAwalExport(
+            $request->input('bulan'),
+            $request->input('tanggal_awal'),
+            $request->input('tanggal_akhir'),
+            $request->input('search')
+        ), 'kunjugan_awal.xlsx');
     }
     public function exportJumlahSasaran(Request $request) 
     {

@@ -45,4 +45,9 @@ class Village extends Model
     {
         return $this->belongsTo(District::class);
     }
+
+    // public function pasiens()
+    // {
+    //     return $this->hasMany(Pasien::class, 'village_id', 'id');
+    // }
 }

@@ -84,56 +84,20 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                {{-- <div class="row mb-3">
-                                    <div class="col-6 col-md-3">
-                                        <label for="rt" class="form-label">RT</label>
-                                        <input type="number" class="form-control rt" id="rt" name="rt"
-                                            placeholder="RT" value="{{ old('rt', '00') }}">
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label for="rw" class="form-label">RW</label>
-                                        <input type="number" class="form-control rw" id="rw" name="rw"
-                                            placeholder="RW" value="{{ old('rw', '00') }}">
-                                    </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="form-group mb-3">
-                                        <label for="province_id" class="form-label">Provinsi</label>
-                                        <select name="province_id" id="province" class="form-control select2">
-                                            <option value="">Pilih Provinsi</option>
-                                            @foreach ($provinces as $province)
-                                                <option value="{{ $province->id }}">{{ $province->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="regency_id" class="form-label">Kabupaten/Kota</label>
-                                        <select name="regency_id" id="regency" class="form-control select2">
-                                            <option value="">Pilih Kabupaten/Kota</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="district_id" class="form-label">Kecamatan</label>
-                                        <select name="district_id" id="district" class="form-control select2">
-                                            <option value="">Pilih Kecamatan</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group mb-3">
-                                        <label for="village_id" class="form-label">Kelurahan</label>
-                                        <select name="village_id" id="village" class="form-control select2">
-                                            <option value="">Pilih Kelurahan</option>
-                                        </select>
-                                    </div>
-
-                                </div> --}}
-
                                 <div class="form-group mb-3">
-                                    <label for="inputDay" class="form-label">Tanggal</label>
+                                    <label for="alamat" class="form-label">SKOR AKS - DATA SASARAN</label>
+                                    <input type="text" class="form-control"  name="skor_aks_data_sasaran"
+                                        placeholder="1-20" value="{{ old('skor_aks_data_sasaran') }}">
+                                    @error('skor_aks_data_sasaran')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                {{-- <div class="mb-3">
+                                    <label for="skor_aks" class="form-label">Skor Aks</label>
+                                    <input type="number" class="form-control" name="skor_aks" placeholder="1-20">
+                                </div> --}}
+                                <div class="form-group mb-3">
+                                    <label for="inputDay" class="form-label">Tanggal Kunjungan</label>
                                     <input type="date" id="inputDay" class="form-control" name="tanggal"
                                         placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
                                 </div>
@@ -151,13 +115,68 @@
                                 <div class="form-group mb-4">
                                     <label for="jenis" class="form-label">Jenis Kunjungan</label>
                                     <select name="jenis" id="jenis" class="form-select">
-                                        <option value="Rencana" {{ old('jenis') == 'Rencana' ? 'selected' : '' }}>Rencana
+                                        <option value="awal" {{ old('jenis') == 'awal' ? 'selected' : '' }}>Awal
                                         </option>
-                                        <option value="Lanjutan" {{ old('jenis') == 'Lanjutan' ? 'selected' : '' }}>
+                                        <option value="rencana" {{ old('jenis') == 'rencana' ? 'selected' : '' }}>Rencana
+                                        </option>
+                                        <option value="lanjutan" {{ old('jenis') == 'lanjutan' ? 'selected' : '' }}>
                                             Lanjutan</option>
                                     </select>
                                 </div>
+                        
+                                <div class="mb-3">
+                                    <label for="lanjut_kunjungan" class="form-label">Lanjut Kunjungan</label>
+                                    <select class="form-control" name="lanjut_kunjungan">
+                                        <option value="1">Ya</option>
+                                        <option value="0">Tidak</option>
+                                    </select>
+                                </div>
+                        
+                                <div class="mb-3">
+                                    <label for="rencana_kunjungan_lanjutan" class="form-label">Rencana Kunjungan Lanjutan</label>
+                                    <input type="date" id="inputDay" class="form-control" name="rencana_kunjungan_lanjutan"
+                                        placeholder="Tanggal Kunjungan Lanjutan" value="{{ old('rencana_kunjungan_lanjutan', date('Y-m-d')) }}">
+                                </div>
+                        
+                                <div class="mb-3">
+                                    <label class="form-label">Henti Layanan</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="kenaikan_aks">
+                                        <label class="form-check-label">Kenaikan Aks</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="meninggal">
+                                        <label class="form-check-label">Meninggal</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="menolak">
+                                        <label class="form-check-label">Menolak</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="pindah_domisili">
+                                        <label class="form-check-label">Pindah Domisili</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="" checked>
+                                        <label class="form-check-label">Tidak Ada</label>
+                                    </div>
+                                </div>
+                                
+                        
+                                <div class="mb-3">
+                                    <label for="rujukan" class="form-label">Rujukan</label>
+                                    <select class="form-control" name="rujukan">
+                                        <option value="1">Ya</option>
+                                        <option value="0">Tidak</option>
+                                    </select>
+                                </div>
+                        
+                                <div class="mb-3">
+                                    <input type="radio" name="konversi_data_ke_sasaran_kunjungan_lanjutan" value="1">
+                                    <label for="konversi_data_ke_sasaran_kunjungan_lanjutan" class="form-label">Konversi Data Ke Sasaran Kunjungan Lanjutan</label>
+                                </div>
 
+                            
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Simpan</button>
                                     <a href="{{ route('kunjungans.index') }}"
