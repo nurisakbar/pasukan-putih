@@ -1,171 +1,313 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="app-content-header">
-     <div class="container-fluid">
-          <div class="row">
-               <div class="col-sm-6">
-                    <h3 class="mb-0">Edit Pasien</h3>
-               </div>
-          </div>
-     </div>
-</div>
+    <div class="app-content-header bg-light py-3 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <h3 class="mb-0 text-primary">Edit Pasien</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="app-content">
-     <div class="container-fluid">
-          <div class="row">
-               <div class="col-sm-12">
-                    <div class="card">
-                         <div class="card-header">
-                              <div class="row">
-                                   <div class="col-sm-6">
-                                        <h5 class="card-title">Edit Data Pasien</h5>
-                                   </div>
-                              </div>
-                         </div>
-                         <div class="card-body">
-                              <form action="{{ route('pasiens.update', $patient->id) }}" method="POST">
-                                   @csrf
-                                   @method('PUT')
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="name" class="form-label">Nama <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $patient->name) }}" required>
-                                             </div>
-                                             @error('name')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror 
-                                        </div>
-                                   </div>
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="nik" class="form-label">NIK <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik', $patient->nik) }}" required>
-                                             </div>
-                                             @error('nik')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror 
-                                        </div>
-                                   </div>
-                                   {{-- <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="jenis_kelamin" class="form-label">Jenis KTP <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <select class="form-control" id="jenis_kelamin" name="jenis_kelamin" required>  
-                                                       <option value="DKI" {{ $patient->jenis_kelamin == 'DKI' ? 'selected' : '' }}>DKI</option>
-                                                       <option value="Non DKI" {{ $patient->jenis_kelamin == 'Non DKI' ? 'selected' : '' }}>Non DKI</option>
-                                                  </select>
-                                             </div>
-                                             @error('jenis_kelamin')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror 
-                                        </div>  
-                                   </div> --}}
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="tanggal_lahir" class="form-label">Tanggal Lahir <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir', $patient->tanggal_lahir) }}" required>
-                                             </div>
-                                             @error('tanggal_lahir')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror
-                                        </div>
-                                   </div>
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <select class="form-control" id="jenis_kelamin" name="jenis_kelamin" required>  
-                                                       <option value="Laki-laki" {{ $patient->jenis_kelamin == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                                       <option value="Perempuan" {{ $patient->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                                                  </select>
-                                             </div>
-                                             @error('jenis_kelamin')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror 
-                                        </div>  
-                                   </div>
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                                  <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
-                                             </div>
-                                             <div class="col-sm-9">
-                                                  <input type="text" class="form-control" id="alamat" name="alamat" value="{{ old('alamat', $patient->alamat) }}" required>
-                                             </div>
-                                             @error('alamat')
-                                                 <div class="text-danger">{{ $message }}</div>
-                                             @enderror 
-                                        </div>
-                                   </div>
-                                   <div class="mb-3">
-                                        <div class="row">
-                                             <div class="col-sm-3">
-                                             </div>
-                                             <div class="col-sm-1">
-                                                  <label for="rt" class="form-label">RT</label>
-                                                  <input type="number" class="form-control" id="rt" name="rt" value="{{ old('rt', $patient->rt) }}" required>
-                                                  @error('rt')
-                                                      <div class="text-danger">{{ $message }}</div> 
-                                                  @enderror 
-                                             </div>
-                                             <div class="col-sm-1">
-                                                  <label for="rw" class="form-label">RW</label>
-                                                  <input type="number" class="form-control" id="rw" name="rw" value="{{ old('rw', $patient->rw) }}" required>
-                                                  @error('rw')
-                                                      <div class="text-danger">{{ $message }}</div> 
-                                                  @enderror 
-                                             </div>
-                                             <div class="col-sm-2">
-                                                  <label for="kelurahan" class="form-label">Kelurahan</label>
-                                                  <input type="text" class="form-control" id="kelurahan" name="village_id" value="{{ old('kelurahan', $patient->village_id) }}" required>
-                                                  @error('kelurahan')
-                                                      <div class="text-danger">{{ $message }}</div> 
-                                                  @enderror 
-                                             </div>
-                                             <div class="col-sm-2">
-                                                  <label for="kecamatan" class="form-label">Kecamatan</label>
-                                                  <input type="text" class="form-control" id="kecamatan" name="district_id" value="{{ old('kecamatan', $patient->district_id) }}" required>
-                                                  @error('kecamatan')
-                                                      <div class="text-danger">{{ $message }}</div> 
-                                                  @enderror 
-                                             </div>
-                                             <div class="col-sm-3">
-                                                  <label for="kabupaten_kota" class="form-label">Kabupaten/Kota</label>
-                                                  <input type="text" class="form-control" id="kabupaten_kota" name="regency_id" value="{{ old('kabupaten_kota', $patient->regency_id) }}" required>
-                                                  @error('kabupaten_kota')
-                                                      <div class="text-danger">{{ $message }}</div> 
-                                                  @enderror 
-                                             </div>
-                                        </div>
-                                   </div>
+    <div class="app-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-md-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h5 class="card-title text-primary mb-0">Edit Data Pasien</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="{{ route('pasiens.update', $pasien->id) }}" method="POST" class="needs-validation" novalidate>
+                                @csrf
+                                @method('PUT')
 
-                                   <button type="submit" class="btn btn-primary">Update</button>
-                                   <a href="{{ route('pasiens.index') }}" class="btn btn-secondary">Kembali</a>
-                              </form>
-                         </div>
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="nik" class="form-label fw-bold">NIK <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <input type="text" class="form-control @error('nik') is-invalid @enderror nik" id="nik" name="nik" value="{{ old('nik', $pasien->nik) }}" placeholder="Masukkan NIK" required>
+                                        @error('nik')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div id="loading-indicator" class="p-3 d-none">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span class="ms-3 fs-5 text-secondary">Mencari data...</span>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="name" class="form-label fw-bold">Nama <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $pasien->name) }}" placeholder="Masukkan nama lengkap" required>
+                                        @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="jenis_ktp" class="form-label fw-bold ">Jenis KTP <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <select class="form-select @error('jenis_ktp') is-invalid @enderror" id="jenis_ktp" name="jenis_ktp" required>
+                                            <option value="" disabled>Pilih jenis KTP</option>
+                                            <option value="DKI" {{ old('jenis_ktp', $pasien->jenis_ktp) == 'DKI' ? 'selected' : '' }}>DKI</option>
+                                            <option value="Non DKI" {{ old('jenis_ktp', $pasien->jenis_ktp) == 'Non DKI' ? 'selected' : '' }}>Non DKI</option>
+                                        </select>
+                                        @error('jenis_ktp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="tanggal_lahir" class="form-label fw-bold ">Tanggal Lahir <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <input type="date" class="form-control @error('tanggal_lahir') is-invalid @enderror" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir', $pasien->tanggal_lahir) }}" required>
+                                        @error('tanggal_lahir')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="jenis_kelamin" class="form-label fw-bold ">Jenis Kelamin <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <select class="form-select @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin" name="jenis_kelamin" required>
+                                            <option value="" disabled>Pilih jenis kelamin</option>
+                                            <option value="Laki-laki" {{ old('jenis_kelamin', $pasien->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                            <option value="Perempuan" {{ old('jenis_kelamin', $pasien->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                        </select>
+                                        @error('jenis_kelamin')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label for="alamat" class="form-label fw-bold ">Alamat <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap" required>{{ old('alamat', $pasien->alamat) }}</textarea>
+                                        @error('alamat')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-lg-3 col-md-4 mb-2">
+                                        <label class="form-label fw-bold">Detail Wilayah</label>
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-3">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="province" class="form-label">Provinsi <span class="text-danger">*</span></label>
+                                                        <select name="province_id" id="province" class="form-select select2 @error('province_id') is-invalid @enderror" required>
+                                                            <option value="">Pilih Provinsi</option>
+                                                            @foreach ($provinces as $province)
+                                                                <option value="{{ $province->id }}" {{ old('province_id', $pasien->province_id) == $province->id ? 'selected' : '' }}>
+                                                                    {{ $province->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('province_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="regency" class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
+                                                        <select name="regency_id" id="regency" class="form-select select2 @error('regency_id') is-invalid @enderror" required>
+                                                            <option value="">Pilih Kabupaten/Kota</option>
+                                                        </select>
+                                                        @error('regency_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="district" class="form-label">Kecamatan <span class="text-danger">*</span></label>
+                                                        <select name="district_id" id="district" class="form-select select2 @error('district_id') is-invalid @enderror" required>
+                                                            <option value="">Pilih Kecamatan</option>
+                                                        </select>
+                                                        @error('district_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <label for="village" class="form-label">Kelurahan <span class="text-danger">*</span></label>
+                                                        <select name="village_id" id="village" class="form-select select2 @error('village_id') is-invalid @enderror" required>
+                                                            <option value="">Pilih Kelurahan</option>
+                                                        </select>
+                                                        @error('village_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-4">
+                                    <div class="col-lg-3 col-md-4">
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="bi bi-save me-2"></i>Update
+                                        </button>
+                                        <a href="{{ route('pasiens.index') }}" class="btn btn-secondary ms-2">
+                                            <i class="bi bi-arrow-left me-2"></i>Kembali
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-               </div>
-          </div>
-     </div>
-</div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('script')
     <script>
-        
+        $(document).ready(function() {
+            // Initialize select2 with better styling
+            $('.select2').select2({
+                width: '100%',
+            });
+
+            // Form validation
+            (function() {
+                'use strict';
+                var forms = document.querySelectorAll('.needs-validation');
+                Array.prototype.slice.call(forms).forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            })();
+
+            // Load Kabupaten/Kota berdasarkan Provinsi
+            $('#province').change(function() {
+                var province_id = $(this).val();
+                $('#regency').html('<option value="">Pilih Kabupaten/Kota</option>');
+                $('#district').html('<option value="">Pilih Kecamatan</option>');
+                $('#village').html('<option value="">Pilih Kelurahan</option>');
+
+                if (province_id) {
+                    $.ajax({
+                        url: '/get-regencies/' + province_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, regency) {
+                                $('#regency').append('<option value="' + regency.id + '">' +
+                                    regency.name + '</option>');
+                            });
+                            $('#regency').prop('disabled', false);
+                        },
+                        error: function() {
+                            alert('Terjadi kesalahan saat memuat data kabupaten/kota');
+                        }
+                    });
+                } else {
+                    $('#regency').prop('disabled', true);
+                    $('#district').prop('disabled', true);
+                    $('#village').prop('disabled', true);
+                }
+            });
+
+            // Load Kecamatan berdasarkan Kabupaten/Kota
+            $('#regency').change(function() {
+                var regency_id = $(this).val();
+                $('#district').html('<option value="">Pilih Kecamatan</option>');
+                $('#village').html('<option value="">Pilih Kelurahan</option>');
+
+                if (regency_id) {
+                    $.ajax({
+                        url: '/get-districts/' + regency_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, district) {
+                                $('#district').append('<option value="' + district.id + '">' +
+                                    district.name + '</option>');
+                            });
+                            $('#district').prop('disabled', false);
+                        },
+                        error: function() {
+                            alert('Terjadi kesalahan saat memuat data kecamatan');
+                        }
+                    });
+                } else {
+                    $('#district').prop('disabled', true);
+                    $('#village').prop('disabled', true);
+                }
+            });
+
+            // Load Kelurahan berdasarkan Kecamatan
+            $('#district').change(function() {
+                var district_id = $(this).val();
+                $('#village').html('<option value="">Pilih Kelurahan</option>');
+
+                if (district_id) {
+                    $.ajax({
+                        url: '/get-villages/' + district_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(data) {
+                            $.each(data, function(index, village) {
+                                $('#village').append('<option value="' + village.id + '">' +
+                                    village.name + '</option>');
+                            });
+                            $('#village').prop('disabled', false);
+                        },
+                        error: function() {
+                            alert('Terjadi kesalahan saat memuat data kelurahan');
+                        }
+                    });
+                } else {
+                    $('#village').prop('disabled', true);
+                }
+            });
+
+            // Set initial values for the select fields based on the existing data
+            $('#province').val({{ $pasien->province_id }}).trigger('change');
+            $('#regency').val({{ $pasien->regency_id }}).trigger('change');
+            $('#district').val({{ $pasien->district_id }}).trigger('change');
+            $('#village').val({{ $pasien->village_id }});
+        });
     </script>
 @endpush

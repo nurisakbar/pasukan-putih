@@ -7,6 +7,9 @@ use App\Http\Requests\PasienRequest;
 use App\Models\Pasien;
 use Illuminate\Http\Request;
 use App\Models\Province;
+use App\Models\Regency;
+use App\Models\District;
+use App\Models\Village;
 use App\Models\KondisiRumah;
 use App\Models\PhbsRumahTangga;
 use App\Models\PemeliharaanKesehatanKeluarga;
@@ -63,8 +66,12 @@ class PasienController extends Controller
 
     public function edit(Pasien $pasien): \Illuminate\Contracts\View\View
     {
-        $patient = $pasien;
-        return view('pasiens.edit', compact('patient'));
+        $provinces = Province::all();
+        $regencies = Regency::all();
+        $districts = District::all();
+        $villages = Village::all();
+        $pasien = $pasien;
+        return view('pasiens.edit', compact('pasien', 'provinces', 'regencies', 'districts', 'villages'));
     }
 
     public function update(PasienRequest $request, Pasien $pasien): \Illuminate\Http\RedirectResponse
