@@ -54,4 +54,9 @@ class Kunjungan extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function ttvs()
+    {
+        return $this->hasMany(Ttv::class);
+    }
 }

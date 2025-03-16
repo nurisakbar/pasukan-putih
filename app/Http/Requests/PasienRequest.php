@@ -13,9 +13,12 @@ class PasienRequest extends FormRequest
 
     public function rules(): array
     {
+        $id = $this->pasien?->id ?? $this->route('pasien');
+        \Log::info('Pasien ID:', ['id' => $id]);
+
         return [
             'name' => 'string|max:255',
-            'nik' => 'string|max:255|unique:pasiens,nik,',
+            'nik' => 'string|max:255|unique:pasiens,nik,' . $id,
             'alamat' => 'string|max:255',
             'jenis_kelamin' => 'string|max:255',
             'jenis_ktp' => 'string|max:255',

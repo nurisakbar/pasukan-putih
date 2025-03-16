@@ -39,9 +39,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/neurosensori', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveNeurosensori'])->name('form.saveNeurosensori');
     Route::put('/neurosensori/{id}', [App\Http\Controllers\AsuhanKeluargaController::class, 'updateNeurosensori'])->name('form.updateNeurosensori');
 
-
-
-
     Route::resource('/users', App\Http\Controllers\UserController::class);
 
     // Login by email routes
@@ -53,10 +50,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'skriningAdl'])->name('kunjungan.skriningAdl');
     Route::post('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'storeSkriningAdl'])->name('kunjungan.storeSkriningAdl');
     Route::put('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'updateSkriningAdl'])->name('kunjungan.updateSkriningAdl');
+
+    Route::resource('ttv', App\Http\Controllers\TtvController::class);
+    Route::get('kunjungan/{kunjungan}/ttv/create', [\App\Http\Controllers\TtvController::class, 'create'])->name('kunjungan.ttv.create');
+    Route::post('calculate-bmi', [\App\Http\Controllers\TtvController::class, 'calculateBmi'])->name('calculate.bmi');
     
     Route::get('kunjungan/export', [\App\Http\Controllers\KunjunganController::class, 'exportKunjungan'])->name('kunjungan.export');
     Route::get('sasaran-bulanan/export', [\App\Http\Controllers\ExportController::class, 'exportSasaranBulanan'])->name('export.sasaran-bulanan');
     Route::get('jumlah-sasaran/export', [\App\Http\Controllers\ExportController::class, 'exportJumlahSasaran'])->name('export.jumlah-sasaran');
+    Route::get('kunjugan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportKunjuganAwal'])->name('export.kunjungan-awal');
 
 });
 
@@ -76,6 +78,6 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 
 Route::get('/test-view', function () {
     
-    return view('kunjungans.form-pencatatan');
+    return view('kunjungans.form-ttv');
 });
 

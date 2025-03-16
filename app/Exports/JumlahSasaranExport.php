@@ -31,12 +31,16 @@ class JumlahSasaranExport implements FromArray, WithHeadings
         // Ambil data yang menjadi sasaran home service (sasaran_home_service = 1)
         $data = $query->where('sasaran_home_service', 1)->get();
 
-        // Kelompokkan data berdasarkan lokasi
         $groupedData = $data->groupBy(function ($skrining) {
-            return $skrining->kunjungan->pasien->regency_id . '|' .
-                   $skrining->kunjungan->pasien->district_id . '|' .
-                   $skrining->kunjungan->pasien->village_id;
-        });
+            $pasien = $skrining->kunjungan?->pasien;
+        
+            $regencyName = $pasien?->regency?->name ?? 'Tidak Diketahui';
+            $districtName = $pasien?->district?->name ?? 'Tidak Diketahui';
+            $villageName = $pasien?->village?->name ?? 'Tidak Diketahui';
+        
+            return "$regencyName|$districtName|$villageName";
+        });        
+        
 
         // Format data untuk export
         $formattedData = $groupedData->map(function ($items, $key) {

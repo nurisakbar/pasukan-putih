@@ -62,6 +62,10 @@ class KunjunganController extends Controller
     {
         $pasien = Pasien::find($request->pasien_id);
 
+        if (!$pasien) {
+            return redirect()->back()->with('error', 'Pasien tidak ditemukan.');
+        }
+
         // Cek apakah pasien sudah memiliki kunjungan di tanggal yang sama
         $existingVisit = Kunjungan::where('pasien_id', $pasien->id)
                         ->whereDate('tanggal', $request->tanggal)
@@ -71,27 +75,40 @@ class KunjunganController extends Controller
             return redirect()->back()->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
         }
 
-        Kunjungan::create([
+        // Reset semua opsi henti layanan ke false (0)
+        $hentiLayanan = [
+            'henti_layanan_kenaikan_aks' => false,
+            'henti_layanan_meninggal' => false,
+            'henti_layanan_menolak' => false,
+            'henti_layanan_pindah_domisili' => false,
+        ];
+
+        // Jika ada henti layanan yang dipilih, set hanya satu yang true (1)
+        $selectedHentiLayanan = $request->input('henti_layanan');
+        if (in_array($selectedHentiLayanan, array_keys($hentiLayanan))) {
+            $hentiLayanan[$selectedHentiLayanan] = true;
+        }
+
+        $kunjungan = Kunjungan::create(array_merge([
             'tanggal' => $request->tanggal,
             'pasien_id' => $pasien->id,
             'user_id' => $request->user_id,
-            'hasil_periksa' => $request->hasil_periksa,
+            'hasil_periksa' => $request->hasil_periksa ?? null,
             'status' => $request->status,
-            'jenis' => $request->jenis,
-            'skor_aks_data_sasaran' => $request->skor_aks_data_sasaran,
-            'skor_aks' => $request->skor_aks,
-            'lanjut_kunjungan' => $request->lanjut_kunjungan,
-            'rencana_kunjungan_lanjutan' => $request->rencana_kunjungan_lanjutan,
-            'henti_layanan_kenaikan_aks' => $request->henti_layanan_kenaikan_aks,
-            'henti_layanan_meninggal' => $request->henti_layanan_meninggal,
-            'henti_layanan_menolak' => $request->henti_layanan_menolak, 
-            'henti_layanan_pindah_domisili' => $request->henti_layanan_pindah_domisili,
-            'rujukan' => $request->rujukan,
-            'konversi_data_ke_sasaran_kunjungan_lanjutan' => $request->konversi_data_ke_sasaran_kunjungan_lanjutan,
-        ]);
+            'jenis' => $request->jenis ?? null,
+            'skor_aks_data_sasaran' => $request->skor_aks_data_sasaran ?? null,
+            'skor_aks' => $request->skor_aks ?? null,
+            'lanjut_kunjungan' => $request->lanjut_kunjungan ?? null,
+            'rencana_kunjungan_lanjutan' => $request->rencana_kunjungan_lanjutan ?? null,
+            'rujukan' => $request->rujukan ?? null,
+            'konversi_data_ke_sasaran_kunjungan_lanjutan' => $request->konversi_data_ke_sasaran_kunjungan_lanjutan ?? false,
+        ], $hentiLayanan));
 
-        return redirect()->route('kunjungans.index')->with('success', 'Created successfully');
+        return redirect()->route('kunjungan.ttv.create', ['kunjungan' => $kunjungan->id])
+        ->with('success', 'Created successfully');
+
     }
+
 
     public function show(Kunjungan $kunjungan): \Illuminate\Contracts\View\View
     {
