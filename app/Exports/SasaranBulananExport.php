@@ -11,8 +11,9 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class SasaranBulananExport implements FromArray, WithHeadings
+class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
 {
 
     protected $bulan;
@@ -69,9 +70,9 @@ class SasaranBulananExport implements FromArray, WithHeadings
 
             return [
                 'No' => $index + 1,
-                'KABUPATEN/KOTA' => $skrining->kunjungan->pasien->regency_id ?? '',
-                'KECAMATAN' => $skrining->kunjungan->pasien->district_id ?? '',
-                'KELURAHAN' => $skrining->kunjungan->pasien->village_id ?? '',
+                'KABUPATEN/KOTA' => $skrining->kunjungan->pasien->regency->name ?? '',
+                'KECAMATAN' => $skrining->kunjungan->pasien->district->name ?? '',
+                'KELURAHAN' => $skrining->kunjungan->pasien->village->name ?? '',
                 'NIK' => $skrining->kunjungan->pasien->nik ?? '',
                 'NAMA' => $skrining->kunjungan->pasien->name ?? '',
                 'JENIS KTP' => $skrining->kunjungan->pasien->jenis_ktp ?? '',
@@ -98,6 +99,7 @@ class SasaranBulananExport implements FromArray, WithHeadings
             'NAMA', 
             'JENIS KTP', 
             'UMUR', 
+            'TANGGAL KUNJUNGAN',
             'MEMBUTUHKAN BANTUAN UNTUK KEGIATAN SEHARI-HARI', 
             'SKOR AKS', 
             'MEMILIKI PENDAMPING DALAM MELAKUKAN AKTIVITAS SEHARI-HARI',

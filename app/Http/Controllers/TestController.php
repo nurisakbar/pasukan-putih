@@ -10,41 +10,87 @@ use App\Models\User;
 
 class TestController extends Controller
 {
-    public function getKunjunganAwal()
+    public function getDetailKunjungan(Request $request)
     {
-        $kunjunganAwal = \DB::table('kunjungans as kunjungan')
-        ->select(
-                    'pasien.id as pasien_id',
-                    'pasien.name as pasien_nama',
-                    'pasien.alamat as pasien_alamat',
-                    'pasien.nik as pasien_nik',
-                    'pasien.jenis_kelamin as pasien_jenis_kelamin',
-                    'pasien.tanggal_lahir as pasien_tanggal_lahir',
-                    'villages.name as village_name',
-                    'districts.name as district_name',
-                    'regencies.name as regency_name',
-                    'kunjungan.tanggal as kunjungan_tanggal',
-                    'kunjungan.skor_aks_data_sasaran as kunjungan_skor_aks_data_sasaran',
-                    'skrining_adl.total_score as skrining_adl_skor_aks',
-                    'kunjungan.lanjut_kunjungan as kunjungan_lanjut_kunjungan',
-                    'kunjungan.rencana_kunjungan_lanjutan as kunjungan_rencana_lanjut_kunjungan',
-                    'kunjungan.henti_layanan_kenaikan_aks as kunjungan_henti_layanan_kenaikan_aks',
-                    'kunjungan.henti_layanan_meninggal as kunjungan_henti_layanan_meninggal',
-                    'kunjungan.henti_layanan_pindah_domisili as kunjungan_henti_layanan_pindah_domisili',
-                    'kunjungan.rujukan as kunjungan_rujukan',
-                    'kunjungan.konversi_data_ke_sasaran_kunjungan_lanjutan as kunjungan_konversi_data_ke_sasaran_kunjungan_lanjutan',
-                )
-                ->leftJoin('pasiens as pasien', 'kunjungan.pasien_id', '=', 'pasien.id')
-                ->leftJoin('villages', 'pasien.village_id', '=', 'villages.id')
-                ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
-                ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
-                ->leftJoin('skrining_adl', 'skrining_adl.kunjungan_id', '=', 'kunjungan.id')
-                ->where('skrining_adl.total_score', '!=', null)     
-                ->where('kunjungan.skor_aks_data_sasaran', '!=', null)
-                ->where('kunjungan.jenis', 'awal')           
-                ->orderBy('kunjungan.tanggal', 'desc')
-                ->get();
-
-        return response()->json($kunjunganAwal);
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalSelesai = $request->input('tanggal_selesai');
+    
+        $kunjungan = \DB::table('kunjungans')
+            ->select(
+                'regencies.name', // Kabupaten/Kota
+                'districts.name', // Kecamatan
+                'villages.name', // Kelurahan
+                'pasiens.nik',
+                'pasiens.jenis_ktp',
+                'pasiens.name',
+                'pasiens.alamat',
+                'pasiens.jenis_kelamin',
+                \DB::raw("TIMESTAMPDIFF(YEAR, pasiens.tanggal_lahir, CURDATE())"),
+    
+                // Tanggal kunjungan awal (kunjungan pertama pasien)
+                \DB::raw("(SELECT MIN(tanggal) FROM kunjungans WHERE pasien_id = kunjungans.pasien_id)"),
+    
+                // Tanggal kunjungan terakhir (jika NULL, ambil dari kunjungan awal)
+                \DB::raw("
+                    COALESCE(
+                        (SELECT MAX(tanggal) FROM kunjungans 
+                         WHERE pasien_id = kunjungans.pasien_id),
+                        (SELECT MIN(tanggal) FROM kunjungans 
+                         WHERE pasien_id = kunjungans.pasien_id)
+                    )"),
+    
+                // Tanggal kunjungan lanjutan (kunjungan terbaru)
+                \DB::raw("(SELECT tanggal FROM kunjungans WHERE pasien_id = kunjungans.pasien_id ORDER BY tanggal DESC LIMIT 1)"),
+    
+                // Skor AKS-DATA SASARAN (dari skrining ADL di kunjungan pertama)
+                \DB::raw("(SELECT total_score FROM skrining_adl 
+                           WHERE kunjungan_id = (SELECT id FROM kunjungans 
+                                                 WHERE pasien_id = kunjungans.pasien_id 
+                                                 ORDER BY tanggal ASC LIMIT 1))"),
+    
+                // Skor AKS TERAKHIR (jika NULL, ambil dari skor pertama)
+                \DB::raw("
+                    COALESCE(
+                        (SELECT total_score FROM skrining_adl 
+                         WHERE kunjungan_id = (SELECT id FROM kunjungans 
+                                               WHERE pasien_id = kunjungans.pasien_id 
+                                               ORDER BY tanggal DESC LIMIT 1)),
+                        (SELECT total_score FROM skrining_adl 
+                         WHERE kunjungan_id = (SELECT id FROM kunjungans 
+                                               WHERE pasien_id = kunjungans.pasien_id 
+                                               ORDER BY tanggal ASC LIMIT 1))
+                    )"),
+    
+                // Skor AKS LANJUTAN (dari skrining ADL di kunjungan kedua terakhir, jika ada)
+                \DB::raw("(SELECT total_score FROM skrining_adl 
+                           WHERE kunjungan_id = (SELECT id FROM kunjungans 
+                                                 WHERE pasien_id = kunjungans.pasien_id 
+                                                 ORDER BY tanggal DESC LIMIT 1 OFFSET 1))"),
+    
+                'kunjungans.lanjut_kunjungan',
+                'kunjungans.henti_layanan_kenaikan_aks',
+                'kunjungans.henti_layanan_meninggal',
+                'kunjungans.henti_layanan_menolak',
+                'kunjungans.henti_layanan_pindah_domisili',
+                'kunjungans.rujukan',
+                'kunjungans.konversi_data_ke_sasaran_kunjungan_lanjutan'
+            )
+            ->leftJoin('pasiens', 'kunjungans.pasien_id', '=', 'pasiens.id')
+            ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+    
+            // Filter berdasarkan tanggal kunjungan
+            ->when($tanggalMulai && $tanggalSelesai, function ($query) use ($tanggalMulai, $tanggalSelesai) {
+                return $query->whereBetween('kunjungans.tanggal', [$tanggalMulai, $tanggalSelesai]);
+            })
+    
+            ->orderBy('regencies.name')
+            ->orderBy('districts.name')
+            ->orderBy('villages.name')
+            ->get();
+    
+        return response()->json($kunjungan);
     }
+    
 }
