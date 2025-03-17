@@ -3,9 +3,10 @@ namespace App\Exports;
 
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 
-class KunjunganAwalExport implements FromCollection
+class KunjunganAwalExport implements FromCollection, ShouldAutoSize
 {
 
     protected $bulan;
