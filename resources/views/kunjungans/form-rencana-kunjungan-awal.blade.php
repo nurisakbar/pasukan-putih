@@ -87,7 +87,7 @@
                                 <div class="form-group mb-3">
                                     <label for="alamat" class="form-label">SKOR AKS - DATA SASARAN</label>
                                     <input type="text" class="form-control"  name="skor_aks_data_sasaran"
-                                        placeholder="1-20" value="{{ old('skor_aks_data_sasaran') }}">
+                                        placeholder="1-20" value="{{ old('skor_aks_data_sasaran') }}" required>
                                     @error('skor_aks_data_sasaran')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -138,29 +138,27 @@
                                         placeholder="Tanggal Kunjungan Lanjutan" value="{{ old('rencana_kunjungan_lanjutan', date('Y-m-d')) }}">
                                 </div>
                         
-                                <div class="mb-3">
-                                    <label class="form-label">Henti Layanan</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="kenaikan_aks">
-                                        <label class="form-check-label">Kenaikan Aks</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="meninggal">
-                                        <label class="form-check-label">Meninggal</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="menolak">
-                                        <label class="form-check-label">Menolak</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="pindah_domisili">
-                                        <label class="form-check-label">Pindah Domisili</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="" checked>
-                                        <label class="form-check-label">Tidak Ada</label>
-                                    </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_kenaikan_aks">
+                                    <label class="form-check-label">Kenaikan Aks</label>
                                 </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_meninggal">
+                                    <label class="form-check-label">Meninggal</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_menolak">
+                                    <label class="form-check-label">Menolak</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_pindah_domisili">
+                                    <label class="form-check-label">Pindah Domisili</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="henti_layanan" value="" checked>
+                                    <label class="form-check-label">Tidak Ada</label>
+                                </div>
+                                
                                 
                         
                                 <div class="mb-3">

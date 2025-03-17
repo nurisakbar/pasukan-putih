@@ -105,8 +105,8 @@
                                             <td colspan="5" class="text-center py-4">
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                                                    <h5 class="text-muted">Tidak ada data kunjungan</h5>
-                                                    <p class="text-muted">Silakan tambahkan kunjungan baru</p>
+                                                    <h5 class="text-muted">Tidak ada data Pasien</h5>
+                                                    <p class="text-muted">Silakan tambahkan Pasien baru</p>
                                                 </div>
                                             </td>
                                         </tr>

@@ -62,6 +62,8 @@ Route::middleware('auth')->group(function () {
 
 });
 
+Route::get('/test', [App\Http\Controllers\TestController::class, 'getKunjunganAwal']);
+
 Route::get('/get-regencies/{province_id}', function ($province_id) {
     return Regency::where('province_id', $province_id)->get();
 });
