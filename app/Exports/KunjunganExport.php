@@ -7,8 +7,9 @@ use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class KunjunganExport implements FromArray, WithHeadings, WithColumnFormatting
+class KunjunganExport implements FromArray, WithHeadings, WithColumnFormatting, ShouldAutoSize
 {
     public function array(): array
     {
