@@ -74,10 +74,10 @@
                                 <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Jumlah Kunjungan Awal
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
+                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Kunjungan Lanjutan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
+                                <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Jumlah Kunjungan Lanjutan
                                 </a>
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">

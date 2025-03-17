@@ -59,7 +59,12 @@ Route::middleware('auth')->group(function () {
     Route::get('sasaran-bulanan/export', [\App\Http\Controllers\ExportController::class, 'exportSasaranBulanan'])->name('export.sasaran-bulanan');
     Route::get('jumlah-sasaran/export', [\App\Http\Controllers\ExportController::class, 'exportJumlahSasaran'])->name('export.jumlah-sasaran');
     Route::get('kunjugan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportKunjuganAwal'])->name('export.kunjungan-awal');
+<<<<<<< HEAD
+    Route::get('kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportKunjunganLanjutan'])->name('export.kunjungan-lanjutan');
+    Route::get('summary-kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganLanjutan'])->name('export.summary-kunjungan-lanjutan');
+=======
     Route::get('summary-kunjungan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganAwal'])->name('export.summary-kunjungan-awal');
+>>>>>>> 04409940f1c4e0387b890d39c3092a4e7824500a
 
 });
 
