@@ -10,6 +10,9 @@ use App\Exports\JumlahSasaranExport;
 use App\Exports\KunjunganAwalExport;
 use App\Exports\HentiLayananExport;
 use App\Exports\SummaryHentiLayananExport;
+use App\Exports\KunjunganLanjutanExport;
+use App\Exports\SummaryKunjunganLanjutanExport;
+use App\Exports\SummaryKunjunganAwalExport;
 
 class ExportController extends Controller
 {
@@ -31,6 +34,37 @@ class ExportController extends Controller
             $request->input('search')
         ), 'kunjugan_awal.xlsx');
     }
+
+    public function exportKunjunganLanjutan(Request $request) 
+    {
+        return Excel::download(new KunjunganLanjutanExport(
+            $request->input('bulan'),
+            $request->input('tanggal_awal'),
+            $request->input('tanggal_akhir'),
+            $request->input('search')
+        ), 'kunjungan_lanjutan.xlsx');
+    }
+
+    public function exportSummaryKunjunganLanjutan(Request $request) 
+    {
+        return Excel::download(new SummaryKunjunganLanjutanExport(
+            $request->input('bulan'),
+            $request->input('tanggal_awal'),
+            $request->input('tanggal_akhir'),
+            $request->input('search')
+        ), 'summary_kunjungan_lanjutan.xlsx');
+    }
+
+    public function exportSummaryKunjunganAwal(Request $request) 
+    {
+        return Excel::download(new SummaryKunjunganAwalExport(
+            $request->input('tanggal_mulai'),
+            $request->input('tanggal_selesai'),
+            $request->input('search'),
+            $request->input('bulan')
+        ), 'summary_kunjungan_awal.xlsx');
+    }
+    
     public function exportJumlahSasaran(Request $request) 
     {
         $bulan = $request->input('bulan');

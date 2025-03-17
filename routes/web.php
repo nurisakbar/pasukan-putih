@@ -59,12 +59,21 @@ Route::middleware('auth')->group(function () {
     Route::get('sasaran-bulanan/export', [\App\Http\Controllers\ExportController::class, 'exportSasaranBulanan'])->name('export.sasaran-bulanan');
     Route::get('jumlah-sasaran/export', [\App\Http\Controllers\ExportController::class, 'exportJumlahSasaran'])->name('export.jumlah-sasaran');
     Route::get('kunjugan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportKunjuganAwal'])->name('export.kunjungan-awal');
+<<<<<<< HEAD
     Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
     Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
+=======
+<<<<<<< HEAD
+    Route::get('kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportKunjunganLanjutan'])->name('export.kunjungan-lanjutan');
+    Route::get('summary-kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganLanjutan'])->name('export.summary-kunjungan-lanjutan');
+=======
+    Route::get('summary-kunjungan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganAwal'])->name('export.summary-kunjungan-awal');
+>>>>>>> 04409940f1c4e0387b890d39c3092a4e7824500a
+>>>>>>> c5738b24c3093903d5947d7ed2a09552db205245
 
 });
 
-Route::get('/test', [App\Http\Controllers\TestController::class, 'getKunjunganAwal']);
+Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);
 
 Route::get('/get-regencies/{province_id}', function ($province_id) {
     return Regency::where('province_id', $province_id)->get();
