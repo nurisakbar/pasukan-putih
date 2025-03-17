@@ -59,6 +59,9 @@
                                 <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan
                                 </a>
+                                <a href="{{ route('export.kohort-hs', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> KOHORT HS
+                                </a>
                                 <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Sasaran Bulanan
                                 </a>

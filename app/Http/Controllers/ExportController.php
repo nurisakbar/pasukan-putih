@@ -13,6 +13,7 @@ use App\Exports\SummaryHentiLayananExport;
 use App\Exports\KunjunganLanjutanExport;
 use App\Exports\SummaryKunjunganLanjutanExport;
 use App\Exports\SummaryKunjunganAwalExport;
+use App\Exports\KohortHsExport;
 
 class ExportController extends Controller
 {
@@ -89,6 +90,16 @@ class ExportController extends Controller
         $search = $request->search;
 
         return Excel::download(new SummaryHentiLayananExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'summary_henti_layanan.xlsx');
+    }
+
+    public function exportKohortHs(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tanggalAwal = $request->tanggalAwal;
+        $tanggalAkhir = $request->tanggalAkhir;
+        $search = $request->search;
+
+        return Excel::download(new KohortHsExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'kohort_hs.xlsx');
     }
 
 }
