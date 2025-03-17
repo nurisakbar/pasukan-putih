@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::get('sasaran-bulanan/export', [\App\Http\Controllers\ExportController::class, 'exportSasaranBulanan'])->name('export.sasaran-bulanan');
     Route::get('jumlah-sasaran/export', [\App\Http\Controllers\ExportController::class, 'exportJumlahSasaran'])->name('export.jumlah-sasaran');
     Route::get('kunjugan-awal/export', [\App\Http\Controllers\ExportController::class, 'exportKunjuganAwal'])->name('export.kunjungan-awal');
+    Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
+    Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
 
 });
 

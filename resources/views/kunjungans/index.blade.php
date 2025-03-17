@@ -80,10 +80,10 @@
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Jumlah Kunjungan Lanjutan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
+                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Henti Layanan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
+                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
                                     <i class="fas fa-file-export me-1"></i> Export Jumlah Henti Layanan
                                 </a>
                             </div>

@@ -8,6 +8,8 @@ use App\Exports\KunjunganExport;
 use App\Exports\SasaranBulananExport;
 use App\Exports\JumlahSasaranExport;
 use App\Exports\KunjunganAwalExport;
+use App\Exports\HentiLayananExport;
+use App\Exports\SummaryHentiLayananExport;
 
 class ExportController extends Controller
 {
@@ -33,6 +35,26 @@ class ExportController extends Controller
     {
         $bulan = $request->input('bulan');
         return Excel::download(new JumlahSasaranExport($bulan), 'Jumlah-Sasaran.xlsx');
+    }
+
+    public function exportHentiLayanan(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tanggalAwal = $request->tanggalAwal;
+        $tanggalAkhir = $request->tanggalAkhir;
+        $search = $request->search;
+
+        return Excel::download(new HentiLayananExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'henti_layanan.xlsx');
+    }
+
+    public function exportSummaryHentiLayanan(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tanggalAwal = $request->tanggalAwal;
+        $tanggalAkhir = $request->tanggalAkhir;
+        $search = $request->search;
+
+        return Excel::download(new SummaryHentiLayananExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'summary_henti_layanan.xlsx');
     }
 
 }
