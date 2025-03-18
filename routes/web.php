@@ -7,13 +7,23 @@ use App\Models\Village;
 
 Auth::routes();
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/lbe', function () {
+    return view('auth.email.form');
+})->name('login-lbe');
+
+Route::middleware('guest')->group(function () {
+    Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe'); 
+    Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
+});
+
 
 Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'index']);
 Route::post('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'store']);
 
 // Semua rute yang butuh autentikasi
 Route::middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('/pasiens', App\Http\Controllers\PasienController::class);
     Route::get('/pasien/nik', [App\Http\Controllers\PasienController::class, 'getPasienByNik'])->name('pasiens.nik');
     Route::get('/pasiens/search', [App\Http\Controllers\PasienController::class, 'autofill'])->name('pasiens.search');

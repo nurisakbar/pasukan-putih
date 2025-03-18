@@ -3,124 +3,105 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use App\Models\User;
-
-use Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
-
     /**
-     * Where to redirect users after login.
+     * Redirect setelah login.
      *
      * @var string
      */
     protected $redirectTo = '/';
 
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * Constructor.
      */
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
     }
 
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Login untuk web dan API.
+     */
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required',
+        ]);
+
         $credentials = $request->only('email', 'password');
-        $ip = $request->ip();
-        $attempts = Session::get('login_attempts_' . $ip, 0);
-        $lastAttemptTime = Session::get('login_attempts_' . $ip . '_time', 0);
-        $maxAttempts = 5;
-        $lockoutTime = 600; // 10 menit dalam detik
-
-        if ($attempts >= $maxAttempts && (time() - $lastAttemptTime) < $lockoutTime) {
-            $remainingTime = $lockoutTime - (time() - $lastAttemptTime);
-            $formattedTime = $this->formatTime($remainingTime);
-
-            return redirect()->back()->with([
-                'lockoutTime' => $remainingTime
-            ]);
-        }
 
         if (Auth::attempt($credentials)) {
-            // Reset attempts on successful login
-            Session::forget('login_attempts_' . $ip);
-            Session::forget('login_attempts_' . $ip . '_time');
-            return redirect()->intended('home');
+            $user = Auth::user();
+
+            // Cek apakah request dari API atau web
+            if ($request->expectsJson()) {
+                $token = $user->createToken('auth_token')->plainTextToken;
+                return response()->json(['message' => 'Login berhasil', 'token' => $token, 'user' => $user]);
+            }
+
+            return redirect()->intended($this->redirectTo);
         }
 
-        // Increment attempts
-        $attempts++;
-        $lastAttemptTime = time();
-        Session::put('login_attempts_' . $ip, $attempts);
-        Session::put('login_attempts_' . $ip . '_time', $lastAttemptTime);
-
-        return redirect()->back()->with([
-            'message' => 'Email atau password salah',
-            'lockoutTime' => 0
-        ]);
+        return response()->json(['message' => 'Email atau password salah'], 401);
     }
 
-    protected function formatTime($seconds)
-    {
-        $minutes = floor($seconds / 60);
-        $seconds = $seconds % 60;
-        return $minutes . ' menit ' . $seconds . ' detik';
-    }
-
-       /**
-     * Login user by email only (no password required)
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\Response
+    /**
+     * Login berdasarkan email tanpa password (untuk API saja).
      */
     public function loginByEmail(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
-        ], [
-            'email.required' => 'Email harus diisi',
-            'email.email' => 'Format email tidak valid',
-            'email.exists' => 'Email tidak terdaftar dalam sistem',
         ]);
 
-        $email = $request->email;
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-            Auth::login($user);
-            return redirect()->intended('home');
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Email tidak ditemukan'], 404);
+            }
+            return back()->withErrors(['email' => 'Email tidak ditemukan']);
         }
 
-        return redirect()->back()->with('message', 'Email tidak terdaftar');
+        Auth::login($user);
+        
+        // Check if the request expects JSON (API call)
+        if ($request->expectsJson()) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['message' => 'Login berhasil', 'token' => $token, 'user' => $user]);
+        }
+        
+        // For web requests, redirect to home
+        return redirect()->intended($this->redirectTo);
     }
 
     /**
-     * Show login by email form
-     * 
-     * @return \Illuminate\View\View
+     * Logout untuk web dan API.
      */
-    public function showLoginByEmailForm()
+    public function logout(Request $request)
     {
-        return view('auth.email.form');
+        if ($request->expectsJson()) {
+            if ($request->user()) {
+                $request->user()->currentAccessToken()->delete();
+                return response()->json(['message' => 'Logout berhasil']);
+            }
+            return response()->json(['message' => 'Tidak ada sesi login'], 401);
+        }
+
+        Auth::logout();
+        Session::flush();
+        return redirect('/login');
     }
 }
