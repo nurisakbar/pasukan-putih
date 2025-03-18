@@ -42,7 +42,7 @@
                {{-- <a href="#" class="btn btn-default btn-flat">Profile</a> --}}
                <form action="{{ route('logout') }}" method="post">
                    @csrf
-                   <button type="submit" class="btn btn-default btn-flat float-end">Logout</button>
+                   <button type="submit" class="btn btn-default btn-flat float-end" id="logoutBtn">Logout</button>
                </form>
              </li>
            </ul>

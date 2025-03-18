@@ -7,6 +7,16 @@ use App\Models\Village;
 
 Auth::routes();
 
+Route::get('/lbe', function () {
+    return view('auth.email.form');
+})->name('login-lbe');
+
+Route::middleware('guest')->group(function () {
+    Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe'); 
+    Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
+});
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'index']);
