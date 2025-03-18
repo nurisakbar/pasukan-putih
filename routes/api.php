@@ -14,3 +14,4 @@ Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logou
 
 Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'index']);
 Route::post('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'store']);
+Route::post('/bridging-oph/logs', [App\Http\Controllers\OphLogController::class, 'logs']);
