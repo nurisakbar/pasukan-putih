@@ -6,8 +6,9 @@ use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use App\Models\SkriningAdl;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class JumlahSasaranExport implements FromArray, WithHeadings
+class JumlahSasaranExport implements FromArray, WithHeadings, ShouldAutoSize
 {
     protected $bulan;
 

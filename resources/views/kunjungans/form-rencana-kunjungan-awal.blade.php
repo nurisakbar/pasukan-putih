@@ -87,15 +87,11 @@
                                 <div class="form-group mb-3">
                                     <label for="alamat" class="form-label">SKOR AKS - DATA SASARAN</label>
                                     <input type="text" class="form-control"  name="skor_aks_data_sasaran"
-                                        placeholder="1-20" value="{{ old('skor_aks_data_sasaran') }}">
+                                        placeholder="1-20" value="{{ old('skor_aks_data_sasaran') }}" required>
                                     @error('skor_aks_data_sasaran')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                {{-- <div class="mb-3">
-                                    <label for="skor_aks" class="form-label">Skor Aks</label>
-                                    <input type="number" class="form-control" name="skor_aks" placeholder="1-20">
-                                </div> --}}
                                 <div class="form-group mb-3">
                                     <label for="inputDay" class="form-label">Tanggal Kunjungan</label>
                                     <input type="date" id="inputDay" class="form-control" name="tanggal"
@@ -138,22 +134,22 @@
                                         placeholder="Tanggal Kunjungan Lanjutan" value="{{ old('rencana_kunjungan_lanjutan', date('Y-m-d')) }}">
                                 </div>
                         
-                                <div class="mb-3">
+                                <div id="henti-layanan-container" style="display: none;">
                                     <label class="form-label">Henti Layanan</label>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="kenaikan_aks">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_kenaikan_aks">
                                         <label class="form-check-label">Kenaikan Aks</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="meninggal">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_meninggal">
                                         <label class="form-check-label">Meninggal</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="menolak">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_menolak">
                                         <label class="form-check-label">Menolak</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="henti_layanan" value="pindah_domisili">
+                                        <input class="form-check-input" type="radio" name="henti_layanan" value="henti_layanan_pindah_domisili">
                                         <label class="form-check-label">Pindah Domisili</label>
                                     </div>
                                     <div class="form-check">
@@ -162,7 +158,6 @@
                                     </div>
                                 </div>
                                 
-                        
                                 <div class="mb-3">
                                     <label for="rujukan" class="form-label">Rujukan</label>
                                     <select class="form-control" name="rujukan">
@@ -669,6 +664,25 @@
                     });
                 }
             });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let jenisSelect = document.getElementById("jenis");
+            let hentiLayananContainer = document.getElementById("henti-layanan-container");
+
+            function toggleHentiLayanan() {
+                if (jenisSelect.value === "rencana" || jenisSelect.value === "lanjutan") {
+                    hentiLayananContainer.style.display = "block";
+                } else {
+                    hentiLayananContainer.style.display = "none";
+                }
+            }
+
+            // Event listener untuk perubahan pilihan
+            jenisSelect.addEventListener("change", toggleHentiLayanan);
+
+            // Panggil saat halaman pertama kali dimuat
+            toggleHentiLayanan();
         });
     </script>
 @endpush

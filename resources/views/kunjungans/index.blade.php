@@ -55,42 +55,37 @@
                     <!-- Baris baru untuk tombol export -->
                     <div class="row mt-3">
                         <div class="col-12">
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export
+                            <div class="btn-group d-flex flex-wrap gap-2">
+                                <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Kunjungan
                                 </a>
-                                <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Sasaran Bulanan
+                                <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Sasaran Bulanan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Jumlah Sasaran
+                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Jumlah Sasaran
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export KOHORT HS
+                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Kunjungan Awal
                                 </a>
-                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Kunjungan Awal
+                                <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Summary Awal
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Jumlah Kunjungan Awal
+                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Kunjungan Lanjutan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Kunjungan Lanjutan
+                                <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Summary Lanjutan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Jumlah Kunjungan Lanjutan
+                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Henti Layanan
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Henti Layanan
-                                </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm d-flex align-items-center">
-                                    <i class="fas fa-file-export me-1"></i> Export Jumlah Henti Layanan
+                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-file-export me-1"></i> Summary Henti
                                 </a>
                             </div>
                         </div>
                     </div>
-                    
-                    
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -163,7 +158,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">
+                                        <td colspan="7" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                                                 <h5 class="text-muted">Tidak ada data kunjungan</h5>

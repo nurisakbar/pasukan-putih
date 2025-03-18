@@ -83,9 +83,9 @@ class KunjunganController extends Controller
             'henti_layanan_pindah_domisili' => false,
         ];
 
-        // Jika ada henti layanan yang dipilih, set hanya satu yang true (1)
         $selectedHentiLayanan = $request->input('henti_layanan');
-        if (in_array($selectedHentiLayanan, array_keys($hentiLayanan))) {
+
+        if (array_key_exists($selectedHentiLayanan, $hentiLayanan)) {
             $hentiLayanan[$selectedHentiLayanan] = true;
         }
 
