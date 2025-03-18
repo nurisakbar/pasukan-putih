@@ -53,12 +53,17 @@ class OphLogController extends Controller
         foreach ($data['examinations'] as $examination) {
             $examinationName = strtoupper($examination['examination_name']);  
         
+            $systole = null;
+            $diastole = null;
             switch ($examinationName) {
                 case 'BODY TEMPERATURE':
                     $ttv->temperature = $examination['result'];
                     break;
-                case 'BLOOD PRESSURE':
-                    $ttv->blood_pressure = $examination['result'];
+                case 'SYSTOLE_MMHG':
+                    $systole = $examination['result']; // Simpan sementara nilai systole
+                    break;
+                case 'SLACK_MMHG': // Slack = Diastole
+                    $diastole = $examination['result']; // Simpan sementara nilai diastole
                     break;
                 case 'BMI':
                     $ttv->bmi = $examination['result'];
@@ -69,7 +74,7 @@ class OphLogController extends Controller
                 case 'RESPIRATION':
                     $ttv->respiration = $examination['result'];
                     break;
-                case 'OXYGEN SATURATION':
+                case 'PULSE_RATE':
                     $ttv->oxygen_saturation = $examination['result'];
                     break;
                 case 'WEIGHT':
@@ -91,6 +96,10 @@ class OphLogController extends Controller
                     $ttv->bmi_category = $examination['result'];
                     break;
             }
+        }
+
+        if (!is_null($systole) && !is_null($diastole)) {
+            $ttv->blood_pressure = "$systole/$diastole mmHg";
         }
 
         $ttv->save();
