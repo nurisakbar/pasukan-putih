@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OphLog;
 use App\Models\Ttv;
-use App\Models\kunjungan;
+use App\Models\Kunjungan;
 
 class OphLogController extends Controller
 {
