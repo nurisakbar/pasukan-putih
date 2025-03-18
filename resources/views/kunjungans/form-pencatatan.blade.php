@@ -2405,10 +2405,9 @@
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
                 // Mengecek apakah form dalam mode edit (punya data-id)
-                let isEdit = form.attr("data-id") !== undefined;
+                let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
                 let id = form.attr("data-id"); // Ambil ID jika mode edit
-                let url = isEdit ? `{{ url('Kondisi-rumah') }}/${id}` :
-                    "{{ route('form.saveKondisiRumah') }}";
+                let url = isEdit ? `{{ url('Kondisi-rumah') }}/${id}` : "{{ route('form.saveKondisiRumah') }}";
                 let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
@@ -2439,10 +2438,10 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
-                let isEdit = form.attr("data-id") !== undefined;
-                let id = form.attr("data-id");
-                let url = isEdit ? `{{ url('Phbs-rumah-tangga') }}/${id}` :
-                    "{{ route('form.savePhbsRumahTangga') }}";
+                // Mengecek apakah form dalam mode edit (punya data-id)
+                let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('Phbs-rumah-tangga') }}/${id}` : "{{ route('form.savePhbsRumahTangga') }}";
                 let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
@@ -2472,15 +2471,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/pemeliaharaan-kesehatan-keluarga/${id}` :
-                    "{{ route('form.savePemeliharaanKesehatanKeluarga') }}";
-
-                // Jika edit, tambahkan _method = PUT
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('pemeliaharaan-kesehatan-keluarga') }}/${id}` : "{{ route('form.savePemeliharaanKesehatanKeluarga') }}";
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
@@ -2509,15 +2504,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/pengkajian-individu/${id}` :
-                    "{{ route('form.savePengkajianIndividu') }}";
-
-                // Jika edit, tambahkan _method = PUT
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('pengkajian-individu') }}/${id}` : "{{ route('form.savePengkajianIndividu') }}";
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
@@ -2546,13 +2537,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/sirkulasi-cairan/${id}` : "{{ route('form.saveSirkulasiCairan') }}";
-
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('sirkulasi-cairan') }}/${id}` : "{{ route('form.saveSirkulasiCairan') }}";
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
@@ -2581,13 +2570,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/perkemihan/${id}` : "{{ route('form.savePerkemihan') }}";
-
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('perkemihan') }}/${id}` : "{{ route('form.savePerkemihan') }}";
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
@@ -2616,14 +2603,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/pencernaan/${id}` : "{{ route('form.savePencernaan') }}";
-
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
-
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('pencernaan') }}/${id}` : "{{ route('form.savePencernaan') }}";
+                let method = isEdit ? "PUT" : "POST";
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -2654,9 +2638,7 @@
                 let id = form.attr("data-id");
                 let url = isEdit ? `/muskuloskeletal/${id}` : "{{ route('form.saveMuskuloskeletal') }}";
 
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
@@ -2685,13 +2667,11 @@
                 let formData = form.serialize();
                 let csrfToken = $('meta[name="csrf-token"]').attr("content");
 
+                // Mengecek apakah form dalam mode edit (punya data-id)
                 let isEdit = form.attr("data-id") !== undefined && form.attr("data-id") !== "";
-                let id = form.attr("data-id");
-                let url = isEdit ? `/neurosensori/${id}` : "{{ route('form.saveNeurosensori') }}";
-
-                if (isEdit) {
-                    formData += "&_method=PUT";
-                }
+                let id = form.attr("data-id"); // Ambil ID jika mode edit
+                let url = isEdit ? `{{ url('neurosensori') }}/${id}` : "{{ route('form.saveNeurosensori') }}";
+                let method = isEdit ? "PUT" : "POST";
 
                 $.ajax({
                     url: url,
