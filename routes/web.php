@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::get('summary-kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganLanjutan'])->name('export.summary-kunjungan-lanjutan');
     Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
     Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
+    Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);
