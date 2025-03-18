@@ -17,13 +17,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 });
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'index']);
 Route::post('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'store']);
 
 // Semua rute yang butuh autentikasi
 Route::middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('/pasiens', App\Http\Controllers\PasienController::class);
     Route::get('/pasien/nik', [App\Http\Controllers\PasienController::class, 'getPasienByNik'])->name('pasiens.nik');
     Route::get('/pasiens/search', [App\Http\Controllers\PasienController::class, 'autofill'])->name('pasiens.search');
