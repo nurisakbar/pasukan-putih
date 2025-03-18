@@ -69,12 +69,22 @@ class LoginController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Email tidak ditemukan'], 404);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Email tidak ditemukan'], 404);
+            }
+            return back()->withErrors(['email' => 'Email tidak ditemukan']);
         }
 
         Auth::login($user);
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['message' => 'Login berhasil', 'token' => $token, 'user' => $user]);
+        
+        // Check if the request expects JSON (API call)
+        if ($request->expectsJson()) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['message' => 'Login berhasil', 'token' => $token, 'user' => $user]);
+        }
+        
+        // For web requests, redirect to home
+        return redirect()->intended($this->redirectTo);
     }
 
     /**
