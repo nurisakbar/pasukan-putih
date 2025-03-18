@@ -18,7 +18,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: url('{{ asset('assets/dist/assets/img/bg-login.jpg') }}') no-repeat center center/cover;
+            background: url('{{ asset('assets/dist/assets/img/bg-login-min.jpg') }}') no-repeat center center/cover;
             text-align: center;
         }
 

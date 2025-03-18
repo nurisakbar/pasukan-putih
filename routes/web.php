@@ -7,6 +7,16 @@ use App\Models\Village;
 
 Auth::routes();
 
+Route::get('/lbe', function () {
+    return view('auth.email.form');
+})->name('login-lbe');
+
+Route::middleware('guest')->group(function () {
+    Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe'); 
+    Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
+});
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'index']);
@@ -64,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('summary-kunjungan-lanjutan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryKunjunganLanjutan'])->name('export.summary-kunjungan-lanjutan');
     Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
     Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
+    Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);
