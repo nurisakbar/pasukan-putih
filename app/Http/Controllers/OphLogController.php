@@ -99,7 +99,7 @@ class OphLogController extends Controller
         }
 
         if (!is_null($systole) && !is_null($diastole)) {
-            $ttv->blood_pressure = "$systole/$diastole mmHg";
+            $ttv->blood_pressure = "$systole/$diastole";
         }
 
         $ttv->save();
