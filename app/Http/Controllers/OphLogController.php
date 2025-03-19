@@ -104,6 +104,17 @@ class OphLogController extends Controller
 
         $ttv->save();
 
+        $logData = [
+            'nik' => $nik,
+            'kunjungan_id' => $kunjunganIds->first(),
+            'ttv' => $ttv->toArray(),
+            'examinations' => $data['examinations'],
+        ];
+    
+        OphLog::create([
+            'data' => serialize($logData),
+        ]);
+
         return response()->json([
             'message' => 'TTV updated successfully',
             'ttv' => $ttv
