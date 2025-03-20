@@ -27,6 +27,8 @@ class PasienRequest extends FormRequest
             'district_id' => 'string|max:255',
             'regency_id' => 'string|max:255',
             'province_id' => 'string|max:255',
+            'no_wa' => 'string|max:255',
+            'keterangan' => 'string|max:255',
         ];
     }
 }

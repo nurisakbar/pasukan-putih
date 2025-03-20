@@ -29,7 +29,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'parent_id'
+        'parent_id',
+        'no_wa',
+        'keterangan',
     ];
 
     /**

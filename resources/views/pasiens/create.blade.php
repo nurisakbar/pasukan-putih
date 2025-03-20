@@ -112,8 +112,7 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                </div>
-                                
+                                </div>                                
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label class="form-label fw-bold">Detail Wilayah</label>

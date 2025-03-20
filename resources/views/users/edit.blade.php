@@ -49,6 +49,28 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row mb-4">
+                                        <div class="col-lg-2 col-md-4 mb-2">
+                                            <label for="telepon" class="form-label ">No Whatsapp <span class="text-danger">*</span></label>
+                                        </div>
+                                        <div class="col-lg-10 col-md-8">
+                                            <input type="number" name="no_wa" class="form-control @error('no_wa') is-invalid @enderror" id="" value="{{ old('no_wa', $user->no_wa) }}" placeholder="Masukkan no whatsapp" required>
+                                            @error('no_wa')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4">
+                                        <div class="col-lg-2 col-md-4 mb-2">
+                                            <label for="keterangan" class="form-label ">Keterangan <span class="text-danger">*</span></label>
+                                        </div>
+                                        <div class="col-lg-10 col-md-8">
+                                            <input type="text" name="keterangan" class="form-control @error('keterangan') is-invalid @enderror" id="" value="{{ old('keterangan', $user->keterangan) }}" placeholder="Keterangan" required>
+                                            @error('keterangan')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <div class="row">
                                             <div class="col-sm-2">

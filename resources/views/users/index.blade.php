@@ -33,6 +33,8 @@
                                      <th>Nama</th>  
                                      <th>Email</th>
                                      <th>Role</th>
+                                     <th>No Whatsapp</th>
+                                     <th>Keterangan</th>
                                      <th widht="300px">Aksi</th>
                                  </tr>
                              </thead>
@@ -43,6 +45,8 @@
                                          <td>{{ $data->name }}</td>
                                          <td>{{ $data->email }}</td>
                                          <td>{{ $data->role }}</td>
+                                         <td>{{ $data->no_wa }}</td>
+                                         <td>{{ $data->keterangan }}</td>
                                          <td width="300px">
                                              <form action="{{ route('users.destroy', $data->id) }}" method="POST">
                                                  @csrf

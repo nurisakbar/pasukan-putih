@@ -61,6 +61,8 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string'],
+            'no_wa' => ['string', 'max:255'],
+            'keterangan' => ['string', 'max:255', 'nullable'],
         ];
         
         // Additional validation for parent_id when needed
@@ -99,6 +101,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'parent_id' => $parentId,
+            'no_wa' => $request->no_wa,
+            'keterangan' => $request->keterangan
         ]);
         
         return redirect()
@@ -148,6 +152,8 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role' => ['required', 'string'],
+            'no_wa' => ['string', 'max:255'],
+            'keterangan' => ['string', 'max:255', 'nullable'],
         ];
         
         // Password is optional during update
@@ -186,6 +192,8 @@ class UserController extends Controller
             'email' => $request->email,
             'role' => $request->role,
             'parent_id' => $parentId,
+            'no_wa' => $request->no_wa,
+            'keterangan' => $request->keterangan
         ];
         
         // Only update password if provided

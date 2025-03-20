@@ -47,6 +47,24 @@
                                         @enderror
                                     </div>
                                     <div class="form-group">
+                                        <label for="no_wa">No Whatsapp</label>
+                                        <input type="number" class="form-control @error('no_wa') is-invalid @enderror" name="no_wa" value="{{ old('no_wa') }}" required>
+                                        @error('no_wa')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="keterangan">Keterangan </label>
+                                        <input type="text" class="form-control @error('keterangan') is-invalid @enderror" name="keterangan" value="{{ old('keterangan') }}" required>
+                                        @error('keterangan')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                    <div class="form-group">
                                         <label for="password">Password</label>
                                         <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
                                         @error('password')
