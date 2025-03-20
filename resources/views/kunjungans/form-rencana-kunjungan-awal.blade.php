@@ -98,7 +98,7 @@
                                         placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
                                 </div>
 
-                                <div class="form-group mb-3">
+                                {{-- <div class="form-group mb-3">
                                     <label for="status" class="form-label">Status</label>
                                     <select name="status" id="status" class="form-select">
                                         <option value="Belum" {{ old('status') == 'Belum' ? 'selected' : '' }}>Belum
@@ -106,7 +106,7 @@
                                         <option value="Sudah" {{ old('status') == 'Sudah' ? 'selected' : '' }}>Sudah
                                         </option>
                                     </select>
-                                </div>
+                                </div> --}}
 
                                 <div class="form-group mb-4">
                                     <label for="jenis" class="form-label">Jenis Kunjungan</label>
@@ -120,7 +120,7 @@
                                     </select>
                                 </div>
                         
-                                <div class="mb-3">
+                                {{-- <div class="mb-3">
                                     <label for="lanjut_kunjungan" class="form-label">Lanjut Kunjungan</label>
                                     <select class="form-control" name="lanjut_kunjungan">
                                         <option value="1">Ya</option>
@@ -169,8 +169,7 @@
                                 <div class="mb-3">
                                     <input type="radio" name="konversi_data_ke_sasaran_kunjungan_lanjutan" value="1">
                                     <label for="konversi_data_ke_sasaran_kunjungan_lanjutan" class="form-label">Konversi Data Ke Sasaran Kunjungan Lanjutan</label>
-                                </div>
-
+                                </div> --}}
                             
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Simpan</button>

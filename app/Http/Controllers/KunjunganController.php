@@ -94,13 +94,13 @@ class KunjunganController extends Controller
             'pasien_id' => $pasien->id,
             'user_id' => $request->user_id,
             'hasil_periksa' => $request->hasil_periksa ?? null,
-            'status' => $request->status,
+            'status' => 'belum',
             'jenis' => $request->jenis ?? null,
             'skor_aks_data_sasaran' => $request->skor_aks_data_sasaran ?? null,
-            'skor_aks' => $request->skor_aks ?? null,
-            'lanjut_kunjungan' => $request->lanjut_kunjungan ?? null,
+            'skor_aks' => $request->skor_aks ?? 0,
+            'lanjut_kunjungan' => $request->lanjut_kunjungan ?? 0,
             'rencana_kunjungan_lanjutan' => $request->rencana_kunjungan_lanjutan ?? null,
-            'rujukan' => $request->rujukan ?? null,
+            'rujukan' => $request->rujukan ?? 0,
             'konversi_data_ke_sasaran_kunjungan_lanjutan' => $request->konversi_data_ke_sasaran_kunjungan_lanjutan ?? false,
         ], $hentiLayanan));
 

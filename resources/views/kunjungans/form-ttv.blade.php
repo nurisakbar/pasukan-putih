@@ -29,13 +29,13 @@
                                  <span class="input-group-text">bpm</span>
                              </div>
                          </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
+                         {{-- <div class="col-md-6 col-lg-3 mb-3">
                              <label for="respiration" class="form-label">Pernapasan</label>
                              <div class="input-group">
                                  <input type="number" class="form-control" id="respiration" placeholder="18" name="respiration">
                                  <span class="input-group-text">x/menit</span>
                              </div>
-                         </div>
+                         </div> --}}
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="temperature" class="form-label">Suhu</label>
                              <div class="input-group">
@@ -333,7 +333,6 @@
                      <!-- Buttons -->
                      <div class="row mt-4">
                          <div class="col-12 d-flex justify-content-end">
-                             <a href="{{ route('kunjungans.index') }}" class="btn btn-secondary me-2">Kembali</a>
                              <button type="submit" class="btn btn-primary">Simpan Data</button>
                          </div>
                      </div>

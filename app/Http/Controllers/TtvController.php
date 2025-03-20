@@ -29,9 +29,9 @@ class TtvController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kunjungan_id' => 'required|integer',
+            'kunjungan_id' => 'required',
             'temperature' => 'nullable|numeric|between:30,45',
-            'blood_pressure' => 'nullable|string|max:10',
+            'blood_pressure' => 'nullable|string|regex:/^\d{2,3}\/\d{2,3}$/',
             'bmi' => 'nullable|numeric|min:0',
             'bmi_category' => 'nullable|string',
             'height' => 'nullable|numeric|min:0|max:300',
@@ -61,10 +61,10 @@ class TtvController extends Controller
             'protein' => 'nullable|string',
             'glucose' => 'nullable|string',
             'ph' => 'nullable|numeric|between:0,14',
-            'vitamin_c' => 'nullable|numeric|min:0',
+            'vitamin_c' => 'nullable|string|min:0',
             'creatinine' => 'nullable|numeric|min:0',
-            'proportion' => 'nullable|string|min:0',
-            'albumin' => 'nullable|numeric|min:0',
+            'proportion' => 'nullable|string',
+            'albumin' => 'nullable|string|min:0',
             'calcium' => 'nullable|numeric|min:0',
         ]);
 
