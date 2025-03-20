@@ -6,6 +6,7 @@ use App\Models\Ttv;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class TtvController extends Controller
 {
@@ -172,6 +173,10 @@ class TtvController extends Controller
             // 'proportion' => 'nullable|string',
             // 'albumin' => 'nullable|string|min:0',
             // 'calcium' => 'nullable|numeric|min:0',
+            'lanjut_kunjungan' => 'required|string|in:lanjut,henti,rujukan',
+            'rencana_kunjungan_lanjutan' => 'nullable|required_if:lanjut_kunjungan,lanjut',
+            'henti_layanan' => 'nullable|string|required_if:lanjut_kunjungan,henti',
+            'rujukan' => 'nullable|string|required_if:lanjut_kunjungan,rujukan',
         ]);
 
         if ($validator->fails()) {
@@ -217,6 +222,20 @@ class TtvController extends Controller
 
         // dd($data);
         $ttv->update($data);
+
+        $kunjungan = Kunjungan::find($ttv->kunjungan_id);
+        if (!$kunjungan) {
+            return redirect()->back()->with('error', 'Kunjungan tidak ditemukan.');
+        }
+
+        $kunjunganData = [
+            'lanjut_kunjungan' => $request->lanjut_kunjungan,
+            'rencana_kunjungan_lanjutan' => $request->lanjut_kunjungan === 'lanjut' ? $request->rencana_kunjungan_lanjutan : null,
+            'henti_layanan' => $request->lanjut_kunjungan === 'henti' ? $request->henti_layanan : null,
+            'rujukan' => $request->lanjut_kunjungan === 'rujukan' ? $request->rujukan : null,
+        ];
+        
+        $kunjungan->update($kunjunganData);
 
         if ($ttv->update($data)) {
             return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');

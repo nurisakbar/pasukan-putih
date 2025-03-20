@@ -130,6 +130,48 @@
                          </div>
                      </div>
 
+                     <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 text-primary">Status Kunjungan</h5>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <label for="weight" class="form-label">Status Kunjugan</label>
+                            <div class="input-group">
+                                <select name="lanjut_kunjungan" id="lanjut_kunjungan" class="form-select" onchange="toggleFields()">
+                                    <option value=""  {{ old('lanjut_kunjungan', $ttv->kunjungan->lanjut_kunjungan) == '' ? 'selected' : '' }}>Pilih hasil</option>
+                                    <option value="lanjut" {{ $ttv->kunjungan->lanjut_kunjungan == 'lanjut' ? 'selected' : '' }}>Lanjut Kunjungan</option>
+                                    <option value="henti" {{ $ttv->kunjungan->lanjut_kunjungan == 'henti' ? 'selected' : '' }}>Henti Layanan</option>
+                                    <option value="rujukan" {{ $ttv->kunjungan->lanjut_kunjungan == 'rujukan' ? 'selected' : '' }}>Rujukan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mb-3" id="rencana_kunjungan" style="display: none">
+                            <label for="rencana_kunjungan_lanjutan" class="form-label">Rencana Kunjungan Layanan</label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" id="rencana_kunjungan_lanjutan" placeholder="rencana_kunjungan_lanjutan" name="rencana_kunjungan_lanjutan" value="{{ old('rencana_kunjungan_lanjutan', $ttv->kunjungan->rencana_kunjungan_layanan) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mb-3"  id="henti_layanan" style="display: none">
+                            <label for="height" class="form-label">Alasan</label>
+                            <div class="input-group">
+                                <select name="henti_layanan" id="" class="form-select">
+                                    <option value="" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == '' ? 'selected' : '' }}>Pilih hasil</option>
+                                    <option value="kenaikan aks" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 0 ? 'selected' : '' }}>Kenaikan AKS</option>
+                                    <option value="meninggal" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Meninggal</option>
+                                    <option value="menolak" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Menolak</option>
+                                    <option value="pindah_domisili" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Pindah Domisili</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mb-3"  id="alasan_rujukan" style="display: none">
+                            <label for="rujukan" class="form-label">Alasan Rujukan</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="rujukan" placeholder="Rujukan" name="rujukan" value="{{ old('rujukan', $ttv->kunjungan->rujukan) }}">
+                            </div>
+                        </div>
+                        
+                    </div>
+
                      <!-- Buttons -->
                      <div class="row mt-4">
                          <div class="col-12 d-flex justify-content-end">
@@ -178,5 +220,12 @@
             weightInput.addEventListener('input', calculateBMI);
             heightInput.addEventListener('input', calculateBMI);
         });
+
+        function toggleFields() {
+            let status = document.getElementById("lanjut_kunjungan").value;
+            document.getElementById("rencana_kunjungan").style.display = (status === "lanjut") ? "block" : "none";
+            document.getElementById("henti_layanan").style.display = (status === "henti") ? "block" : "none";
+            document.getElementById("alasan_rujukan").style.display = (status === "rujukan") ? "block" : "none";
+        }
     </script>
 @endpush
