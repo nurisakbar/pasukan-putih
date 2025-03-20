@@ -148,7 +148,7 @@
                         <div class="col-md-6 col-lg-4 mb-3" id="rencana_kunjungan" style="display: none">
                             <label for="rencana_kunjungan_lanjutan" class="form-label">Rencana Kunjungan Layanan</label>
                             <div class="input-group">
-                                <input type="date" class="form-control" id="rencana_kunjungan_lanjutan" placeholder="rencana_kunjungan_lanjutan" name="rencana_kunjungan_lanjutan" value="{{ old('rencana_kunjungan_lanjutan', $ttv->kunjungan->rencana_kunjungan_layanan) }}">
+                                <input type="date" class="form-control" id="rencana_kunjungan_lanjutan" placeholder="rencana_kunjungan_lanjutan" name="rencana_kunjungan_lanjutan" value="{{ old('rencana_kunjungan_lanjutan', $ttv->kunjungan->rencana_kunjungan_lanjutan) }}">
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-4 mb-3"  id="henti_layanan" style="display: none">
@@ -156,10 +156,10 @@
                             <div class="input-group">
                                 <select name="henti_layanan" id="" class="form-select">
                                     <option value="" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == '' ? 'selected' : '' }}>Pilih hasil</option>
-                                    <option value="kenaikan aks" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 0 ? 'selected' : '' }}>Kenaikan AKS</option>
-                                    <option value="meninggal" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Meninggal</option>
-                                    <option value="menolak" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Menolak</option>
-                                    <option value="pindah_domisili" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 1 ? 'selected' : '' }}>Pindah Domisili</option>
+                                    <option value="kenaikan aks" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) === 'kenaikan aks' ? 'selected' : '' }}>Kenaikan AKS</option>
+                                    <option value="meninggal" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) === 'meninggal' ? 'selected' : '' }}>Meninggal</option>
+                                    <option value="menolak" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) === 'menolak' ? 'selected' : '' }}>Menolak</option>
+                                    <option value="pindah_domisili" {{ old('henti_layanan', $ttv->kunjungan->henti_layanan) == 'pindah_domisili' ? 'selected' : '' }}>Pindah Domisili</option>
                                 </select>
                             </div>
                         </div>
@@ -227,5 +227,9 @@
             document.getElementById("henti_layanan").style.display = (status === "henti") ? "block" : "none";
             document.getElementById("alasan_rujukan").style.display = (status === "rujukan") ? "block" : "none";
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            toggleFields();
+        });
     </script>
 @endpush
