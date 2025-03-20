@@ -160,4 +160,16 @@ class PasienController extends Controller
 
         return back()->with('success', 'Data pasien berhasil diimport!');
     }
+
+    public function downloadTemplate()
+    {
+        $filePath = storage_path('app/public/template_pasiens.xlsx'); 
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        }
+
+        // Jika file tidak ditemukan
+        return redirect()->back()->with('error', 'Template tidak ditemukan.');
+    }
 }

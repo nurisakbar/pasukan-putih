@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::post('calculate-bmi', [\App\Http\Controllers\TtvController::class, 'calculateBmi'])->name('calculate.bmi');
     
     //import
+    Route::get('/pasiens/download-template', [\App\Http\Controllers\PasienController::class, 'downloadTemplate'])->name('pasiens.downloadTemplate');
     Route::post('pasien/import', [\App\Http\Controllers\PasienController::class, 'importPasien'])->name('pasiens.import');
 
 
