@@ -15,7 +15,7 @@ class OphLogController extends Controller
         $logs = $logs->map(function ($log) {
             return [
                 'id' => $log->id,
-                'data' => unserialize($log->data), 
+                'data' => unserialize($log->data),
                 'created_at' => $log->created_at,
             ];
         });
@@ -29,10 +29,10 @@ class OphLogController extends Controller
     public function store(Request $request)
     {
         $data = $request->json()->all();
-        
+
         $nik = $data['nik'];
 
-        $kunjunganIds = Kunjungan::whereHas('pasien', function ($query) use ($nik) {
+        $kunjunganIds = Kunjungan::where('tanggal',$request->date)->whereHas('pasien', function ($query) use ($nik) {
             $query->where('nik', $nik);
         })->pluck('id');
 
@@ -44,15 +44,17 @@ class OphLogController extends Controller
 
         $examination = Ttv::where('kunjungan_id', $kunjunganIds)->first();
 
+        //return $examination;
+
         if (!$examination) {
             return response()->json([
                 'message' => 'No TTV found for the given kunjungan ID'
             ], 404);
         }
-        
+
         foreach ($data['examinations'] as $examinationData) {
             $examinationName = strtoupper($examinationData['examination_name']);
-            
+
             switch ($examinationName) {
                 case 'TEMPERATURE':
                     $examination->temperature = $examinationData['result'];
@@ -163,11 +165,11 @@ class OphLogController extends Controller
                     $examination->calcium = $examinationData['result'];
                     break;
                 default:
-                    Log::warning("Unknown examination type: $examinationName");
+                    \Log::warning("Unknown examination type: $examinationName");
                     break;
             }
         }
-        
+
         $examination->save();
 
         $logData = [
@@ -176,7 +178,7 @@ class OphLogController extends Controller
             'ttv' => $examination->toArray(),
             'examinations' => $data['examinations'],
         ];
-    
+
         OphLog::create([
             'data' => serialize($logData),
         ]);
