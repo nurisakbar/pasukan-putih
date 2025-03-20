@@ -29,7 +29,7 @@ class OphLogController extends Controller
     public function store(Request $request)
     {
         $data = $request->json()->all();
-
+        
         $nik = $data['nik'];
 
         $kunjunganIds = Kunjungan::whereHas('pasien', function ($query) use ($nik) {
@@ -42,72 +42,138 @@ class OphLogController extends Controller
             ], 404);
         }
 
-        $ttv = Ttv::where('kunjungan_id', $kunjunganIds)->first();
- 
-        if (!$ttv) {
-            $ttv = Ttv::create([
-                'kunjungan_id' => $kunjunganIds->first() 
-            ]);
-        }
+        $examination = Ttv::where('kunjungan_id', $kunjunganIds)->first();
 
-        foreach ($data['examinations'] as $examination) {
-            $examinationName = strtoupper($examination['examination_name']);  
+        if (!$examination) {
+            return response()->json([
+                'message' => 'No TTV found for the given kunjungan ID'
+            ], 404);
+        }
         
-            $systole = null;
-            $diastole = null;
+        foreach ($data['examinations'] as $examinationData) {
+            $examinationName = strtoupper($examinationData['examination_name']);
+            
             switch ($examinationName) {
-                case 'BODY TEMPERATURE':
-                    $ttv->temperature = $examination['result'];
+                case 'TEMPERATURE':
+                    $examination->temperature = $examinationData['result'];
                     break;
-                case 'SYSTOLE_MMHG':
-                    $systole = $examination['result']; // Simpan sementara nilai systole
-                    break;
-                case 'SLACK_MMHG': // Slack = Diastole
-                    $diastole = $examination['result']; // Simpan sementara nilai diastole
+                case 'BLOOD_PRESSURE':
+                    $examination->blood_pressure = $examinationData['result'];
                     break;
                 case 'BMI':
-                    $ttv->bmi = $examination['result'];
+                    $examination->bmi = $examinationData['result'];
                     break;
-                case 'PULSE':
-                    $ttv->pulse = $examination['result'];
-                    break;
-                case 'RESPIRATION':
-                    $ttv->respiration = $examination['result'];
-                    break;
-                case 'PULSE_RATE':
-                    $ttv->oxygen_saturation = $examination['result'];
-                    break;
-                case 'WEIGHT':
-                    $ttv->weight = $examination['result'];
+                case 'BMI_CATEGORY':
+                    $examination->bmi_category = $examinationData['result'];
                     break;
                 case 'HEIGHT':
-                    $ttv->height = $examination['result'];
+                    $examination->height = $examinationData['result'];
                     break;
-                case 'KNEE HEIGHT':
-                    $ttv->knee_height = $examination['result'];
+                case 'WEIGHT':
+                    $examination->weight = $examinationData['result'];
                     break;
-                case 'SITTING HEIGHT':
-                    $ttv->sitting_height = $examination['result'];
+                case 'PULSE':
+                    $examination->pulse = $examinationData['result'];
                     break;
-                case 'ARM SPAN':
-                    $ttv->arm_span = $examination['result'];
+                case 'OXYGEN_SATURATION':
+                    $examination->oxygen_saturation = $examinationData['result'];
                     break;
-                case 'BMI CATEGORY':
-                    $ttv->bmi_category = $examination['result'];
+                case 'BLOOD_SUGAR':
+                    $examination->blood_sugar = $examinationData['result'];
+                    break;
+                case 'URIC_ACID':
+                    $examination->uric_acid = $examinationData['result'];
+                    break;
+                case 'TCHO':
+                    $examination->tcho = $examinationData['result'];
+                    break;
+                case 'TRIGLYCERIDE':
+                    $examination->triglyceride = $examinationData['result'];
+                    break;
+                case 'HIGH_DENSITY_PROTEIN':
+                    $examination->high_density_protein = $examinationData['result'];
+                    break;
+                case 'LOW_DENSITY_PROTEIN':
+                    $examination->low_density_protein = $examinationData['result'];
+                    break;
+                case 'HEMOGLOBIN':
+                    $examination->hemoglobin = $examinationData['result'];
+                    break;
+                case 'JAUNDICE':
+                    $examination->jaundice = $examinationData['result'];
+                    break;
+                case 'W_WAIST':
+                    $examination->w_waist = $examinationData['result'];
+                    break;
+                case 'W_BUST':
+                    $examination->w_bust = $examinationData['result'];
+                    break;
+                case 'W_HIP':
+                    $examination->w_hip = $examinationData['result'];
+                    break;
+                case 'FETAL_HEART':
+                    $examination->fetal_heart = $examinationData['result'];
+                    break;
+                case 'ECG':
+                    $examination->ecg = $examinationData['result'];
+                    break;
+                case 'ULTRASOUND':
+                    $examination->ultrasound = $examinationData['result'];
+                    break;
+                case 'WHITE_CORPUSCLE':
+                    $examination->white_corpuscle = $examinationData['result'];
+                    break;
+                case 'RED_CORPUSCLE':
+                    $examination->red_corpuscle = $examinationData['result'];
+                    break;
+                case 'NITROUS_ACID':
+                    $examination->nitrous_acid = $examinationData['result'];
+                    break;
+                case 'KETONE_BODY':
+                    $examination->ketone_body = $examinationData['result'];
+                    break;
+                case 'UROBILINOGEN':
+                    $examination->urobilinogen = $examinationData['result'];
+                    break;
+                case 'BILIRUBIN':
+                    $examination->bilirubin = $examinationData['result'];
+                    break;
+                case 'PROTEIN':
+                    $examination->protein = $examinationData['result'];
+                    break;
+                case 'GLUCOSE':
+                    $examination->glucose = $examinationData['result'];
+                    break;
+                case 'PH':
+                    $examination->ph = $examinationData['result'];
+                    break;
+                case 'VITAMIN_C':
+                    $examination->vitamin_c = $examinationData['result'];
+                    break;
+                case 'CREATININE':
+                    $examination->creatinine = $examinationData['result'];
+                    break;
+                case 'PROPORTION':
+                    $examination->proportion = $examinationData['result'];
+                    break;
+                case 'ALBUMIN':
+                    $examination->albumin = $examinationData['result'];
+                    break;
+                case 'CALCIUM':
+                    $examination->calcium = $examinationData['result'];
+                    break;
+                default:
+                    Log::warning("Unknown examination type: $examinationName");
                     break;
             }
         }
-
-        if (!is_null($systole) && !is_null($diastole)) {
-            $ttv->blood_pressure = "$systole/$diastole";
-        }
-
-        $ttv->save();
+        
+        $examination->save();
 
         $logData = [
             'nik' => $nik,
-            'kunjungan_id' => $kunjunganIds->first(),
-            'ttv' => $ttv->toArray(),
+            'kunjungan_id' => $kunjunganIds,
+            'ttv' => $examination->toArray(),
             'examinations' => $data['examinations'],
         ];
     
@@ -116,8 +182,9 @@ class OphLogController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'TTV updated successfully',
-            'ttv' => $ttv
+            'message' => 'Examination updated successfully',
+            'ttv' => $examination,
+            'log' => $logData
         ]);
     }
 

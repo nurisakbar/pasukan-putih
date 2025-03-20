@@ -43,15 +43,22 @@
                                  <span class="input-group-text">°C</span>
                              </div>
                          </div>
-                         <div class="col-md-6 mb-3">
+                         <div class="col-md-6 col-lg-3 mb-3">
                              <label for="oxygen" class="form-label">Saturasi Oksigen</label>
                              <div class="input-group">
                                  <input type="number" class="form-control" id="oxygen" placeholder="98" name="oxygen_saturation">
                                  <span class="input-group-text">%</span>
                              </div>
                          </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="fetal_heart" class="form-label">Detak Jantung Janin</label>
+                             <div class="input-group">
+                                 <input type="number" class="form-control" id="fetal_heart" placeholder="140" name="fetal_heart">
+                                 <span class="input-group-text">bpm</span>
+                             </div>
+                         </div>
                      </div>
-     
+
                      <!-- Antropometri -->
                      <div class="row mb-4">
                          <div class="col-12">
@@ -72,32 +79,30 @@
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="knee-height" class="form-label">Tinggi Lutut</label>
+                             <label for="w_waist" class="form-label">Lingkar Pinggang</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="knee-height" placeholder="50.0" name="knee_height"> 
+                                 <input type="number" step="0.1" class="form-control" id="w_waist" placeholder="80.0" name="w_waist">
                                  <span class="input-group-text">cm</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="sitting-height" class="form-label">Tinggi Duduk</label>
+                             <label for="w_bust" class="form-label">Lingkar Dada</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="sitting-height"
-                                     placeholder="85.0" name="sitting_height">
+                                 <input type="number" step="0.1" class="form-control" id="w_bust" placeholder="90.0" name="w_bust">
                                  <span class="input-group-text">cm</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="arm-span" class="form-label">Panjang Depa</label>
+                             <label for="w_hip" class="form-label">Lingkar Pinggul</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="arm-span"
-                                     placeholder="175.0" name="arm_span">
+                                 <input type="number" step="0.1" class="form-control" id="w_hip" placeholder="95.0" name="w_hip">
                                  <span class="input-group-text">cm</span>
                              </div>
                          </div>
                      </div>
      
                      <!-- Status Gizi / BMI Calculator -->
-                     <div class="row">
+                     <div class="row mb-4">
                          <div class="col-12">
                              <h5 class="border-bottom pb-2 text-primary">Status Gizi</h5>
                          </div>
@@ -114,6 +119,7 @@
                                              </div>
                                          </div>
                                          <div class="col-md-8">
+                                             <input type="hidden" id="bmi-category-value" name="bmi_category">
                                              <div class="form-control bg-white" id="bmi-category">Status: Normal</div>
                                          </div>
                                      </div>
@@ -133,6 +139,196 @@
                              </div>
                          </div>
                      </div>
+
+                     <!-- Pemeriksaan Laboratorium -->
+                     <div class="row mb-4">
+                         <div class="col-12">
+                             <h5 class="border-bottom pb-2 text-primary">Pemeriksaan Laboratorium</h5>
+                         </div>
+                         
+                         <!-- Pemeriksaan Darah -->
+                         <div class="col-12 mb-3">
+                             <h6 class="text-secondary">Pemeriksaan Darah</h6>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="blood_sugar" class="form-label">Gula Darah</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="blood_sugar" placeholder="100" name="blood_sugar">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="uric_acid" class="form-label">Asam Urat</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="uric_acid" placeholder="5.0" name="uric_acid">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="tcho" class="form-label">Kolesterol Total</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="tcho" placeholder="180" name="tcho">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="triglyceride" class="form-label">Trigliserida</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="triglyceride" placeholder="150" name="triglyceride">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="high_density_protein" class="form-label">HDL</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="high_density_protein" placeholder="50" name="high_density_protein">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="low_density_protein" class="form-label">LDL</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="low_density_protein" placeholder="100" name="low_density_protein">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="hemoglobin" class="form-label">Hemoglobin</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="hemoglobin" placeholder="14.0" name="hemoglobin">
+                                 <span class="input-group-text">g/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="white_corpuscle" class="form-label">Sel Darah Putih</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="white_corpuscle" placeholder="7.5" name="white_corpuscle">
+                                 <span class="input-group-text">10³/μL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="red_corpuscle" class="form-label">Sel Darah Merah</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="red_corpuscle" placeholder="5.0" name="red_corpuscle">
+                                 <span class="input-group-text">10⁶/μL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="creatinine" class="form-label">Kreatinin</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="creatinine" placeholder="0.9" name="creatinine">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="proportion" class="form-label">Proporsi</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="proportion" placeholder="1.0" name="proportion">
+                                 <span class="input-group-text">-</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="albumin" class="form-label">Albumin</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="albumin" placeholder="4.0" name="albumin">
+                                 <span class="input-group-text">g/dL</span>
+                             </div>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="calcium" class="form-label">Kalsium</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="calcium" placeholder="9.5" name="calcium">
+                                 <span class="input-group-text">mg/dL</span>
+                             </div>
+                         </div>
+
+                         <!-- Pemeriksaan Urin -->
+                         <div class="col-12 mb-3 mt-3">
+                             <h6 class="text-secondary">Pemeriksaan Urin</h6>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="nitrous_acid" class="form-label">Asam Nitrat</label>
+                             <select class="form-select" id="nitrous_acid" name="nitrous_acid">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="ketone_body" class="form-label">Badan Keton</label>
+                             <select class="form-select" id="ketone_body" name="ketone_body">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="urobilinogen" class="form-label">Urobilinogen</label>
+                             <select class="form-select" id="urobilinogen" name="urobilinogen">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Normal">Normal</option>
+                                 <option value="Meningkat">Meningkat</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="bilirubin" class="form-label">Bilirubin</label>
+                             <select class="form-select" id="bilirubin" name="bilirubin">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="protein" class="form-label">Protein</label>
+                             <select class="form-select" id="protein" name="protein">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="glucose" class="form-label">Glukosa</label>
+                             <select class="form-select" id="glucose" name="glucose">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="ph" class="form-label">pH</label>
+                             <input type="number" step="0.1" class="form-control" id="ph" placeholder="7.0" name="ph">
+                         </div>
+                         <div class="col-md-6 col-lg-3 mb-3">
+                             <label for="vitamin_c" class="form-label">Vitamin C</label>
+                             <div class="input-group">
+                                 <input type="number" step="0.1" class="form-control" id="vitamin_c" placeholder="80" name="vitamin_c">
+                                 <span class="input-group-text">mg</span>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- Pemeriksaan Lainnya -->
+                     <div class="row mb-4">
+                         <div class="col-12">
+                             <h5 class="border-bottom pb-2 text-primary">Pemeriksaan Lainnya</h5>
+                         </div>
+                         <div class="col-md-6 col-lg-4 mb-3">
+                             <label for="jaundice" class="form-label">Jaundice (Kuning)</label>
+                             <select class="form-select" id="jaundice" name="jaundice">
+                                 <option value="" selected>Pilih hasil</option>
+                                 <option value="Positif">Positif</option>
+                                 <option value="Negatif">Negatif</option>
+                             </select>
+                         </div>
+                         <div class="col-md-6 col-lg-4 mb-3">
+                             <label for="ecg" class="form-label">EKG</label>
+                             <input type="text" class="form-control" id="ecg" placeholder="Hasil EKG" name="ecg">
+                         </div>
+                         <div class="col-md-6 col-lg-4 mb-3">
+                             <label for="ultrasound" class="form-label">USG</label>
+                             <input type="text" class="form-control" id="ultrasound" placeholder="Hasil USG" name="ultrasound">
+                         </div>
+                     </div>
      
                      <!-- Buttons -->
                      <div class="row mt-4">
@@ -148,14 +344,13 @@
 @endsection
 
 @push('script')
-    <!-- Bootstrap JS and dependencies can be linked here -->
     <script>
-        // Optional: Add JavaScript to calculate BMI automatically
         document.addEventListener('DOMContentLoaded', function() {
             const weightInput = document.getElementById('weight');
             const heightInput = document.getElementById('height');
             const bmiResult = document.getElementById('bmi-result');
             const bmiCategory = document.getElementById('bmi-category');
+            const bmiCategoryValue = document.getElementById('bmi-category-value');
 
             function calculateBMI() {
                 if (weightInput.value && heightInput.value) {
@@ -176,6 +371,7 @@
                     }
 
                     bmiCategory.textContent = 'Status: ' + category;
+                    bmiCategoryValue.value = category;
                 }
             }
 
