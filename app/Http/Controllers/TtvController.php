@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Models\Ttv;
@@ -21,7 +20,6 @@ class TtvController extends Controller
         return view('kunjungans.form-ttv', compact('kunjungan'));
     }
 
-
     /**
      * Store a newly created resource in storage.
      *
@@ -33,15 +31,40 @@ class TtvController extends Controller
         $validator = Validator::make($request->all(), [
             'kunjungan_id' => 'required|exists:kunjungans,id',
             'blood_pressure' => 'nullable|string|max:10',
-            'pulse' => 'nullable|integer|min:0|max:300',
-            'respiration' => 'nullable|integer|min:0|max:100',
-            'temperature' => 'nullable|numeric|between:30,45',
-            'oxygen_saturation' => 'nullable|integer|min:0|max:100',
-            'weight' => 'nullable|numeric|min:0|max:500',
-            'height' => 'nullable|numeric|min:0|max:300',
-            'knee_height' => 'nullable|numeric|min:0|max:100',
-            'sitting_height' => 'nullable|numeric|min:0|max:200',
-            'arm_span' => 'nullable|numeric|min:0|max:300',
+            'pulse' => 'nullable|string|min:0|max:300',
+            // 'respiration' => 'nullable|string|min:0|max:100',
+            'temperature' => 'nullable|string|between:30,45',
+            'oxygen_saturation' => 'nullable|string|min:0|max:100',
+            'weight' => 'nullable|string|min:0|max:500',
+            'height' => 'nullable|string|min:0|max:300',
+            'blood_sugar' => 'nullable|string|min:0',
+            'uric_acid' => 'nullable|string|min:0',
+            'tcho' => 'nullable|string|min:0',
+            'triglyceride' => 'nullable|string|min:0',
+            'high_density_protein' => 'nullable|string|min:0',
+            'low_density_protein' => 'nullable|string|min:0',
+            'hemoglobin' => 'nullable|string|min:0',
+            'jaundice' => 'nullable|string',
+            'w_waist' => 'nullable|string|min:0',
+            'w_bust' => 'nullable|string|min:0',
+            'w_hip' => 'nullable|string|min:0',
+            'fetal_heart' => 'nullable|string|min:0',
+            'ecg' => 'nullable|string',
+            'ultrasound' => 'nullable|string',
+            'white_corpuscle' => 'nullable|string|min:0',
+            'red_corpuscle' => 'nullable|string|min:0',
+            'nitrous_acid' => 'nullable|string',
+            'ketone_body' => 'nullable|string',
+            'urobilinogen' => 'nullable|string',
+            'bilirubin' => 'nullable|string',
+            'protein' => 'nullable|string',
+            'glucose' => 'nullable|string',
+            'ph' => 'nullable|string|between:0,14',
+            'vitamin_c' => 'nullable|string|min:0',
+            'creatinine' => 'nullable|string|min:0',
+            'proportion' => 'nullable|string|min:0',
+            'albumin' => 'nullable|string|min:0',
+            'calcium' => 'nullable|string|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -50,7 +73,27 @@ class TtvController extends Controller
                 ->withInput();
         }
 
-        $examination = Ttv::create($request->all());
+        // Calculate BMI if height and weight are provided
+        $data = $request->all();
+        if (!empty($data['weight']) && !empty($data['height'])) {
+            $weight = $data['weight'];
+            $height = $data['height'] / 100; // Convert to meters
+            $bmi = $weight / ($height * $height);
+            $data['bmi'] = round($bmi, 2);
+            
+            // Set BMI category
+            if ($bmi < 17) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 18.4) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 25) {
+                $data['bmi_category'] = 'Normal';
+            } else {
+                $data['bmi_category'] = 'Gemuk';
+            }
+        }
+
+        $examination = Ttv::create($data);
 
         return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil disimpan.');
     }
@@ -89,17 +132,42 @@ class TtvController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'blood_pressure' => 'nullable|string|max:10',
-            'pulse' => 'nullable|integer|min:0|max:300',
-            'respiration' => 'nullable|integer|min:0|max:100',
-            'temperature' => 'nullable|numeric|between:30,45',
-            'oxygen_saturation' => 'nullable|integer|min:0|max:100',
-            'weight' => 'nullable|numeric|min:0|max:500',
-            'height' => 'nullable|numeric|min:0|max:300',
-            'knee_height' => 'nullable|numeric|min:0|max:100',
-            'sitting_height' => 'nullable|numeric|min:0|max:200',
-            'arm_span' => 'nullable|numeric|min:0|max:300',
+            'pulse' => 'nullable|string|min:0|max:300',
+            'temperature' => 'nullable|string|between:30,45',
+            'oxygen_saturation' => 'nullable|string|min:0|max:100',
+            'weight' => 'nullable|string|min:0|max:500',
+            'height' => 'nullable|string|min:0|max:300',
+            'blood_sugar' => 'nullable|string|min:0',
+            'uric_acid' => 'nullable|string|min:0',
+            'tcho' => 'nullable|string|min:0',
+            'triglyceride' => 'nullable|string|min:0',
+            'high_density_protein' => 'nullable|string|min:0',
+            'low_density_protein' => 'nullable|string|min:0',
+            'hemoglobin' => 'nullable|string|min:0',
+            'jaundice' => 'nullable|string',
+            'w_waist' => 'nullable|string|min:0',
+            'w_bust' => 'nullable|string|min:0',
+            'w_hip' => 'nullable|string|min:0',
+            'fetal_heart' => 'nullable|string|min:0',
+            'ecg' => 'nullable|string',
+            'ultrasound' => 'nullable|string',
+            'white_corpuscle' => 'nullable|string|min:0',
+            'red_corpuscle' => 'nullable|string|min:0',
+            'nitrous_acid' => 'nullable|string',
+            'ketone_body' => 'nullable|string',
+            'urobilinogen' => 'nullable|string',
+            'bilirubin' => 'nullable|string',
+            'protein' => 'nullable|string',
+            'glucose' => 'nullable|string',
+            'ph' => 'nullable|string|between:0,14',
+            'vitamin_c' => 'nullable|string|min:0',
+            'creatinine' => 'nullable|string|min:0',
+            'proportion' => 'nullable|string|min:0',
+            'albumin' => 'nullable|string|min:0',
+            'calcium' => 'nullable|string|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -109,7 +177,28 @@ class TtvController extends Controller
         }
 
         $ttv = Ttv::findOrFail($id);
-        $ttv->update($request->all());
+        $data = $request->all();
+
+        // Calculate BMI if height and weight are provided
+        if (!empty($data['weight']) && !empty($data['height'])) {
+            $weight = $data['weight'];
+            $height = $data['height'] / 100; // Convert to meters
+            $bmi = $weight / ($height * $height);
+            $data['bmi'] = round($bmi, 2);
+            
+            // Set BMI category
+            if ($bmi < 17) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 18.4) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 25) {
+                $data['bmi_category'] = 'Normal';
+            } else {
+                $data['bmi_category'] = 'Gemuk';
+            }
+        }
+
+        $ttv->update($data);
 
         return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
     }
@@ -138,8 +227,8 @@ class TtvController extends Controller
     public function calculateBmi(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'weight' => 'required|numeric|min:0|max:500',
-            'height' => 'required|numeric|min:0|max:300',
+            'weight' => 'required|string|min:0|max:500',
+            'height' => 'required|string|min:0|max:300',
         ]);
 
         if ($validator->fails()) {

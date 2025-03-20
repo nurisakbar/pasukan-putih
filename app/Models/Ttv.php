@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model; 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Ttv extends Model
@@ -19,52 +19,59 @@ class Ttv extends Model
 
     protected $fillable = [
         'kunjungan_id',
-        'blood_pressure',
-        'pulse',
-        'respiration',
         'temperature',
-        'oxygen_saturation',
-        'weight',
-        'height',
-        'knee_height',
-        'sitting_height',
-        'arm_span',
+        'blood_pressure',
         'bmi',
+        'respiration',
         'bmi_category',
+        'height',
+        'weight',
+        'pulse',
+        'oxygen_saturation',
+        'blood_sugar',
+        'uric_acid',
+        'tcho',
+        'triglyceride',
+        'high_density_protein',
+        'low_density_protein',
+        'hemoglobin',
+        'jaundice',
+        'w_waist',
+        'w_bust',
+        'w_hip',
+        'fetal_heart',
+        'ecg',
+        'ultrasound',
+        'white_corpuscle',
+        'red_corpuscle',
+        'nitrous_acid',
+        'ketone_body',
+        'urobilinogen',
+        'bilirubin',
+        'protein',
+        'glucose',
+        'ph',
+        'vitamin_c',
+        'creatinine',
+        'proportion',
+        'albumin',
+        'calcium',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'pulse' => 'integer',
-        'respiration' => 'integer',
-        'temperature' => 'decimal:1',
-        'oxygen_saturation' => 'integer',
-        'weight' => 'decimal:2',
-        'height' => 'decimal:1',
-        'knee_height' => 'decimal:1',
-        'sitting_height' => 'decimal:1',
-        'arm_span' => 'decimal:1',
-        'bmi' => 'decimal:2',
+        'fetal_heart' => 'integer',
     ];
 
-    /**
-     * Calculate BMI and category before saving
-     */
     protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($examination) {
-            // Calculate BMI if weight and height are available
             if ($examination->weight && $examination->height) {
                 $heightInMeters = $examination->height / 100;
                 $examination->bmi = $examination->weight / ($heightInMeters * $heightInMeters);
                 
-                // Determine BMI category
                 if ($examination->bmi < 17) {
                     $examination->bmi_category = 'Kurus';
                 } elseif ($examination->bmi <= 18.4) {
@@ -75,16 +82,11 @@ class Ttv extends Model
                     $examination->bmi_category = 'Gemuk';
                 }
             }
-            
         });
     }
 
-    /**
-     * Get the patient that owns the health examination.
-     */
     public function kunjungan()
     {
         return $this->belongsTo(Kunjungan::class, 'kunjungan_id');
     }
-
 }
