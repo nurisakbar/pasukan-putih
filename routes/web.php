@@ -67,6 +67,11 @@ Route::middleware('auth')->group(function () {
     Route::get('kunjungan/{kunjungan}/ttv/create', [\App\Http\Controllers\TtvController::class, 'create'])->name('kunjungan.ttv.create');
     Route::post('calculate-bmi', [\App\Http\Controllers\TtvController::class, 'calculateBmi'])->name('calculate.bmi');
     
+    //import
+    Route::post('pasien/import', [\App\Http\Controllers\PasienController::class, 'importPasien'])->name('pasiens.import');
+
+
+    //export
     Route::get('kunjungan/export', [\App\Http\Controllers\KunjunganController::class, 'exportKunjungan'])->name('kunjungan.export');
     Route::get('sasaran-bulanan/export', [\App\Http\Controllers\ExportController::class, 'exportSasaranBulanan'])->name('export.sasaran-bulanan');
     Route::get('jumlah-sasaran/export', [\App\Http\Controllers\ExportController::class, 'exportJumlahSasaran'])->name('export.jumlah-sasaran');

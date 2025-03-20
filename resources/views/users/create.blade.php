@@ -95,6 +95,7 @@
                                                 <option value="pustu">Pustu</option>
                                             @elseif(Auth::user()->role == 'pustu')
                                                 <option value="perawat">Perawat</option>
+                                                <option value="caregiver">Caregiver</option>
                                             @endif
                                         </select>
                                         @error('role')

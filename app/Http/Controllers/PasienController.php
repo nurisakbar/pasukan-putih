@@ -20,6 +20,8 @@ use App\Models\Pencernaan;
 use App\Models\Muskuloskeletal;
 use App\Models\Neurosensori;
 use App\Models\Kunjungan;
+use App\Imports\PasienImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PasienController extends Controller
 {
@@ -146,5 +148,16 @@ class PasienController extends Controller
             'muskuloskeletal',
             'neurosensori'
         ));
+    }
+
+    public function importPasien(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        Excel::import(new PasienImport, $request->file('file'));
+
+        return back()->with('success', 'Data pasien berhasil diimport!');
     }
 }

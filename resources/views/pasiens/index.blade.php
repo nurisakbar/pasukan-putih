@@ -42,8 +42,10 @@
                                     <a href="{{ route('pasiens.index') }}" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-sync-alt me-1"></i> Reset
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#importModal">
+                                        <i class="fas fa-file-import me-1"></i> Import
+                                    </button>
                                 </div>
-
                             </form>
                         </div>
                         <div class="card-body">
@@ -156,6 +158,28 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="importModalLabel">Import Excel</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{{ route('pasiens.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                  <label for="file" class="form-label">Pilih File Excel</label>
+                  <input type="file" class="form-control" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+                  <small class="form-text text-muted">Hanya file Excel (.xlsx, .xls) atau CSV yang diperbolehkan.</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Import</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 @endsection
 
 @section('scripts')
