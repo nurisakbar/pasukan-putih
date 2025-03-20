@@ -59,4 +59,9 @@ class Kunjungan extends Model
     {
         return $this->hasMany(Ttv::class);
     }
+
+    public function skriningAdl()
+    {
+        return $this->hasOne(SkriningAdl::class, 'kunjungan_id');
+    }
 }

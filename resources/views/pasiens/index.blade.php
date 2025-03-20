@@ -73,6 +73,12 @@
                                                                         <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
                                                                     </a>
                                                                 </li>
+
+                                                                <li>
+                                                                    <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
+                                                                        <i class="fas fa-eye me-2"></i> Detail Pasien
+                                                                    </a>
+                                                                </li>
                                                                 <li>
                                                                     <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
                                                                         <i class="fas fa-edit me-2"></i> Edit Pasien

@@ -19,6 +19,7 @@ use App\Models\Perkemihan;
 use App\Models\Pencernaan;
 use App\Models\Muskuloskeletal;
 use App\Models\Neurosensori;
+use App\Models\Kunjungan;
 
 class PasienController extends Controller
 {
@@ -61,7 +62,8 @@ class PasienController extends Controller
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
     {
-        return view('pasiens.show', compact('pasien'));
+        $kunjungan = Kunjungan::with(['pasien', 'user', 'skriningAdl'] )->where('pasien_id', $pasien->id)->get(); 
+        return view('pasiens.show', compact('pasien', 'kunjungan'));
     }
 
     public function edit(Pasien $pasien): \Illuminate\Contracts\View\View
