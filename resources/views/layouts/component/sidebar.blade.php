@@ -14,7 +14,6 @@
                         <i class="nav-icon bi bi-speedometer"></i>
                         <p>
                             Dashboard
-
                         </p>
                     </a>
                 </li>

@@ -121,12 +121,14 @@
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
                                                         </li>
+                                                        @if (auth()->user()->role == 'perawat')    
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}" 
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
+                                                        @endif
                                                         {{-- <li>
                                                             <a href="{{ route('kunjungans.edit', $kunjungan->id) }}" 
                                                                class="dropdown-item">

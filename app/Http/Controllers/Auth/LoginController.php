@@ -54,7 +54,11 @@ class LoginController extends Controller
             return redirect()->intended($this->redirectTo);
         }
 
-        return response()->json(['message' => 'Email atau password salah'], 401);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Email atau password salah'], 401);
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah']);
     }
 
     /**

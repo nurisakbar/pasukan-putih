@@ -24,6 +24,8 @@ class KunjunganController extends Controller
 
         if ($user->role === 'perawat') {
             $query->where('user_id', $user->id);
+        } elseif ($user->role === 'caregiver') {
+            $query->where('user_id', $user->id);
         } else {
             $childUserIds = $this->getAllChildUserIds($user->id, $user->role);
             $query->whereIn('user_id', $childUserIds);
