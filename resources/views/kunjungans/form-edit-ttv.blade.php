@@ -6,6 +6,16 @@
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">Form Pemeriksaan Kesehatan</h4>
             </div>
+            @if ($errors->any())
+                <div class="bg-red-500 text-white p-3">
+                    <strong>Validasi gagal! Periksa kembali input Anda:</strong>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form action="{{ route('ttv.update', $ttv->id) }}" method="post">
                @csrf
                @method('PUT')
@@ -79,27 +89,6 @@
                                  <span class="input-group-text">cm</span>
                              </div>
                          </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="w_waist" class="form-label">Lingkar Pinggang</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="w_waist" placeholder="80.0" name="w_waist" value="{{ old('w_waist', $ttv->w_waist) }}">
-                                 <span class="input-group-text">cm</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="w_bust" class="form-label">Lingkar Dada</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="w_bust" placeholder="90.0" name="w_bust" value="{{ old('w_bust', $ttv->w_bust) }}">
-                                 <span class="input-group-text">cm</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="w_hip" class="form-label">Lingkar Pinggul</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="w_hip" placeholder="95.0" name="w_hip" value="{{ old('w_hip', $ttv->w_hip) }}">
-                                 <span class="input-group-text">cm</span>
-                             </div>
-                         </div>
                      </div>
      
                      <!-- Status Gizi / BMI Calculator -->
@@ -114,14 +103,14 @@
                                      <div class="row g-2">
                                          <div class="col-md-4">
                                              <div class="input-group">
-                                                 <input type="number" step="0.01" class="form-control" id="bmi-result"
+                                                 <input type="number" step="0.01" class="form-control bg-body-secondary" id="bmi-result"
                                                      placeholder="22.84" readonly name="bmi" value="{{ old('bmi', number_format($ttv->bmi, 2)) }}">
                                                  <span class="input-group-text">kg/m²</span>
                                              </div>
                                          </div>
                                          <div class="col-md-8">
                                              <input type="hidden" id="bmi-category-value" name="bmi_category">
-                                             <div class="form-control bg-white" id="bmi-category">Status: Normal</div>
+                                             <div class="form-control bg-body-secondary" id="bmi-category">Status: Normal</div>
                                          </div>
                                      </div>
                                  </div>
@@ -141,268 +130,6 @@
                          </div>
                      </div>
 
-                     <!-- Pemeriksaan Laboratorium -->
-                     <div class="row mb-4">
-                         <div class="col-12">
-                             <h5 class="border-bottom pb-2 text-primary">Pemeriksaan Laboratorium</h5>
-                         </div>
-                         
-                         <!-- Pemeriksaan Darah -->
-                         <div class="col-12 mb-3">
-                             <h6 class="text-secondary">Pemeriksaan Darah</h6>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="blood_sugar" class="form-label">Gula Darah</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="blood_sugar" placeholder="100" name="blood_sugar" value="{{ old('blood_sugar', $ttv->blood_sugar) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="uric_acid" class="form-label">Asam Urat</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="uric_acid" placeholder="5.0" name="uric_acid" value="{{ old('uric_acid', $ttv->uric_acid) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="tcho" class="form-label">Kolesterol Total</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="tcho" placeholder="180" name="tcho" value="{{ old('tcho', $ttv->tcho) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="triglyceride" class="form-label">Trigliserida</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="triglyceride" placeholder="150" name="triglyceride" value="{{ old('triglyceride', $ttv->triglyceride) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="high_density_protein" class="form-label">HDL</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="high_density_protein" placeholder="50" name="high_density_protein" value="{{ old('high_density_protein', $ttv->high_density_protein) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="low_density_protein" class="form-label">LDL</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="low_density_protein" placeholder="100" name="low_density_protein" value="{{ old('low_density_protein', $ttv->low_density_protein) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="hemoglobin" class="form-label">Hemoglobin</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="hemoglobin" placeholder="14.0" name="hemoglobin" value="{{ old('hemoglobin', $ttv->hemoglobin) }}">
-                                 <span class="input-group-text">g/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="white_corpuscle" class="form-label">Sel Darah Putih</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="white_corpuscle" placeholder="7.5" name="white_corpuscle" value="{{ old('white_corpuscle', $ttv->white_corpuscle) }}">
-                                 <span class="input-group-text">10³/μL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="red_corpuscle" class="form-label">Sel Darah Merah</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="red_corpuscle" placeholder="5.0" name="red_corpuscle" value="{{ old('red_corpuscle', $ttv->red_corpuscle) }}">
-                                 <span class="input-group-text">10⁶/μL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="creatinine" class="form-label">Kreatinin</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="creatinine" placeholder="0.9" name="creatinine" value="{{ old('creatinine', $ttv->creatinine) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="proportion" class="form-label">Proporsi</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="proportion" placeholder="1.0" name="proportion" value="{{ old('proportion', $ttv->proportion) }}">
-                                 <span class="input-group-text">-</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="albumin" class="form-label">Albumin</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="albumin" placeholder="4.0" name="albumin" value="{{ old('albumin', $ttv->albumin) }}">
-                                 <span class="input-group-text">g/dL</span>
-                             </div>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="calcium" class="form-label">Kalsium</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="calcium" placeholder="9.5" name="calcium" value="{{ old('calcium', $ttv->calcium) }}">
-                                 <span class="input-group-text">mg/dL</span>
-                             </div>
-                         </div>
-
-                         <!-- Pemeriksaan Urin -->
-                         <div class="col-12 mb-3 mt-3">
-                             <h6 class="text-secondary">Pemeriksaan Urin</h6>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="nitrous_acid" class="form-label">Asam Nitrat</label>
-                             <select class="form-select" id="nitrous_acid" name="nitrous_acid">
-                                <option value="" {{ !isset($ttv->nitrous_acid) ? 'selected' : '' }}>Pilih hasil</option>
-                                <option value="Positif" {{ isset($ttv) && $ttv->nitrous_acid === 'Positif' ? 'selected' : '' }}>Positif</option>
-                                <option value="Negative" {{ isset($ttv) && $ttv->nitrous_acid === 'Negative' ? 'selected' : '' }}>Negative</option>
-                             </select>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="ketone_body" class="form-label">Badan Keton</label>
-                             <select class="form-select" id="ketone_body" name="ketone_body">
-                                 <option value="{{ !isset($ttv->ketone_body) ? 'selected' : '' }}" selected>Pilih hasil</option>
-                                 <option value="Positif" {{ isset($ttv) && $ttv->ketone_body === 'Positif' ? 'selected' : '' }}>Positif</option>
-                                 <option value="Negative" {{ isset($ttv) && $ttv->ketone_body === 'Negative' ? 'selected' : '' }}>Negative</option>
-                             </select>
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                            <label for="urobilinogen" class="form-label">Urobilinogen</label>
-                            <select class="form-select" id="urobilinogen" name="urobilinogen">
-                                <option value="" {{ !isset($ttv->urobilinogen) ? 'selected' : '' }}>Pilih hasil</option>
-                                <option value="Normal" {{ isset($ttv) && $ttv->urobilinogen === 'Normal' ? 'selected' : '' }}>Normal</option>
-                                <option value="Meningkat" {{ isset($ttv) && $ttv->urobilinogen === 'Meningkat' ? 'selected' : '' }}>Meningkat</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label for="bilirubin" class="form-label">Bilirubin</label>
-                            <select class="form-select" id="bilirubin" name="bilirubin">
-                                <option value="" {{ !isset($ttv->bilirubin) ? 'selected' : '' }}>Pilih hasil</option>
-                                <option value="Positif" {{ isset($ttv) && $ttv->bilirubin === 'Positif' ? 'selected' : '' }}>Positif</option>
-                                <option value="Negative" {{ isset($ttv) && $ttv->bilirubin === 'Negative' ? 'selected' : '' }}>Negative</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label for="protein" class="form-label">Protein</label>
-                            <select class="form-select" id="protein" name="protein">
-                                <option value="" {{ !isset($ttv->protein) ? 'selected' : '' }}>Pilih hasil</option>
-                                <option value="Positif" {{ isset($ttv) && $ttv->protein === 'Positif' ? 'selected' : '' }}>Positif</option>
-                                <option value="Negative" {{ isset($ttv) && $ttv->protein === 'Negative' ? 'selected' : '' }}>Negative</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <label for="glucose" class="form-label">Glukosa</label>
-                            <select class="form-select" id="glucose" name="glucose">
-                                <option value="" {{ !isset($ttv->glucose) ? 'selected' : '' }}>Pilih hasil</option>
-                                <option value="Normal" {{ isset($ttv) && $ttv->glucose === 'Normal' ? 'selected' : '' }}>Normal</option>
-                                <option value="Meningkat" {{ isset($ttv) && $ttv->glucose === 'Meningkat' ? 'selected' : '' }}>Meningkat</option>
-                                <option value="Menurun" {{ isset($ttv) && $ttv->glucose === 'Menurun' ? 'selected' : '' }}>Menurun</option>
-                            </select>
-                        </div>
-                        
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="ph" class="form-label">pH</label>
-                             <input type="number" step="0.1" class="form-control" id="ph" placeholder="7.0" name="ph" value="{{ old('ph', $ttv->ph) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="vitamin_c" class="form-label">Vitamin C</label>
-                             <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="vitamin_c" placeholder="80" name="vitamin_c" value="{{ old('vitamin_c', $ttv->vitamin_c) }}">
-                                 <span class="input-group-text">mg</span>
-                             </div>
-                         </div>
-                     </div>
-
-                     <!-- Pemeriksaan Lainnya -->
-                     <div class="row mb-4">
-                         <div class="col-12">
-                             <h5 class="border-bottom pb-2 text-primary">Pemeriksaan Lainnya</h5>
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="jaundice" class="form-label">Jaundice</label>
-                            <div class="input-group">
-                                <input type="number" step="0.1" class="form-control" id="jaundice" placeholder="80" name="jaundice" value="{{ old('jaundice', $ttv->jaundice) }}">
-                                <span class="input-group-text">mg</span>
-                            </div>
-                        </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="ecg" class="form-label">EKG</label>
-                             <input type="text" class="form-control" id="ecg" placeholder="Hasil EKG" name="ecg" value="{{ old('ecg', $ttv->ecg) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="ultrasound" class="form-label">USG</label>
-                             <input type="text" class="form-control" id="ultrasound" placeholder="Hasil USG" name="ultrasound" value="{{ old('ultrasound', $ttv->ultrasound) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="ultrasound" class="form-label">USG</label>
-                             <input type="text" class="form-control" id="ultrasound" placeholder="Hasil USG" name="ultrasound" value="{{ old('ultrasound', $ttv->ultrasound) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="white_corpuscle" class="form-label">White Corpuscle</label>
-                             <input type="text" class="form-control" id="white_corpuscle" placeholder="Hasil USG" name="white_corpuscle" value="{{ old('white_corpuscle', $ttv->white_corpuscle) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                             <label for="red_corpuscle" class="form-label">Red Corpuscle</label>
-                             <input type="text" class="form-control" id="red_corpuscle" placeholder="Hasil USG" name="red_corpuscle" value="{{ old('red_corpuscle', $ttv->red_corpuscle) }}">
-                         </div>
-                         <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="nitrous_acid" class="form-label">Nitrous Acid</label>
-                            <select class="form-select" id="nitrous_acid" name="nitrous_acid">
-                                <option value="" @selected(!isset($ttv->nitrous_acid))>Pilih hasil</option>
-                                <option value="Positif" @selected(isset($ttv) && $ttv->nitrous_acid === 'Positif')>Positif</option>
-                                <option value="Negative" @selected(isset($ttv) && $ttv->nitrous_acid === 'Negative')>Negative</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="ketone_body" class="form-label">Ketone Body</label>
-                            <select class="form-select" id="ketone_body" name="ketone_body">
-                                <option value="" @selected(!isset($ttv->ketone_body))>Pilih hasil</option>
-                                <option value="Positif" @selected(isset($ttv) && $ttv->ketone_body === 'Positif')>Positif</option>
-                                <option value="Negative" @selected(isset($ttv) && $ttv->ketone_body === 'Negative')>Negative</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="ph" class="form-label">PH</label>
-                            <input type="number" class="form-control" id="ph" placeholder="PH" name="ph" value="{{ old('ph', $ttv->ph ?? '') }}">
-                        </div>
-                        
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="creatinine" class="form-label">Creatinine</label>
-                            <input type="number" class="form-control" id="creatinine" placeholder="Creatinine" name="creatinine" value="{{ old('creatinine', $ttv->creatinine ?? '') }}">
-                        </div>
-                        
-                        @php
-                        $fields = [
-                            'urobilinogen' => ['Normal', 'Meningkat', 'Menurun'],
-                            'bilirubin' => ['Positif', 'Negative'],
-                            'protein' => ['Positif', 'Negative'],
-                            'glucose' => ['Normal', 'Meningkat', 'Menurun'],
-                            'vitamin_c' => ['Normal', 'Meningkat', 'Menurun'],
-                            'proportion' => ['Normal', 'Meningkat', 'Menurun'],
-                            'albumin' => ['Normal', 'Meningkat', 'Menurun']
-                        ];
-                        @endphp
-                        
-                        @foreach($fields as $field => $options)
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="{{ $field }}" class="form-label">{{ ucfirst(str_replace('_', ' ', $field)) }}</label>
-                            <select class="form-select" id="{{ $field }}" name="{{ $field }}">
-                                <option value="" @selected(!isset($ttv->$field))>Pilih hasil</option>
-                                @foreach($options as $option)
-                                    <option value="{{ $option }}" @selected(isset($ttv) && $ttv->$field === $option)>{{ $option }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @endforeach
-                        
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <label for="calcium" class="form-label">Calcium</label>
-                            <input type="number" class="form-control" id="calcium" placeholder="calcium" name="calcium" value="{{ old('calcium', $ttv->calcium) }}">
-                        </div>
-                     </div>
-     
                      <!-- Buttons -->
                      <div class="row mt-4">
                          <div class="col-12 d-flex justify-content-end">

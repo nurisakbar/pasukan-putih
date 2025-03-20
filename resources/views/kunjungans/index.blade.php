@@ -127,12 +127,12 @@
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
-                                                        <li>
+                                                        {{-- <li>
                                                             <a href="{{ route('kunjungans.edit', $kunjungan->id) }}" 
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit Kunjungan
                                                             </a>
-                                                        </li>
+                                                        </li> --}}
                                                         <li>
                                                             <button class="dropdown-item text-danger delete-btn" 
                                                                     data-id="{{ $kunjungan->id }}"

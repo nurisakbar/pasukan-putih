@@ -7,6 +7,7 @@ use App\Http\Requests\KunjunganRequest;
 use Illuminate\Http\Request;
 use App\Models\Kunjungan;
 use App\Models\User;
+use App\Models\Ttv;
 use App\Models\Pasien;
 use App\Models\SkriningAdl;
 use Maatwebsite\Excel\Facades\Excel;
@@ -89,6 +90,7 @@ class KunjunganController extends Controller
             $hentiLayanan[$selectedHentiLayanan] = true;
         }
 
+
         $kunjungan = Kunjungan::create(array_merge([
             'tanggal' => $request->tanggal,
             'pasien_id' => $pasien->id,
@@ -104,7 +106,11 @@ class KunjunganController extends Controller
             'konversi_data_ke_sasaran_kunjungan_lanjutan' => $request->konversi_data_ke_sasaran_kunjungan_lanjutan ?? false,
         ], $hentiLayanan));
 
-        return redirect()->route('kunjungan.ttv.create', ['kunjungan' => $kunjungan->id])
+        $ttv = Ttv::create([
+            'kunjungan_id' => $kunjungan->id,
+        ]);
+
+        return redirect()->route('kunjungans.index')
         ->with('success', 'Created successfully');
 
     }
