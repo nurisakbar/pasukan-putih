@@ -108,8 +108,8 @@
                             <tbody>
                                 @forelse ($kunjungans as $kunjungan)
                                     <tr>
-                                        <td>
-                                            <div class="d-flex justify-content-center align-items-center">
+                                        <td class="align-middle">
+                                            <div class="d-flex justify-content-center">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="fas fa-cogs"></i> Aksi
@@ -156,8 +156,6 @@
                                         <td class="align-middle">{{ $kunjungan->pasien->jenis_kelamin }}</td>
                                         <td class="align-middle">{{ $kunjungan->pasien->jenis_ktp }}</td>
                                         <td class="align-middle">{{ $kunjungan->pasien->alamat }}</td>
-                                        {{-- <td class="align-middle">{{ $kunjungan->pasien->nomor_hp }}</td> --}}
-                                        
                                     </tr>
                                 @empty
                                     <tr>
