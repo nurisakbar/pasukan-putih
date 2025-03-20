@@ -267,13 +267,13 @@ class UserController extends Controller
             case 'puskesmas':
             case 'klinik':
                 // Puskesmas and Klinik can create Pustu and healthcare staff
-                $allowedRoles = ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'];
+                $allowedRoles = ['pustu', 'dokter', 'perawat', 'caregiver', 'farmasi', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
                 
             case 'pustu':
                 // Pustu can only create healthcare staff
-                $allowedRoles = ['dokter', 'perawat', 'farmasi', 'pendaftaran'];
+                $allowedRoles = ['dokter', 'perawat', 'farmasi', 'caregiver', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
                 
