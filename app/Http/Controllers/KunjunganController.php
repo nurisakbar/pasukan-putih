@@ -287,6 +287,19 @@ class KunjunganController extends Controller
 
         return $allChildren->toArray();
     }
+
+    public function editKunjunganFromPasiens($id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+        return view('pasiens.edit-from-pasien', compact('kunjungan'));
+    }
+
+    public function updateKunjunganFromPasiens(Request $request, $id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+        $kunjungan->update($request->all());
+        return redirect()->back()->with('success', 'Data Kunjungan berhasil diupdate!');
+    }
 }
 
 

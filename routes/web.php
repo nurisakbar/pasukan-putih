@@ -58,6 +58,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/kunjungans', App\Http\Controllers\KunjunganController::class);
     Route::get('/kunjungan/rencana-kunjungan-awal', [App\Http\Controllers\KunjunganController::class, 'rencanaKunjunganAwal'])->name('kunjungan.rencanaKunjunganAwal');
     Route::get('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'skriningAdl'])->name('kunjungan.skriningAdl');
+    Route::get('/kunjungan/{id}/edit-from-pasien', [App\Http\Controllers\KunjunganController::class, 'editKunjunganFromPasiens'])->name('kunjungan.editKunjunganFromPasiens');
+    Route::put('/kunjungan/{id}/update-from-pasien', [App\Http\Controllers\KunjunganController::class, 'updateKunjunganFromPasiens'])->name('kunjungan.updateKunjunganFromPasiens');
     Route::post('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'storeSkriningAdl'])->name('kunjungan.storeSkriningAdl');
     Route::put('/kunjungan/{id}/skrining-adl', [App\Http\Controllers\KunjunganController::class, 'updateSkriningAdl'])->name('kunjungan.updateSkriningAdl');
 

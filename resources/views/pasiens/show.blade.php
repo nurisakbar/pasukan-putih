@@ -81,7 +81,7 @@
                                 @forelse($kunjungan as $item)
                                 <tr>
                                     <td class="align-middle">
-                                        <a href="{{ route('kunjungans.edit', $item->id) }}" class="btn btn-primary btn-sm">
+                                        <a href="{{ route('kunjungan.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </td>
