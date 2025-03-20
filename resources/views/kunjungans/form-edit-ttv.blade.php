@@ -30,13 +30,13 @@
                                  <span class="input-group-text">bpm</span>
                              </div>
                          </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
+                         {{-- <div class="col-md-6 col-lg-3 mb-3">
                              <label for="respiration" class="form-label">Pernapasan</label>
                              <div class="input-group">
                                  <input type="number" class="form-control" id="respiration" placeholder="18" name="respiration" value="{{ old('respiration', $ttv->respiration) }}">
                                  <span class="input-group-text">x/menit</span>
                              </div>
-                         </div>
+                         </div> --}}
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="temperature" class="form-label">Suhu</label>
                              <div class="input-group">

@@ -109,7 +109,7 @@
                                 @forelse ($kunjungans as $kunjungan)
                                     <tr>
                                         <td>
-                                            <div class="d-flex justify-content-center">
+                                            <div class="d-flex justify-content-center align-items-center">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="fas fa-cogs"></i> Aksi

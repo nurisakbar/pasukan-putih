@@ -29,42 +29,43 @@ class TtvController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kunjungan_id' => 'required|exists:kunjungans,id',
+            'kunjungan_id' => 'required|integer',
+            'temperature' => 'nullable|numeric|between:30,45',
             'blood_pressure' => 'nullable|string|max:10',
-            'pulse' => 'nullable|string|min:0|max:300',
-            // 'respiration' => 'nullable|string|min:0|max:100',
-            'temperature' => 'nullable|string|between:30,45',
-            'oxygen_saturation' => 'nullable|string|min:0|max:100',
-            'weight' => 'nullable|string|min:0|max:500',
-            'height' => 'nullable|string|min:0|max:300',
-            'blood_sugar' => 'nullable|string|min:0',
-            'uric_acid' => 'nullable|string|min:0',
-            'tcho' => 'nullable|string|min:0',
-            'triglyceride' => 'nullable|string|min:0',
-            'high_density_protein' => 'nullable|string|min:0',
-            'low_density_protein' => 'nullable|string|min:0',
-            'hemoglobin' => 'nullable|string|min:0',
+            'bmi' => 'nullable|numeric|min:0',
+            'bmi_category' => 'nullable|string',
+            'height' => 'nullable|numeric|min:0|max:300',
+            'weight' => 'nullable|numeric|min:0|max:500',
+            'pulse' => 'nullable|integer|min:0|max:300',
+            'oxygen_saturation' => 'nullable|integer|min:0|max:100',
+            'blood_sugar' => 'nullable|numeric|min:0',
+            'uric_acid' => 'nullable|numeric|min:0',
+            'tcho' => 'nullable|numeric|min:0',
+            'triglyceride' => 'nullable|numeric|min:0',
+            'high_density_protein' => 'nullable|numeric|min:0',
+            'low_density_protein' => 'nullable|numeric|min:0',
+            'hemoglobin' => 'nullable|numeric|min:0',
             'jaundice' => 'nullable|string',
-            'w_waist' => 'nullable|string|min:0',
-            'w_bust' => 'nullable|string|min:0',
-            'w_hip' => 'nullable|string|min:0',
-            'fetal_heart' => 'nullable|string|min:0',
+            'w_waist' => 'nullable|numeric|min:0',
+            'w_bust' => 'nullable|numeric|min:0',
+            'w_hip' => 'nullable|numeric|min:0',
+            'fetal_heart' => 'nullable|integer|min:0',
             'ecg' => 'nullable|string',
             'ultrasound' => 'nullable|string',
-            'white_corpuscle' => 'nullable|string|min:0',
-            'red_corpuscle' => 'nullable|string|min:0',
+            'white_corpuscle' => 'nullable|numeric|min:0',
+            'red_corpuscle' => 'nullable|numeric|min:0',
             'nitrous_acid' => 'nullable|string',
             'ketone_body' => 'nullable|string',
             'urobilinogen' => 'nullable|string',
             'bilirubin' => 'nullable|string',
             'protein' => 'nullable|string',
             'glucose' => 'nullable|string',
-            'ph' => 'nullable|string|between:0,14',
-            'vitamin_c' => 'nullable|string|min:0',
-            'creatinine' => 'nullable|string|min:0',
+            'ph' => 'nullable|numeric|between:0,14',
+            'vitamin_c' => 'nullable|numeric|min:0',
+            'creatinine' => 'nullable|numeric|min:0',
             'proportion' => 'nullable|string|min:0',
-            'albumin' => 'nullable|string|min:0',
-            'calcium' => 'nullable|string|min:0',
+            'albumin' => 'nullable|numeric|min:0',
+            'calcium' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -132,61 +133,74 @@ class TtvController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
-            'blood_pressure' => 'nullable|string|max:10',
-            'pulse' => 'nullable|string|min:0|max:300',
-            'temperature' => 'nullable|string|between:30,45',
-            'oxygen_saturation' => 'nullable|string|min:0|max:100',
-            'weight' => 'nullable|string|min:0|max:500',
-            'height' => 'nullable|string|min:0|max:300',
-            'blood_sugar' => 'nullable|string|min:0',
-            'uric_acid' => 'nullable|string|min:0',
-            'tcho' => 'nullable|string|min:0',
-            'triglyceride' => 'nullable|string|min:0',
-            'high_density_protein' => 'nullable|string|min:0',
-            'low_density_protein' => 'nullable|string|min:0',
-            'hemoglobin' => 'nullable|string|min:0',
+            'kunjungan_id' => 'required',
+            'temperature' => 'nullable|numeric|between:30,45',
+            'blood_pressure' => 'nullable|string|regex:/^\d{2,3}\/\d{2,3}$/',
+            'bmi' => 'nullable|numeric|min:0',
+            'bmi_category' => 'nullable|string',
+            'height' => 'nullable|numeric|min:0|max:300',
+            'weight' => 'nullable|numeric|min:0|max:500',
+            'pulse' => 'nullable|integer|min:0|max:300',
+            'oxygen_saturation' => 'nullable|integer|min:0|max:100',
+            'blood_sugar' => 'nullable|numeric|min:0',
+            'uric_acid' => 'nullable|numeric|min:0',
+            'tcho' => 'nullable|numeric|min:0',
+            'triglyceride' => 'nullable|numeric|min:0',
+            'high_density_protein' => 'nullable|numeric|min:0',
+            'low_density_protein' => 'nullable|numeric|min:0',
+            'hemoglobin' => 'nullable|numeric|min:0',
             'jaundice' => 'nullable|string',
-            'w_waist' => 'nullable|string|min:0',
-            'w_bust' => 'nullable|string|min:0',
-            'w_hip' => 'nullable|string|min:0',
-            'fetal_heart' => 'nullable|string|min:0',
+            'w_waist' => 'nullable|numeric|min:0',
+            'w_bust' => 'nullable|numeric|min:0',
+            'w_hip' => 'nullable|numeric|min:0',
+            'fetal_heart' => 'nullable|integer|min:0',
             'ecg' => 'nullable|string',
             'ultrasound' => 'nullable|string',
-            'white_corpuscle' => 'nullable|string|min:0',
-            'red_corpuscle' => 'nullable|string|min:0',
+            'white_corpuscle' => 'nullable|numeric|min:0',
+            'red_corpuscle' => 'nullable|numeric|min:0',
             'nitrous_acid' => 'nullable|string',
             'ketone_body' => 'nullable|string',
             'urobilinogen' => 'nullable|string',
             'bilirubin' => 'nullable|string',
             'protein' => 'nullable|string',
             'glucose' => 'nullable|string',
-            'ph' => 'nullable|string|between:0,14',
+            'ph' => 'nullable|numeric|between:0,14',
             'vitamin_c' => 'nullable|string|min:0',
-            'creatinine' => 'nullable|string|min:0',
-            'proportion' => 'nullable|string|min:0',
+            'creatinine' => 'nullable|numeric|min:0',
+            'proportion' => 'nullable|string',
             'albumin' => 'nullable|string|min:0',
-            'calcium' => 'nullable|string|min:0',
+            'calcium' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput();
+                ->withInput()
+                ->with('error', 'Validasi gagal. Periksa kembali input Anda.');
         }
 
-        $ttv = Ttv::findOrFail($id);
-        $data = $request->all();
+        $ttv = Ttv::find($id);
+        if (!$ttv) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan.');
+        }
+        $data = $request->only([
+            'kunjungan_id', 'temperature', 'blood_pressure', 'bmi', 'bmi_category',
+            'height', 'weight', 'pulse', 'oxygen_saturation', 'blood_sugar', 'uric_acid',
+            'tcho', 'triglyceride', 'high_density_protein', 'low_density_protein',
+            'hemoglobin', 'jaundice', 'w_waist', 'w_bust', 'w_hip', 'fetal_heart',
+            'ecg', 'ultrasound', 'white_corpuscle', 'red_corpuscle', 'nitrous_acid',
+            'ketone_body', 'urobilinogen', 'bilirubin', 'protein', 'glucose', 'ph',
+            'vitamin_c', 'creatinine', 'proportion', 'albumin', 'calcium'
+        ]);
 
-        // Calculate BMI if height and weight are provided
-        if (!empty($data['weight']) && !empty($data['height'])) {
-            $weight = $data['weight'];
-            $height = $data['height'] / 100; // Convert to meters
+        if (!empty($data['weight']) && !empty($data['height']) && $data['height'] > 0) {
+            $weight = (float) $data['weight'];
+            $height = (float) $data['height'] / 100; // Convert cm ke meter
             $bmi = $weight / ($height * $height);
             $data['bmi'] = round($bmi, 2);
             
-            // Set BMI category
+            // Klasifikasi BMI
             if ($bmi < 17) {
                 $data['bmi_category'] = 'Kurus';
             } elseif ($bmi <= 18.4) {
@@ -198,9 +212,14 @@ class TtvController extends Controller
             }
         }
 
+        // dd($data);
         $ttv->update($data);
 
-        return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
+        if ($ttv->update($data)) {
+            return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal memperbarui data.');
+        }
     }
 
     /**
