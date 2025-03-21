@@ -35,6 +35,19 @@ class OphLogController extends Controller
 
         $tanggal = Carbon::parse($data['date'])->toDateString();
 
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+            return response()->json([
+                'message' => 'Invalid date format. Use YYYY-MM-DD.'
+            ], 400);
+        }
+        try {
+            $tanggal = Carbon::parse($tanggal)->toDateString();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Invalid date value.'
+            ], 400);
+        }
+
         $kunjunganIds = Kunjungan::where('tanggal',$tanggal)->whereHas('pasien', function ($query) use ($nik) {
             $query->where('nik', $nik);
         })->pluck('id');
