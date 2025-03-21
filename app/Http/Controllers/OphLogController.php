@@ -33,7 +33,7 @@ class OphLogController extends Controller
 
         $nik = $data['nik'];
 
-        $tanggal = \Carbon::parse($data['date'])->toDateString();
+        $tanggal = Carbon::parse($data['date'])->toDateString();
 
         $kunjunganIds = Kunjungan::where('tanggal',$tanggal)->whereHas('pasien', function ($query) use ($nik) {
             $query->where('nik', $nik);
