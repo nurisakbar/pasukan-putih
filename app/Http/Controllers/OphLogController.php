@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\OphLog;
 use App\Models\Ttv;
 use App\Models\Kunjungan;
+use Carbon\Carbon;
 
 class OphLogController extends Controller
 {
@@ -32,7 +33,9 @@ class OphLogController extends Controller
 
         $nik = $data['nik'];
 
-        $kunjunganIds = Kunjungan::where('tanggal',$request->date)->whereHas('pasien', function ($query) use ($nik) {
+        $tanggal = \Carbon::parse($data['date'])->toDateString();
+
+        $kunjunganIds = Kunjungan::where('tanggal',$tanggal)->whereHas('pasien', function ($query) use ($nik) {
             $query->where('nik', $nik);
         })->pluck('id');
 
