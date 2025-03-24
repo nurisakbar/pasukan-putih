@@ -143,7 +143,7 @@ class OphLogController extends Controller
                 case 'ECG':
                     $examination->ecg = $examinationData['result'];
                     break;
-                case 'ULTRASOUND':
+                case 'ULTRASONIC':
                     $examination->ultrasound = $examinationData['result'];
                     break;
                 case 'WHITE_CORPUSCLE':
@@ -185,7 +185,7 @@ class OphLogController extends Controller
                 case 'ALBUMIN':
                     $examination->albumin = $examinationData['result'];
                     break;
-                case 'CALCIUM':
+                case 'CA':
                     $examination->calcium = $examinationData['result'];
                     break;
                 default:
