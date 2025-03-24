@@ -72,11 +72,19 @@ class OphLogController extends Controller
             $examinationName = strtoupper($examinationData['examination_name']);
 
             switch ($examinationName) {
+                case 'SYSTOLE_MMHG':
+                    $systole = $examinationData['result'];
+                    break;
+                case 'SLACK_MMHG':
+                    $slack = $examinationData['result'];
+                    break;
                 case 'TEMPERATURE':
                     $examination->temperature = $examinationData['result'];
                     break;
                 case 'BLOOD_PRESSURE':
-                    $examination->blood_pressure = $examinationData['result'];
+                    if ($systole !== null && $slack !== null) {
+                        $examination->blood_pressure = $systole . '/' . $slack;
+                    }
                     break;
                 case 'BMI':
                     $examination->bmi = $examinationData['result'];
@@ -90,10 +98,10 @@ class OphLogController extends Controller
                 case 'WEIGHT':
                     $examination->weight = $examinationData['result'];
                     break;
-                case 'PULSE':
+                case 'PULSE_RATE':
                     $examination->pulse = $examinationData['result'];
                     break;
-                case 'OXYGEN_SATURATION':
+                case 'BLOOD_OXYGEN':
                     $examination->oxygen_saturation = $examinationData['result'];
                     break;
                 case 'BLOOD_SUGAR':
