@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    use Carbon\Carbon;
+@endphp
+
 @section('content')
     <div class="app-content-header py-3">
         <div class="container-fluid">
@@ -32,7 +36,7 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
                                 <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal" 
-                                    value="{{ request('tanggal_awal') }}">
+                                    value="{{ request('tanggal_awal', Carbon::today()->toDateString()) }}">
                             </div>
                         </div>
                         <div class="col-md-3 col-12">

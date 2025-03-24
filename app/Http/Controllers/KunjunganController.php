@@ -39,11 +39,16 @@ class KunjunganController extends Controller
             });
         }
 
-        if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
-            $tanggalAwal = Carbon::parse($request->input('tanggal_awal'))->startOfDay();
-            $tanggalAkhir = Carbon::parse($request->input('tanggal_akhir'))->endOfDay();
-            $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
-        }
+        $tanggalAwal = $request->filled('tanggal_awal') 
+            ? Carbon::parse($request->input('tanggal_awal'))->startOfDay()
+            : Carbon::today()->startOfDay();
+
+        $tanggalAkhir = $request->filled('tanggal_akhir') 
+            ? Carbon::parse($request->input('tanggal_akhir'))->endOfDay()
+            : Carbon::today()->endOfDay();
+
+        // Terapkan filter tanggal
+        $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
 
         $kunjungans = $query->paginate(10);
 
