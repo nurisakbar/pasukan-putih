@@ -125,7 +125,7 @@
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
                                                         </li>
-                                                        @if (auth()->user()->role == 'perawat')    
+                                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')    
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}" 
                                                                class="dropdown-item">
