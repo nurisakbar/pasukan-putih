@@ -103,6 +103,10 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 
 Route::get('/test-view', function () {
     
-    return view('kunjungans.form-ttv');
+    return view('kunjungans.create-kunjungan');
+});
+Route::get('/test-view-form', function () {
+    
+    return view('kunjungans.form-kesehatan');
 });
 
