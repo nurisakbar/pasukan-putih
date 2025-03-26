@@ -39,7 +39,7 @@ class UserController extends Controller
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+        $users = $query->orderBy('created_at', 'asc')->paginate(15);
 
         return view('users.index', compact('users'));
     }

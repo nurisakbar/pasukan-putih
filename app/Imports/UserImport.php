@@ -49,31 +49,50 @@ class UserImport implements ToModel, WithHeadingRow, WithMapping
      * @param string $email
      * @return string
      */
-    private function generateUniqueEmail($email)
-    {
-        if (empty($email) || !is_string($email) || strpos($email, '@') === false) {
-            // Generate a random email if input is invalid
-            $email = Str::random(10) . '@gmail.com';
-        }
+    private function generateUniqueEmail($input, $type = 'default')
+{
+    // Sanitize the input
+    $cleanInput = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($input));
     
-        $originalEmail = $email;
+    // For perawat, handle email uniqueness differently
+    if ($type === 'perawat' && !empty($input) && strpos($input, '@') !== false) {
+        $originalEmail = $input;
+        $parts = explode('@', $originalEmail);
+        $username = $parts[0];
+        $domain = $parts[1] ?? 'gmail.com';
+        
         $counter = 1;
-    
+        $email = $originalEmail;
+        
         while (User::where('email', $email)->exists()) {
-            // Safer email splitting
-            $parts = explode('@', $originalEmail, 2);
-            
-            // Ensure we have both username and domain
-            $username = $parts[0] ?? Str::random(10);
-            $domain = $parts[1] ?? 'example.com';
-    
-            // Create new email with counter
             $email = $username . $counter . '@' . $domain;
             $counter++;
         }
-    
+        
         return $email;
     }
+    
+    // For puskesmas and pustu, convert name to email
+    $username = $cleanInput;
+    $domain = 'gmail.com';
+    
+    // Initial email
+    $email = $username . '@' . $domain;
+
+    // Counter for unique emails
+    $counter = 1;
+    $originalUsername = $username;
+
+    // Check and modify if email exists
+    while (User::where('email', $email)->exists()) {
+        // Append counter to the original username
+        $username = $originalUsername . $counter;
+        $email = $username . '@' . $domain;
+        $counter++;
+    }
+
+    return $email;
+}
 
     /**
      * Generate a fallback name if name is null
@@ -115,7 +134,7 @@ class UserImport implements ToModel, WithHeadingRow, WithMapping
         $keterangan = ucwords(strtolower(str_replace('_', ' ', $puskesmasName)));
 
         // Generate Puskesmas Email
-        $puskesmasEmail = $this->generateUniqueEmail(strtolower($puskesmasName) . '@gmail.com');
+        $puskesmasEmail = $this->generateUniqueEmail($row['nama_puskesmas_pembantu'], 'puskesmas');
 
         // Create Puskesmas User
         $puskesmas = User::firstOrCreate(
@@ -134,7 +153,7 @@ class UserImport implements ToModel, WithHeadingRow, WithMapping
         $pustuName = $row['nama_puskesmas_pembantu'] 
             ? $row['nama_puskesmas_pembantu'] . ' - Pustu'
             : $this->generateFallbackName($row, 'pustu');
-        $pustuEmail = $this->generateUniqueEmail(strtolower(str_replace(' ', '_', $pustuName)) . '@gmail.com');
+            $pustuEmail = $this->generateUniqueEmail($row['nama_puskesmas_pembantu'], 'pustu');
 
         // Create Pustu User
         $pustu = User::firstOrCreate(
@@ -154,9 +173,8 @@ class UserImport implements ToModel, WithHeadingRow, WithMapping
             ? $row['nama_perawat_koordinator'] 
             : $this->generateFallbackName($row, 'perawat');
         $perawatEmail = $this->generateUniqueEmail(
-            !empty($row['email']) 
-                ? $row['email'] 
-                : strtolower(str_replace(' ', '_', $perawatName)) . '@gmail.com'
+            !empty($row['email']) ? $row['email'] : strtolower(str_replace(' ', '_', $perawatName)),
+            'perawat'
         );
 
         // Create Perawat User
