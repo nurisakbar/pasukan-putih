@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('kunjungans', function (Blueprint $table) {
-            $table->dropColumn('henti_layanan_kenaikan_aks');
-            $table->dropColumn('henti_layanan_meninggal');
-            $table->dropColumn('henti_layanan_menolak');
-            $table->dropColumn('henti_layanan_pindah_domisili');
-            $table->string('henti_layanan')->nullable();
-            $table->string('rujukan')->change();
-            $table->string('lanjut_kunjungan')->change();
+            // $table->dropColumn('henti_layanan_kenaikan_aks');
+            // $table->dropColumn('henti_layanan_meninggal');
+            // $table->dropColumn('henti_layanan_menolak');
+            // $table->dropColumn('henti_layanan_pindah_domisili');
+            // $table->string('henti_layanan')->nullable();
+            // $table->string('rujukan')->change();
+            // $table->string('lanjut_kunjungan')->change();
         });
     }
 
@@ -28,13 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('kunjungans', function (Blueprint $table) {
-            $table->string('henti_layanan_kenaikan_aks')->nullable();
-            $table->string('henti_layanan_meninggal')->nullable();
-            $table->string('henti_layanan_menolak')->nullable();    
-            $table->string('henti_layanan_pindah_domisili')->nullable();
-            $table->dropColumn('henti_layanan');
-            $table->boolean('lanjut_kunjungan')->change();
-            $table->boolean('rujukan')->change();
+            // $table->string('henti_layanan_kenaikan_aks')->nullable();
+            // $table->string('henti_layanan_meninggal')->nullable();
+            // $table->string('henti_layanan_menolak')->nullable();    
+            // $table->string('henti_layanan_pindah_domisili')->nullable();
+            // $table->dropColumn('henti_layanan');
+            // $table->boolean('lanjut_kunjungan')->change();
+            // $table->boolean('rujukan')->change();
         });
     }
 };

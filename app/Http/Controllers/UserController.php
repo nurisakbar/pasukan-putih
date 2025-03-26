@@ -8,25 +8,39 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UserImport;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the users.
      */
-    public function index()
+    public function index(Request $request)
     {
         $currentUser = Auth::user();
-        
-        // If superadmin, get all users
-        if ($currentUser->role == 'superadmin') {
-            $users = User::all();
-        } 
-        // If facility (puskesmas/klinik/pustu), get only users they created
-        else {
-            $users = User::where('parent_id', $currentUser->id)->get();
+        $query = User::query();
+
+        // Filter berdasarkan role
+        if ($currentUser->role !== 'superadmin') {
+            $query->where('parent_id', $currentUser->id);
         }
-        
+
+        // Search berdasarkan nama atau email
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter berdasarkan rentang tanggal
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
         return view('users.index', compact('users'));
     }
 
@@ -286,5 +300,16 @@ class UserController extends Controller
         }
         
         return true;
+    }
+
+    public function importUsers(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv',
+        ]);
+
+        Excel::import(new UserImport, $request->file('file'));
+
+        return back()->with('success', 'Data pengguna berhasil diimport!');
     }
 }
