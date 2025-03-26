@@ -130,11 +130,11 @@ class UserImport implements ToModel, WithHeadingRow, WithMapping
         $puskesmasName = !empty($row['nama_puskesmas_pembantu']) 
             ? str_replace('PEMBANTU', '', strtoupper($row['nama_puskesmas_pembantu']))
             : 'Puskesmas ' . Str::random(5);
-        $puskesmasName = trim(str_replace(' ', '_', $puskesmasName)); 
+        $puskesmasName = trim(str_replace(' ', '', $puskesmasName));  
         $keterangan = ucwords(strtolower(str_replace('_', ' ', $puskesmasName)));
 
         // Generate Puskesmas Email
-        $puskesmasEmail = $this->generateUniqueEmail($row['nama_puskesmas_pembantu'], 'puskesmas');
+        $puskesmasEmail = $this->generateUniqueEmail($puskesmasName, 'puskesmas');
 
         // Create Puskesmas User
         $puskesmas = User::firstOrCreate(
