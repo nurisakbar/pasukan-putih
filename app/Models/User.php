@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->hasMany(Kunjungan::class);
     }
 
+    public function visiting()
+    {
+        return $this->hasMany(Visiting::class);
+    }
+
     public function skriningAdl()
     {
         return $this->hasMany(SkriningAdl::class);

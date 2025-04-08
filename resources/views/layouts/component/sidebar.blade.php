@@ -38,7 +38,7 @@
               </a>
             </li> --}}
                 <li class="nav-item">
-                    <a href="{{ route('kunjungans.index') }}" class="nav-link">
+                    <a href="{{ route('visitings.index') }}" class="nav-link">
                         <i class="nav-icon bi bi-calendar-event"></i>
                         <p>Kunjungan</p>
                     </a>

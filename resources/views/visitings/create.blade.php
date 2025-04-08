@@ -43,7 +43,7 @@
                             <form action="{{ route('visitings.store') }}" method="POST">
                                 @csrf
                                 
-                                <input type="text" class="form-control id" name="pasien_id" value="">
+                                <input type="hidden" class="form-control id" name="pasien_id" value="">
                                 <input type="hidden" class="form-control id" name="user_id" value="{{ auth()->id() }}">
 
                                 <div class="form-group mb-3">
@@ -137,7 +137,7 @@
                                 
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Simpan</button>
-                                    <a href="{{ route('kunjungans.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
+                                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
                                 </div>
                             </form>
                         </div>

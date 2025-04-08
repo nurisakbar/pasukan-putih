@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-12">
-                    <h3 class="mb-0">Tambah Kunjungan</h3>
+                    <h3 class="mb-0">Edit Kunjungan</h3>
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Form Tambah Kunjungan</h5>
+                                <h5 class="card-title mb-0">Form Edit Kunjungan</h5>
                             </div>
                         </div>
                         <div id="loading-indicator" class="p-3 d-none">
@@ -40,30 +40,32 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('visitings.store') }}" method="POST">
+                            <form action="{{ route('visitings.update', $visiting->id) }}" method="POST">
                                 @csrf
+                                @method('PUT')
                                 
-                                <input type="text" class="form-control id" name="pasien_id" value="">
-                                <input type="hidden" class="form-control id" name="user_id" value="{{ auth()->id() }}">
+                                {{-- <input type="hidden" class="form-control id" name="pasien_id" value="{{ $visiting->pasien_id }}"> --}}
+                                {{-- <input type="hidden" class="form-control id" name="user_id" value="{{ auth()->id() }}"> --}}
 
                                 <div class="form-group mb-3">
                                    <label for="inputDay" class="form-label">Tanggal Kunjungan</label>
-                                   <input type="date" id="inputDay" class="form-control" name="tanggal" 
-                                       placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
+                                   <input type="date" class="form-control" name="tanggal" 
+                                   placeholder="Tanggal" value="{{ old('tanggal', isset($visiting->tanggal) ? $visiting->tanggal->format('Y-m-d') : '') }}">
+                               
                                </div>
 
                                <div class="form-group mb-3">
                                    <label for="status" class="form-label">Kategori Kunjungan</label>
                                    <select name="status" id="status" class="form-select">
                                        <option value="" selected> -- Pilih Status -- </option>
-                                       <option value="Kunjungan Awal" {{ old('status') == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
-                                       <option value="Kunjungan Lanjutan" {{ old('status') == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
+                                       <option value="Kunjungan Awal" {{ old('status', $visiting->status) == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
+                                       <option value="Kunjungan Lanjutan" {{ old('status', $visiting->status) == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
                                    </select>
                                </div>
 
                                 <div class="form-group mb-3">
                                     <label for="nik" class="form-label">NIK</label>
-                                    <input type="text" class="form-control nik" id="nik" name="nik" placeholder="NIK" value="{{ old('nik') }}">
+                                    <input type="text" class="form-control nik" id="nik" name="nik" placeholder="NIK" value="{{ old('nik', $visiting->pasien->nik) }}" disabled>
                                     @error('nik')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -72,7 +74,7 @@
                                 <div class="form-group mb-3">
                                     <label for="name" class="form-label">Nama</label>
                                     <input type="text" class="form-control name" id="name" name="name" 
-                                        placeholder="Nama" value="{{ old('name') }}">
+                                        placeholder="Nama" value="{{ old('name', $visiting->pasien->name) }}" disabled>
                                     @error('name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -81,7 +83,7 @@
                                 <div class="form-group mb-3">
                                     <label for="alamat" class="form-label">Alamat</label>
                                     <input type="text" class="form-control alamat" id="alamat" name="alamat"
-                                        placeholder="Alamat" value="{{ old('alamat') }}">
+                                        placeholder="Alamat" value="{{ old('alamat', $visiting->pasien->alamat) }}" disabled>
                                     @error('alamat')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -91,17 +93,17 @@
                                     <div class="col-6 col-md-3">
                                         <label for="rt" class="form-label">RT</label>
                                         <input type="number" class="form-control rt" id="rt" name="rt"
-                                            placeholder="RT" value="{{ old('rt', '00') }}">
+                                            placeholder="RT" value="{{ old('rt', $visiting->pasien->rt) }}">
                                     </div>
                                     <div class="col-6 col-md-3">
                                         <label for="rw" class="form-label">RW</label>
                                         <input type="number" class="form-control rw" id="rw" name="rw"
-                                            placeholder="RW" value="{{ old('rw', '00') }}">
+                                            placeholder="RW" value="{{ old('rw', $visiting->pasien->rw) }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="kelurahan" class="form-label">Kelurahan</label>
                                         <input type="text" class="form-control kelurahan" id="kelurahan" name="kelurahan"
-                                            placeholder="Kelurahan" value="{{ old('kelurahan') }}">
+                                            placeholder="Kelurahan" value="{{ old('kelurahan', $visiting->pasien->village_id) }}">
                                     </div>
                                 </div>
                                 
@@ -109,35 +111,35 @@
                                     <div class="col-md-6">
                                         <label for="kecamatan" class="form-label">Kecamatan</label>
                                         <input type="text" class="form-control kecamatan" id="kecamatan" name="kecamatan"
-                                            placeholder="Kecamatan" value="{{ old('kecamatan') }}">
+                                            placeholder="Kecamatan" value="{{ old('kecamatan', $visiting->pasien->district_id) }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="kabupaten" class="form-label">Kabupaten/Kota</label>
                                         <input type="text" class="form-control kabupaten" id="kabupaten" name="kabupaten"
-                                            placeholder="Kabupaten/Kota" value="{{ old('kabupaten') }}">
+                                            placeholder="Kabupaten/Kota" value="{{ old('kabupaten', $visiting->pasien->regency_id) }}">
                                     </div>
                                 </div>
                                 
                                 <div class="form-group mb-3">
                                    <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
                                    <input type="number" step="0.1" class="form-control" id="berat_badan" name="berat_badan"
-                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan') }}" oninput="hitungIMT()">
+                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan', $visiting->berat_badan) }}" oninput="hitungIMT()">
                                </div>
                                
                                <div class="form-group mb-3">
                                    <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
                                    <input type="number" step="0.1" class="form-control" id="tinggi_badan" name="tinggi_badan"
-                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan') }}" oninput="hitungIMT()">
+                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan', $visiting->tinggi_badan) }}" oninput="hitungIMT()">
                                </div>
                                
                                <div class="form-group mb-3">
                                    <label for="imt" class="form-label">Indeks Massa Tubuh (IMT)</label>
-                                   <input type="text" class="form-control" id="imt" name="imt" readonly>
+                                   <input type="text" class="form-control" id="imt" name="imt" readonly value="{{ old('imt', $visiting->imt) }}">
                                </div>
                                 
                                 <div class="d-grid gap-2 d-md-flex">
-                                    <button type="submit" class="btn btn-primary px-4">Simpan</button>
-                                    <a href="{{ route('kunjungans.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
+                                    <button type="submit" class="btn btn-primary px-4">Update</button>
+                                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
                                 </div>
                             </form>
                         </div>

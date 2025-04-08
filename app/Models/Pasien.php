@@ -42,6 +42,11 @@ class Pasien extends Model
         return $this->hasMany(Kunjungan::class);
     }
 
+    public function visiting()
+    {
+        return $this->hasMany(Visiting::class);
+    }
+
     public function regency()
     {
         return $this->belongsTo(Regency::class, 'regency_id', 'id');

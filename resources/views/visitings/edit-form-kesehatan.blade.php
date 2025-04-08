@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container-fluid health-form-container">
-    <form action="{{ route('health-form.store') }}" method="POST" class="needs-validation" novalidate>
+    <form action="{{ route('health-form.update', $healthForm->id) }}" method="POST" class="needs-validation" novalidate>
         @csrf
-        <input type="text" name="visiting_id" value="{{ $visiting->id }}">
+        @method('PUT')
         <div class="card form-card border-0 shadow-sm">
             <div class="card-header bg-primary text-white d-flex align-items-center mt-2">
                 <i class="fas fa-notes-medical me-2"></i>
@@ -22,27 +22,27 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="no_disease" name="no_disease" value="1">
+                                <input class="form-check-input" type="checkbox" id="no_disease" name="no_disease" value="1" {{ $healthForm->no_disease ? 'checked' : '' }}>
                                 <label class="form-check-label" for="no_disease">Tidak Ada Riwayat Penyakit</label>
                             </div>
                         </div>
                     </div>
                     <div class="row disease-checkboxes">
-                         @php
-                        $diseases = [
-                            'diabetes' => 'Diabetes Melitus',
-                            'kidney_failure' => 'Gagal Ginjal',
-                            'heart_failure' => 'Gagal Jantung',
-                            'hiv_aids' => 'HIV/AIDS',
-                            'leprosy' => 'Kusta',
-                            'stroke' => 'Stroke'
-                        ];
+                        @php
+                            $diseases = [
+                                'diabetes' => 'Diabetes Melitus',
+                                'kidney_failure' => 'Gagal Ginjal',
+                                'heart_failure' => 'Gagal Jantung',
+                                'hiv_aids' => 'HIV/AIDS',
+                                'leprosy' => 'Kusta',
+                                'stroke' => 'Stroke'
+                            ];
                         @endphp
 
                         @foreach($diseases as $key => $label)
-                        <div class="col-md-4 col-lg-3 mb-2">
+                        <div class="col-md-6 col-lg-3 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="{{ $key }}" name="diseases[]" value="{{ $key }}">
+                                <input class="form-check-input disease-checkbox" type="checkbox" id="{{ $key }}" name="diseases[]" value="{{ $key }}" {{ in_array($key, $healthForm->diseases) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
                             </div>
                         </div>
@@ -51,35 +51,35 @@
                         <!-- Kanker -->
                         <div class="col-md-4 col-lg-3 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="cancer" name="diseases[]" value="cancer">
+                                <input class="form-check-input disease-checkbox" type="checkbox" id="cancer" name="diseases[]" value="cancer" {{ in_array('cancer', $healthForm->diseases) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="cancer">Kanker</label>
                             </div>
-                            <select class="form-select conditional-field cancer-type mt-2" name="cancer_type" style="display: none">
+                            <select class="form-select conditional-field cancer-type mt-2" name="cancer_type" style="display: {{ in_array('cancer', $healthForm->diseases) ? 'block' : 'none' }}">
                                 <option value="">Pilih Jenis Kanker</option>
-                                <option value="breast">Kanker Payudara</option>
-                                <option value="cervical">Kanker Leher Rahim</option>
-                                <option value="lung">Kanker Paru</option>
-                                <option value="colorectal">Kanker Kolorektal</option>
-                                <option value="liver">Kanker Hati</option>
-                                <option value="nasopharyngeal">Kanker Nasofaring</option>
-                                <option value="lymphoma">Limfoma Non Hodgkin</option>
-                                <option value="leukemia">Leukemia</option>
-                                <option value="ovarian">Kanker Ovarium</option>
-                                <option value="other">Kanker Lainnya</option>
+                                <option value="breast" {{ $healthForm->cancer_type == 'breast' ? 'selected' : '' }}>Kanker Payudara</option>
+                                <option value="cervical" {{ $healthForm->cancer_type == 'cervical' ? 'selected' : '' }}>Kanker Leher Rahim</option>
+                                <option value="lung" {{ $healthForm->cancer_type == 'lung' ? 'selected' : '' }}>Kanker Paru</option>
+                                <option value="colorectal" {{ $healthForm->cancer_type == 'colorectal' ? 'selected' : '' }}>Kanker Kolorektal</option>
+                                <option value="liver" {{ $healthForm->cancer_type == 'liver' ? 'selected' : '' }}>Kanker Hati</option>
+                                <option value="nasopharyngeal" {{ $healthForm->cancer_type == 'nasopharyngeal' ? 'selected' : '' }}>Kanker Nasofaring</option>
+                                <option value="lymphoma" {{ $healthForm->cancer_type == 'lymphoma' ? 'selected' : '' }}>Limfoma Non Hodgkin</option>
+                                <option value="leukemia" {{ $healthForm->cancer_type == 'leukemia' ? 'selected' : '' }}>Leukemia</option>
+                                <option value="ovarian" {{ $healthForm->cancer_type == 'ovarian' ? 'selected' : '' }}>Kanker Ovarium</option>
+                                <option value="other" {{ $healthForm->cancer_type == 'other' ? 'selected' : '' }}>Kanker Lainnya</option>
                             </select>
                         </div>
 
                         <!-- Penyakit Paru -->
                         <div class="col-md-4 col-lg-3 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="lung_disease" name="diseases[]" value="lung_disease">
+                                <input class="form-check-input disease-checkbox" type="checkbox" id="lung_disease" name="diseases[]" value="lung_disease" {{ in_array('lung_disease', $healthForm->diseases) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="lung_disease">Penyakit Paru</label>
                             </div>
-                            <select class="form-select conditional-field lung-disease-type mt-2" name="lung_disease_type" style="display: none">
+                            <select class="form-select conditional-field lung-disease-type mt-2" name="lung_disease_type" style="display: {{ in_array('lung_disease', $healthForm->diseases) ? 'block' : 'none' }}">
                                 <option value="">Pilih Penyakit Paru</option>
-                                <option value="tbc">TBC</option>
-                                <option value="pneumonia">Pneumonia</option>
-                                <option value="ppok">PPOK</option>
+                                <option value="tbc" {{ $healthForm->lung_disease_type == 'tbc' ? 'selected' : '' }}>TBC</option>
+                                <option value="pneumonia" {{ $healthForm->lung_disease_type == 'pneumonia' ? 'selected' : '' }}>Pneumonia</option>
+                                <option value="ppok" {{ $healthForm->lung_disease_type == 'ppok' ? 'selected' : '' }}>PPOK</option>
                             </select>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                         <h5>Skrining ILP</h5>
                     </div>
                     <div class="row">
-                         @php
+                        @php
                          $screenings = [
                              ["id" => "obesity", "label" => "Skrining Obesitas"],
                              ["id" => "hypertension", "label" => "Skrining Hipertensi"],
@@ -113,24 +113,23 @@
                              ["id" => "elderly", "label" => "Skrining Lansia Sederhana (SKILAS)"]
                          ];
                          @endphp
- 
                         @foreach($screenings as $screening)
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">{{ $screening["label"] }}</label>
                             <div class="mb-2">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_yes" value="1">
+                                    <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_yes" value="1" {{ $healthForm->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $screening['id'] }}_yes">Ya</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_no" value="0">
+                                    <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_no" value="0" {{ $healthForm->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $screening['id'] }}_no">Tidak</label>
                                 </div>
                             </div>
-                            <select class="form-select conditional-field {{ $screening['id'] }}-status" name="{{ $screening['id'] }}_status" style="display: none">
+                            <select class="form-select conditional-field {{ $screening['id'] }}-status" name="{{ $screening['id'] }}_status" style="display: {{ $healthForm->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
                                 <option value="">Pilih Status</option>
-                                <option value="penderita">Penderita</option>
-                                <option value="bukan_penderita">Bukan Penderita</option>
+                                <option value="penderita" {{ $healthForm->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>Penderita</option>
+                                <option value="bukan_penderita" {{ $healthForm->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>Bukan Penderita</option>
                             </select>
                         </div>
                         @endforeach
@@ -148,28 +147,29 @@
                             <label class="form-label fw-medium">Skor AKS</label>
                             <div class="d-flex flex-wrap gap-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_mandiri" value="mandiri">
+                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_mandiri" value="mandiri" {{ $healthForm->skor_aks == 'mandiri' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="skor_aks_mandiri">20 : Mandiri</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_ringan" value="ketergantungan_ringan">
+                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_ringan" value="ketergantungan_ringan" {{ $healthForm->skor_aks == 'ketergantungan_ringan' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="skor_aks_ringan">12 - 19 : Ketergantungan ringan</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_sedang" value="ketergantungan_sedang">
+                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_sedang" value="ketergantungan_sedang" {{ $healthForm->skor_aks == 'ketergantungan_sedang' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="skor_aks_sedang">9 - 11 : Ketergantungan sedang</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_berat" value="ketergantungan_berat">
+                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_berat" value="ketergantungan_berat" {{ $healthForm->skor_aks == 'ketergantungan_berat' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="skor_aks_berat">5 - 8 : Ketergantungan berat</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_total" value="ketergantungan_total">
+                                    <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_total" value="ketergantungan_total" {{ $healthForm->skor_aks == 'ketergantungan_total' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="skor_aks_total">0 - 4 : Ketergantungan total</label>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </ ```php
                 </div>
 
                 <!-- Jenis gangguan fungsional -->
@@ -179,7 +179,7 @@
                         <h5>Jenis gangguan fungsional yang dialami</h5>
                     </div>
                     <div class="row">
-                         @php
+                        @php
                          $gangguans = [
                              ["id" => "gangguan_komunikasi", "label" => "Gangguan komunikasi"],
                              ["id" => "kesulitan_makan", "label" => "Kesulitan makan (feeding problem)"],
@@ -189,17 +189,16 @@
                              ["id" => "gangguan_partisipasi", "label" => "Gangguan aktifitas kehidupan sehari-hari/partisipasi"],
                          ];
                          @endphp
- 
                         @foreach($gangguans as $gangguan)
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">{{ ucfirst($gangguan["label"]) }}</label>
                             <div class="mb-2">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_yes" value="1">
+                                    <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_yes" value="1" {{ $healthForm->{$gangguan['id']} == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $gangguan['id'] }}_yes">Ya</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_no" value="0">
+                                    <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_no" value="0" {{ $healthForm->{$gangguan['id']} == 0 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $gangguan['id'] }}_no">Tidak</label>
                                 </div>
                             </div>
@@ -216,7 +215,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3"></textarea>
+                            <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $healthForm->perawatan }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -227,7 +226,7 @@
                         <h5>Perawatan Umum Yang Dilakukan</h5>
                     </div>
                     <div class="row">
-                         @php
+                        @php
                          $perawatans = [
                              ["id" => "hygiene", "label" => "Pemeliharaan kebersihan diri"],
                              ["id" => "skin_care", "label" => "Pencegahan Masalah Kesehatan Kulit"],
@@ -240,17 +239,16 @@
                              ["id" => "ibadah", "label" => "Motivasi untuk Pelaksanaan Ibadah"],
                          ];
                          @endphp
- 
                         @foreach($perawatans as $perawatan)
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">{{ $perawatan["label"] }}</label>
                             <div class="mb-2">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1">
+                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $healthForm->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0">
+                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $healthForm->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
                                 </div>
                             </div>
@@ -265,7 +263,7 @@
                         <h5>Perawatan Khusus Yang Dilakukan</h5>
                     </div>
                     <div class="row">
-                         @php
+                        @php
                          $perawatans = [
                              ["id" => "membantu_warga", "label" => "Membantu warga jakarta yang membutuhkan yang Mengalami Gangguan Gerak"],
                              ["id" => "monitoring_gizi", "label" => "Monitoring dan Edukasi Pemenuhan Gizi yang baik"],
@@ -274,17 +272,16 @@
                              ["id" => "pengelolaan_stres", "label" => "Pengelolaan Stres"],
                          ];
                          @endphp
- 
                         @foreach($perawatans as $perawatan)
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">{{ $perawatan["label"] }}</label>
                             <div class="mb-2">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1">
+                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $healthForm->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0">
+                                    <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $healthForm->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
                                 </div>
                             </div>
@@ -304,22 +301,22 @@
                             <label class="form-label fw-medium">Keluaran Perawatan</label>
                             <div class="d-flex gap-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1">
+                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1" {{ $healthForm->keluaran == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="keluaran_meningkat">Meningkat</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2">
+                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2" {{ $healthForm->keluaran == 2 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="keluaran_tetap">Tetap</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3">
+                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3" {{ $healthForm->keluaran == 3 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="keluaran_menurun">Menurun</label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-8 mb-3">
                             <label class="form-label fw-medium">Keterangan</label>
-                            <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan hasil perawatan" value="{{ old('keterangan') }}">
+                            <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan hasil perawatan" value="{{ $healthForm->keterangan }}">
                         </div>
                     </div>
                 </div>
@@ -334,8 +331,8 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">Pembinaan Keluarga</label>
                             <select name="pembinaan" id="pembinaan" class="form-select">
-                                <option value="ya">Ya</option>
-                                <option value="tidak">Tidak</option>
+                                <option value="ya" {{ $healthForm->pembinaan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                <option value="tidak" {{ $healthForm->pembinaan == 'tidak' ? 'selected' : '' }}>Tidak</option>
                             </select>
                         </div>
                     </div>
@@ -348,7 +345,7 @@
                         <h5>Tingkat Kemandirian Keluarga</h5>
                     </div>
                     <div class="row kemandirian-checkboxes">
-                         @php
+                        @php
                         $tingkat_kemandirian = [
                             'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
                             'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
@@ -359,11 +356,10 @@
                             'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
                         ];
                         @endphp
-
                         @foreach($tingkat_kemandirian as $key => $label)
                         <div class="col-md-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input kemandirian-checkbox" type="checkbox" id="{{ $key }}" name="kemandirian[]" value="{{ $key }}">
+                                <input class="form-check-input kemandirian-checkbox" type="checkbox" id="{{ $key }}" name="kemandirian[]" value="{{ $key }}" {{ in_array($key, $healthForm->kemandirian) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
                             </div>
                         </div>
@@ -384,23 +380,23 @@
                             <label class="form-label fw-medium">Apakah akan dikunjungi kembali oleh perawat?</label>
                             <select name="kunjungan_lanjutan" id="kunjungan_lanjutan" class="form-select">
                                 <option value="">Pilih...</option>
-                                <option value="ya">Ya</option>
-                                <option value="tidak">Tidak</option>
+                                <option value="ya" {{ $healthForm->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                <option value="tidak" {{ $healthForm->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>Tidak</option>
                             </select>
                         </div>
                     </div>
                     
-                    <div id="detail_kunjungan_lanjutan" style="display: none;">
+                    <div id="detail_kunjungan_lanjutan" style="display: {{ $healthForm->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label class="form-label fw-medium">Permasalahan kesehatan yang perlu kunjungan lanjutan</label>
-                                <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan"></textarea>
+                                <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $healthForm->permasalahan_lanjutan }}</textarea>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-medium">Tanggal kunjungan lanjutan</label>
-                                <input type="date" class="form-control" id="tanggal_kunjungan" name="tanggal_kunjungan">
+                                <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ old('tanggal_kunjungan', isset($healthForm->tanggal_kunjungan) ? $healthForm->tanggal_kunjungan->format('Y-m-d') : '') }}">
                             </div>
                         </div>
                     </div>
@@ -412,6 +408,10 @@
                         <i class="fas fa-save me-2"></i>
                         <span>Simpan Data</span>
                     </button>
+                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        <span>Kembali</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -467,47 +467,8 @@
             });
         });
 
-        // Enhanced Form Validation
-        const form = document.querySelector('form.needs-validation');
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validasi Gagal',
-                    text: 'Mohon lengkapi semua field yang diperlukan.'
-                });
-            }
-            form.classList.add('was-validated');
-        });
-
-        // Tingkat Kemandirian Logic
-        const kemandirianCheckboxes = document.querySelectorAll(".kemandirian-checkbox");
-        const kemandirianLabel = document.getElementById("tingkatKemandirianLabel");
-
-        function updateKemandirianLevel() {
-            const checkedCount = Array.from(kemandirianCheckboxes).filter(cb => cb.checked).length;
-            let level = "Belum Ditentukan";
-
-            if (checkedCount >= 7) {
-                level = "Keluarga IV";
-            } else if (checkedCount === 6) {
-                level = "Keluarga III";
-            } else if (checkedCount === 5) {
-                level = "Keluarga II";
-            } else if (checkedCount <= 4 && checkedCount >= 1) {
-                level = "Keluarga I";
-            }
-
-            kemandirianLabel.textContent = level;
-        }
-
-        kemandirianCheckboxes.forEach(cb => cb.addEventListener("change", updateKemandirianLevel));
-
-         // Kunjungan Lanjutan Logic
-         const kunjunganLanjutanSelect = document.getElementById('kunjungan_lanjutan');
+        // Kunjungan Lanjutan Logic
+        const kunjunganLanjutanSelect = document.getElementById('kunjungan_lanjutan');
         const detailKunjunganLanjutan = document.getElementById('detail_kunjungan_lanjutan');
         const permasalahanLanjutan = document.getElementById('permasalahan_lanjutan');
         const tanggalKunjungan = document.getElementById('tanggal_kunjungan');
@@ -526,6 +487,5 @@
             }
         });
     });
-
 </script>
 @endpush
