@@ -50,4 +50,9 @@ class Visiting extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function healthForms()
+    {
+        return $this->hasOne(HealthForm::class, 'visiting_id');
+    }
 }

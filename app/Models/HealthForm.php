@@ -242,4 +242,14 @@ class HealthForm extends Model
         $this->calculateTingkatKemandirian();
         return parent::save($options);
     }
+
+    public function pasien()
+    {
+        return $this->belongsTo(Pasien::class);
+    }
+
+    public function visiting()
+    {
+        return $this->belongsTo(Visiting::class, 'visiting_id');
+    }
 }

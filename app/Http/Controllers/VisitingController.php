@@ -133,6 +133,10 @@ class VisitingController extends Controller
             'imt' => $request->imt,
         ]);
 
+        $ttv = Ttv::create([
+            'kunjungan_id' => $visiting->id,
+        ]);
+
         return redirect()->route('health-form.create', ['visiting' => $visiting->id])
         ->with('success', 'Kunjungan berhasil ditambahkan.');
 
@@ -212,5 +216,11 @@ class VisitingController extends Controller
         }
 
         return $allChildren->toArray();
+    }
+
+    public function editKunjunganFromPasiens($id)
+    {
+        $visiting = Visiting::findOrFail($id);
+        return view('visitings.edit-form-pasien', compact('visiting'));
     }
 }

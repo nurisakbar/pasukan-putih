@@ -74,25 +74,25 @@
                                     <th>Jenis Kunjungan</th>
                                     <th>Status</th>
                                     <th>Skor Aks</th>
-                                    <th>Skor Aks Setelah Kunjungan</th>
+                                    {{-- <th>Skor Aks Setelah Kunjungan</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($kunjungan as $item)
                                 <tr>
                                     <td class="align-middle">
-                                        <a href="{{ route('kunjungan.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
+                                        <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </td>
-                                    <td class="align-middle">{{ $item->user->name }}</td>
-                                    <td class="align-middle">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') }}</td>
-                                    <td class="align-middle">{{ $item->jenis }}</td>
+                                    <td class="align-middle">{{ $item->user->name ?? 'Belum ada' }}</td>
+                                    <td class="align-middle">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') ?? 'Belum ada' }}</td>
+                                    <td class="align-middle">{{ $item->status ?? 'Belum ada' }}</td>
                                     <td class="align-middle">
-                                        <span class="badge {{ $item->status == 'sudah' ? 'bg-success' : 'bg-warning' }}">{{ $item->status }}</span>
+                                        <span class="badge {{ $item->healthForms->kunjungan_lanjutan == 'ya' ? 'bg-success' : 'bg-warning' }}">{{ $item->healthForms->kunjungan_lanjutan ?? 'Belum ada' }}</span>
                                     </td>
-                                    <td class="align-middle">{{ $item->skor_aks_data_sasaran }}</td>
-                                    <td class="align-middle">{{ $item->skriningAdl->total_score ?? 'Belum ada' }}</td>
+                                    <td class="align-middle">{{ $item->healthForms->skor_aks ?? 'Belum ada' }}</td>
+                                    {{-- <td class="align-middle">{{ $item->skriningAdl->total_score ?? 'Belum ada' }}</td> --}}
                                 </tr>
                                 @empty
                                 <tr>

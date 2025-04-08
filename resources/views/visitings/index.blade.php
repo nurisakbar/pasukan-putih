@@ -4,6 +4,7 @@
     use Carbon\Carbon;
 @endphp
 
+
 @section('content')
     <div class="app-content-header py-3">
         <div class="container-fluid">
@@ -124,7 +125,7 @@
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
-                                                        </li>
+                                                        </li> --}}
                                                         @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')    
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}" 
@@ -132,7 +133,7 @@
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
-                                                        @endif --}}
+                                                        @endif
                                                         <li>
                                                             <a href="{{ route('health-form.edit', $kunjungan->id) }}" 
                                                                class="dropdown-item">
@@ -167,7 +168,9 @@
                                         <td class="align-middle">{{ $kunjungan->pasien->nik }}</td>
                                         <td class="align-middle">{{ $kunjungan->pasien->jenis_kelamin }}</td>
                                         <td class="align-middle">{{ $kunjungan->pasien->jenis_ktp }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->alamat }}</td>
+                                        <td class="align-middle text-truncate" style="max-width: 150px;">
+                                            {{ $kunjungan->pasien->alamat }}
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>

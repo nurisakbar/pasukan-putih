@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function () {
 
     //visiting
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
+    Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
 
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
