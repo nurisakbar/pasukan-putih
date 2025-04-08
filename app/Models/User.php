@@ -32,6 +32,10 @@ class User extends Authenticatable
         'parent_id',
         'no_wa',
         'keterangan',
+        'status_pegawai',
+        'village',
+        'district',
+        'regency',
     ];
 
     /**
