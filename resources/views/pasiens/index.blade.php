@@ -49,7 +49,7 @@
                             </form>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive-sm">
                                 <table id="example1" class="table table-hover">
                                     <thead>
                                         <tr>
