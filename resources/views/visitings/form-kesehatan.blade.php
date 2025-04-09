@@ -4,7 +4,7 @@
 <div class="container-fluid health-form-container">
     <form action="{{ route('health-form.store') }}" method="POST" class="needs-validation" novalidate>
         @csrf
-        <input type="text" name="visiting_id" value="{{ $visiting->id }}">
+        <input type="hidden" name="visiting_id" value="{{ $visiting->id }}">
         <div class="card form-card border-0 shadow-sm">
             <div class="card-header bg-primary text-white d-flex align-items-center mt-2">
                 <i class="fas fa-notes-medical me-2"></i>
