@@ -36,83 +36,79 @@
                                 'leprosy' => 'Kusta',
                                 'stroke' => 'Stroke'
                             ];
+                            $selectedDiseases = $healthForm->diseases ?? []; // fallback array kosong
+                            $cancerType = $healthForm->cancer_type ?? '';
+                            $lungDiseaseType = $healthForm->lung_disease_type ?? '';
                         @endphp
 
                         @foreach($diseases as $key => $label)
-                        <div class="col-md-6 col-lg-3 mb-2">
-                            <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="{{ $key }}" name="diseases[]" value="{{ $key }}" {{ in_array($key, $healthForm->diseases) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
+                            <div class="col-md-6 col-lg-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input disease-checkbox" type="checkbox"
+                                        id="{{ $key }}"
+                                        name="diseases[]"
+                                        value="{{ $key }}"
+                                        {{ in_array($key, $selectedDiseases) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
+                                </div>
                             </div>
-                        </div>
                         @endforeach
 
                         <!-- Kanker -->
                         <div class="col-md-4 col-lg-3 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="cancer" name="diseases[]" value="cancer" {{ in_array('cancer', $healthForm->diseases) ? 'checked' : '' }}>
+                                <input class="form-check-input disease-checkbox" type="checkbox"
+                                    id="cancer"
+                                    name="diseases[]"
+                                    value="cancer"
+                                    {{ in_array('cancer', $selectedDiseases) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="cancer">Kanker</label>
                             </div>
-                            <select class="form-select conditional-field cancer-type mt-2" name="cancer_type" style="display: {{ in_array('cancer', $healthForm->diseases) ? 'block' : 'none' }}">
+                            <select class="form-select conditional-field cancer-type mt-2" name="cancer_type"
+                                style="display: {{ in_array('cancer', $selectedDiseases) ? 'block' : 'none' }}">
                                 <option value="">Pilih Jenis Kanker</option>
-                                <option value="breast" {{ $healthForm->cancer_type == 'breast' ? 'selected' : '' }}>Kanker Payudara</option>
-                                <option value="cervical" {{ $healthForm->cancer_type == 'cervical' ? 'selected' : '' }}>Kanker Leher Rahim</option>
-                                <option value="lung" {{ $healthForm->cancer_type == 'lung' ? 'selected' : '' }}>Kanker Paru</option>
-                                <option value="colorectal" {{ $healthForm->cancer_type == 'colorectal' ? 'selected' : '' }}>Kanker Kolorektal</option>
-                                <option value="liver" {{ $healthForm->cancer_type == 'liver' ? 'selected' : '' }}>Kanker Hati</option>
-                                <option value="nasopharyngeal" {{ $healthForm->cancer_type == 'nasopharyngeal' ? 'selected' : '' }}>Kanker Nasofaring</option>
-                                <option value="lymphoma" {{ $healthForm->cancer_type == 'lymphoma' ? 'selected' : '' }}>Limfoma Non Hodgkin</option>
-                                <option value="leukemia" {{ $healthForm->cancer_type == 'leukemia' ? 'selected' : '' }}>Leukemia</option>
-                                <option value="ovarian" {{ $healthForm->cancer_type == 'ovarian' ? 'selected' : '' }}>Kanker Ovarium</option>
-                                <option value="other" {{ $healthForm->cancer_type == 'other' ? 'selected' : '' }}>Kanker Lainnya</option>
+                                <option value="breast" {{ $cancerType == 'breast' ? 'selected' : '' }}>Kanker Payudara</option>
+                                <option value="cervical" {{ $cancerType == 'cervical' ? 'selected' : '' }}>Kanker Leher Rahim</option>
+                                <option value="lung" {{ $cancerType == 'lung' ? 'selected' : '' }}>Kanker Paru</option>
+                                <option value="colorectal" {{ $cancerType == 'colorectal' ? 'selected' : '' }}>Kanker Kolorektal</option>
+                                <option value="liver" {{ $cancerType == 'liver' ? 'selected' : '' }}>Kanker Hati</option>
+                                <option value="nasopharyngeal" {{ $cancerType == 'nasopharyngeal' ? 'selected' : '' }}>Kanker Nasofaring</option>
+                                <option value="lymphoma" {{ $cancerType == 'lymphoma' ? 'selected' : '' }}>Limfoma Non Hodgkin</option>
+                                <option value="leukemia" {{ $cancerType == 'leukemia' ? 'selected' : '' }}>Leukemia</option>
+                                <option value="ovarian" {{ $cancerType == 'ovarian' ? 'selected' : '' }}>Kanker Ovarium</option>
+                                <option value="other" {{ $cancerType == 'other' ? 'selected' : '' }}>Kanker Lainnya</option>
                             </select>
                         </div>
 
                         <!-- Penyakit Paru -->
                         <div class="col-md-4 col-lg-3 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input disease-checkbox" type="checkbox" id="lung_disease" name="diseases[]" value="lung_disease" {{ in_array('lung_disease', $healthForm->diseases) ? 'checked' : '' }}>
+                                <input class="form-check-input disease-checkbox" type="checkbox"
+                                    id="lung_disease"
+                                    name="diseases[]"
+                                    value="lung_disease"
+                                    {{ in_array('lung_disease', $selectedDiseases) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="lung_disease">Penyakit Paru</label>
                             </div>
-                            <select class="form-select conditional-field lung-disease-type mt-2" name="lung_disease_type" style="display: {{ in_array('lung_disease', $healthForm->diseases) ? 'block' : 'none' }}">
+                            <select class="form-select conditional-field lung-disease-type mt-2" name="lung_disease_type"
+                                style="display: {{ in_array('lung_disease', $selectedDiseases) ? 'block' : 'none' }}">
                                 <option value="">Pilih Penyakit Paru</option>
-                                <option value="tbc" {{ $healthForm->lung_disease_type == 'tbc' ? 'selected' : '' }}>TBC</option>
-                                <option value="pneumonia" {{ $healthForm->lung_disease_type == 'pneumonia' ? 'selected' : '' }}>Pneumonia</option>
-                                <option value="ppok" {{ $healthForm->lung_disease_type == 'ppok' ? 'selected' : '' }}>PPOK</option>
+                                <option value="tbc" {{ $lungDiseaseType == 'tbc' ? 'selected' : '' }}>TBC</option>
+                                <option value="pneumonia" {{ $lungDiseaseType == 'pneumonia' ? 'selected' : '' }}>Pneumonia</option>
+                                <option value="ppok" {{ $lungDiseaseType == 'ppok' ? 'selected' : '' }}>PPOK</option>
                             </select>
                         </div>
-                    </div>
-                </div>
 
-                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+
+                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                 <!-- Skrining ILP  Perawat-->
+                
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-line me-2"></i>
                         <h5>Skrining ILP</h5>
                     </div>
                     <div class="row">
-                        @php
-                         $screenings = [
-                             ["id" => "obesity", "label" => "Skrining Obesitas"],
-                             ["id" => "hypertension", "label" => "Skrining Hipertensi"],
-                             ["id" => "diabetes", "label" => "Skrining Diabetes Melitus"],
-                             ["id" => "stroke", "label" => "Skrining Faktor Risiko Stroke"],
-                             ["id" => "heart_disease", "label" => "Skrining Faktor Risiko Penyakit Jantung"],
-                             ["id" => "breast_cancer", "label" => "Skrining Kanker Payudara"],
-                             ["id" => "cervical_cancer", "label" => "Skrining Kanker Leher Rahim"],
-                             ["id" => "lung_cancer", "label" => "Skrining Kanker Paru"],
-                             ["id" => "colorectal_cancer", "label" => "Skrining Kanker Kolorektal"],
-                             ["id" => "mental_health", "label" => "Skrining Kesehatan Jiwa"],
-                             ["id" => "ppok", "label" => "Skrining Penyakit Paru Obstruktif Kronis (PPOK)"],
-                             ["id" => "tbc", "label" => "Skrining TBC"],
-                             ["id" => "vision", "label" => "Skrining Indera Penglihatan/Mata"],
-                             ["id" => "hearing", "label" => "Skrining Indera Pendengaran"],
-                             ["id" => "fitness", "label" => "Skrining Kebugaran"],
-                             ["id" => "dental", "label" => "Skrining Kesehatan Gigi dan Mulut"],
-                             ["id" => "elderly", "label" => "Skrining Lansia Sederhana (SKILAS)"]
-                         ];
-                         @endphp
                         @foreach($screenings as $screening)
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium">{{ $screening["label"] }}</label>
@@ -207,7 +203,7 @@
                     </div>
                 </div>
 
-                @if ( auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                @if ( auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                 <!-- Perawatan only perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
@@ -222,7 +218,7 @@
                 </div>
                 @endif
 
-                @if (auth()->user()->role == 'caregiver' && auth()->user()->role == 'superadmin')    
+                @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')    
                 {{-- perawatan umum yang di lakukan Caregiver --}}
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
@@ -352,31 +348,39 @@
                     </div>
                     <div class="row kemandirian-checkboxes">
                         @php
-                        $tingkat_kemandirian = [
-                            'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
-                            'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
-                            'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
-                            'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
-                            'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
-                            'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
-                            'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
-                        ];
+                            $tingkat_kemandirian = [
+                                'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
+                                'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
+                                'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
+                                'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
+                                'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
+                                'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
+                                'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
+                            ];
+                            $selectedKemandirian = $healthForm->kemandirian ?? [];
                         @endphp
                         @foreach($tingkat_kemandirian as $key => $label)
                         <div class="col-md-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input kemandirian-checkbox" type="checkbox" id="{{ $key }}" name="kemandirian[]" value="{{ $key }}" {{ in_array($key, $healthForm->kemandirian) ? 'checked' : '' }}>
+                                <input class="form-check-input kemandirian-checkbox" type="checkbox"
+                                    id="{{ $key }}"
+                                    name="kemandirian[]"
+                                    value="{{ $key }}"
+                                    {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
                             </div>
                         </div>
                         @endforeach
+
                         <div class="col-12 mt-3 p-3 bg-light rounded">
-                            <strong>Tingkat Kemandirian:</strong> <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
+                            <strong>Tingkat Kemandirian:</strong>
+                            <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
                         </div>
                     </div>
                 </div>
 
-                @if (auth()->user()->role == 'caregiver' && auth()->user()->role == 'superadmin')
+
+                @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')
                 <!-- Perawatan only caregiver-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
