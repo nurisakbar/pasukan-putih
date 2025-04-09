@@ -191,116 +191,165 @@
         </div>
     </div>
 @endsection
-
 @push('script')
-    <script>
-        $(document).ready(function() {
-            // Initialize select2 with better styling
-            $('.select2').select2({
-                width: '100%',
-                // theme: 'bootstrap-5',
-                // dropdownCss: "custom-css-class",
-                // selectionCssClass: "select2-selection-open"
-            });
+<script>
+    $(document).ready(function () {
+        const defaultProvinceId = 31; // DKI Jakarta
+        const defaultRegencyId = 3173; // Jakarta Pusat
 
-            // Form validation
-            (function() {
-                'use strict';
-                var forms = document.querySelectorAll('.needs-validation');
-                Array.prototype.slice.call(forms).forEach(function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
+        // Initialize select2
+        $('.select2').select2({
+            width: '100%',
+        });
+
+        // Form validation
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+
+        // Load Kabupaten/Kota berdasarkan Provinsi
+        $('#province').change(function () {
+            var province_id = $(this).val();
+            $('#regency').html('<option value="">Pilih Kabupaten/Kota</option>');
+            $('#district').html('<option value="">Pilih Kecamatan</option>');
+            $('#village').html('<option value="">Pilih Kelurahan</option>');
+
+            if (province_id) {
+                $.ajax({
+                    url: '/get-regencies/' + province_id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $.each(data, function (index, regency) {
+                            $('#regency').append('<option value="' + regency.id + '">' + regency.name + '</option>');
+                        });
+                        $('#regency').prop('disabled', false);
+
+                        // Jika default province, set default regency
+                        if (province_id == defaultProvinceId) {
+                            $('#regency').val(defaultRegencyId).trigger('change');
                         }
-                        form.classList.add('was-validated');
-                    }, false);
+                    },
+                    error: function () {
+                        alert('Terjadi kesalahan saat memuat data kabupaten/kota');
+                    }
                 });
-            })();
+            } else {
+                $('#regency').prop('disabled', true);
+                $('#district').prop('disabled', true);
+                $('#village').prop('disabled', true);
+            }
+        });
 
-            // Load Kabupaten/Kota berdasarkan Provinsi
-            $('#province').change(function() {
-                var province_id = $(this).val();
-                $('#regency').html('<option value="">Pilih Kabupaten/Kota</option>');
-                $('#district').html('<option value="">Pilih Kecamatan</option>');
-                $('#village').html('<option value="">Pilih Kelurahan</option>');
+        // Load Kecamatan berdasarkan Kabupaten/Kota
+        $('#regency').change(function () {
+            var regency_id = $(this).val();
+            $('#district').html('<option value="">Pilih Kecamatan</option>');
+            $('#village').html('<option value="">Pilih Kelurahan</option>');
 
-                if (province_id) {
-                    $.ajax({
-                        url: '/get-regencies/' + province_id,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, regency) {
-                                $('#regency').append('<option value="' + regency.id + '">' +
-                                    regency.name + '</option>');
-                            });
-                            $('#regency').prop('disabled', false);
-                        },
-                        error: function() {
-                            alert('Terjadi kesalahan saat memuat data kabupaten/kota');
+            if (regency_id) {
+                $.ajax({
+                    url: '/get-districts/' + regency_id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $.each(data, function (index, district) {
+                            $('#district').append('<option value="' + district.id + '">' + district.name + '</option>');
+                        });
+                        $('#district').prop('disabled', false);
+                    },
+                    error: function () {
+                        alert('Terjadi kesalahan saat memuat data kecamatan');
+                    }
+                });
+            } else {
+                $('#district').prop('disabled', true);
+                $('#village').prop('disabled', true);
+            }
+        });
+
+        // Load Kelurahan berdasarkan Kecamatan
+        $('#district').change(function () {
+            var district_id = $(this).val();
+            $('#village').html('<option value="">Pilih Kelurahan</option>');
+
+            if (district_id) {
+                $.ajax({
+                    url: '/get-villages/' + district_id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $.each(data, function (index, village) {
+                            $('#village').append('<option value="' + village.id + '">' + village.name + '</option>');
+                        });
+                        $('#village').prop('disabled', false);
+                    },
+                    error: function () {
+                        alert('Terjadi kesalahan saat memuat data kelurahan');
+                    }
+                });
+            } else {
+                $('#village').prop('disabled', true);
+            }
+        });
+
+        // Set default DKI Jakarta & Jakarta Pusat
+        $('#province').val(defaultProvinceId).trigger('change');
+
+        // Nik Autoload
+        $('.nik').on('input', function () {
+            const nik = $(this).val().trim();
+
+            if (nik.length > 0) {
+                toggleLoading(true);
+
+                $.ajax({
+                    url: "{{ route('pasiens.nik') }}",
+                    type: "GET",
+                    data: { nik: nik },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.message === "Pasien ditemukan") {
+                            $('#name').val(response.data.name);
+                            $('#alamat').val(response.data.alamat);
+                            $('#jenis_kelamin').val(response.data.jenis_kelamin);
+                            $('#jenis_ktp').val(response.data.jenis_ktp);
+                            $('#tanggal_lahir').val(response.data.tanggal_lahir);
+                            $('#province').val(response.data.province_id).trigger('change');
+
+                            setTimeout(function () {
+                                $('#regency').val(response.data.regency_id).trigger('change');
+
+                                setTimeout(function () {
+                                    $('#district').val(response.data.district_id).trigger('change');
+
+                                    setTimeout(function () {
+                                        $('#village').val(response.data.village_id);
+                                    }, 300);
+                                }, 300);
+                            }, 300);
+                        } else {
+                            kosongkanForm();
                         }
-                    });
-                } else {
-                    $('#regency').prop('disabled', true);
-                    $('#district').prop('disabled', true);
-                    $('#village').prop('disabled', true);
-                }
-            });
-
-            // Load Kecamatan berdasarkan Kabupaten/Kota
-            $('#regency').change(function() {
-                var regency_id = $(this).val();
-                $('#district').html('<option value="">Pilih Kecamatan</option>');
-                $('#village').html('<option value="">Pilih Kelurahan</option>');
-
-                if (regency_id) {
-                    $.ajax({
-                        url: '/get-districts/' + regency_id,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, district) {
-                                $('#district').append('<option value="' + district.id + '">' +
-                                    district.name + '</option>');
-                            });
-                            $('#district').prop('disabled', false);
-                        },
-                        error: function() {
-                            alert('Terjadi kesalahan saat memuat data kecamatan');
-                        }
-                    });
-                } else {
-                    $('#district').prop('disabled', true);
-                    $('#village').prop('disabled', true);
-                }
-            });
-
-            // Load Kelurahan berdasarkan Kecamatan
-            $('#district').change(function() {
-                var district_id = $(this).val();
-                $('#village').html('<option value="">Pilih Kelurahan</option>');
-
-                if (district_id) {
-                    $.ajax({
-                        url: '/get-villages/' + district_id,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function(data) {
-                            $.each(data, function(index, village) {
-                                $('#village').append('<option value="' + village.id + '">' +
-                                    village.name + '</option>');
-                            });
-                            $('#village').prop('disabled', false);
-                        },
-                        error: function() {
-                            alert('Terjadi kesalahan saat memuat data kelurahan');
-                        }
-                    });
-                } else {
-                    $('#village').prop('disabled', true);
-                }
-            });
+                    },
+                    error: function () {
+                        kosongkanForm();
+                    },
+                    complete: function () {
+                        toggleLoading(false);
+                    }
+                });
+            }
         });
 
         function toggleLoading(show) {
@@ -312,68 +361,15 @@
             }
         }
 
-        $(document).ready(function() {
-            $('.nik').on('input', function() {
-                const nik = $(this).val().trim();
-
-                if (nik.length > 0) {
-                    toggleLoading(true);
-
-                    $.ajax({
-                        url: "{{ route('pasiens.nik') }}",
-                        type: "GET",
-                        data: {
-                            nik: nik
-                        },
-                        dataType: "json",
-                        success: function(response) {
-                            if (response.message === "Pasien ditemukan") {
-                                // Use the correct selectors (IDs for form elements)
-                                $('#name').val(response.data.name);
-                                $('#alamat').val(response.data.alamat);
-                                $('#jenis_kelamin').val(response.data.jenis_kelamin);
-                                $('#jenis_ktp').val(response.data.jenis_ktp);
-                                $('#tanggal_lahir').val(response.data.tanggal_lahir);
-
-                                $('#province').val(response.data.province_id).trigger('change');
-                                
-                                // Wait for province change to complete before setting other values
-                                setTimeout(function() {
-                                    $('#regency').val(response.data.regency_id).trigger('change');
-                                    
-                                    setTimeout(function() {
-                                        $('#district').val(response.data.district_id).trigger('change');
-                                        
-                                        setTimeout(function() {
-                                            $('#village').val(response.data.village_id);
-                                        }, 300);
-                                    }, 300);
-                                }, 300);
-                            } else {
-                                kosongkanForm();
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            kosongkanForm();
-                        },
-                        complete: function() {
-                            toggleLoading(false);
-                        }
-                    });
-                }
-            });
-
-            function kosongkanForm() {
-                $('#id').val('');
-                $('#name').val('');
-                $('#alamat').val('');
-                // $('#rt').val('');
-                // $('#rw').val('');
-                $('#province').val('').trigger('change');
-                $('#regency').html('<option value="">Pilih Kabupaten/Kota</option>');
-                $('#district').html('<option value="">Pilih Kecamatan</option>');
-                $('#village').html('<option value="">Pilih Kelurahan</option>');
-            }
-        });
-    </script>
+        function kosongkanForm() {
+            $('#id').val('');
+            $('#name').val('');
+            $('#alamat').val('');
+            $('#province').val('').trigger('change');
+            $('#regency').html('<option value="">Pilih Kabupaten/Kota</option>');
+            $('#district').html('<option value="">Pilih Kecamatan</option>');
+            $('#village').html('<option value="">Pilih Kelurahan</option>');
+        }
+    });
+</script>
 @endpush

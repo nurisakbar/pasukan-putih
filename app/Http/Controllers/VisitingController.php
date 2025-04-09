@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Ttv;
 use App\Models\SkriningAdl;
+use App\Models\HealthForm;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KunjunganExport;
 use App\Models\Province;
@@ -137,7 +138,12 @@ class VisitingController extends Controller
             'kunjungan_id' => $visiting->id,
         ]);
 
-        return redirect()->route('health-form.create', ['visiting' => $visiting->id])
+        $healthForm = HealthForm::create([
+            'visiting_id' => $visiting->id,
+            'user_id' => auth()->id(),
+        ]);
+
+        return redirect()->route('visitings.index')
         ->with('success', 'Kunjungan berhasil ditambahkan.');
 
     }

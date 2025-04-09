@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@push('style')
+    <style>
+        .custom-placeholder::placeholder {
+            color: #b8b8b8; /* warna abu-abu seperti Bootstrap .text-muted */
+            opacity: 1;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="container-fluid mt-5">
         <div class="card border-0 shadow">
@@ -29,42 +37,42 @@
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="tension" class="form-label">Tekanan Darah</label>
                              <div class="input-group">
-                                 <input type="text" class="form-control" id="tension" placeholder="120/80" name="blood_pressure" value="{{ old('blood_pressure', $ttv->blood_pressure) }}">
+                                 <input type="text" class="form-control custom-placeholder" id="tension" placeholder="120/80" name="blood_pressure" value="{{ old('blood_pressure', $ttv->blood_pressure) }}">
                                  <span class="input-group-text">mmHg</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="pulse" class="form-label">Nadi</label>
                              <div class="input-group">
-                                 <input type="number" class="form-control" id="pulse" placeholder="80" name="pulse" value="{{ old('pulse', $ttv->pulse) }}">
+                                 <input type="number" class="form-control custom-placeholder" id="pulse" placeholder="80" name="pulse" value="{{ old('pulse', $ttv->pulse) }}">
                                  <span class="input-group-text">bpm</span>
                              </div>
                          </div>
                          {{-- <div class="col-md-6 col-lg-3 mb-3">
                              <label for="respiration" class="form-label">Pernapasan</label>
                              <div class="input-group">
-                                 <input type="number" class="form-control" id="respiration" placeholder="18" name="respiration" value="{{ old('respiration', $ttv->respiration) }}">
+                                 <input type="number" class="form-control custom-placeholder" id="respiration" placeholder="18" name="respiration" value="{{ old('respiration', $ttv->respiration) }}">
                                  <span class="input-group-text">x/menit</span>
                              </div>
                          </div> --}}
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="temperature" class="form-label">Suhu</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="temperature" placeholder="36.8" name="temperature" value="{{ old('temperature', $ttv->temperature) }}">
+                                 <input type="number" step="0.1" class="form-control custom-placeholder" id="temperature" placeholder="36.8" name="temperature" value="{{ old('temperature', $ttv->temperature) }}">
                                  <span class="input-group-text">°C</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="oxygen" class="form-label">Saturasi Oksigen</label>
                              <div class="input-group">
-                                 <input type="number" class="form-control" id="oxygen" placeholder="98" name="oxygen_saturation" value="{{ old('oxygen_saturation', $ttv->oxygen_saturation) }}">
+                                 <input type="number" class="form-control custom-placeholder" id="oxygen" placeholder="98" name="oxygen_saturation" value="{{ old('oxygen_saturation', $ttv->oxygen_saturation) }}">
                                  <span class="input-group-text">%</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-3 mb-3">
                              <label for="fetal_heart" class="form-label">Detak Jantung Janin</label>
                              <div class="input-group">
-                                 <input type="number" class="form-control" id="fetal_heart" placeholder="140" name="fetal_heart" value="{{ old('fetal_heart', $ttv->fetal_heart) }}">
+                                 <input type="number" class="form-control custom-placeholder" id="fetal_heart" placeholder="140" name="fetal_heart" value="{{ old('fetal_heart', $ttv->fetal_heart) }}">
                                  <span class="input-group-text">bpm</span>
                              </div>
                          </div>
@@ -78,14 +86,14 @@
                          <div class="col-md-6 col-lg-4 mb-3">
                              <label for="weight" class="form-label">Berat Badan</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="weight" placeholder="65.5" name="weight" value="{{ old('weight', $ttv->weight) }}">
+                                 <input type="number" step="0.1" class="form-control custom-placeholder" id="weight" placeholder="65.5" name="weight" value="{{ old('weight', $ttv->weight) }}">
                                  <span class="input-group-text">kg</span>
                              </div>
                          </div>
                          <div class="col-md-6 col-lg-4 mb-3">
                              <label for="height" class="form-label">Tinggi Badan</label>
                              <div class="input-group">
-                                 <input type="number" step="0.1" class="form-control" id="height" placeholder="170.0" name="height" value="{{ old('height', $ttv->height) }}">
+                                 <input type="number" step="0.1" class="form-control custom-placeholder" id="height" placeholder="170.0" name="height" value="{{ old('height', $ttv->height) }}">
                                  <span class="input-group-text">cm</span>
                              </div>
                          </div>

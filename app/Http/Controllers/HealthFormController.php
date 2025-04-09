@@ -154,9 +154,29 @@ class HealthFormController extends Controller
                 'heart_disease' => 'Penyakit Jantung',       
                 'cancer' => 'Kanker',
                 'lung_disease' => 'Penyakit Paru',
-            ];
+        ];
 
-        return view('visitings.edit-form-kesehatan', compact('healthForm'));
+        $screenings = [
+            ["id" => "obesity", "label" => "Skrining Obesitas"],
+            ["id" => "hypertension", "label" => "Skrining Hipertensi"],
+            ["id" => "diabetes", "label" => "Skrining Diabetes Melitus"],
+            ["id" => "stroke", "label" => "Skrining Faktor Risiko Stroke"],
+            ["id" => "heart_disease", "label" => "Skrining Faktor Risiko Penyakit Jantung"],
+            ["id" => "breast_cancer", "label" => "Skrining Kanker Payudara"],
+            ["id" => "cervical_cancer", "label" => "Skrining Kanker Leher Rahim"],
+            ["id" => "lung_cancer", "label" => "Skrining Kanker Paru"],
+            ["id" => "colorectal_cancer", "label" => "Skrining Kanker Kolorektal"],
+            ["id" => "mental_health", "label" => "Skrining Kesehatan Jiwa"],
+            ["id" => "ppok", "label" => "Skrining Penyakit Paru Obstruktif Kronis (PPOK)"],
+            ["id" => "tbc", "label" => "Skrining TBC"],
+            ["id" => "vision", "label" => "Skrining Indera Penglihatan/Mata"],
+            ["id" => "hearing", "label" => "Skrining Indera Pendengaran"],
+            ["id" => "fitness", "label" => "Skrining Kebugaran"],
+            ["id" => "dental", "label" => "Skrining Kesehatan Gigi dan Mulut"],
+            ["id" => "elderly", "label" => "Skrining Lansia Sederhana (SKILAS)"]
+        ];
+
+        return view('visitings.edit-form-kesehatan', compact('healthForm', 'diseases', 'screenings'));
     }
 
     /**
