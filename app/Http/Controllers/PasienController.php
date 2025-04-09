@@ -20,6 +20,7 @@ use App\Models\Pencernaan;
 use App\Models\Muskuloskeletal;
 use App\Models\Neurosensori;
 use App\Models\Kunjungan;
+use App\Models\Visiting;
 use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -64,7 +65,7 @@ class PasienController extends Controller
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
     {
-        $kunjungan = Kunjungan::with(['pasien', 'user', 'skriningAdl'] )->where('pasien_id', $pasien->id)->get(); 
+        $kunjungan = Visiting::with(['pasien', 'user', 'healthForms'] )->where('pasien_id', $pasien->id)->get(); 
         return view('pasiens.show', compact('pasien', 'kunjungan'));
     }
 

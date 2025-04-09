@@ -84,6 +84,16 @@ Route::middleware('auth')->group(function () {
     Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
     Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
     Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
+
+    //visiting
+    Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
+    Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
+
+    //health form
+    Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
+    Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
+
+    //
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);
@@ -104,6 +114,10 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 
 Route::get('/test-view', function () {
     
-    return view('kunjungans.form-ttv');
+    return view('kunjungans.create-kunjungan');
+});
+Route::get('/test-view-form', function () {
+    
+    return view('kunjungans.form-kesehatan');
 });
 
