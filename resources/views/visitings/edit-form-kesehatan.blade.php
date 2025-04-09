@@ -12,8 +12,7 @@
             </div>
             
             <div class="card-body p-4">
-
-                <!-- Riwayat Penyakit -->
+                <!-- Riwayat Penyakit Caregiver & perawat -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-history me-2"></i>
@@ -85,7 +84,8 @@
                     </div>
                 </div>
 
-                <!-- Skrining ILP -->
+                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                <!-- Skrining ILP  Perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-line me-2"></i>
@@ -135,8 +135,9 @@
                         @endforeach
                     </div>
                 </div>
-
-                <!-- Skor AKS -->
+                @endif
+                
+                <!-- Skor AKS Caregiver & perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-bar me-2"></i>
@@ -169,10 +170,9 @@
                             </div>
                         </div>
                     </div>
-                </ ```php
                 </div>
 
-                <!-- Jenis gangguan fungsional -->
+                <!-- Jenis gangguan fungsional Caregiver & perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -207,7 +207,8 @@
                     </div>
                 </div>
 
-                <!-- Perawatan -->
+                @if ( auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                <!-- Perawatan only perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-hand-holding-medical me-2"></i>
@@ -219,7 +220,10 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
+                @if (auth()->user()->role == 'caregiver' && auth()->user()->role == 'superadmin')    
+                {{-- perawatan umum yang di lakukan Caregiver --}}
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-line me-2"></i>
@@ -257,6 +261,7 @@
                     </div>
                 </div>
 
+                {{-- perawatan khusus yang dilakukan Caregiver --}}
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-line me-2"></i>
@@ -289,8 +294,9 @@
                         @endforeach
                     </div>
                 </div>
+                @endif
 
-                <!-- Keluaran perawatan -->
+                <!-- Keluaran perawatan Caregiver & perawat -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-clipboard-check me-2"></i>
@@ -321,7 +327,7 @@
                     </div>
                 </div>
 
-                <!-- Pembinaan keluarga -->
+                <!-- Pembinaan keluarga Caregiver & perawat -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-users me-2"></i>
@@ -338,7 +344,7 @@
                     </div>
                 </div>
 
-                <!-- Tingkat Kemandirian Keluarga -->
+                <!-- Tingkat Kemandirian Keluarga  Caregiver & perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-hand-holding-heart me-2"></i>
@@ -369,6 +375,21 @@
                         </div>
                     </div>
                 </div>
+
+                @if (auth()->user()->role == 'caregiver' && auth()->user()->role == 'superadmin')
+                <!-- Perawatan only caregiver-->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3 d-flex">
+                        <i class="fas fa-hand-holding-medical me-2"></i>
+                        <h5>Catatan Keperawatan</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <textarea name="catatan_keperawatan" class="form-control" placeholder="Masukkan Catatan Keperawatan" rows="3">{{ $healthForm->catatan_keperawatan }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">

@@ -66,6 +66,7 @@ class HealthFormController extends Controller
             'kunjungan_lanjutan' => $request->input('kunjungan_lanjutan'),
             'permasalahan_lanjutan' => $request->input('permasalahan_lanjutan'),
             'tanggal_kunjungan' => $request->input('tanggal_kunjungan'),
+            'catatan_keperawatan' => $request->input('catatan_keperawatan'),
         ];
 
         // Process Screening Fields
@@ -204,6 +205,7 @@ class HealthFormController extends Controller
             'kunjungan_lanjutan' => $request->input('kunjungan_lanjutan'),
             'permasalahan_lanjutan' => $request->input('permasalahan_lanjutan'),
             'tanggal_kunjungan' => $request->input('tanggal_kunjungan'),
+            'catatan_keperawatan' => $request->input('catatan_keperawatan'),
         ];
 
         // Process Screening Fields

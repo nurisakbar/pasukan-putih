@@ -85,6 +85,7 @@
                     </div>
                 </div>
 
+                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
                 <!-- Skrining ILP -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
@@ -136,6 +137,7 @@
                         @endforeach
                     </div>
                 </div>
+                @endif
 
                 <!-- Skor AKS -->
                 <div class="form-section mb-4">
@@ -208,6 +210,8 @@
                     </div>
                 </div>
 
+                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                    
                 <!-- Perawatan -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
@@ -220,7 +224,8 @@
                         </div>
                     </div>
                 </div>
-
+                @endif
+                @if (auth()->user()->role == 'caregiver' && auth()->user()->role == 'superadmin')
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
                         <i class="fas fa-chart-line me-2"></i>
@@ -292,6 +297,7 @@
                         @endforeach
                     </div>
                 </div>
+                @endif
 
                 <!-- Keluaran perawatan -->
                 <div class="form-section mb-4">
@@ -373,6 +379,21 @@
                         </div>
                     </div>
                 </div>
+
+                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')    
+                <!-- Perawatan only caregiver-->
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3 d-flex">
+                        <i class="fas fa-hand-holding-medical me-2"></i>
+                        <h5>Catatan Keperawatan</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <textarea name="catatan_keperawatan" class="form-control" placeholder="Masukkan Catatan Keperawatan" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">

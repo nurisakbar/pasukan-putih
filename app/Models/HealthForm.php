@@ -94,6 +94,7 @@ class HealthForm extends Model
         'kunjungan_lanjutan',
         'permasalahan_lanjutan',
         'tanggal_kunjungan',
+        'catatan_keperawatan'
     ];
 
     /**
