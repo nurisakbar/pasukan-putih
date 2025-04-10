@@ -260,7 +260,8 @@
 
             if (regency_id) {
                 $.ajax({
-                    url: '/get-districts/' + regency_id,
+                    //url: '/get-districts/' + regency_id,
+                    url: '/apps/pasukanputih/get-districts/' + regency_id,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
@@ -286,7 +287,8 @@
 
             if (district_id) {
                 $.ajax({
-                    url: '/get-villages/' + district_id,
+                    //url: '/get-villages/' + district_id,
+                    url: '/apps/pasukanputih/get-villages/' + district_id,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
