@@ -226,7 +226,8 @@
 
             if (province_id) {
                 $.ajax({
-                    url: '/get-regencies/' + province_id,
+                    //url: '/get-regencies/' + province_id,
+                    url: '/apps/pasukanputih/get-regencies/' + province_id,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
