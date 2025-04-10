@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasApiTokens;
+    use HasFactory, Notifiable, HasUuids, HasApiTokens, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +22,7 @@ class User extends Authenticatable
      */
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $keyType = 'string';  // UUID adalah string
+    protected $keyType = 'string';  
     public $incrementing = false;
     
     protected $fillable = [
@@ -48,6 +49,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $dates = ['deleted_at'];
+    
     /**
      * Get the attributes that should be cast.
      *

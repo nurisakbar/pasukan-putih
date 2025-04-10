@@ -39,10 +39,10 @@
              </li>
 
              <li class="user-footer">
-               {{-- <a href="#" class="btn btn-default btn-flat">Profile</a> --}}
-               <form action="{{ route('logout') }}" method="post">
+               <a href="{{ route('users.editProfile') }}" class="btn btn-outline-secondary btn-flat">Update Profile</a>
+               <form action="{{ route('logout') }}" method="post" class="d-inline">
                    @csrf
-                   <button type="submit" class="btn btn-default btn-flat float-end" id="logoutBtn">Logout</button>
+                   <button type="submit" class="btn btn-outline-secondary btn-flat float-end" id="logoutBtn">Logout</button>
                </form>
              </li>
            </ul>
