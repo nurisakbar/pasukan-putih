@@ -420,18 +420,7 @@ INSERT INTO `users` (`id`, `name`, `role`, `parent_id`, `email`, `email_verified
 ('ff951a9e-571f-4383-af44-d5de96d38216', 'Puskesmas Pembantu Gunung Sahari Utara', 'puskesmas', '69f6c283-c446-45dd-a552-a25c4110a44b', 'puskesmaspembantugunungsahariutara.p@gmail.com', NULL, '$2y$12$KCyldijE2auNcCvxjyrEfuMykh72KZFyGeCymAn025p8kwomOFjKy', NULL, '2025-04-10 00:33:30', '2025-04-10 00:33:30', '081212205393', 'Perawat Lansia', 'NON PNS', NULL, NULL, NULL),
 ('ffcbf500-7749-4be0-ba41-970ea531f38a', 'Puskesmas Pembantu Paseban', 'puskesmas', '69f6c283-c446-45dd-a552-a25c4110a44b', 'puskesmaspembantupaseban.p@gmail.com', NULL, '$2y$12$oGPA8KxF1Cgc/hGgbPlbg.MYbXToLVMYOwHbsi.4EriKJcFwxSBKy', NULL, '2025-04-10 00:33:36', '2025-04-10 00:33:36', '081277772190', 'Perawat KPLDH', 'NON PNS', NULL, NULL, NULL);
 
---
--- Indexes for dumped tables
---
 
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`),
-  ADD KEY `users_id_index` (`id`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
