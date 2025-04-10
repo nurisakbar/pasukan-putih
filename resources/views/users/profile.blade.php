@@ -39,6 +39,10 @@
                             <input type="text" id="keterangan" name="keterangan" value="{{ old('keterangan', $user->keterangan) }}" class="form-control">
                         </div>
 
+                        <div class="mb-3">
+                            <label for="status_pegawai" class="form-label">Status Pegawai</label>
+                            <input type="text" id="status_pegawai" name="status_pegawai" value="{{ old('status_pegawai', $user->status_pegawai) }}" class="form-control">
+                        </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password Baru (Opsional)</label>

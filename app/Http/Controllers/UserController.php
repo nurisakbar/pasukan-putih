@@ -333,6 +333,7 @@ class UserController extends Controller
     public function editProfile()
     {
         $user = Auth::user();
+        // dd($user);
         return view('users.profile', compact('user'));
     }
 
@@ -349,6 +350,7 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'no_wa' => ['nullable', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string', 'max:255'],
+            'status_pegawai' => ['nullable', 'string', 'max:255'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ];
 
@@ -367,6 +369,7 @@ class UserController extends Controller
             'email' => $request->email,
             'keterangan' => $request->keterangan,
             'no_wa' => $request->no_wa,
+            'status_pegawai' => $request->status_pegawai
         ];
 
         if ($request->filled('password')) {
