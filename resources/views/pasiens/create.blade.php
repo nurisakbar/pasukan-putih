@@ -226,7 +226,7 @@
 
             if (province_id) {
                 $.ajax({
-                    url: {{ url('/get-regencies/' + province_id) }},
+                    url: '/get-regencies/' + province_id,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
