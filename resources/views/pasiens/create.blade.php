@@ -57,7 +57,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label for="jenis_ktp" class="form-label fw-bold ">Jenis KTP <span class="text-danger">*</span></label>
@@ -73,7 +73,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label for="tanggal_lahir" class="form-label fw-bold ">Tanggal Lahir <span class="text-danger">*</span></label>
@@ -85,7 +85,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label for="jenis_kelamin" class="form-label fw-bold ">Jenis Kelamin <span class="text-danger">*</span></label>
@@ -101,7 +101,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label for="alamat" class="form-label fw-bold ">Alamat <span class="text-danger">*</span></label>
@@ -112,7 +112,7 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                </div>                                
+                                </div>
                                 <div class="row mb-4">
                                     <div class="col-lg-3 col-md-4 mb-2">
                                         <label class="form-label fw-bold">Detail Wilayah</label>
@@ -135,7 +135,7 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
+
                                                     <div class="col-md-6">
                                                         <label for="regency" class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
                                                         <select name="regency_id" id="regency" class="form-select select2 @error('regency_id') is-invalid @enderror" required>
@@ -145,7 +145,7 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
+
                                                     <div class="col-md-6">
                                                         <label for="district" class="form-label">Kecamatan <span class="text-danger">*</span></label>
                                                         <select name="district_id" id="district" class="form-select select2 @error('district_id') is-invalid @enderror" required>
@@ -155,7 +155,7 @@
                                                             <div class="invalid-feedback">{{ $message }}</div>
                                                         @enderror
                                                     </div>
-                                                    
+
                                                     <div class="col-md-6">
                                                         <label for="village" class="form-label">Kelurahan <span class="text-danger">*</span></label>
                                                         <select name="village_id" id="village" class="form-select select2 @error('village_id') is-invalid @enderror" required>
@@ -170,7 +170,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mt-4">
                                     <div class="col-lg-3 col-md-4">
                                     </div>
@@ -226,7 +226,7 @@
 
             if (province_id) {
                 $.ajax({
-                    url: '/get-regencies/' + province_id,
+                    url: {{ url('/get-regencies/' + province_id) }},
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
