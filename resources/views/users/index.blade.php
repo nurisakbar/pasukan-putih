@@ -33,13 +33,18 @@
                                     <input type="text" name="search" class="form-control" placeholder="Cari nama/email" value="{{ request('search') }}">
                                 </div>
                                 <div class="col-md-3">
-                                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date', \Carbon\Carbon::now()->toDateString()) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="submit" class="btn btn-info w-100">Cari</button>
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="fas fa-search"></i> Cari
+                                    </button>
+                                    <a href="{{ route('users.index') }}" class="btn btn-outline-danger">
+                                        Reset
+                                    </a>
                                 </div>
                             </div>
                         </form>
@@ -54,25 +59,34 @@
                                      <th>Role</th>
                                      <th>No Whatsapp</th>
                                      <th>Keterangan</th>
-                                     <th widht="300px">Aksi</th>
+                                     <th widht="100px">Aksi</th>
                                  </tr>
                              </thead>
                              <tbody>
+                                @php $qounter = ($users->currentPage() - 1) * $users->perPage() + 1; @endphp
+
                                  @foreach ($users as $data)
                                      <tr>
-                                         <td>{{ $loop->iteration }}</td>
+                                         <td>{{ $qounter++ }}</td>
                                          <td>{{ $data->name }}</td>
                                          <td>{{ $data->email }}</td>
                                          <td>{{ $data->role }}</td>
                                          <td>{{ $data->no_wa ?? '-' }}</td>
                                          <td>{{ $data->keterangan }}</td>
-                                         <td width="300px">
-                                             <form action="{{ route('users.destroy', $data->id) }}" method="POST">
-                                                 @csrf
-                                                 @method('DELETE')
-                                                 <a href="{{ route('users.edit', $data->id) }}" class="btn btn-warning">Edit</a>
-                                                 <button type="submit" class="btn btn-danger">Hapus</button>
-                                             </form>
+                                         <td width="100px">
+                                            <form action="{{ route('users.destroy', $data->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                            
+                                                <a href="{{ route('users.edit', $data->id) }}" class="btn btn-danger btn-sm" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            
                                          </td>
                                      </tr>
                                  @endforeach

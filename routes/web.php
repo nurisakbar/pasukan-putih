@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/neurosensori/{id}', [App\Http\Controllers\AsuhanKeluargaController::class, 'updateNeurosensori'])->name('form.updateNeurosensori');
 
     Route::resource('/users', App\Http\Controllers\UserController::class);
+    Route::get('/profile', [App\Http\Controllers\UserController::class, 'editProfile'])->name('users.editProfile');
+    Route::put('/profile', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('users.updateProfile');
+
     Route::post('/import-users', [App\Http\Controllers\UserController::class, 'importUsers'])->name('import.users');
 
     // Login by email routes

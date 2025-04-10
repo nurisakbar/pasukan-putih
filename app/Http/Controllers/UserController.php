@@ -10,6 +10,8 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UserImport;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -20,29 +22,36 @@ class UserController extends Controller
     {
         $currentUser = Auth::user();
         $query = User::query();
-
-        // Filter berdasarkan role
+    
+        // Filter berdasarkan role (jika bukan superadmin, tampilkan hanya user yang parent_id-nya sama)
         if ($currentUser->role !== 'superadmin') {
             $query->where('parent_id', $currentUser->id);
         }
-
-        // Search berdasarkan nama atau email
-        if ($request->has('search') && !empty($request->search)) {
+    
+        // Filter berdasarkan pencarian nama atau email
+        if (!empty($request->search)) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
-
+    
         // Filter berdasarkan rentang tanggal
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
         }
-
+    
+        // Ambil data dengan paginasi
         $users = $query->orderBy('created_at', 'asc')->paginate(15);
-
+    
+        // Pastikan filter ikut saat ganti halaman (pagination)
+        $users->appends($request->all());
+    
         return view('users.index', compact('users'));
-    }
+    }    
 
     /**
      * Show the form for creating a new user.
@@ -228,21 +237,26 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->authorizeAccess($user);
-        
-        // Check if user has child users
-        $childUsers = User::where('parent_id', $user->id)->count();
-        
-        if ($childUsers > 0) {
+
+        // Cek apakah user punya child
+        $hasChildren = User::where('parent_id', $user->id)->exists();
+
+        if ($hasChildren) {
             return redirect()
                 ->route('users.index')
                 ->with('error', 'User tidak dapat dihapus karena masih memiliki user-user di bawahnya!');
         }
-        
-        $user->delete();
-        
+
+        // Soft delete
+        if ($user->delete()) {
+            return redirect()
+                ->route('users.index')
+                ->with('success', 'User berhasil dihapus!');
+        }
+
         return redirect()
             ->route('users.index')
-            ->with('success', 'User berhasil dihapus!');
+            ->with('error', 'Terjadi kesalahan saat menghapus user.');
     }
     
     /**
@@ -311,5 +325,58 @@ class UserController extends Controller
         Excel::import(new UserImport, $request->file('file'));
 
         return back()->with('success', 'Data pengguna berhasil diimport!');
+    }
+
+    /**
+     * Show the form for editing current user's profile.
+     */
+    public function editProfile()
+    {
+        $user = Auth::user();
+        return view('users.profile', compact('user'));
+    }
+
+    /**
+     * Update the current user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validation rules
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'no_wa' => ['nullable', 'string', 'max:255'],
+            'keterangan' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Update data
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'keterangan' => $request->keterangan,
+            'no_wa' => $request->no_wa,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Profil berhasil diperbarui!');
     }
 }
