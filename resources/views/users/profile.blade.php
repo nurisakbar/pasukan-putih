@@ -97,12 +97,12 @@
 
                         <div class="mb-3">
                             <label for="password" class="form-label fw-bold">Password Baru (Opsional)</label>
-                            <input type="password" id="password" name="password" class="form-control">
+                            <input type="password" id="password" name="password" class="form-control" value="{{ old('password', $user->password) }}">
                         </div>
 
                         <div class="mb-4">
                             <label for="password_confirmation" class="form-label fw-bold">Konfirmasi Password</label>
-                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control">
+                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" value="{{ old('password', $user->password) }}">
                         </div>
 
                         <div class="d-grid">
