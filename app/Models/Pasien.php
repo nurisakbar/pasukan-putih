@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pasien extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $table = 'pasiens';
     protected $primaryKey = 'id';
@@ -26,7 +27,10 @@ class Pasien extends Model
         'province_id',
         'rt',
         'rw',
+        'parent_id'
     ];
+
+    protected $dates = ['deleted_at'];
 
     protected static function boot()
     {

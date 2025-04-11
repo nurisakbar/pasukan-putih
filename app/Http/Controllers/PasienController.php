@@ -29,7 +29,9 @@ class PasienController extends Controller
 {
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
-        $query = Pasien::latest(); 
+        $parentId = auth()->user()->parent_id;
+        
+        $query = Pasien::latest()->where('parent_id', $parentId); 
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -44,21 +46,42 @@ class PasienController extends Controller
         }
     
         $pasiens = $query->paginate(10);
-        $nik = '54469587526';
-        $pasien_nik = Pasien::where('nik', $nik)->get();
         
-        return view('pasiens.index', compact('pasiens', 'pasien_nik'));
+        return view('pasiens.index', compact('pasiens'));
     }
 
     public function create(): \Illuminate\Contracts\View\View
     {
         $provinces = Province::all();
-        return view('pasiens.create', compact('provinces'));
+        $parentId = auth()->user()->parent_id;
+        return view('pasiens.create', compact('provinces', 'parentId'));
     }
 
-    public function store(PasienRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $pasien = Pasien::create($request->validated());
+        $validated = $request->validate([
+            'name' => 'string|max:255',
+            'nik' => 'string|max:255|unique:pasiens,nik',
+            'alamat' => 'string|max:255',
+            'jenis_kelamin' => 'string|max:255',
+            'jenis_ktp' => 'string|max:255',
+            'tanggal_lahir' => 'date',
+            'village_id' => 'string|max:255',
+            'district_id' => 'string|max:255',
+            'regency_id' => 'string|max:255',
+            'province_id' => 'string|max:255',
+            'no_wa' => 'string|max:255',
+            'keterangan' => 'string|max:255',
+            'rt' => 'string|max:255',
+            'rw' => 'string|max:255',
+        ]);
+
+        $parentId = auth()->user()->parent_id;
+
+        $pasien = Pasien::create([
+            ...$validated,
+            'parent_id' => $parentId,
+        ]);
         return redirect()->route('pasiens.index')->with('success', 'Created successfully');
     }
 
