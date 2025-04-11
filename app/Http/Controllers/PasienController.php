@@ -30,22 +30,27 @@ class PasienController extends Controller
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $parentId = auth()->user()->parent_id;
-        
-        $query = Pasien::latest()->where('parent_id', $parentId); 
+
+        $query = Pasien::latest();
+
+        if (!is_null($parentId)) {
+            $query->where('parent_id', $parentId);
+        }
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('nik', 'LIKE', "%{$search}%");
+                ->orWhere('nik', 'LIKE', "%{$search}%");
             });
         }
-    
+
         if ($request->filled('tanggal')) {
             $query->whereDate('created_at', $request->input('tanggal'));
         }
-    
+
         $pasiens = $query->paginate(10);
+
         
         return view('pasiens.index', compact('pasiens'));
     }
