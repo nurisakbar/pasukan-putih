@@ -26,6 +26,7 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `users`
 --
+SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE TABLE `users` (
   `id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
