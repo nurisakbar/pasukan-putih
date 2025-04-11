@@ -91,9 +91,6 @@ class VisitingController extends Controller
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',
             'nik' => 'required|string',
-            'berat_badan' => 'nullable|numeric',
-            'tinggi_badan' => 'nullable|numeric',
-            'imt' => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -111,9 +108,6 @@ class VisitingController extends Controller
             'user_id' => auth()->id(),
             'tanggal' => $request->tanggal,
             'status' => $request->status,
-            'berat_badan' => $request->berat_badan,
-            'tinggi_badan' => $request->tinggi_badan,
-            'imt' => $request->imt,
         ]);
 
         $ttv = Ttv::create([
@@ -154,9 +148,6 @@ class VisitingController extends Controller
         $validator = Validator::make($request->all(), [
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',
-            'berat_badan' => 'nullable|numeric',
-            'tinggi_badan' => 'nullable|numeric',
-            'imt' => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -168,9 +159,6 @@ class VisitingController extends Controller
         $visiting->update([
             'tanggal' => $request->tanggal,
             'status' => $request->status,
-            'berat_badan' => $request->berat_badan,
-            'tinggi_badan' => $request->tinggi_badan,
-            'imt' => $request->imt,
         ]);
 
         return redirect()->route('visitings.index')

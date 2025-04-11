@@ -216,23 +216,6 @@
                                     @enderror
                                 </div>
                                 
-                                <div class="form-group mb-3">
-                                   <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
-                                   <input type="number" step="0.1" class="form-control" id="berat_badan" name="berat_badan"
-                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan') }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
-                                   <input type="number" step="0.1" class="form-control" id="tinggi_badan" name="tinggi_badan"
-                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan') }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="imt" class="form-label">Indeks Massa Tubuh (IMT)</label>
-                                   <input type="text" class="form-control" id="imt" name="imt" readonly>
-                               </div>
-                                
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Simpan</button>
                                     <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
