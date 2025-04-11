@@ -10,7 +10,7 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                    <a href="/visitings" class="nav-link">
+                    <a href="visitings" class="nav-link">
                         <i class="nav-icon bi bi-speedometer"></i>
                         <p>
                             DASHBOARD
@@ -19,7 +19,7 @@
                 </li>
                 @if (auth()->user()->role != 'perawat')
                 <li class="nav-item">
-                    <a href="/users?role=perawat" class="nav-link">
+                    <a href="users?role=perawat" class="nav-link">
                         <i class="nav-icon bi bi-person"></i>
                         <p>DAFTAR PENGGUNA</p>
                     </a>
