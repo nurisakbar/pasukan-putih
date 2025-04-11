@@ -180,11 +180,10 @@
     </div>
     @php
         $villageOld = [
-            'village_id' => old('village_id', $pasien->village_id),
-            'village_name' => old('village_name', $pasien->village->name ?? ''),
-            'district_name' => old('district_name', $pasien->district->name ?? ''),
-            'regency_name' => old('regency_name', $pasien->regency->name ?? ''),
-            'province_name' => old('province_name', $pasien->province->name ?? ''),
+            'village_name' => old('village_name', $pasien->village_id ?? ''),
+            'district_name' => old('district_name', $pasien->district_id ?? ''),
+            'regency_name' => old('regency_name', $pasien->regency_id ?? ''),
+            'province_name' => old('province_name', $pasien->province_id ?? ''),
         ];
     @endphp
 
@@ -247,10 +246,10 @@
         $('#village_search').on('select2:select', function (e) {
             const data = e.params.data.fullData;
 
-            $('#province_id').val(data.province_id);
-            $('#regency_id').val(data.regency_id);
-            $('#district_id').val(data.district_id);
-            $('#village_id').val(data.village_id);
+            $('#province_id').val(data.province_name);
+            $('#regency_id').val(data.regency_name);
+            $('#district_id').val(data.district_name);
+            $('#village_id').val(data.village_name);
         });
 
         // Isi value lama jika ada
@@ -263,10 +262,11 @@
             );
 
             $('#village_search').append(option).trigger('change');
-            $('#province_id').val(oldVillage.province_id);
-            $('#regency_id').val(oldVillage.regency_id);
-            $('#district_id').val(oldVillage.district_id);
-            $('#village_id').val(oldVillage.village_id);
+            
+            $('#province_id').val(oldVillage.province_name);
+            $('#regency_id').val(oldVillage.regency_name);
+            $('#district_id').val(oldVillage.district_name);
+            $('#village_id').val(oldVillage.village_name);
         }
     });
     </script>

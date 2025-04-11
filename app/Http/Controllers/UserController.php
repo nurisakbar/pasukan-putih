@@ -125,7 +125,11 @@ class UserController extends Controller
             'role' => $request->role,
             'parent_id' => $parentId,
             'no_wa' => $request->no_wa,
-            'keterangan' => $request->keterangan
+            'keterangan' => $request->keterangan,
+            'village' => $request->village,
+            'district' => $request->district,
+            'regency' => $request->regency,
+            'status_pegawai' => $request->status_pegawai
         ]);
         
         return redirect()
@@ -216,7 +220,11 @@ class UserController extends Controller
             'role' => $request->role,
             'parent_id' => $parentId,
             'no_wa' => $request->no_wa,
-            'keterangan' => $request->keterangan
+            'keterangan' => $request->keterangan,
+            'village' => $request->village,
+            'district' => $request->district,
+            'regency' => $request->regency,
+            'status_pegawai' => $request->status_pegawai
         ];
         
         // Only update password if provided
@@ -367,9 +375,12 @@ class UserController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'keterangan' => $request->keterangan,
             'no_wa' => $request->no_wa,
-            'status_pegawai' => $request->status_pegawai
+            'keterangan' => $request->keterangan,
+            'village' => $request->village,
+            'district' => $request->district,
+            'regency' => $request->regency,
+            'status_pegawai' => $request->status_pegawai  
         ];
 
         if ($request->filled('password')) {
