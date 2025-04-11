@@ -44,13 +44,13 @@
                      <div class="card-body">
                         <ul class="nav nav-tabs" style="margin-bottom:10px" >
                             <li class="nav-item">
-                              <a class="nav-link {{$_GET['role']=='superadmin'?'active':''}}" aria-current="page" href="/users?role=superadmin"><i class="fa-solid fa-user-secret"></i> SUPER ADMIN</a>
+                              <a class="nav-link {{$_GET['role']=='superadmin'?'active':''}}" aria-current="page" href="users?role=superadmin"><i class="fa-solid fa-user-secret"></i> SUPER ADMIN</a>
                             </li>
                             <li class="nav-item">
-                              <a class="nav-link {{$_GET['role']=='pustu'?'active':''}}" href="/users?role=pustu"><i class="fa-solid fa-users-line"></i> PUSKESMAS PEMBANTU</a>
+                              <a class="nav-link {{$_GET['role']=='pustu'?'active':''}}" href="users?role=pustu"><i class="fa-solid fa-users-line"></i> PUSKESMAS PEMBANTU</a>
                             </li>
                             <li class="nav-item">
-                              <a class="nav-link {{$_GET['role']=='perawat'?'active':''}}" href="/users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
+                              <a class="nav-link {{$_GET['role']=='perawat'?'active':''}}" href="users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
                             </li>
                           </ul>
 
