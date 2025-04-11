@@ -229,10 +229,10 @@
         $('#village_search').on('select2:select', function (e) {
             const data = e.params.data.fullData;
 
-            $('#province_id').val(data.province_id);
-            $('#regency_id').val(data.regency_id);
-            $('#district_id').val(data.district_id);
-            $('#village_id').val(data.village_id);
+            $('#province_id').val(data.province_name);
+            $('#regency_id').val(data.regency_name);
+            $('#district_id').val(data.district_name);
+            $('#village_id').val(data.village_name);
             
             // Set Provinsi dan trigger change
             $('#province').val(data.province_id).trigger('change');

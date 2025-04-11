@@ -101,7 +101,12 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
             'keterangan' => $this->getFieldValue($row, ['keterangan', 'KETERANGAN']),
             'kelurahan' => $this->getFieldValue($row, ['kelurahan', 'KELURAHAN']),
             'kecamatan' => $this->getFieldValue($row, ['kecamatan', 'KECAMATAN']),
-            'kabupaten_kota' => $this->getFieldValue($row, ['kabupaten/kota', 'kabupaten_kota', 'KABUPATEN/KOTA']),
+            'kabupatenkota' => $this->getFieldValue($row, [
+                                'kabupatenkota', // <- Tambahkan ini
+                                'kabupaten_kota',
+                                'kabupaten/kota',
+                                'KABUPATEN/KOTA'
+                            ]),
         ];
     }
     
@@ -179,75 +184,79 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
     /**
      * Generate a unique slug for email generation
      */
-    private function generateSlug($input)
+    private function generateSlug($input, $role = null)
     {
         if (empty($input)) {
             return substr(uniqid(), -8);
         }
-        
-        // Transliterate to ASCII and remove all non-alphanumeric characters
-        $slug = preg_replace('/[^a-z0-9]/', '', 
-               strtolower(
-                   str_replace(' ', '', 
-                       preg_replace('/\s+/', ' ', trim($input))
-                   )
-               )
-           );
-        
+
+        $cleanInput = strtolower($input);
+
+        // Hilangkan kata 'pembantu' hanya untuk email puskesmas (jika tetap mau)
+        if ($role === 'puskesmas') {
+            $cleanInput = str_ireplace('pembantu', '', $cleanInput);
+        }
+
+        // Hapus spasi ganda dan karakter tidak perlu
+        $cleanInput = preg_replace('/\s+/', ' ', trim($cleanInput));
+
+        // Ganti spasi dengan kosong, tapi tetap sisakan huruf dan angka
+        $slug = preg_replace('/[^a-z0-9]/', '', $cleanInput);
+
         return $slug ?: substr(uniqid(), -8);
     }
+
     
     /**
      * Generate a unique email that isn't already in use
      */
     private function generateUniqueEmail($name, $role, $originalEmail = null)
     {
-        // If a valid email is provided, try to use it first
+        // Jika sudah ada email valid yang bisa dipakai
         if (!empty($originalEmail) && filter_var($originalEmail, FILTER_VALIDATE_EMAIL)) {
-            $email = strtolower($originalEmail);
-            
-            // Check if this exact email exists
+            $email = strtolower(trim($originalEmail));
+
             if (!$this->emailExists($email)) {
                 return $email;
             }
-            
-            // If it exists, we'll generate a new one based on the original
+
+            // Kalau email sudah dipakai, tambahkan counter
             $parts = explode('@', $email);
             $username = $parts[0];
             $domain = $parts[1] ?? 'gmail.com';
-            
+
             $counter = 1;
-            while ($counter < 10) { // Limit attempts to prevent infinite loops
-                $newEmail = $username . '.' . $counter . '@' . $domain;
+            while ($counter < 10) {
+                $newEmail = $username  . $counter . '@' . $domain;
                 if (!$this->emailExists($newEmail)) {
                     return $newEmail;
                 }
                 $counter++;
             }
         }
-        
-        // Generate a new email based on the name and role
-        $slug = $this->generateSlug($name);
-        $rolePrefix = substr($role, 0, 1);
-        $emailBase = $slug . '.' . $rolePrefix . '@gmail.com';
-        
+
+        // Generate dari nama dan role
+        $slug = $this->generateSlug($name, $role);
+        $emailBase = $slug . '@gmail.com';
+
         if (!$this->emailExists($emailBase)) {
             return $emailBase;
         }
-        
-        // Add counter if already exists
+
+        // Tambahkan counter jika emailBase sudah ada
         $counter = 1;
-        while ($counter < 10) { // Limit attempts
-            $email = $slug . '.' . $rolePrefix . '.' . $counter . '@gmail.com';
+        while ($counter < 10) {
+            $email = $slug . $counter . '@gmail.com';
             if (!$this->emailExists($email)) {
                 return $email;
             }
             $counter++;
         }
-        
-        // Last resort - use random string
-        return $slug . '.' . $rolePrefix . '.' . substr(uniqid(), -8) . '@gmail.com';
+
+        // Terakhir, gunakan string acak
+        return $slug . substr(uniqid(), -8) . '@gmail.com';
     }
+
     
     /**
      * Generate a proper name from available data
@@ -323,6 +332,8 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         
         // Process each row individually for better error handling
         foreach ($rows as $index => $row) {
+            Log::info('data', $row->toArray());
+
             try {
                 $data = $this->processRow($row);
                 
@@ -367,7 +378,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                         'status_pegawai' => $data['status_pegawai'] ?? null,
                         'village' => $data['kelurahan'] ?? null,
                         'district' => $data['kecamatan'] ?? null,
-                        'regency' => $data['kabupaten_kota'] ?? null,
+                        'regency' => $data['kabupatenkota'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
@@ -382,10 +393,11 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                 
                 // STEP 2: Check if pustu exists or create it
                 $pustuName = $this->generateProperName(
-                    !empty($data['nama_puskesmas_pembantu']) ? $data['nama_puskesmas_pembantu'] . ' Pustu' : null,
+                    $data['nama_puskesmas_pembantu'],
                     'pustu',
                     $data
                 );
+                $pustuEmail = $this->generateUniqueEmail($data['nama_puskesmas_pembantu'], 'pustu');                
                 
                 $existingPustu = $this->findUser([
                     'role' => 'pustu',
@@ -411,7 +423,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                         'status_pegawai' => $data['status_pegawai'] ?? null,
                         'village' => $data['kelurahan'] ?? null,
                         'district' => $data['kecamatan'] ?? null,
-                        'regency' => $data['kabupaten_kota'] ?? null,
+                        'regency' => $data['kabupatenkota'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
@@ -469,7 +481,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                             'password' => Hash::make('perawat123'),
                             'village' => $data['kelurahan'] ?? null,
                             'district' => $data['kecamatan'] ?? null,
-                            'regency' => $data['kabupaten_kota'] ?? null,
+                            'regency' => $data['kabupatenkota'] ?? null,
                             'created_at' => now(),
                             'updated_at' => now()
                         ]);
@@ -488,6 +500,8 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                 ]);
                 $this->importLog['skipped']++;
             }
+
+            Log::debug('Final data for insert:', $data);
         }
         
         // Log final import results
