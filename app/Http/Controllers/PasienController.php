@@ -109,19 +109,37 @@ class PasienController extends Controller
 
     public function getPasienByNik(Request $request)
     {
-        $nik = $request->input('nik');  // Mengambil NIK dari request
-
-        $pasien = Pasien::where('nik', $nik)->first();
-
-        if ($pasien) {
-            return response()->json([
-                'message' => 'Pasien ditemukan',
-                'data' => $pasien
-            ], 200);
-        }
-
-        return response()->json(['message' => 'Pasien tidak ditemukan'], 404);
+        $search = $request->input('q');
+    
+        $pasiens = Pasien::with(['village', 'district', 'regency'])
+            ->where(function ($query) use ($search) {
+                $query->where('nik', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+    
+        return response()->json(
+            $pasiens->map(function ($pasien) {
+                return [
+                    'id' => $pasien->id,
+                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village->name}",
+                    'fullData' => [
+                        'id' => $pasien->id,
+                        'name' => $pasien->name,
+                        'nik' => $pasien->nik,
+                        'alamat' => $pasien->alamat,
+                        'rt' => $pasien->rt,
+                        'rw' => $pasien->rw,
+                        'village_id' => $pasien->village_id,
+                        'district_id' => $pasien->district_id,
+                        'regency_id' => $pasien->regency_id,
+                    ]
+                ];
+            })
+        );
     }
+    
 
     public function createAsuhanKeluarga($id): \Illuminate\Contracts\View\View
     {

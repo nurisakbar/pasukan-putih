@@ -91,8 +91,6 @@ class VisitingController extends Controller
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',
             'nik' => 'required|string',
-            'name' => 'required|string|max:255',
-            'alamat' => 'required|string',
             'berat_badan' => 'nullable|numeric',
             'tinggi_badan' => 'nullable|numeric',
             'imt' => 'nullable|numeric',
@@ -105,23 +103,7 @@ class VisitingController extends Controller
         }
 
         // Check if pasien exists, create if not
-        $pasien = Pasien::where('nik', $request->nik)->first();
-        
-        if (!$pasien) {
-            $pasien = Pasien::create([
-                'nik' => $request->nik,
-                'name' => $request->name,
-                'alamat' => $request->alamat,
-                'rt' => $request->rt,
-                'rw' => $request->rw,
-                'kelurahan' => $request->kelurahan,
-                'kecamatan' => $request->kecamatan,
-                'kabupaten' => $request->kabupaten,
-                'village_id' => $request->kelurahan,
-                'district_id' => $request->kecamatan,
-                'regency_id' => $request->kabupaten,
-            ]);
-        }
+        $pasien = Pasien::where('id', $request->pasien_id)->first();
 
         // Create visiting
         $visiting = Visiting::create([

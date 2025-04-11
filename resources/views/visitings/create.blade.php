@@ -127,19 +127,36 @@
                 font-size: 0.8rem;
             }
         }
+
+        .custom-select-height {
+            height: calc(2.375rem + 2px); 
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
+        }
+
+        .select2-container {
+        width: 100% !important;
+        }
+
+        .select2-selection--single {
+            height: calc(2.375rem + 2px) !important;
+            display: flex !important;
+            align-items: center;
+            padding-left: 0.75rem;
+            font-size: 1rem;
+            border-radius: 0.375rem;
+        }
+
+        /* Pastikan teks di tengah */
+        .select2-selection__rendered {
+            line-height: 1.5 !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
     </style>
 @endpush
 
 @section('content')
-    <div class="app-content-header py-3">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-12">
-                    <h3 class="mb-0">Tambah Kunjungan</h3>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if ($errors->any())
         <div class="bg-red-100 text-red-700 p-4 rounded">
@@ -154,11 +171,11 @@
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 mb-4 mt-2">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Form Tambah Kunjungan</h5>
+                                <h5 class="card-title mb-0">Tambah Kunjungan</h5>
                             </div>
                         </div>
                         <div id="loading-indicator" class="p-3 d-none">
@@ -192,60 +209,11 @@
                                </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="nik" class="form-label">NIK</label>
-                                    <input type="text" class="form-control nik" id="nik" name="nik" placeholder="NIK" value="{{ old('nik') }}">
+                                    <label for="nik" class="form-label">Nama Pasien</label>
+                                    <select id="nik_search" name="nik" class="form-control custom-select-height" style="width: 100%"></select>
                                     @error('nik')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="name" class="form-label">Nama</label>
-                                    <input type="text" class="form-control name" id="name" name="name" 
-                                        placeholder="Nama" value="{{ old('name') }}">
-                                    @error('name')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="alamat" class="form-label">Alamat</label>
-                                    <input type="text" class="form-control alamat" id="alamat" name="alamat"
-                                        placeholder="Alamat" value="{{ old('alamat') }}">
-                                    @error('alamat')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-6 col-md-3">
-                                        <label for="rt" class="form-label">RT</label>
-                                        <input type="number" class="form-control rt" id="rt" name="rt"
-                                            placeholder="RT" value="{{ old('rt', '00') }}">
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label for="rw" class="form-label">RW</label>
-                                        <input type="number" class="form-control rw" id="rw" name="rw"
-                                            placeholder="RW" value="{{ old('rw', '00') }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kelurahan" class="form-label">Kelurahan</label>
-                                        <input type="text" class="form-control kelurahan" id="kelurahan" name="kelurahan"
-                                            placeholder="Kelurahan" value="{{ old('kelurahan') }}">
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="kecamatan" class="form-label">Kecamatan</label>
-                                        <input type="text" class="form-control kecamatan" id="kecamatan" name="kecamatan"
-                                            placeholder="Kecamatan" value="{{ old('kecamatan') }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kabupaten" class="form-label">Kabupaten/Kota</label>
-                                        <input type="text" class="form-control kabupaten" id="kabupaten" name="kabupaten"
-                                            placeholder="Kabupaten/Kota" value="{{ old('kabupaten') }}">
-                                    </div>
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -274,7 +242,7 @@
                     </div>
                 </div>
                 
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 mb-4 mt-2">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white">
                             <div class="d-flex justify-content-between align-items-center">
@@ -469,48 +437,25 @@
         });
 
         // Handle NIK input for autofill
-        $(document).ready(function() {
-            $('.nik').on('input', function() {
-                const nik = $(this).val().trim();
-
-                if (nik.length > 0) {
-                    toggleLoading(true);
-
-                    $.ajax({
-                        url: "{{ route('pasiens.nik') }}",
-                        type: "GET",
-                        data: { nik: nik },
-                        dataType: "json",
-                        success: function(response) {
-                            if (response.message === "Pasien ditemukan") {
-                                $('.id').val(response.data.id);
-                                $('.name').val(response.data.name);
-                                $('.alamat').val(response.data.alamat);
-                                $('.rt').val('00');
-                                $('.rw').val('00');
-                                $('.kelurahan').val(response.data.village_id);
-                                $('.kecamatan').val(response.data.district_id);
-                                $('.kabupaten').val(response.data.regency_id);
-                            } else {
-                                console.log('Data tidak ditemukan');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            $('.id').val('');
-                            $('.name').val('');
-                            $('.alamat').val('');
-                            $('.rt').val('');
-                            $('.rw').val('');
-                            $('.kelurahan').val('');
-                            $('.kecamatan').val('');
-                            $('.kabupaten').val('');
-                        },
-                        complete: function() {
-                            toggleLoading(false);
-                        }
-                    });
-                }
-            });
+        $('#nik_search').select2({
+            placeholder: 'Masukan NIK atau Nama Pasien',
+            minimumInputLength: 3,
+            ajax: {
+                url: "{{ route('pasiens.nik') }}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                },
+                cache: true
+            }
+        });
+        $('#nik_search').on('select2:select', function (e) {
+            const pasien = e.params.data.fullData;
+            $('.id').val(pasien.id);
         });
     </script>
 @endpush

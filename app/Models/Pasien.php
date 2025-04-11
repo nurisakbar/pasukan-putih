@@ -64,4 +64,9 @@ class Pasien extends Model
         return $this->belongsTo(Village::class, 'village_id', 'id');
     }
 
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id', 'id');
+    }
+
 }
