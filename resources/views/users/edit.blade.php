@@ -3,7 +3,7 @@
 @push('style')
 <style>
     .custom-select-height {
-        height: calc(2.375rem + 2px); 
+        height: calc(2.375rem + 2px);
         padding-top: 0.375rem;
         padding-bottom: 0.375rem;
     }
@@ -40,7 +40,7 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <h5 class="card-title">Edit User</h5>
+                                    <h5 class="card-title">EDIT PENGGUNA</h5>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +50,7 @@
                                 @method('PUT')
                                 <div class="row">
                                     <div class="col-sm-12">
-                            
+
                                         {{-- Name --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -64,7 +64,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Email --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -78,7 +78,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- No Whatsapp --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -93,7 +93,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Keterangan --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -108,7 +108,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Password --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -123,7 +123,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Password Confirmation --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -135,7 +135,7 @@
                                                     value="{{ old('password_confirmation', $user->password) }}">
                                             </div>
                                         </div>
-                            
+
                                         {{-- Role --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -160,7 +160,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Parent (jika superadmin) --}}
                                         @if (Auth::user()->role == 'superadmin')
                                             <div class="row mb-4 parent-field" id="parent-field"
@@ -201,7 +201,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-        
+
                                         <div class="row mb-4">
                                             <div class="col-lg-2 col-md-4 mb-2">
                                                 <label for="status_pegawai" class="form-label fw-bold">Status Pegawai <span
@@ -216,13 +216,13 @@
                                                 @enderror
                                             </div>
                                         </div>
-                            
+
                                         {{-- Alamat dan Desa --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
                                                 <label for="alamat" class="form-label fw-bold">Alamat, Nama Desa <span class="text-danger">*</span></label>
                                             </div>
-                            
+
                                             <div class="col-12 col-md-8 col-lg-3 mb-2">
                                                 <input class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat"
                                                     placeholder="Alamat Jalan (Opsional)" value="{{ old('alamat', $user->alamat) }}">
@@ -230,7 +230,7 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                            
+
                                             <div class="col-12 col-md-8 col-lg-7 mb-2">
                                                 <select id="village_search" name="village_search" class="form-select custom-select-height" required></select>
                                                 <input type="hidden" name="village" id="village_id">
@@ -238,7 +238,7 @@
                                                 <input type="hidden" name="regency" id="regency_id">
                                             </div>
                                         </div>
-                            
+
                                     </div>
                                 </div>
                                 <div class="row">
@@ -248,7 +248,7 @@
                                     </div>
                                 </div>
                             </form>
-                            
+
                     </div>
                 </div>
             </div>
@@ -273,8 +273,8 @@
             @if(Auth::user()->role == 'superadmin')
             $('select[name="role"]').on('change', function() {
                 var selectedRole = $(this).val();
-                if (selectedRole == 'pustu' || selectedRole == 'dokter' || 
-                    selectedRole == 'perawat' || selectedRole == 'farmasi' || 
+                if (selectedRole == 'pustu' || selectedRole == 'dokter' ||
+                    selectedRole == 'perawat' || selectedRole == 'farmasi' ||
                     selectedRole == 'pendaftaran') {
                     $('#parent-field').show();
                 } else {
@@ -306,7 +306,7 @@
                     cache: true
                 }
             });
-    
+
             // Isi form saat user pilih desa
             $('#village_search').on('select2:select', function (e) {
                 const data = e.params.data.fullData;
@@ -314,7 +314,7 @@
                 $('#district_id').val(data.district_name);
                 $('#village_id').val(data.village_name);
             });
-    
+
             // Isi value lama jika ada
             if (oldVillage) {
                 const option = new Option(
@@ -323,9 +323,9 @@
                     true,
                     true
                 );
-    
+
                 $('#village_search').append(option).trigger('change');
-                
+
                 $('#regency_id').val(oldVillage.regency_name);
                 $('#district_id').val(oldVillage.district_name);
                 $('#village_id').val(oldVillage.village_name);

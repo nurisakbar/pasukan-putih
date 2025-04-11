@@ -10,25 +10,25 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                    <a href="/" class="nav-link">
+                    <a href="/visitings" class="nav-link">
                         <i class="nav-icon bi bi-speedometer"></i>
                         <p>
-                            Dashboard
+                            DASHBOARD
                         </p>
                     </a>
                 </li>
                 @if (auth()->user()->role != 'perawat')
                 <li class="nav-item">
-                    <a href="{{ route('users.index') }}" class="nav-link">
+                    <a href="/users?role=perawat" class="nav-link">
                         <i class="nav-icon bi bi-person"></i>
-                        <p>User</p>
+                        <p>DAFTAR PENGGUNA</p>
                     </a>
                 </li>
                 @endif
                 <li class="nav-item">
                     <a href="{{ route('pasiens.index') }}" class="nav-link">
                         <i class="nav-icon bi bi-person-badge"></i>
-                        <p>Pasien</p>
+                        <p>DAFTAR PASIEN</p>
                     </a>
                 </li>
                 {{-- <li class="nav-item">
@@ -40,7 +40,7 @@
                 <li class="nav-item">
                     <a href="{{ route('visitings.index') }}" class="nav-link">
                         <i class="nav-icon bi bi-calendar-event"></i>
-                        <p>Kunjungan</p>
+                        <p>DAFTAR KUNJUNGAN</p>
                     </a>
                 </li>
             </ul>

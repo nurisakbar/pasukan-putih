@@ -3,7 +3,7 @@
 @push('style')
 <style>
     .custom-select-height {
-        height: calc(2.375rem + 2px); 
+        height: calc(2.375rem + 2px);
         padding-top: 0.375rem;
         padding-bottom: 0.375rem;
     }
@@ -128,28 +128,28 @@
                                     <div class="col-12 col-md-4 col-lg-2 mb-2">
                                         <label for="alamat" class="form-label fw-bold">Alamat, Nama Desa <span class="text-danger">*</span></label>
                                     </div>
-                                
+
                                     <div class="col-12 col-md-8 col-lg-3 mb-2">
                                         <input class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" placeholder="Alamat Jalan (Opsional)" required value="{{ old('alamat') }}">
                                         @error('alamat')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                
+
                                     <div class="col-6 col-md-4 col-lg-2 mb-2">
                                         <input type="text" class="form-control @error('rt') is-invalid @enderror" id="rt" name="rt" value="{{ old('rt') }}" placeholder="RT" required>
                                         @error('rt')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                
+
                                     <div class="col-6 col-md-4 col-lg-2 mb-2">
                                         <input type="text" class="form-control @error('rw') is-invalid @enderror" id="rw" name="rw" value="{{ old('rw') }}" placeholder="RW" required>
                                         @error('rw')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                
+
                                     <div class="col-12 col-md-8 col-lg-3 mb-2">
                                         <select id="village_search" name="village_search"  class="form-select custom-select-height" required></select>
                                         <input type="hidden" name="village_id" id="village_id">
@@ -159,7 +159,7 @@
 
                                     </div>
                                 </div>
-                                
+
 
                                 <div class="row mt-4">
                                     <div class="col-lg-2 col-md-4">
@@ -199,12 +199,12 @@
                 }, false);
             });
         })();
-        
+
         $('#village_search').select2({
             placeholder: 'Cari kelurahan/desa...',
             minimumInputLength: 3,
             ajax: {
-                url: '{{ url("/apps/pasukanputih/search-village") }}', 
+                url: '{{ url("/search-village") }}',
                 dataType: 'json',
                 delay: 300,
                 data: function (params) {
@@ -233,7 +233,7 @@
             $('#regency_id').val(data.regency_name);
             $('#district_id').val(data.district_name);
             $('#village_id').val(data.village_name);
-            
+
             // Set Provinsi dan trigger change
             $('#province').val(data.province_id).trigger('change');
 

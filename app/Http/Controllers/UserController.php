@@ -21,13 +21,13 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-        $query = User::query();
-    
+        $query = User::where('role',$request->role);
+
         // Filter berdasarkan role (jika bukan superadmin, tampilkan hanya user yang parent_id-nya sama)
         if ($currentUser->role !== 'superadmin') {
             $query->where('parent_id', $currentUser->id);
         }
-    
+
         // Filter berdasarkan pencarian nama atau email
         if (!empty($request->search)) {
             $query->where(function ($q) use ($request) {
@@ -35,7 +35,7 @@ class UserController extends Controller
                   ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
-    
+
         // Filter berdasarkan rentang tanggal
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $query->whereBetween('created_at', [
@@ -43,15 +43,15 @@ class UserController extends Controller
                 Carbon::parse($request->end_date)->endOfDay()
             ]);
         }
-    
+
         // Ambil data dengan paginasi
-        $users = $query->orderBy('created_at', 'asc')->paginate(15);
-    
+        $users = $query->orderBy('created_at', 'asc')->get();
+
         // Pastikan filter ikut saat ganti halaman (pagination)
-        $users->appends($request->all());
-    
+        //$users->appends($request->all());
+
         return view('users.index', compact('users'));
-    }    
+    }
 
     /**
      * Show the form for creating a new user.
@@ -60,14 +60,14 @@ class UserController extends Controller
     {
         $currentUser = Auth::user();
         $parents = collect();
-        
+
         // If user is superadmin, get potential parents for dropdown
         if ($currentUser->role == 'superadmin') {
             // Get all facilities that can be parents
             $parents = User::whereIn('role', ['puskesmas', 'pustu', 'klinik'])
                            ->get();
         }
-        
+
         return view('users.create', compact('parents'));
     }
 
@@ -77,7 +77,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $currentUser = Auth::user();
-        
+
         // Validation rules
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -87,36 +87,36 @@ class UserController extends Controller
             'no_wa' => ['string', 'max:255'],
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
-        
+
         // Additional validation for parent_id when needed
         if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'])) {
             $rules['parent_id'] = ['required', 'exists:users,id'];
         }
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if ($validator->fails()) {
             return redirect()
                 ->route('users.create')
                 ->withErrors($validator)
                 ->withInput();
         }
-        
+
         // Determine parent_id
         $parentId = null;
-        
+
         // If superadmin and parent_id provided, use it
         if ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
             $parentId = $request->parent_id;
-        } 
+        }
         // If not superadmin, use current user as parent
         elseif ($currentUser->role != 'superadmin') {
             $parentId = $currentUser->id;
         }
-        
+
         // Role access validation
         $this->validateRoleAccess($currentUser->role, $request->role);
-        
+
         // Create the user
         User::create([
             'name' => $request->name,
@@ -131,7 +131,7 @@ class UserController extends Controller
             'regency' => $request->regency,
             'status_pegawai' => $request->status_pegawai
         ]);
-        
+
         return redirect()
             ->route('users.index')
             ->with('success', 'User berhasil ditambahkan!');
@@ -143,7 +143,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $this->authorizeAccess($user);
-        
+
         return view('users.show', compact('user'));
     }
 
@@ -153,16 +153,16 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $this->authorizeAccess($user);
-        
+
         $currentUser = Auth::user();
         $parents = collect();
-        
+
         // If user is superadmin, get potential parents for dropdown
         if ($currentUser->role == 'superadmin') {
             $parents = User::whereIn('role', ['puskesmas', 'pustu', 'klinik'])
                            ->get();
         }
-        
+
         return view('users.edit', compact('user', 'parents'));
     }
 
@@ -173,7 +173,7 @@ class UserController extends Controller
     {
         $this->authorizeAccess($user);
         $currentUser = Auth::user();
-        
+
         // Validation rules
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -182,37 +182,37 @@ class UserController extends Controller
             'no_wa' => ['string', 'max:255'],
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
-        
+
         // Password is optional during update
         if ($request->filled('password')) {
             $rules['password'] = ['confirmed', Rules\Password::defaults()];
         }
-        
+
         // Additional validation for parent_id when needed
         if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'])) {
             $rules['parent_id'] = ['required', 'exists:users,id'];
         }
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if ($validator->fails()) {
             return redirect()
                 ->route('users.edit', $user)
                 ->withErrors($validator)
                 ->withInput();
         }
-        
+
         // Determine parent_id
         $parentId = $user->parent_id;
-        
+
         // If superadmin and parent_id provided, use it
         if ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
             $parentId = $request->parent_id;
         }
-        
+
         // Role access validation
         $this->validateRoleAccess($currentUser->role, $request->role);
-        
+
         // Update user data
         $userData = [
             'name' => $request->name,
@@ -226,14 +226,14 @@ class UserController extends Controller
             'regency' => $request->regency,
             'status_pegawai' => $request->status_pegawai
         ];
-        
+
         // Only update password if provided
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->password);
         }
-        
+
         $user->update($userData);
-        
+
         return redirect()
             ->route('users.index')
             ->with('success', 'User berhasil diperbarui!');
@@ -266,61 +266,61 @@ class UserController extends Controller
             ->route('users.index')
             ->with('error', 'Terjadi kesalahan saat menghapus user.');
     }
-    
+
     /**
      * Validate if current user has access to manage the specified user.
      */
     private function authorizeAccess(User $user)
     {
         $currentUser = Auth::user();
-        
+
         // Superadmin can access all users
         if ($currentUser->role == 'superadmin') {
             return true;
         }
-        
+
         // Other users can only access users they created
         if ($user->parent_id != $currentUser->id) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         return true;
     }
-    
+
     /**
      * Validate if current user has permission to assign the specified role.
      */
     private function validateRoleAccess($currentUserRole, $requestedRole)
     {
         $allowed = false;
-        
+
         switch ($currentUserRole) {
             case 'superadmin':
                 // Superadmin can assign any role
                 $allowed = true;
                 break;
-                
+
             case 'puskesmas':
             case 'klinik':
                 // Puskesmas and Klinik can create Pustu and healthcare staff
                 $allowedRoles = ['pustu', 'dokter', 'perawat', 'caregiver', 'farmasi', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
-                
+
             case 'pustu':
                 // Pustu can only create healthcare staff
                 $allowedRoles = ['dokter', 'perawat', 'farmasi', 'caregiver', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
-                
+
             default:
                 $allowed = false;
         }
-        
+
         if (!$allowed) {
             abort(403, 'Anda tidak memiliki izin untuk membuat user dengan role tersebut.');
         }
-        
+
         return true;
     }
 
@@ -380,7 +380,7 @@ class UserController extends Controller
             'village' => $request->village,
             'district' => $request->district,
             'regency' => $request->regency,
-            'status_pegawai' => $request->status_pegawai  
+            'status_pegawai' => $request->status_pegawai
         ];
 
         if ($request->filled('password')) {

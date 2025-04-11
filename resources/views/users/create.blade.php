@@ -195,7 +195,7 @@
                                     </div>
                                 </div>
 
-                                @if (Auth::user()->role == 'superadmin')    
+                                @if (Auth::user()->role == 'superadmin')
                                     <div class="row mb-4" id="puskesmas-field" style="display: none;">
                                         <div class="col-lg-2 col-md-4 mb-2">
                                             <label for="nama pustu/puskesmas" class="form-label fw-bold">Nama Pustu/Puskesmas <span
@@ -323,7 +323,7 @@
                                         <button type="submit" class="btn btn-primary px-4">
                                             <i class="bi bi-save me-2"></i>Simpan
                                         </button>
-                                        <a href="{{ route('users.index') }}" class="btn btn-secondary ms-2">
+                                        <a href="/users?role=perawat" class="btn btn-secondary ms-2">
                                             <i class="bi bi-arrow-left me-2"></i>Kembali
                                         </a>
                                     </div>

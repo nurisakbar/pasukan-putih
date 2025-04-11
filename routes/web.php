@@ -12,7 +12,7 @@ Route::get('/lbe', function () {
 })->name('login-lbe');
 
 Route::middleware('guest')->group(function () {
-    Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe'); 
+    Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe');
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 });
@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pasiens/search', [App\Http\Controllers\PasienController::class, 'autofill'])->name('pasiens.search');
     Route::get('/pasiens/{id}/asuhan-keluarga', [App\Http\Controllers\PasienController::class, 'createAsuhanKeluarga'])->name('pasiens.asuhanKeluarga');
     // Route::get('/pasiens/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('pasiens.searchVillage');
-    Route::get('/apps/pasukanputih/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('search.village');
+    Route::get('/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('search.village');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');
@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('ttv', App\Http\Controllers\TtvController::class);
     Route::get('kunjungan/{kunjungan}/ttv/create', [\App\Http\Controllers\TtvController::class, 'create'])->name('kunjungan.ttv.create');
     Route::post('calculate-bmi', [\App\Http\Controllers\TtvController::class, 'calculateBmi'])->name('calculate.bmi');
-    
+
     //import
     Route::get('/pasiens/download-template', [\App\Http\Controllers\PasienController::class, 'downloadTemplate'])->name('pasiens.downloadTemplate');
     Route::post('pasien/import', [\App\Http\Controllers\PasienController::class, 'importPasien'])->name('pasiens.import');
@@ -118,11 +118,11 @@ Route::get('/get-villages/{district_id}', function ($district_id) {
 Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
 Route::get('/test-view', function () {
-    
+
     return view('kunjungans.create-kunjungan');
 });
 Route::get('/test-view-form', function () {
-    
+
     return view('kunjungans.form-kesehatan');
 });
 

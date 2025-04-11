@@ -2,14 +2,6 @@
 
 @section('content')
 <div class="app-content-header">
-     <div class="container-fluid">
-         <div class="row">
-             <div class="col-sm-6">
-                 <h3 class="mb-0">Users</h3>
-             </div>
-         </div>
-     </div>
- </div>
  <div class="app-content">
      <div class="container-fluid">
          <div class="row">
@@ -18,16 +10,16 @@
                      <div class="card-header">
                          <div class="row">
                              <div class="col-sm-6">
-                                 <h5 class="card-title">Data Users</h5>
+                                 <h5 class="card-title">DAFTAR PENGGUNA</h5>
                              </div>
                              <div class="col-sm-6">
-                                 <a href="{{ route('users.create') }}" class="btn btn-primary float-end">Tambah Users</a>
+                                 <a href="{{ route('users.create') }}" class="btn btn-primary float-end">TAMBAH PENGGUNA</a>
                                  <button type="button" class="btn btn-outline-success float-end me-2" data-bs-toggle="modal" data-bs-target="#importModal">
-                                    Import Pengguna
+                                    IMPORT DATA
                                 </button>
                              </div>
                          </div>
-                         <form method="GET" action="{{ route('users.index') }}" class="mt-3">
+                         <form style="display: none" method="GET" action="{{ route('users.index') }}" class="mt-3">
                             <div class="row">
                                 <div class="col-md-4">
                                     <input type="text" name="search" class="form-control" placeholder="Cari nama/email" value="{{ request('search') }}">
@@ -50,52 +42,64 @@
                         </form>
                      </div>
                      <div class="card-body">
+                        <ul class="nav nav-tabs" style="margin-bottom:10px" >
+                            <li class="nav-item">
+                              <a class="nav-link {{$_GET['role']=='superadmin'?'active':''}}" aria-current="page" href="/users?role=superadmin"><i class="fa-solid fa-user-secret"></i> SUPER ADMIN</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link {{$_GET['role']=='pustu'?'active':''}}" href="/users?role=pustu"><i class="fa-solid fa-users-line"></i> PUSKESMAS PEMBANTU</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link {{$_GET['role']=='perawat'?'active':''}}" href="/users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
+                            </li>
+                          </ul>
+
+
                          <table id="example1" class="table table-bordered table-striped">
                              <thead>
                                  <tr>
                                      <th>No</th>
-                                     <th>Nama</th>  
+                                     <th>Nama</th>
                                      <th>Email</th>
                                      <th>Role</th>
                                      <th>No Whatsapp</th>
-                                     <th>Keterangan</th>
+                                     @if($_GET['role']=='perawat')
+                                        <th>NAMA PUSTU</th>
+                                     @endif
                                      <th widht="100px">Aksi</th>
                                  </tr>
                              </thead>
                              <tbody>
-                                @php $qounter = ($users->currentPage() - 1) * $users->perPage() + 1; @endphp
-
                                  @foreach ($users as $data)
                                      <tr>
-                                         <td>{{ $qounter++ }}</td>
+                                         <td>{{ $loop->iteration }}</td>
                                          <td>{{ $data->name }}</td>
                                          <td>{{ $data->email }}</td>
-                                         <td>{{ $data->role }}</td>
+                                         <td>{{ strtoupper($data->role) }}</td>
                                          <td>{{ $data->no_wa ?? '-' }}</td>
-                                         <td>{{ $data->keterangan }}</td>
+                                         @if($_GET['role']=='perawat')
+                                            <td>{{$data->parent->name??'-'}}</td>
+                                         @endif
                                          <td width="100px">
                                             <form action="{{ route('users.destroy', $data->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                            
+
                                                 <a href="{{ route('users.edit', $data->id) }}" class="btn btn-danger btn-sm" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                            
+
                                                 <button type="submit" class="btn btn-danger btn-sm" title="Hapus" onclick="return confirm('Yakin ingin menghapus user ini?')">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
-                                            
+
                                          </td>
                                      </tr>
                                  @endforeach
                              </tbody>
-                             
+
                          </table>
-                         <div class="mt-4 float-end">
-                            {{ $users->links() }}
-                         </div>
                      </div>
                  </div>
              </div>
@@ -128,13 +132,24 @@
 @endsection
 
 @push('script')
+<!-- DataTables CSS via CDN -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+    $(function () {
+        $("#example1").DataTable();
+    });
     $(document).ready(function() {
+
+
         $("#importForm").submit(function(e) {
             e.preventDefault();
-            
+
             let formData = new FormData(this);
-            
+
             // Disable submit button and show loading
             $("#submitImport").prop('disabled', true);
             $("#importResult").html(''); // Clear previous results
@@ -146,7 +161,7 @@
                     <span class="ml-2">Sedang mengimpor data...</span>
                 </div>
             `);
-            
+
             $.ajax({
                 url: "{{ route('import.users') }}",
                 type: "POST",
@@ -174,7 +189,7 @@
                 success: function(response) {
                     // Close the modal
                     $('#importModal').modal('hide');
-                    
+
                     // Show SweetAlert
                     Swal.fire({
                         icon: 'success',

@@ -51,7 +51,7 @@ class PasienController extends Controller
 
         $pasiens = $query->paginate(10);
 
-        
+
         return view('pasiens.index', compact('pasiens'));
     }
 
@@ -92,7 +92,7 @@ class PasienController extends Controller
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
     {
-        $kunjungan = Visiting::with(['pasien', 'user', 'healthForms'] )->where('pasien_id', $pasien->id)->get(); 
+        $kunjungan = Visiting::with(['pasien', 'user', 'healthForms'] )->where('pasien_id', $pasien->id)->get();
         return view('pasiens.show', compact('pasien', 'kunjungan'));
     }
 
@@ -118,27 +118,27 @@ class PasienController extends Controller
         return redirect()->route('pasiens.index')->with('success', 'Deleted successfully');
     }
 
-    public function autofill(Request $request)  
+    public function autofill(Request $request)
     {
         $search = $request->get('term');
-        $field = $request->get('field'); 
-        
-        
+        $field = $request->get('field');
+
+
         if (!in_array($field, ['name', 'nik'])) {
             return response()->json([]);
         }
-        
+
         $pasiens = Pasien::where($field, 'LIKE', '%' . $search . '%')
                         ->limit(10)
                         ->get();
-                        
+
         return response()->json($pasiens);
     }
 
     public function getPasienByNik(Request $request)
     {
         $search = $request->input('q');
-    
+
         $pasiens = Pasien::with(['village', 'district', 'regency'])
             ->where(function ($query) use ($search) {
                 $query->where('nik', 'like', "%{$search}%")
@@ -146,12 +146,14 @@ class PasienController extends Controller
             })
             ->limit(10)
             ->get();
-    
+
+
+
         return response()->json(
             $pasiens->map(function ($pasien) {
                 return [
                     'id' => $pasien->id,
-                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village->name}",
+                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village_id}",
                     'fullData' => [
                         'id' => $pasien->id,
                         'name' => $pasien->name,
@@ -167,7 +169,7 @@ class PasienController extends Controller
             })
         );
     }
-    
+
 
     public function createAsuhanKeluarga($id): \Illuminate\Contracts\View\View
     {
@@ -183,8 +185,8 @@ class PasienController extends Controller
         $neurosensori = Neurosensori::where('pasien_id', $pasienId)->first();
 
         return view('kunjungans.form-pencatatan', compact(
-            'pasienId', 
-            'kondisiRumah', 
+            'pasienId',
+            'kondisiRumah',
             'PhbsRumahTangga',
             'pemeliharaanKesehatanKeluarga',
             'pengkajianIndividu',
@@ -209,7 +211,7 @@ class PasienController extends Controller
 
     public function downloadTemplate()
     {
-        $filePath = storage_path('app/public/template_pasiens.xlsx'); 
+        $filePath = storage_path('app/public/template_pasiens.xlsx');
 
         if (file_exists($filePath)) {
             return Response::download($filePath);
