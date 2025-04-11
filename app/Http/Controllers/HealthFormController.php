@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\HealthForm;
 use App\Models\Visiting;
+use App\Models\Ttv;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+
 
 class HealthFormController extends Controller
 {
@@ -278,6 +281,50 @@ class HealthFormController extends Controller
 
         // Update the health form
         $healthForm->update($formData);
+
+        if ($request->input('kunjungan_lanjutan') === 'ya') {
+            Log::debug('Mulai proses kunjungan lanjutan.');
+        
+            $originalVisiting = $healthForm->visiting;
+            Log::debug('Original visiting:', ['data' => $originalVisiting]);
+        
+            $pasienId = optional($originalVisiting)->pasien_id;
+            Log::debug('Pasien ID:', ['pasien_id' => $pasienId]);
+        
+            if ($pasienId) {
+                try {
+                    // 1. Buat kunjungan lanjutan (Visiting baru)
+                    $kunjunganBaru = Visiting::create([
+                        'pasien_id' => $pasienId,
+                        'user_id' => auth()->id(),
+                        'tanggal' => $request->input('tanggal_kunjungan'),
+                        'status' => 'kunjungan lanjutan',
+                    ]);
+                    Log::debug('Kunjungan lanjutan berhasil dibuat:', ['id' => $kunjunganBaru->id]);
+        
+                    // 2. Buat TTV kosong
+                    $ttvBaru = Ttv::create([
+                        'kunjungan_id' => $kunjunganBaru->id,
+                    ]);
+                    Log::debug('TTV berhasil dibuat:', ['id' => $ttvBaru->id]);
+        
+                    // 3. Buat HealthForm kosong
+                    $formBaru = HealthForm::create([
+                        'visiting_id' => $kunjunganBaru->id,
+                        'user_id' => auth()->id(),
+                    ]);
+                    Log::debug('HealthForm berhasil dibuat:', ['id' => $formBaru->id]);
+        
+                } catch (\Exception $e) {
+                    Log::error('Gagal membuat kunjungan lanjutan:', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                }
+            } else {
+                Log::warning('Pasien ID tidak ditemukan untuk kunjungan lanjutan.');
+            }
+        }        
 
         return redirect()->back()
             ->with('success', 'Form berhasil diperbarui!');
