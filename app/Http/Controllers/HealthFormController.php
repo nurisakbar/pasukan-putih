@@ -283,37 +283,30 @@ class HealthFormController extends Controller
         $healthForm->update($formData);
 
         if ($request->input('kunjungan_lanjutan') === 'ya') {
-            Log::debug('Mulai proses kunjungan lanjutan.');
         
             $originalVisiting = $healthForm->visiting;
-            Log::debug('Original visiting:', ['data' => $originalVisiting]);
-        
             $pasienId = optional($originalVisiting)->pasien_id;
-            Log::debug('Pasien ID:', ['pasien_id' => $pasienId]);
         
             if ($pasienId) {
                 try {
-                    // 1. Buat kunjungan lanjutan (Visiting baru)
+                    // Create kunjungan lanjutan (Visiting baru)
                     $kunjunganBaru = Visiting::create([
                         'pasien_id' => $pasienId,
                         'user_id' => auth()->id(),
                         'tanggal' => $request->input('tanggal_kunjungan'),
                         'status' => 'kunjungan lanjutan',
                     ]);
-                    Log::debug('Kunjungan lanjutan berhasil dibuat:', ['id' => $kunjunganBaru->id]);
         
-                    // 2. Buat TTV kosong
+                    // Create TTV kosong
                     $ttvBaru = Ttv::create([
                         'kunjungan_id' => $kunjunganBaru->id,
                     ]);
-                    Log::debug('TTV berhasil dibuat:', ['id' => $ttvBaru->id]);
         
-                    // 3. Buat HealthForm kosong
+                    // Create HealthForm kosong
                     $formBaru = HealthForm::create([
                         'visiting_id' => $kunjunganBaru->id,
                         'user_id' => auth()->id(),
                     ]);
-                    Log::debug('HealthForm berhasil dibuat:', ['id' => $formBaru->id]);
         
                 } catch (\Exception $e) {
                     Log::error('Gagal membuat kunjungan lanjutan:', [
