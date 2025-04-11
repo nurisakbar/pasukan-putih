@@ -1,209 +1,7 @@
 @extends('layouts.app')
 
-@section('content')
-    <div class="app-content-header py-3">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-12">
-                    <h3 class="mb-0">Tambah Kunjungan</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if ($errors->any())
-        <div class="bg-red-100 text-red-700 p-4 rounded">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>- {{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="app-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Form Tambah Kunjungan</h5>
-                            </div>
-                        </div>
-                        <div id="loading-indicator" class="p-3 d-none">
-                            <div class="d-flex align-items-center">
-                                <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <span class="ms-2">Mencari data...</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <form action="{{ route('visitings.store') }}" method="POST">
-                                @csrf
-                                
-                                <input type="hidden" class="form-control id" name="pasien_id" value="">
-                                <input type="hidden" class="form-control id" name="user_id" value="{{ auth()->id() }}">
-
-                                <div class="form-group mb-3">
-                                   <label for="inputDay" class="form-label">Tanggal Kunjungan</label>
-                                   <input type="date" id="inputDay" class="form-control" name="tanggal" 
-                                       placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
-                               </div>
-
-                               <div class="form-group mb-3">
-                                   <label for="status" class="form-label">Kategori Kunjungan</label>
-                                   <select name="status" id="status" class="form-select">
-                                       <option value="" selected> -- Pilih Status -- </option>
-                                       <option value="Kunjungan Awal" {{ old('status') == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
-                                       <option value="Kunjungan Lanjutan" {{ old('status') == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
-                                   </select>
-                               </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="nik" class="form-label">NIK</label>
-                                    <input type="text" class="form-control nik" id="nik" name="nik" placeholder="NIK" value="{{ old('nik') }}">
-                                    @error('nik')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="name" class="form-label">Nama</label>
-                                    <input type="text" class="form-control name" id="name" name="name" 
-                                        placeholder="Nama" value="{{ old('name') }}">
-                                    @error('name')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="alamat" class="form-label">Alamat</label>
-                                    <input type="text" class="form-control alamat" id="alamat" name="alamat"
-                                        placeholder="Alamat" value="{{ old('alamat') }}">
-                                    @error('alamat')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-6 col-md-3">
-                                        <label for="rt" class="form-label">RT</label>
-                                        <input type="number" class="form-control rt" id="rt" name="rt"
-                                            placeholder="RT" value="{{ old('rt', '00') }}">
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label for="rw" class="form-label">RW</label>
-                                        <input type="number" class="form-control rw" id="rw" name="rw"
-                                            placeholder="RW" value="{{ old('rw', '00') }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kelurahan" class="form-label">Kelurahan</label>
-                                        <input type="text" class="form-control kelurahan" id="kelurahan" name="kelurahan"
-                                            placeholder="Kelurahan" value="{{ old('kelurahan') }}">
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="kecamatan" class="form-label">Kecamatan</label>
-                                        <input type="text" class="form-control kecamatan" id="kecamatan" name="kecamatan"
-                                            placeholder="Kecamatan" value="{{ old('kecamatan') }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kabupaten" class="form-label">Kabupaten/Kota</label>
-                                        <input type="text" class="form-control kabupaten" id="kabupaten" name="kabupaten"
-                                            placeholder="Kabupaten/Kota" value="{{ old('kabupaten') }}">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                   <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
-                                   <input type="number" step="0.1" class="form-control" id="berat_badan" name="berat_badan"
-                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan') }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
-                                   <input type="number" step="0.1" class="form-control" id="tinggi_badan" name="tinggi_badan"
-                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan') }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="imt" class="form-label">Indeks Massa Tubuh (IMT)</label>
-                                   <input type="text" class="form-control" id="imt" name="imt" readonly>
-                               </div>
-                                
-                                <div class="d-grid gap-2 d-md-flex">
-                                    <button type="submit" class="btn btn-primary px-4">Simpan</button>
-                                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Tanggal Kunjungan yang tersedia</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <div id="calendar-header" class="text-center mb-4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="prevMonth()">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <span id="monthYear" class="fw-bold h5 mb-0"></span>
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="nextMonth()">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="calendar-container">
-                                    <div class="calendar-header text-center">
-                                        <div class="weekday"><strong>Min</strong></div>
-                                        <div class="weekday"><strong>Sen</strong></div>
-                                        <div class="weekday"><strong>Sel</strong></div>
-                                        <div class="weekday"><strong>Rab</strong></div>
-                                        <div class="weekday"><strong>Kam</strong></div>
-                                        <div class="weekday"><strong>Jum</strong></div>
-                                        <div class="weekday"><strong>Sab</strong></div>
-                                    </div>
-                                    <div id="calendar" class="calendar mt-2 mb-2"></div>
-                                </div>
-                                
-                                <div class="calendar-legend mt-4">
-                                    <div class="d-flex justify-content-center gap-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box available"></div>
-                                            <span class="ms-2">Tersedia</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box selected"></div>
-                                            <span class="ms-2">Dipilih</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box disabled"></div>
-                                            <span class="ms-2">Penuh</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
 @push('style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         /* Form styles */
         .form-control:focus,
@@ -329,10 +127,182 @@
                 font-size: 0.8rem;
             }
         }
+
+        .custom-select-height {
+            height: calc(2.375rem + 2px); 
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
+        }
+
+        .select2-container {
+        width: 100% !important;
+        }
+
+        .select2-selection--single {
+            height: calc(2.375rem + 2px) !important;
+            display: flex !important;
+            align-items: center;
+            padding-left: 0.75rem;
+            font-size: 1rem;
+            border-radius: 0.375rem;
+        }
+
+        /* Pastikan teks di tengah */
+        .select2-selection__rendered {
+            line-height: 1.5 !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
     </style>
 @endpush
 
+@section('content')
+
+    @if ($errors->any())
+        <div class="bg-red-100 text-red-700 p-4 rounded">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>- {{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="app-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 mb-4 mt-2">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Tambah Kunjungan</h5>
+                            </div>
+                        </div>
+                        <div id="loading-indicator" class="p-3 d-none">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="ms-2">Mencari data...</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('visitings.store') }}" method="POST">
+                                @csrf
+                                
+                                <input type="hidden" class="form-control id" name="pasien_id" value="">
+                                <input type="hidden" class="form-control id" name="user_id" value="{{ auth()->id() }}">
+
+                                <div class="form-group mb-3">
+                                   <label for="inputDay" class="form-label">Tanggal Kunjungan</label>
+                                   <input type="date" id="inputDay" class="form-control" name="tanggal" 
+                                       placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
+                               </div>
+
+                               <div class="form-group mb-3">
+                                   <label for="status" class="form-label">Kategori Kunjungan</label>
+                                   <select name="status" id="status" class="form-select">
+                                       <option value="" selected> -- Pilih Status -- </option>
+                                       <option value="Kunjungan Awal" {{ old('status') == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
+                                       <option value="Kunjungan Lanjutan" {{ old('status') == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
+                                   </select>
+                               </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="nik" class="form-label">Nama Pasien</label>
+                                    <select id="nik_search" name="nik" class="form-control custom-select-height" style="width: 100%"></select>
+                                    @error('nik')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                   <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
+                                   <input type="number" step="0.1" class="form-control" id="berat_badan" name="berat_badan"
+                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan') }}" oninput="hitungIMT()">
+                               </div>
+                               
+                               <div class="form-group mb-3">
+                                   <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
+                                   <input type="number" step="0.1" class="form-control" id="tinggi_badan" name="tinggi_badan"
+                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan') }}" oninput="hitungIMT()">
+                               </div>
+                               
+                               <div class="form-group mb-3">
+                                   <label for="imt" class="form-label">Indeks Massa Tubuh (IMT)</label>
+                                   <input type="text" class="form-control" id="imt" name="imt" readonly>
+                               </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <button type="submit" class="btn btn-primary px-4">Simpan</button>
+                                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary px-4">Kembali</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4 mt-2">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Tanggal Kunjungan yang tersedia</h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div id="calendar-header" class="text-center mb-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="prevMonth()">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span id="monthYear" class="fw-bold h5 mb-0"></span>
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="nextMonth()">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="calendar-container">
+                                    <div class="calendar-header text-center">
+                                        <div class="weekday"><strong>Min</strong></div>
+                                        <div class="weekday"><strong>Sen</strong></div>
+                                        <div class="weekday"><strong>Sel</strong></div>
+                                        <div class="weekday"><strong>Rab</strong></div>
+                                        <div class="weekday"><strong>Kam</strong></div>
+                                        <div class="weekday"><strong>Jum</strong></div>
+                                        <div class="weekday"><strong>Sab</strong></div>
+                                    </div>
+                                    <div id="calendar" class="calendar mt-2 mb-2"></div>
+                                </div>
+                                
+                                <div class="calendar-legend mt-4">
+                                    <div class="d-flex justify-content-center gap-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="legend-box available"></div>
+                                            <span class="ms-2">Tersedia</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="legend-box selected"></div>
+                                            <span class="ms-2">Dipilih</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="legend-box disabled"></div>
+                                            <span class="ms-2">Penuh</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
 @push('script')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
@@ -467,48 +437,25 @@
         });
 
         // Handle NIK input for autofill
-        $(document).ready(function() {
-            $('.nik').on('input', function() {
-                const nik = $(this).val().trim();
-
-                if (nik.length > 0) {
-                    toggleLoading(true);
-
-                    $.ajax({
-                        url: "{{ route('pasiens.nik') }}",
-                        type: "GET",
-                        data: { nik: nik },
-                        dataType: "json",
-                        success: function(response) {
-                            if (response.message === "Pasien ditemukan") {
-                                $('.id').val(response.data.id);
-                                $('.name').val(response.data.name);
-                                $('.alamat').val(response.data.alamat);
-                                $('.rt').val('00');
-                                $('.rw').val('00');
-                                $('.kelurahan').val(response.data.village_id);
-                                $('.kecamatan').val(response.data.district_id);
-                                $('.kabupaten').val(response.data.regency_id);
-                            } else {
-                                console.log('Data tidak ditemukan');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            $('.id').val('');
-                            $('.name').val('');
-                            $('.alamat').val('');
-                            $('.rt').val('');
-                            $('.rw').val('');
-                            $('.kelurahan').val('');
-                            $('.kecamatan').val('');
-                            $('.kabupaten').val('');
-                        },
-                        complete: function() {
-                            toggleLoading(false);
-                        }
-                    });
-                }
-            });
+        $('#nik_search').select2({
+            placeholder: 'Masukan NIK atau Nama Pasien',
+            minimumInputLength: 3,
+            ajax: {
+                url: "{{ route('pasiens.nik') }}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                },
+                cache: true
+            }
+        });
+        $('#nik_search').on('select2:select', function (e) {
+            const pasien = e.params.data.fullData;
+            $('.id').val(pasien.id);
         });
     </script>
 @endpush

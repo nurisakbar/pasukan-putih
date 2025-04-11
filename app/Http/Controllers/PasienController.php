@@ -23,6 +23,7 @@ use App\Models\Kunjungan;
 use App\Models\Visiting;
 use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class PasienController extends Controller
 {
@@ -57,9 +58,7 @@ class PasienController extends Controller
 
     public function store(PasienRequest $request): \Illuminate\Http\RedirectResponse
     {
-        // dd($request->all());
         $pasien = Pasien::create($request->validated());
-        // dd($pasien);
         return redirect()->route('pasiens.index')->with('success', 'Created successfully');
     }
 
@@ -110,19 +109,37 @@ class PasienController extends Controller
 
     public function getPasienByNik(Request $request)
     {
-        $nik = $request->input('nik');  // Mengambil NIK dari request
-
-        $pasien = Pasien::where('nik', $nik)->first();
-
-        if ($pasien) {
-            return response()->json([
-                'message' => 'Pasien ditemukan',
-                'data' => $pasien
-            ], 200);
-        }
-
-        return response()->json(['message' => 'Pasien tidak ditemukan'], 404);
+        $search = $request->input('q');
+    
+        $pasiens = Pasien::with(['village', 'district', 'regency'])
+            ->where(function ($query) use ($search) {
+                $query->where('nik', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+    
+        return response()->json(
+            $pasiens->map(function ($pasien) {
+                return [
+                    'id' => $pasien->id,
+                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village->name}",
+                    'fullData' => [
+                        'id' => $pasien->id,
+                        'name' => $pasien->name,
+                        'nik' => $pasien->nik,
+                        'alamat' => $pasien->alamat,
+                        'rt' => $pasien->rt,
+                        'rw' => $pasien->rw,
+                        'village_id' => $pasien->village_id,
+                        'district_id' => $pasien->district_id,
+                        'regency_id' => $pasien->regency_id,
+                    ]
+                ];
+            })
+        );
     }
+    
 
     public function createAsuhanKeluarga($id): \Illuminate\Contracts\View\View
     {
@@ -173,4 +190,25 @@ class PasienController extends Controller
         // Jika file tidak ditemukan
         return redirect()->back()->with('error', 'Template tidak ditemukan.');
     }
+
+    public function searchVillage(Request $request)
+    {
+        $q = $request->input('q');
+
+        $results = DB::table('villages')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+            ->select(
+                'villages.id as village_id', 'villages.name as village_name',
+                'districts.id as district_id', 'districts.name as district_name',
+                'regencies.id as regency_id', 'regencies.name as regency_name',
+                'provinces.id as province_id', 'provinces.name as province_name'
+            )
+            ->where('villages.name', 'LIKE', '%' . $q . '%')
+            ->limit(20)
+            ->get();
+        return response()->json($results);
+    }
+
 }

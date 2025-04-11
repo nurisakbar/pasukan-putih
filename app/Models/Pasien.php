@@ -23,7 +23,9 @@ class Pasien extends Model
         'village_id',
         'district_id',
         'regency_id',
-        'province_id'
+        'province_id',
+        'rt',
+        'rw',
     ];
 
     protected static function boot()
@@ -60,6 +62,11 @@ class Pasien extends Model
     public function village()
     {
         return $this->belongsTo(Village::class, 'village_id', 'id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id', 'id');
     }
 
 }

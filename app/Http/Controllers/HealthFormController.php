@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\HealthForm;
 use App\Models\Visiting;
+use App\Models\Ttv;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+
 
 class HealthFormController extends Controller
 {
@@ -278,6 +281,43 @@ class HealthFormController extends Controller
 
         // Update the health form
         $healthForm->update($formData);
+
+        if ($request->input('kunjungan_lanjutan') === 'ya') {
+        
+            $originalVisiting = $healthForm->visiting;
+            $pasienId = optional($originalVisiting)->pasien_id;
+        
+            if ($pasienId) {
+                try {
+                    // Create kunjungan lanjutan (Visiting baru)
+                    $kunjunganBaru = Visiting::create([
+                        'pasien_id' => $pasienId,
+                        'user_id' => auth()->id(),
+                        'tanggal' => $request->input('tanggal_kunjungan'),
+                        'status' => 'kunjungan lanjutan',
+                    ]);
+        
+                    // Create TTV kosong
+                    $ttvBaru = Ttv::create([
+                        'kunjungan_id' => $kunjunganBaru->id,
+                    ]);
+        
+                    // Create HealthForm kosong
+                    $formBaru = HealthForm::create([
+                        'visiting_id' => $kunjunganBaru->id,
+                        'user_id' => auth()->id(),
+                    ]);
+        
+                } catch (\Exception $e) {
+                    Log::error('Gagal membuat kunjungan lanjutan:', [
+                        'message' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                }
+            } else {
+                Log::warning('Pasien ID tidak ditemukan untuk kunjungan lanjutan.');
+            }
+        }        
 
         return redirect()->back()
             ->with('success', 'Form berhasil diperbarui!');
