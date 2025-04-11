@@ -23,6 +23,7 @@ use App\Models\Kunjungan;
 use App\Models\Visiting;
 use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class PasienController extends Controller
 {
@@ -57,9 +58,7 @@ class PasienController extends Controller
 
     public function store(PasienRequest $request): \Illuminate\Http\RedirectResponse
     {
-        // dd($request->all());
         $pasien = Pasien::create($request->validated());
-        // dd($pasien);
         return redirect()->route('pasiens.index')->with('success', 'Created successfully');
     }
 
@@ -173,4 +172,25 @@ class PasienController extends Controller
         // Jika file tidak ditemukan
         return redirect()->back()->with('error', 'Template tidak ditemukan.');
     }
+
+    public function searchVillage(Request $request)
+    {
+        $q = $request->input('q');
+
+        $results = DB::table('villages')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+            ->select(
+                'villages.id as village_id', 'villages.name as village_name',
+                'districts.id as district_id', 'districts.name as district_name',
+                'regencies.id as regency_id', 'regencies.name as regency_name',
+                'provinces.id as province_id', 'provinces.name as province_name'
+            )
+            ->where('villages.name', 'LIKE', '%' . $q . '%')
+            ->limit(20)
+            ->get();
+        return response()->json($results);
+    }
+
 }

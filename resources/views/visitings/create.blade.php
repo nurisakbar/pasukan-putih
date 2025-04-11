@@ -1,5 +1,135 @@
 @extends('layouts.app')
 
+@push('style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Form styles */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Calendar styles */
+        .calendar-container {
+            overflow-x: auto;
+        }
+        
+        .calendar-header, 
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            min-width: 350px;
+        }
+        
+        .weekday {
+            padding: 8px 0;
+            text-align: center;
+        }
+        
+        .day {
+            aspect-ratio: 1;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .day:hover:not(.disabled) {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .disabled {
+            background-color: #f1f1f1;
+            color: #aaa;
+            pointer-events: none;
+            border: 1px dashed #ddd;
+        }
+        
+        .today {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+            border-color: #0d6efd;
+        }
+        
+        .day .quota {
+            font-size: 0.75rem;
+            margin-top: 3px;
+        }
+
+        /* Calendar Legend */
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .legend-box.available {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .legend-box.selected {
+            background-color: #0d6efd;
+        }
+        
+        .legend-box.disabled {
+            background-color: #f1f1f1;
+            border: 1px dashed #ddd;
+        }
+
+        /* Loading indicator */
+        #loading-indicator {
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Card styles */
+        .card {
+            transition: box-shadow 0.3s ease;
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+        
+        /* Make page responsive */
+        @media (max-width: 767.98px) {
+            .day {
+                font-size: 0.8rem;
+                padding: 4px;
+            }
+            
+            .day .quota {
+                font-size: 0.7rem;
+            }
+            
+            .weekday {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="app-content-header py-3">
         <div class="container-fluid">
@@ -203,136 +333,8 @@
     </div>
 @endsection
 
-@push('style')
-    <style>
-        /* Form styles */
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        /* Calendar styles */
-        .calendar-container {
-            overflow-x: auto;
-        }
-        
-        .calendar-header, 
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            min-width: 350px;
-        }
-        
-        .weekday {
-            padding: 8px 0;
-            text-align: center;
-        }
-        
-        .day {
-            aspect-ratio: 1;
-            padding: 8px;
-            text-align: center;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-        
-        .day:hover:not(.disabled) {
-            background-color: #e9ecef;
-            transform: scale(1.05);
-        }
-        
-        .disabled {
-            background-color: #f1f1f1;
-            color: #aaa;
-            pointer-events: none;
-            border: 1px dashed #ddd;
-        }
-        
-        .today {
-            background-color: #0d6efd;
-            color: white;
-            font-weight: bold;
-            border-color: #0d6efd;
-        }
-        
-        .day .quota {
-            font-size: 0.75rem;
-            margin-top: 3px;
-        }
-
-        /* Calendar Legend */
-        .legend-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-        
-        .legend-box.available {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .legend-box.selected {
-            background-color: #0d6efd;
-        }
-        
-        .legend-box.disabled {
-            background-color: #f1f1f1;
-            border: 1px dashed #ddd;
-        }
-
-        /* Loading indicator */
-        #loading-indicator {
-            border-radius: 4px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Card styles */
-        .card {
-            transition: box-shadow 0.3s ease;
-            border: none;
-            border-radius: 0.5rem;
-        }
-        
-        .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-header {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem 0.5rem 0 0 !important;
-        }
-        
-        /* Make page responsive */
-        @media (max-width: 767.98px) {
-            .day {
-                font-size: 0.8rem;
-                padding: 4px;
-            }
-            
-            .day .quota {
-                font-size: 0.7rem;
-            }
-            
-            .weekday {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
-@endpush
-
 @push('script')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();

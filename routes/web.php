@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/pasien/nik', [App\Http\Controllers\PasienController::class, 'getPasienByNik'])->name('pasiens.nik');
     Route::get('/pasiens/search', [App\Http\Controllers\PasienController::class, 'autofill'])->name('pasiens.search');
     Route::get('/pasiens/{id}/asuhan-keluarga', [App\Http\Controllers\PasienController::class, 'createAsuhanKeluarga'])->name('pasiens.asuhanKeluarga');
+    // Route::get('/pasiens/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('pasiens.searchVillage');
+    Route::get('/apps/pasukanputih/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('search.village');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');
