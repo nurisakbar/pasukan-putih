@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Pencernaan extends Model
 {
     use HasUuids;
+
     protected $table = 'pencernaans';
 
     protected $primaryKey = 'id';

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Neurosensori extends Model
 {
     use HasUuids;
+
     protected $table = 'neurosensoris';
     protected $primaryKey = 'id';
 

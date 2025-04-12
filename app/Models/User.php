@@ -12,7 +12,15 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
+<<<<<<< Updated upstream
     use HasFactory, Notifiable, HasUuids, HasApiTokens;
+=======
+    use HasFactory;
+    use Notifiable;
+    use HasUuids;
+    use HasApiTokens;
+    use SoftDeletes;
+>>>>>>> Stashed changes
 
     /**
      * The attributes that are mass assignable.
@@ -21,15 +29,26 @@ class User extends Authenticatable
      */
     protected $table = 'users';
     protected $primaryKey = 'id';
+<<<<<<< Updated upstream
     protected $keyType = 'string';  // UUID adalah string
+=======
+    protected $keyType = 'string';
+>>>>>>> Stashed changes
     public $incrementing = false;
-    
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+<<<<<<< Updated upstream
         'parent_id'
+=======
+        'no_wa',
+        'keterangan',
+        'status_pegawai',
+        'pustu_id'
+>>>>>>> Stashed changes
     ];
 
     /**
@@ -42,6 +61,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+<<<<<<< Updated upstream
+=======
+    protected $dates = ['deleted_at'];
+
+>>>>>>> Stashed changes
     /**
      * Get the attributes that should be cast.
      *
@@ -66,9 +90,9 @@ class User extends Authenticatable
         });
     }
 
-    public function parent()
+    public function pustu()
     {
-        return $this->belongsTo(User::class, 'parent_id');
+        return $this->belongsTo(Pustu::class, 'pustu_id');
     }
 
     // Relasi ke user bawahan (anaknya)

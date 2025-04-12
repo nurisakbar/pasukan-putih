@@ -15,7 +15,7 @@ class OphLog extends Model
         'data',
     ];
 
-    protected static function boot()    
+    protected static function boot()
     {
         parent::boot();
 

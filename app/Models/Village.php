@@ -36,7 +36,7 @@ class Village extends Model
         'district_id'
     ];
 
-	/**
+    /**
      * Village belongs to District.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

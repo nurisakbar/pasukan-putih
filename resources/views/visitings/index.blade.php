@@ -1,14 +1,19 @@
 @extends('layouts.app')
 
+@php
+    use Carbon\Carbon;
+@endphp
+
+
 @section('content')
     <div class="app-content-header py-3">
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6 col-12 mb-2 mb-md-0">
-                    <h3 class="mb-0">Kunjungan</h3>
+                    <h3 class="mb-0">DAFTAR KUNJUNGAN</h3>
                 </div>
                 <div class="col-md-6 col-12 text-md-end text-start">
-                    <a href="{{ route('kunjungans.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
+                    <a href="{{ route('visitings.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                         <i class="fas fa-plus-circle me-1"></i> Tambah Kunjungan
                     </a>
                 </div>
@@ -20,7 +25,7 @@
         <div class="container-fluid">
             <div class="card shadow-sm rounded-3">
                 <div class="card-header bg-white py-3">
-                    <form method="GET" action="{{ route('kunjungans.index') }}" class="row g-2 align-items-center">
+                    <form method="GET" action="{{ route('visitings.index') }}" class="row g-2 align-items-center">
                         <div class="col-md-3 col-12">
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
@@ -31,13 +36,8 @@
                         <div class="col-md-3 col-12">
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-<<<<<<< Updated upstream
-                                <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal" 
-                                    value="{{ request('tanggal_awal') }}">
-=======
                                 <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal"
                                     value="{{ request('tanggal_awal', Carbon::today()->toDateString()) }}">
->>>>>>> Stashed changes
                             </div>
                         </div>
                         <div class="col-md-3 col-12">
@@ -51,7 +51,7 @@
                             <button type="submit" class="btn btn-sm btn-primary me-1">
                                 <i class="fas fa-search me-1"></i> Cari
                             </button>
-                            <a href="{{ route('kunjungans.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <a href="{{ route('visitings.index') }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="fas fa-sync-alt me-1"></i> Reset
                             </a>
                         </div>
@@ -96,54 +96,53 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
+                    <div class="table-responsive-sm">
+                        <table class="table table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" width="180">Aksi</th>
-                                    <th>Nama Pasien</th>
-                                    <th>Tanggal</th>
-                                    <th>NIK</th>
-                                    <th>Jenis Kelamin</th>
-                                    <th>Jenis KTP</th>
-                                    <th>Alamat</th>
-                                    {{-- <th>Nomor Hp</th> --}}
+                                    <th class="text-center" width="110">Aksi</th>
+                                    <th>NAMA PASIEN</th>
+                                    <th>TANGGAL</th>
+                                    <th>JENIS KUNJUNGAN</th>
+                                    <th>STATUS</th>
+                                    <th>ALAMAT</th>
+                                    <th>KABUPATEN</th>
+                                    <th>KECAMATAN</th>
+                                    <th>KELURAHAN</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($kunjungans as $kunjungan)
+                                @forelse ($visitings as $kunjungan)
                                     <tr>
-                                        <td>
+                                        <td class="align-middle">
                                             <div class="d-flex justify-content-center">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="fas fa-cogs"></i> Aksi
                                                     </button>
                                                     <ul class="dropdown-menu">
-                                                        <li>
+                                                        {{-- <li>
                                                             <a href="{{ route('kunjungan.skriningAdl', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
-                                                        </li>
-<<<<<<< Updated upstream
-=======
+                                                        </li> --}}
                                                         @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
->>>>>>> Stashed changes
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
-<<<<<<< Updated upstream
-                                                        <li>
-                                                            <a href="{{ route('kunjungans.edit', $kunjungan->id) }}" 
-=======
                                                         @endif
-                                                        {{-- <li>
-                                                            <a href="{{ route('kunjungans.edit', $kunjungan->id) }}"
->>>>>>> Stashed changes
+                                                        <li>
+                                                            <a href="{{ route('health-form.edit', $kunjungan->id) }}"
+                                                               class="dropdown-item">
+                                                                <i class="fas fa-edit me-2"></i> Edit Form Kesehatan
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('visitings.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit Kunjungan
                                                             </a>
@@ -159,7 +158,7 @@
                                                 </div>
                                             </div>
 
-                                            <form id="delete-form-{{ $kunjungan->id }}" action="{{ route('kunjungans.destroy', $kunjungan->id) }}" method="POST" style="display: none;">
+                                            <form id="delete-form-{{ $kunjungan->id }}" action="{{ route('visitings.destroy', $kunjungan->id) }}" method="POST" style="display: none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
@@ -167,12 +166,15 @@
 
                                         <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->nik }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->jenis_kelamin }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->jenis_ktp }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->alamat }}</td>
-                                        {{-- <td class="align-middle">{{ $kunjungan->pasien->nomor_hp }}</td> --}}
-                                        
+                                        <td class="align-middle">{{ $kunjungan->status }}</td>
+                                        <td class="align-middle">{{ $kunjungan->selesai==0?'BELUM':'SELESAI' }}</td>
+                                        <td class="align-middle text-truncate" style="max-width: 150px;">
+                                            {{ $kunjungan->pasien->alamat }}
+                                        </td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->regency->name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->name }}</td>
+
                                     </tr>
                                 @empty
                                     <tr>

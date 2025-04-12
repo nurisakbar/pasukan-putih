@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class SummaryHentiLayananExport implements FromCollection, WithHeadings, ShouldA
             ->leftJoin('villages', 'p.village_id', '=', 'villages.id')
             ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
             ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
-            
+
             ->when($this->bulan, function ($query) {
                 return $query->whereMonth('k.tanggal', $this->bulan);
             })
@@ -61,8 +62,8 @@ class SummaryHentiLayananExport implements FromCollection, WithHeadings, ShouldA
     public function headings(): array
     {
         return [
-            'KABUPATEN/KOTA', 'KECAMATAN', 'KELURAHAN', 'JUMLAH SASARAN', 
-            'TOTAL HENTI LAYANAN - KENAIKAN AKS', 'TOTAL HENTI LAYANAN - MENINGGAL', 
+            'KABUPATEN/KOTA', 'KECAMATAN', 'KELURAHAN', 'JUMLAH SASARAN',
+            'TOTAL HENTI LAYANAN - KENAIKAN AKS', 'TOTAL HENTI LAYANAN - MENINGGAL',
             'TOTAL HENTI LAYANAN - MENOLAK', 'TOTAL HENTI LAYANAN - PINDAH DOMISILI'
         ];
     }

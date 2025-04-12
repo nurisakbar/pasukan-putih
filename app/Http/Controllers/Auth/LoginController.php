@@ -76,13 +76,13 @@ class LoginController extends Controller
         }
 
         Auth::login($user);
-        
+
         // Check if the request expects JSON (API call)
         if ($request->expectsJson()) {
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json(['message' => 'Login berhasil', 'token' => $token, 'user' => $user]);
         }
-        
+
         // For web requests, redirect to home
         return redirect()->intended($this->redirectTo);
     }

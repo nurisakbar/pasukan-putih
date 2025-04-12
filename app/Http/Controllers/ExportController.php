@@ -26,7 +26,7 @@ class ExportController extends Controller
             $request->input('search')
         ), 'sasaran_bulanan.xlsx');
     }
-    public function exportKunjuganAwal(Request $request) 
+    public function exportKunjuganAwal(Request $request)
     {
         return Excel::download(new KunjunganAwalExport(
             $request->input('bulan'),
@@ -36,7 +36,7 @@ class ExportController extends Controller
         ), 'kunjugan_awal.xlsx');
     }
 
-    public function exportKunjunganLanjutan(Request $request) 
+    public function exportKunjunganLanjutan(Request $request)
     {
         return Excel::download(new KunjunganLanjutanExport(
             $request->input('bulan'),
@@ -46,7 +46,7 @@ class ExportController extends Controller
         ), 'kunjungan_lanjutan.xlsx');
     }
 
-    public function exportSummaryKunjunganLanjutan(Request $request) 
+    public function exportSummaryKunjunganLanjutan(Request $request)
     {
         return Excel::download(new SummaryKunjunganLanjutanExport(
             $request->input('bulan'),
@@ -56,7 +56,7 @@ class ExportController extends Controller
         ), 'summary_kunjungan_lanjutan.xlsx');
     }
 
-    public function exportSummaryKunjunganAwal(Request $request) 
+    public function exportSummaryKunjunganAwal(Request $request)
     {
         return Excel::download(new SummaryKunjunganAwalExport(
             $request->input('tanggal_mulai'),
@@ -65,8 +65,8 @@ class ExportController extends Controller
             $request->input('bulan')
         ), 'summary_kunjungan_awal.xlsx');
     }
-    
-    public function exportJumlahSasaran(Request $request) 
+
+    public function exportJumlahSasaran(Request $request)
     {
         $bulan = $request->input('bulan');
         return Excel::download(new JumlahSasaranExport($bulan), 'Jumlah-Sasaran.xlsx');
@@ -101,5 +101,4 @@ class ExportController extends Controller
 
         return Excel::download(new KohortHsExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'kohort_hs.xlsx');
     }
-
 }

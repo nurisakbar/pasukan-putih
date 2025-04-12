@@ -22,7 +22,7 @@
                alt="User Image"
              />
              <span class="d-none d-md-inline">
-                {{ optional(auth()->user())->name ?? "User" }}
+                Selamat Datang : <b>{{ optional(auth()->user())->name ?? "User" }}</b>
              </span>
            </a>
            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">

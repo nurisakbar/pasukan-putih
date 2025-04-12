@@ -13,11 +13,11 @@ use App\Models\Pencernaan;
 use App\Models\Muskuloskeletal;
 use App\Models\Neurosensori;
 
-
 class AsuhanKeluargaController extends Controller
 {
-    public function saveKondisiRumah(Request $request) {
-    
+    public function saveKondisiRumah(Request $request)
+    {
+
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'ventilasi' => 'nullable',
@@ -33,7 +33,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
     }
 
-    public function updateKondisiRumah(Request $request, $id) 
+    public function updateKondisiRumah(Request $request, $id)
     {
         $data = $request->validate([
             'ventilasi' => 'nullable',
@@ -50,8 +50,9 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function savePhbsRumahTangga(Request $request) {
-    
+    public function savePhbsRumahTangga(Request $request)
+    {
+
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'ibu_nifas' => 'nullable',
@@ -74,7 +75,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
     }
 
-    public function updatePhbsRumahTangga(Request $request, $id) 
+    public function updatePhbsRumahTangga(Request $request, $id)
     {
         $data = $request->validate([
             'ibu_nifas' => 'nullable',
@@ -98,8 +99,9 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function savePemeliharaanKesehatanKeluarga(Request $request) {
-    
+    public function savePemeliharaanKesehatanKeluarga(Request $request)
+    {
+
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'perhatian_keluarga' => 'nullable',
@@ -121,7 +123,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
     }
 
-    public function updatePemeliharaanKesehatanKeluarga(Request $request, $id) 
+    public function updatePemeliharaanKesehatanKeluarga(Request $request, $id)
     {
         $data = $request->validate([
             'perhatian_keluarga' => 'nullable',
@@ -144,8 +146,9 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function savePengkajianIndividu(Request $request) {
-    
+    public function savePengkajianIndividu(Request $request)
+    {
+
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'kesadaran' => 'nullable',
@@ -164,9 +167,9 @@ class AsuhanKeluargaController extends Controller
         PengkajianIndividu::create($data);
 
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
-    }    
+    }
 
-    public function updatePengkajianIndividu(Request $request, $id) 
+    public function updatePengkajianIndividu(Request $request, $id)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
@@ -189,8 +192,9 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function saveSirkulasiCairan(Request $request) {
-    
+    public function saveSirkulasiCairan(Request $request)
+    {
+
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'edema' => 'nullable',
@@ -210,9 +214,9 @@ class AsuhanKeluargaController extends Controller
         SirkulasiCairan::create($data);
 
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
-    }  
+    }
 
-    public function updateSirkulasiCairan(Request $request, $id)  
+    public function updateSirkulasiCairan(Request $request, $id)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
@@ -236,8 +240,8 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function savePerkemihan(Request $request) 
-    {  
+    public function savePerkemihan(Request $request)
+    {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
             'pola_bak' => 'nullable',
@@ -262,7 +266,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
     }
 
-    public function updatePerkemihan(Request $request, $id)  
+    public function updatePerkemihan(Request $request, $id)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
@@ -281,7 +285,7 @@ class AsuhanKeluargaController extends Controller
             'kemampuan_bab' => 'nullable',
             'alat_bantu_bab' => 'nullable',
             'obat_bab' => 'nullable',
-        ]); 
+        ]);
 
         $perkemihan = Perkemihan::findOrFail($id);
         $perkemihan->update($data);
@@ -293,28 +297,28 @@ class AsuhanKeluargaController extends Controller
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
-            'mual'=> 'nullable',
-            'muntah'=> 'nullable',
-            'kembung'=> 'nullable',
-            'nafsu_makan'=> 'nullable',
-            'sulit_menelan'=> 'nullable',
-            'disfagia'=> 'nullable',
-            'bau_napas'=> 'nullable',
-            'kerusakan_gigi'=> 'nullable',
-            'distensi_abdomen'=> 'nullable',
-            'bising_usus'=> 'nullable',
-            'konstipasi'=> 'nullable',
-            'diare'=> 'nullable',
-            'hemoroid'=> 'nullable',
-            'stomatitis'=> 'nullable',
-            'warna_stomatitis'=> 'nullable',
-            'massa_abdomen'=> 'nullable',
-            'obat_pencahar'=> 'nullable',
-            'konsistensi'=> 'nullable',
-            'diet_khusus'=> 'nullable',
-            'kebiasaan_makan'=> 'nullable',
-            'alergi_makanan'=> 'nullable',
-            'alat_bantu'=> 'nullable',
+            'mual' => 'nullable',
+            'muntah' => 'nullable',
+            'kembung' => 'nullable',
+            'nafsu_makan' => 'nullable',
+            'sulit_menelan' => 'nullable',
+            'disfagia' => 'nullable',
+            'bau_napas' => 'nullable',
+            'kerusakan_gigi' => 'nullable',
+            'distensi_abdomen' => 'nullable',
+            'bising_usus' => 'nullable',
+            'konstipasi' => 'nullable',
+            'diare' => 'nullable',
+            'hemoroid' => 'nullable',
+            'stomatitis' => 'nullable',
+            'warna_stomatitis' => 'nullable',
+            'massa_abdomen' => 'nullable',
+            'obat_pencahar' => 'nullable',
+            'konsistensi' => 'nullable',
+            'diet_khusus' => 'nullable',
+            'kebiasaan_makan' => 'nullable',
+            'alergi_makanan' => 'nullable',
+            'alat_bantu' => 'nullable',
         ]);
 
         Pencernaan::create($data);
@@ -326,28 +330,28 @@ class AsuhanKeluargaController extends Controller
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
-            'mual'=> 'nullable',
-            'muntah'=> 'nullable',
-            'kembung'=> 'nullable',
-            'nafsu_makan'=> 'nullable',
-            'sulit_menelan'=> 'nullable',
-            'disfagia'=> 'nullable',
-            'bau_napas'=> 'nullable',
-            'kerusakan_gigi'=> 'nullable',
-            'distensi_abdomen'=> 'nullable',
-            'bising_usus'=> 'nullable',
-            'konstipasi'=> 'nullable',
-            'diare'=> 'nullable',
-            'hemoroid'=> 'nullable',
-            'stomatitis'=> 'nullable',
-            'warna_stomatitis'=> 'nullable',
-            'massa_abdomen'=> 'nullable',
-            'obat_pencahar'=> 'nullable',
-            'konsistensi'=> 'nullable',
-            'diet_khusus'=> 'nullable',
-            'kebiasaan_makan'=> 'nullable',
-            'alergi_makanan'=> 'nullable',
-            'alat_bantu'=> 'nullable',
+            'mual' => 'nullable',
+            'muntah' => 'nullable',
+            'kembung' => 'nullable',
+            'nafsu_makan' => 'nullable',
+            'sulit_menelan' => 'nullable',
+            'disfagia' => 'nullable',
+            'bau_napas' => 'nullable',
+            'kerusakan_gigi' => 'nullable',
+            'distensi_abdomen' => 'nullable',
+            'bising_usus' => 'nullable',
+            'konstipasi' => 'nullable',
+            'diare' => 'nullable',
+            'hemoroid' => 'nullable',
+            'stomatitis' => 'nullable',
+            'warna_stomatitis' => 'nullable',
+            'massa_abdomen' => 'nullable',
+            'obat_pencahar' => 'nullable',
+            'konsistensi' => 'nullable',
+            'diet_khusus' => 'nullable',
+            'kebiasaan_makan' => 'nullable',
+            'alergi_makanan' => 'nullable',
+            'alat_bantu' => 'nullable',
         ]);
 
         $pencernaan = Pencernaan::findOrFail($id);
@@ -356,24 +360,24 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function saveMuskuloskeletal(Request $request) 
+    public function saveMuskuloskeletal(Request $request)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
-            'kontraktur' => 'nullable', 
-            'fraktur' => 'nullable', 
-            'nyeri_otot_tulang' => 'nullable', 
-            'drop_foot_lokasi' => 'nullable', 
-            'tremor' => 'nullable', 
+            'kontraktur' => 'nullable',
+            'fraktur' => 'nullable',
+            'nyeri_otot_tulang' => 'nullable',
+            'drop_foot_lokasi' => 'nullable',
+            'tremor' => 'nullable',
             'malaise_fatigue' => 'nullable',
-            'atrofi' => 'nullable', 
-            'kekuatan_otot' => 'nullable', 
-            'postur_tidak_normal' => 'nullable', 
-            'alat_bantu' => 'nullable', 
-            'nyeri' => 'nullable', 
+            'atrofi' => 'nullable',
+            'kekuatan_otot' => 'nullable',
+            'postur_tidak_normal' => 'nullable',
+            'alat_bantu' => 'nullable',
+            'nyeri' => 'nullable',
             'tonus_otot' => 'nullable',
-            'ekstremitas_atas' => 'nullable', 
-            'berdiri' => 'nullable', 
+            'ekstremitas_atas' => 'nullable',
+            'berdiri' => 'nullable',
             'berjalan' => 'nullable',
         ]);
 
@@ -386,20 +390,20 @@ class AsuhanKeluargaController extends Controller
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
-            'kontraktur' => 'nullable', 
-            'fraktur' => 'nullable', 
-            'nyeri_otot_tulang' => 'nullable', 
-            'drop_foot_lokasi' => 'nullable', 
-            'tremor' => 'nullable', 
+            'kontraktur' => 'nullable',
+            'fraktur' => 'nullable',
+            'nyeri_otot_tulang' => 'nullable',
+            'drop_foot_lokasi' => 'nullable',
+            'tremor' => 'nullable',
             'malaise_fatigue' => 'nullable',
-            'atrofi' => 'nullable', 
-            'kekuatan_otot' => 'nullable', 
-            'postur_tidak_normal' => 'nullable', 
-            'alat_bantu' => 'nullable', 
-            'nyeri' => 'nullable', 
+            'atrofi' => 'nullable',
+            'kekuatan_otot' => 'nullable',
+            'postur_tidak_normal' => 'nullable',
+            'alat_bantu' => 'nullable',
+            'nyeri' => 'nullable',
             'tonus_otot' => 'nullable',
-            'ekstremitas_atas' => 'nullable', 
-            'berdiri' => 'nullable', 
+            'ekstremitas_atas' => 'nullable',
+            'berdiri' => 'nullable',
             'berjalan' => 'nullable',
         ]);
 
@@ -409,7 +413,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil diupdate'], 200);
     }
 
-    public function saveNeurosensori(Request $request) 
+    public function saveNeurosensori(Request $request)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
@@ -484,7 +488,7 @@ class AsuhanKeluargaController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan'], 200);
     }
 
-    public function updateNeurosensori(Request $request, $id) 
+    public function updateNeurosensori(Request $request, $id)
     {
         $data = $request->validate([
             'pasien_id' => 'required|uuid',
@@ -559,5 +563,4 @@ class AsuhanKeluargaController extends Controller
 
         return response()->json(['message' => 'Data berhasil diperbarui'], 200);
     }
-
 }

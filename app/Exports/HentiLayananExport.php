@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use Illuminate\Support\Facades\DB;
@@ -38,14 +39,10 @@ class HentiLayananExport implements FromCollection, WithHeadings, ShouldAutoSize
                 DB::raw('ANY_VALUE((SELECT MIN(tanggal) FROM kunjungans WHERE pasien_id = k.pasien_id)) as tanggal_kunjungan_awal'),
                 DB::raw('ANY_VALUE((SELECT MAX(tanggal) FROM kunjungans WHERE pasien_id = k.pasien_id)) as tanggal_kunjungan_terakhir'),
                 DB::raw('ANY_VALUE((SELECT tanggal FROM kunjungans WHERE pasien_id = k.pasien_id ORDER BY tanggal DESC LIMIT 1)) as tanggal_kunjungan_lanjutan'),
-
-
                 DB::raw("(SELECT total_score FROM skrining_adl WHERE kunjungan_id = (SELECT id FROM kunjungans WHERE pasien_id = k.pasien_id ORDER BY tanggal ASC LIMIT 1)) as skor_aks_data_sasaran"),
                 DB::raw("(SELECT total_score FROM skrining_adl WHERE kunjungan_id = (SELECT id FROM kunjungans WHERE pasien_id = k.pasien_id ORDER BY tanggal DESC LIMIT 1)) as skor_aks_terakhir"),
                 DB::raw("(SELECT total_score FROM skrining_adl WHERE kunjungan_id = (SELECT id FROM kunjungans WHERE pasien_id = k.pasien_id ORDER BY tanggal DESC LIMIT 1 OFFSET 1)) as skor_aks_lanjutan"),
-
                 'k.lanjut_kunjungan',
-
                 DB::raw("(SELECT tanggal FROM kunjungans WHERE pasien_id = k.pasien_id AND henti_layanan_kenaikan_aks = 1 LIMIT 1) as tanggal_henti_layanan_kenaikan_aks"),
                 DB::raw("(SELECT tanggal FROM kunjungans WHERE pasien_id = k.pasien_id AND henti_layanan_meninggal = 1 LIMIT 1) as tanggal_henti_layanan_meninggal"),
                 DB::raw("(SELECT tanggal FROM kunjungans WHERE pasien_id = k.pasien_id AND henti_layanan_menolak = 1 LIMIT 1) as tanggal_henti_layanan_menolak"),
@@ -82,10 +79,10 @@ class HentiLayananExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'NO', 'KABUPATEN/KOTA', 'KECAMATAN', 'KELURAHAN', 'NIK', 'JENIS KTP', 'NAMA', 'ALAMAT', 'JENIS KELAMIN',  
-            'UMUR', 'TANGGAL KUNJUNGAN AWAL', 'TANGGAL KUNJUNGAN TERAKHIR', 'TANGGAL KUNJUNGAN LANJUTAN', 
-            'SKOR AKS-DATA SASARAN', 'SKOR AKS TERAKHIR', 'SKOR AKS LANJUTAN', 'LANJUT KUNJUNGAN', 
-            'TANGGAL-HENTI LAYANAN-KENAIKAN AKS', 'TANGGAL-HENTI LAYANAN-MENINGGAL', 'TANGGAL-HENTI-LAYANAN-MENOLAK', 
+            'NO', 'KABUPATEN/KOTA', 'KECAMATAN', 'KELURAHAN', 'NIK', 'JENIS KTP', 'NAMA', 'ALAMAT', 'JENIS KELAMIN',
+            'UMUR', 'TANGGAL KUNJUNGAN AWAL', 'TANGGAL KUNJUNGAN TERAKHIR', 'TANGGAL KUNJUNGAN LANJUTAN',
+            'SKOR AKS-DATA SASARAN', 'SKOR AKS TERAKHIR', 'SKOR AKS LANJUTAN', 'LANJUT KUNJUNGAN',
+            'TANGGAL-HENTI LAYANAN-KENAIKAN AKS', 'TANGGAL-HENTI LAYANAN-MENINGGAL', 'TANGGAL-HENTI-LAYANAN-MENOLAK',
             'TANGGAL-HENTI LAYANAN PINDAH-DOMISILI'
         ];
     }

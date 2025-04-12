@@ -15,7 +15,6 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
 {
-
     protected $bulan;
     protected $tanggalAwal;
     protected $tanggalAkhir;
@@ -91,20 +90,19 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'NO', 
-            'KABUPATEN/KOTA', 
-            'KECAMATAN', 
-            'KELURAHAN', 
-            'NIK', 
-            'NAMA', 
-            'JENIS KTP', 
-            'UMUR', 
+            'NO',
+            'KABUPATEN/KOTA',
+            'KECAMATAN',
+            'KELURAHAN',
+            'NIK',
+            'NAMA',
+            'JENIS KTP',
+            'UMUR',
             'TANGGAL KUNJUNGAN',
-            'MEMBUTUHKAN BANTUAN UNTUK KEGIATAN SEHARI-HARI', 
-            'SKOR AKS', 
+            'MEMBUTUHKAN BANTUAN UNTUK KEGIATAN SEHARI-HARI',
+            'SKOR AKS',
             'MEMILIKI PENDAMPING DALAM MELAKUKAN AKTIVITAS SEHARI-HARI',
             'SASARAN'
         ];
     }
-
 }

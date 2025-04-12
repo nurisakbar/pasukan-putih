@@ -30,16 +30,12 @@ class SummaryKunjunganAwalExport implements FromCollection, WithHeadings, Should
                 'regencies.name as regency_name', // Kabupaten
                 'districts.name as district_name', // Kecamatan
                 'villages.name as village_name', // Kelurahan
-
                 // JUMLAH SASARAN (Total semua kunjungan per wilayah)
                 DB::raw('COUNT(kunjungan.id) as jumlah_sasaran'),
-
                 // JUMLAH WARGA YANG MENDAPAT KUNJUNGAN AWAL
                 DB::raw("SUM(CASE WHEN kunjungan.jenis = 'awal' THEN 1 ELSE 0 END) as jumlah_kunjungan_awal"),
-
                 // JUMLAH BUKAN WARGA SASARAN SETELAH KUNJUNGAN AWAL
                 DB::raw("SUM(CASE WHEN kunjungan.jenis = 'awal' AND skrining_adl.total_score > 8 THEN 1 ELSE 0 END) as jumlah_bukan_warga_sasaran"),
-
                 // JUMLAH TOTAL WARGA SASARAN SETELAH KUNJUNGAN AWAL
                 DB::raw("SUM(CASE WHEN kunjungan.jenis = 'awal' AND skrining_adl.total_score <= 8 THEN 1 ELSE 0 END) as jumlah_total_warga_sasaran")
             )
@@ -73,4 +69,3 @@ class SummaryKunjunganAwalExport implements FromCollection, WithHeadings, Should
         ];
     }
 }
-

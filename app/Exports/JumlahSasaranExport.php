@@ -34,14 +34,14 @@ class JumlahSasaranExport implements FromArray, WithHeadings, ShouldAutoSize
 
         $groupedData = $data->groupBy(function ($skrining) {
             $pasien = $skrining->kunjungan?->pasien;
-        
+
             $regencyName = $pasien?->regency?->name ?? 'Tidak Diketahui';
             $districtName = $pasien?->district?->name ?? 'Tidak Diketahui';
             $villageName = $pasien?->village?->name ?? 'Tidak Diketahui';
-        
+
             return "$regencyName|$districtName|$villageName";
-        });        
-        
+        });
+
 
         // Format data untuk export
         $formattedData = $groupedData->map(function ($items, $key) {
@@ -62,9 +62,9 @@ class JumlahSasaranExport implements FromArray, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
-            'KABUPATEN/KOTA', 
-            'KECAMATAN', 
-            'KELURAHAN', 
+            'KABUPATEN/KOTA',
+            'KECAMATAN',
+            'KELURAHAN',
             'JUMLAH SASARAN'
         ];
     }

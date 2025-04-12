@@ -63,8 +63,12 @@ class Ttv extends Model
             if ($examination->weight && $examination->height) {
                 $heightInMeters = $examination->height / 100;
                 $examination->bmi = $examination->weight / ($heightInMeters * $heightInMeters);
+<<<<<<< Updated upstream
                 
                 // Determine BMI category
+=======
+
+>>>>>>> Stashed changes
                 if ($examination->bmi < 17) {
                     $examination->bmi_category = 'Kurus';
                 } elseif ($examination->bmi <= 18.4) {

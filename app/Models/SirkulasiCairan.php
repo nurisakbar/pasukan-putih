@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class SirkulasiCairan extends Model
 {
     use HasUuids;
+
     protected $table = 'sirkulasi_cairans';
     protected $primaryKey = 'id';
 
@@ -41,5 +42,4 @@ class SirkulasiCairan extends Model
             }
         });
     }
-
 }

@@ -17,6 +17,7 @@ class UserController extends Controller
     public function index()
     {
         $currentUser = Auth::user();
+<<<<<<< Updated upstream
         
         // If superadmin, get all users
         if ($currentUser->role == 'superadmin') {
@@ -25,6 +26,13 @@ class UserController extends Controller
         // If facility (puskesmas/klinik/pustu), get only users they created
         else {
             $users = User::where('parent_id', $currentUser->id)->get();
+=======
+        $query = User::where('role', $request->role);
+
+        // Filter berdasarkan role (jika bukan superadmin, tampilkan hanya user yang parent_id-nya sama)
+        if ($currentUser->role !== 'superadmin') {
+            $query->where('parent_id', $currentUser->id);
+>>>>>>> Stashed changes
         }
         
         return view('users.index', compact('users'));
@@ -279,4 +287,78 @@ class UserController extends Controller
         
         return true;
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    public function importUsers(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv',
+        ]);
+
+        Excel::import(new UserImport(), $request->file('file'));
+
+        return back()->with('success', 'Data pengguna berhasil diimport!');
+    }
+
+    /**
+     * Show the form for editing current user's profile.
+     */
+    public function editProfile()
+    {
+        $user = Auth::user();
+        // dd($user);
+        return view('users.profile', compact('user'));
+    }
+
+    /**
+     * Update the current user's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validation rules
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'no_wa' => ['nullable', 'string', 'max:255'],
+            'keterangan' => ['nullable', 'string', 'max:255'],
+            'status_pegawai' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Update data
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'no_wa' => $request->no_wa,
+            'keterangan' => $request->keterangan,
+            'village' => $request->village,
+            'district' => $request->district,
+            'regency' => $request->regency,
+            'status_pegawai' => $request->status_pegawai
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Profil berhasil diperbarui!');
+    }
+}
+>>>>>>> Stashed changes

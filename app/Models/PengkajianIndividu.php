@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PengkajianIndividu extends Model
 {
-
     use HasUuids;
 
     protected $table = 'pengkajian_individus';

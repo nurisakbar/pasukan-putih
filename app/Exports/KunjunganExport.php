@@ -19,7 +19,7 @@ class KunjunganExport implements FromArray, WithHeadings, WithColumnFormatting, 
                 return [
                     'Tanggal' => $kunjungan->tanggal,
                     'Nama Pasien' => $kunjungan->pasien->name ?? 'Tidak Ada',
-                    'NIK' => '`'.$kunjungan->pasien->nik.'`'  ?? 'Tidak Ada',
+                    'NIK' => '`' . $kunjungan->pasien->nik . '`'  ?? 'Tidak Ada',
                     'Jenis Kelamin' => $kunjungan->pasien->jenis_kelamin ?? 'Tidak Ada',
                     'Jenis Kunjungan' => $kunjungan->jenis,
                     'Status' => $kunjungan->status,
@@ -39,7 +39,7 @@ class KunjunganExport implements FromArray, WithHeadings, WithColumnFormatting, 
     public function columnFormats(): array
     {
         return [
-            'C' => NumberFormat::FORMAT_TEXT, 
+            'C' => NumberFormat::FORMAT_TEXT,
         ];
     }
 }

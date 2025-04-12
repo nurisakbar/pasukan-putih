@@ -50,7 +50,29 @@ class TtvController extends Controller
                 ->withInput();
         }
 
+<<<<<<< Updated upstream
         $examination = Ttv::create($request->all());
+=======
+        // Calculate BMI if height and weight are provided
+        $data = $request->all();
+        if (!empty($data['weight']) && !empty($data['height'])) {
+            $weight = $data['weight'];
+            $height = $data['height'] / 100; // Convert to meters
+            $bmi = $weight / ($height * $height);
+            $data['bmi'] = round($bmi, 2);
+
+            // Set BMI category
+            if ($bmi < 17) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 18.4) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 25) {
+                $data['bmi_category'] = 'Normal';
+            } else {
+                $data['bmi_category'] = 'Gemuk';
+            }
+        }
+>>>>>>> Stashed changes
 
         return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil disimpan.');
     }
@@ -111,7 +133,50 @@ class TtvController extends Controller
         $ttv = Ttv::findOrFail($id);
         $ttv->update($request->all());
 
+<<<<<<< Updated upstream
         return redirect()->route('kunjungans.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
+=======
+        if (!empty($data['weight']) && !empty($data['height']) && $data['height'] > 0) {
+            $weight = (float) $data['weight'];
+            $height = (float) $data['height'] / 100; // Convert cm ke meter
+            $bmi = $weight / ($height * $height);
+            $data['bmi'] = round($bmi, 2);
+
+            // Klasifikasi BMI
+            if ($bmi < 17) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 18.4) {
+                $data['bmi_category'] = 'Kurus';
+            } elseif ($bmi <= 25) {
+                $data['bmi_category'] = 'Normal';
+            } else {
+                $data['bmi_category'] = 'Gemuk';
+            }
+        }
+
+        // dd($data);
+        $ttv->update($data);
+
+        // $kunjungan = Kunjungan::find($ttv->kunjungan_id);
+        // if (!$kunjungan) {
+        //     return redirect()->back()->with('error', 'Kunjungan tidak ditemukan.');
+        // }
+
+        // $kunjunganData = [
+        //     'lanjut_kunjungan' => $request->lanjut_kunjungan,
+        //     'rencana_kunjungan_lanjutan' => $request->lanjut_kunjungan === 'lanjut' ? $request->rencana_kunjungan_lanjutan : null,
+        //     'henti_layanan' => $request->lanjut_kunjungan === 'henti' ? $request->henti_layanan : null,
+        //     'rujukan' => $request->lanjut_kunjungan === 'rujukan' ? $request->rujukan : null,
+        // ];
+
+        // $kunjungan->update($kunjunganData);
+
+        if ($ttv->update($data)) {
+            return redirect()->route('visitings.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
+        } else {
+            return redirect()->back()->with('error', 'Gagal memperbarui data.');
+        }
+>>>>>>> Stashed changes
     }
 
     /**
@@ -131,7 +196,7 @@ class TtvController extends Controller
 
     /**
      * API endpoint to calculate BMI
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -152,7 +217,7 @@ class TtvController extends Controller
         $weight = $request->input('weight');
         $height = $request->input('height') / 100; // Convert to meters
         $bmi = $weight / ($height * $height);
-        
+
         $category = '';
         if ($bmi < 17) {
             $category = 'Kurus';

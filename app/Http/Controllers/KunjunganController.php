@@ -36,11 +36,24 @@ class KunjunganController extends Controller
             });
         }
 
+<<<<<<< Updated upstream
         if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
             $tanggalAwal = Carbon::parse($request->input('tanggal_awal'))->startOfDay();
             $tanggalAkhir = Carbon::parse($request->input('tanggal_akhir'))->endOfDay();
             $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
         }
+=======
+        $tanggalAwal = $request->filled('tanggal_awal')
+            ? Carbon::parse($request->input('tanggal_awal'))->startOfDay()
+            : Carbon::today()->startOfDay();
+
+        $tanggalAkhir = $request->filled('tanggal_akhir')
+            ? Carbon::parse($request->input('tanggal_akhir'))->endOfDay()
+            : Carbon::today()->endOfDay();
+
+        // Terapkan filter tanggal
+        $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
+>>>>>>> Stashed changes
 
         $kunjungans = $query->paginate(10);
 
@@ -54,7 +67,7 @@ class KunjunganController extends Controller
         $users = User::all();
         $pasiens = Pasien::all();
         $provinces = Province::all();
-        
+
         return view('kunjungans.form-rencana-kunjungan-awal', compact('users', 'pasiens', 'provinces'));
     }
 
@@ -106,7 +119,6 @@ class KunjunganController extends Controller
 
         return redirect()->route('kunjungan.ttv.create', ['kunjungan' => $kunjungan->id])
         ->with('success', 'Created successfully');
-
     }
 
 
@@ -125,7 +137,7 @@ class KunjunganController extends Controller
     {
         $existingVisit = Kunjungan::where('pasien_id', $request->pasien_id)
                           ->whereDate('tanggal', $request->tanggal)
-                          ->where('id', '<>', $kunjungan->id) 
+                          ->where('id', '<>', $kunjungan->id)
                           ->first();
 
         if ($existingVisit) {
@@ -159,7 +171,7 @@ class KunjunganController extends Controller
         if ($skriningAdl) {
             return view('kunjungans.form-skrining-adl', compact('kunjungan', 'skriningAdl'));
         }
-       return view('kunjungans.form-skrining-adl', compact('kunjungan', 'skriningAdl'));
+        return view('kunjungans.form-skrining-adl', compact('kunjungan', 'skriningAdl'));
     }
 
     public function storeSkriningAdl(Request $request, $id)
@@ -211,7 +223,7 @@ class KunjunganController extends Controller
     }
 
     public function updateSkriningAdl(Request $request, $id)
-        {
+    {
         $request->validate([
             'pendamping_tetap' => 'required|integer',
             'butuh_orang'      => 'required|integer',
@@ -221,27 +233,28 @@ class KunjunganController extends Controller
             'stairs'       => 'required|integer',
             'bathing'      => 'required|integer',
             'transfer'     => 'required|integer',
-            'walking'     => 'required|integer',    
+            'walking'     => 'required|integer',
             'dressing'     => 'required|integer',
             'grooming'     => 'required|integer',
             'toilet_use'   => 'required|integer',
         ]);
 
         $skrining = SkriningAdl::findOrFail($id);
-        $pasien = $skrining->kunjungan->pasien ?? null;;
-        $total_score = $request->bab_control 
-        + $request->bak_control 
-        + $request->eating 
-        + $request->stairs 
-        + $request->bathing 
-        + $request->transfer 
-        + $request->walking 
-        + $request->dressing 
-        + $request->grooming 
+        $pasien = $skrining->kunjungan->pasien ?? null;
+        ;
+        $total_score = $request->bab_control
+        + $request->bak_control
+        + $request->eating
+        + $request->stairs
+        + $request->bathing
+        + $request->transfer
+        + $request->walking
+        + $request->dressing
+        + $request->grooming
         + $request->toilet_use;
-        $sasaran_home_service = ($pasien && $pasien->jenis_ktp == 'DKI' && 
-        $request->butuh_orang == 1 && 
-        $request->pendamping_tetap == 1 && 
+        $sasaran_home_service = ($pasien && $pasien->jenis_ktp == 'DKI' &&
+        $request->butuh_orang == 1 &&
+        $request->pendamping_tetap == 1 &&
         $total_score < 9) ? 1 : 0;
 
 
@@ -254,20 +267,20 @@ class KunjunganController extends Controller
             'stairs'       => $request->stairs,
             'bathing'      => $request->bathing,
             'transfer'     => $request->transfer,
-            'walking'     => $request->walking,     
+            'walking'     => $request->walking,
             'dressing'     => $request->dressing,
-            'grooming'     => $request->grooming,   
+            'grooming'     => $request->grooming,
             'toilet_use'   => $request->toilet_use,
             'total_score'  => $request->total_score,
             'sasaran_home_service' => $sasaran_home_service
-        ]); 
+        ]);
 
         return redirect()->back()->with('success', 'Data Skrining ADL berhasil diupdate!');
     }
 
-    public function exportKunjungan() 
+    public function exportKunjungan()
     {
-        return Excel::download(new KunjunganExport, 'Kunjunagan.xlsx');
+        return Excel::download(new KunjunganExport(), 'Kunjunagan.xlsx');
     }
 
     private function getAllChildUserIds($userId, $role)
@@ -277,9 +290,9 @@ class KunjunganController extends Controller
         }
 
         $allChildren = collect();
-        
+
         $directChildren = User::where('parent_id', $userId)->pluck('id');
-        
+
         foreach ($directChildren as $childId) {
             $allChildren->push($childId);
             $allChildren = $allChildren->merge($this->getAllChildUserIds($childId, $role));
@@ -288,8 +301,3 @@ class KunjunganController extends Controller
         return $allChildren->toArray();
     }
 }
-
-
-        
-    
-
