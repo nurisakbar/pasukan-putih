@@ -47,9 +47,6 @@
                               <a class="nav-link {{$_GET['role']=='superadmin'?'active':''}}" aria-current="page" href="users?role=superadmin"><i class="fa-solid fa-user-secret"></i> SUPER ADMIN</a>
                             </li>
                             <li class="nav-item">
-                              <a class="nav-link {{$_GET['role']=='pustu'?'active':''}}" href="users?role=pustu"><i class="fa-solid fa-users-line"></i> PUSKESMAS PEMBANTU</a>
-                            </li>
-                            <li class="nav-item">
                               <a class="nav-link {{$_GET['role']=='perawat'?'active':''}}" href="users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
                             </li>
                           </ul>
@@ -78,7 +75,7 @@
                                          <td>{{ strtoupper($data->role) }}</td>
                                          <td>{{ $data->no_wa ?? '-' }}</td>
                                          @if($_GET['role']=='perawat')
-                                            <td>{{$data->parent->name??'-'}}</td>
+                                            <td>{{$data->pustu->nama_pustu??'-'}}</td>
                                          @endif
                                          <td width="100px">
                                             <form action="{{ route('users.destroy', $data->id) }}" method="POST" class="d-inline">

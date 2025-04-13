@@ -24,32 +24,22 @@ use App\Models\Visiting;
 use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use Auth;
 
 class PasienController extends Controller
 {
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
-        $parentId = auth()->user()->parent_id;
+        $pasiens = Pasien::select('pasiens.*', 'villages.name as village_name', 'districts.name as district_name', 'regencies.name as regency_name')
+        ->join('villages', 'villages.id', 'pasiens.village_id')
+        ->join('districts', 'districts.id', 'villages.district_id')
+        ->join('regencies', 'regencies.id', 'districts.regency_id');
 
-        $query = Pasien::latest();
-
-        if (!is_null($parentId)) {
-            $query->where('parent_id', $parentId);
+        if(\Auth::user()->role=='perawat'){
+            $pasiens = $pasiens->where('pustu_id',\Auth::user()->pustu_id);
         }
 
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                ->orWhere('nik', 'LIKE', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('tanggal')) {
-            $query->whereDate('created_at', $request->input('tanggal'));
-        }
-
-        $pasiens = $query->paginate(10);
+        $pasiens = $pasiens->get();
 
 
         return view('pasiens.index', compact('pasiens'));
@@ -62,7 +52,7 @@ class PasienController extends Controller
         return view('pasiens.create', compact('provinces', 'parentId'));
     }
 
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'string|max:255',
@@ -81,18 +71,16 @@ class PasienController extends Controller
             'rw' => 'string|max:255',
         ]);
 
-        $parentId = auth()->user()->parent_id;
-
-        $pasien = Pasien::create([
-            ...$validated,
-            'parent_id' => $parentId,
-        ]);
+        $request['pustu_id'] = auth()->user()->pustu_id;
+        $request['user_id'] = auth()->user()->id;
+        $request['village_id'] = $request->village_search;
+        $pasien = Pasien::create($request->all());
         return redirect()->route('pasiens.index')->with('success', 'Created successfully');
     }
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
     {
-        $kunjungan = Visiting::with(['pasien', 'user', 'healthForms'] )->where('pasien_id', $pasien->id)->get();
+        $kunjungan = Visiting::with(['pasien', 'user', 'healthForms'])->where('pasien_id', $pasien->id)->get();
         return view('pasiens.show', compact('pasien', 'kunjungan'));
     }
 
@@ -240,5 +228,4 @@ class PasienController extends Controller
             ->get();
         return response()->json($results);
     }
-
 }

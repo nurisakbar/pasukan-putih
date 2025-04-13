@@ -36,14 +36,14 @@
                         <div class="col-md-3 col-12">
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal" 
+                                <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal"
                                     value="{{ request('tanggal_awal', Carbon::today()->toDateString()) }}">
                             </div>
                         </div>
                         <div class="col-md-3 col-12">
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" name="tanggal_akhir" class="form-control" placeholder="Sampai Tanggal" 
+                                <input type="date" name="tanggal_akhir" class="form-control" placeholder="Sampai Tanggal"
                                     value="{{ request('tanggal_akhir') }}">
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                             </a>
                         </div>
                     </form>
-                    
+
                     <!-- Baris baru untuk tombol export -->
                     <div class="row mt-3">
                         <div class="col-12">
@@ -97,17 +97,19 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-hover">
+                        <table class="table table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" width="180">Aksi</th>
-                                    <th>Nama Pasien</th>
-                                    <th>Tanggal</th>
-                                    <th>NIK</th>
-                                    <th>Jenis Kelamin</th>
-                                    <th>Jenis KTP</th>
-                                    <th>Alamat</th>
-                                    {{-- <th>Nomor Hp</th> --}}
+                                    <th class="text-center" width="110">Aksi</th>
+                                    <th>NAMA PASIEN</th>
+                                    <th>TANGGAL</th>
+                                    <th>JENIS KUNJUNGAN</th>
+                                    <th>STATUS</th>
+                                    <th>ALAMAT</th>
+                                    <th>RT/ RW</th>
+                                    <th>KABUPATEN</th>
+                                    <th>KECAMATAN</th>
+                                    <th>KELURAHAN</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,33 +123,33 @@
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         {{-- <li>
-                                                            <a href="{{ route('kunjungan.skriningAdl', $kunjungan->id) }}" 
+                                                            <a href="{{ route('kunjungan.skriningAdl', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
                                                         </li> --}}
-                                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')    
+                                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                                                         <li>
-                                                            <a href="{{ route('ttv.edit', $kunjungan->id) }}" 
+                                                            <a href="{{ route('ttv.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
                                                         @endif
                                                         <li>
-                                                            <a href="{{ route('health-form.edit', $kunjungan->id) }}" 
+                                                            <a href="{{ route('health-form.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit Form Kesehatan
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <a href="{{ route('visitings.edit', $kunjungan->id) }}" 
+                                                            <a href="{{ route('visitings.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit Kunjungan
                                                             </a>
                                                         </li>
                                                         <li>
-                                                            <button class="dropdown-item text-danger delete-btn" 
+                                                            <button class="dropdown-item text-danger delete-btn"
                                                                     data-id="{{ $kunjungan->id }}"
                                                                     data-nama="{{ $kunjungan->pasien->name }}">
                                                                 <i class="fas fa-trash me-2"></i> Hapus Kunjungan
@@ -156,21 +158,24 @@
                                                     </ul>
                                                 </div>
                                             </div>
-                                        
+
                                             <form id="delete-form-{{ $kunjungan->id }}" action="{{ route('visitings.destroy', $kunjungan->id) }}" method="POST" style="display: none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
                                         </td>
-                                        
+
                                         <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->nik }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->jenis_kelamin }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->jenis_ktp }}</td>
+                                        <td class="align-middle">{{ $kunjungan->status }}</td>
+                                        <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td>
                                         <td class="align-middle text-truncate" style="max-width: 150px;">
                                             {{ $kunjungan->pasien->alamat }}
                                         </td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->rt }} / {{ $kunjungan->pasien->rw }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->regency->name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->name }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -216,7 +221,7 @@
         button.addEventListener('click', function(event) {
             event.preventDefault();
             const id = this.getAttribute('data-id');
-            const pasienNama = this.getAttribute('data-nama'); 
+            const pasienNama = this.getAttribute('data-nama');
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,

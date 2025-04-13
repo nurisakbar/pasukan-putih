@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 class Pasien extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids;
+    use SoftDeletes;
 
     protected $table = 'pasiens';
     protected $primaryKey = 'id';
@@ -22,12 +22,10 @@ class Pasien extends Model
         'jenis_ktp',
         'tanggal_lahir',
         'village_id',
-        'district_id',
-        'regency_id',
-        'province_id',
+        'user_id',
         'rt',
         'rw',
-        'parent_id'
+        'pustu_id'
     ];
 
     protected $dates = ['deleted_at'];
@@ -72,5 +70,4 @@ class Pasien extends Model
     {
         return $this->belongsTo(Province::class, 'province_id', 'id');
     }
-
 }

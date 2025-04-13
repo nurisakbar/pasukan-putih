@@ -57,27 +57,40 @@
 
                             <form action="{{ route('users.store') }}" method="POST" class="needs-validation" novalidate>
                                 @csrf
-
                                 <div class="row mb-4">
                                     <div class="col-lg-2 col-md-4 mb-2">
-                                        <label for="nik" class="form-label fw-bold">NIK <span
+                                        <label for="role" class="form-label fw-bold ">Role Pengguna <span
                                                 class="text-danger">*</span></label>
                                     </div>
-                                    <div class="col-lg-10 col-md-8">
-                                        <input type="text" class="form-control @error('nik') is-invalid @enderror nik"
-                                            id="nik" name="nik" value="{{ old('nik') }}"
-                                            placeholder="Masukkan NIK" required>
-                                        @error('nik')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <select class="form-control @error('role') is-invalid @enderror" name="role"
+                                            required>
+                                            <option value="">-- Pilih Role --</option>
+                                            @if (Auth::user()->role == 'superadmin')
+                                                <option value="superadmin">Super Admin</option>
+                                                <option value="puskesmas">Puskesmas</option>
+                                                <option value="pustu">Pustu</option>
+                                                <option value="perawat">Perawat</option>
+                                                {{-- <option value="dinkes">Dinkes</option> --}}
+                                            @elseif(Auth::user()->role == 'puskesmas')
+                                                <option value="pustu">Pustu</option>
+                                            @elseif(Auth::user()->role == 'pustu')
+                                                <option value="perawat">Perawat</option>
+                                                <option value="caregiver">Caregiver</option>
+                                            @endif
+                                        </select>
+                                        @error('role')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
                                         @enderror
                                     </div>
-                                </div>
-                                <div id="loading-indicator" class="p-3 d-none">
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <div class="spinner-border text-primary spinner-border-sm" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                        <span class="ms-3 fs-5 text-secondary">Mencari data...</span>
+                                    <div class="col-lg-6 col-md-6">
+                                        <select class="form-control" name="pustu_id">
+                                            @foreach(\App\Models\Pustu::all() as $pustu)
+                                            <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row mb-4">
@@ -109,91 +122,6 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-4">
-                                    <div class="col-lg-2 col-md-4 mb-2">
-                                        <label for="jenis_ktp" class="form-label fw-bold ">Jenis KTP <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                    <div class="col-lg-10 col-md-8">
-                                        <select class="form-select @error('jenis_ktp') is-invalid @enderror" id="jenis_ktp"
-                                            name="jenis_ktp" required>
-                                            <option value="" selected disabled>Pilih jenis KTP</option>
-                                            <option value="DKI" {{ old('jenis_ktp') == 'DKI' ? 'selected' : '' }}>DKI
-                                            </option>
-                                            <option value="Non DKI" {{ old('jenis_ktp') == 'Non DKI' ? 'selected' : '' }}>
-                                                Non DKI</option>
-                                        </select>
-                                        @error('jenis_ktp')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="row mb-4">
-                                    <div class="col-lg-2 col-md-4 mb-2">
-                                        <label for="tanggal_lahir" class="form-label fw-bold ">Tanggal Lahir <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                    <div class="col-lg-10 col-md-8">
-                                        <input type="date"
-                                            class="form-control @error('tanggal_lahir') is-invalid @enderror"
-                                            id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
-                                            required>
-                                        @error('tanggal_lahir')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="row mb-4">
-                                    <div class="col-lg-2 col-md-4 mb-2">
-                                        <label for="jenis_kelamin" class="form-label fw-bold ">Jenis Kelamin <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                    <div class="col-lg-10 col-md-8">
-                                        <select class="form-select @error('jenis_kelamin') is-invalid @enderror"
-                                            id="jenis_kelamin" name="jenis_kelamin" required>
-                                            <option value="" selected disabled>Pilih jenis kelamin</option>
-                                            <option value="Laki-laki"
-                                                {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki
-                                            </option>
-                                            <option value="Perempuan"
-                                                {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan
-                                            </option>
-                                        </select>
-                                        @error('jenis_kelamin')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="row mb-4">
-                                    <div class="col-lg-2 col-md-4 mb-2">
-                                        <label for="role" class="form-label fw-bold ">Role <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-                                    <div class="col-lg-10 col-md-8">
-                                        <select class="form-control @error('role') is-invalid @enderror" name="role"
-                                            required>
-                                            <option value="">-- Pilih Role --</option>
-                                            @if (Auth::user()->role == 'superadmin')
-                                                <option value="superadmin">Super Admin</option>
-                                                <option value="puskesmas">Puskesmas</option>
-                                                <option value="pustu">Pustu</option>
-                                                {{-- <option value="dinkes">Dinkes</option> --}}
-                                            @elseif(Auth::user()->role == 'puskesmas')
-                                                <option value="pustu">Pustu</option>
-                                            @elseif(Auth::user()->role == 'pustu')
-                                                <option value="perawat">Perawat</option>
-                                                <option value="caregiver">Caregiver</option>
-                                            @endif
-                                        </select>
-                                        @error('role')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
-                                    </div>
-                                </div>
 
                                 @if (Auth::user()->role == 'superadmin')
                                     <div class="row mb-4" id="puskesmas-field" style="display: none;">
@@ -241,9 +169,10 @@
                                                 class="text-danger">*</span></label>
                                     </div>
                                     <div class="col-lg-10 col-md-8">
-                                        <input type="status_pegawai" class="form-control @error('status_pegawai') is-invalid @enderror"
-                                            id="status_pegawai" name="status_pegawai" value="{{ old('status_pegawai') }}"
-                                            placeholder="Masukkan status pegawai" required>
+                                        <select name="status_pegawai" class="form-control">
+                                            <option value="PNS">PNS</option>
+                                            <option value="NON PNS">NON PNS</option>
+                                        </select>
                                         @error('status_pegawai')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -265,30 +194,6 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-4">
-                                    <div class="col-12 col-md-4 col-lg-2 mb-2">
-                                        <label for="alamat" class="form-label fw-bold">Alamat, Nama Desa <span
-                                                class="text-danger">*</span></label>
-                                    </div>
-
-                                    <div class="col-12 col-md-8 col-lg-3 mb-2">
-                                        <input class="form-control @error('alamat') is-invalid @enderror" id="alamat"
-                                            name="alamat" placeholder="Alamat Jalan (Opsional)"
-                                            value="{{ old('alamat') }}">
-                                        @error('alamat')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12 col-md-8 col-lg-7 mb-2">
-                                        <select id="village_search" name="village_search"
-                                            class="form-select custom-select-height" required></select>
-                                        <input type="hidden" name="village" id="village_id">
-                                        <input type="hidden" name="district" id="district_id">
-                                        <input type="hidden" name="regency" id="regency_id">
-
-                                    </div>
-                                </div>
 
                                 <div class="row mb-4">
                                     <div class="col-lg-2 col-md-4 mb-2">

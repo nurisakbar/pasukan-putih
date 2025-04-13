@@ -88,10 +88,7 @@ class UserController extends Controller
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
 
-        // Additional validation for parent_id when needed
-        if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'])) {
-            $rules['parent_id'] = ['required', 'exists:users,id'];
-        }
+
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -123,17 +120,13 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'parent_id' => $parentId,
+            'pustu_id' => $request->pustu_id,
             'no_wa' => $request->no_wa,
             'keterangan' => $request->keterangan,
-            'village' => $request->village,
-            'district' => $request->district,
-            'regency' => $request->regency,
             'status_pegawai' => $request->status_pegawai
         ]);
 
-        return redirect()
-            ->route('users.index')
+        return redirect('users?role=perawat')
             ->with('success', 'User berhasil ditambahkan!');
     }
 

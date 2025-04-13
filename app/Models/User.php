@@ -9,11 +9,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasApiTokens, SoftDeletes;
+    use HasFactory;
+    use Notifiable;
+    use HasUuids;
+    use HasApiTokens;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -22,21 +25,18 @@ class User extends Authenticatable
      */
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $keyType = 'string';  
+    protected $keyType = 'string';
     public $incrementing = false;
-    
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
-        'parent_id',
         'no_wa',
         'keterangan',
         'status_pegawai',
-        'village',
-        'district',
-        'regency',
+        'pustu_id'
     ];
 
     /**
@@ -50,7 +50,6 @@ class User extends Authenticatable
     ];
 
     protected $dates = ['deleted_at'];
-    
     /**
      * Get the attributes that should be cast.
      *
@@ -75,9 +74,9 @@ class User extends Authenticatable
         });
     }
 
-    public function parent()
+    public function pustu()
     {
-        return $this->belongsTo(User::class, 'parent_id');
+        return $this->belongsTo(Pustu::class, 'pustu_id');
     }
 
     // Relasi ke user bawahan (anaknya)
