@@ -377,7 +377,7 @@ INSERT INTO `pustus` (`id`, `nama_pustu`, `village_id`, `created_at`, `updated_a
 --
 
 CREATE TABLE `users` (
-  `id` char(36) NOT NULL,
+  `id` char(36) NOT NULL PRIMARY KEY,
   `name` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -392,6 +392,7 @@ CREATE TABLE `users` (
   `status_pegawai` varchar(255) DEFAULT NULL,
   `no_wa` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 --
 -- Dumping data for table `users`
