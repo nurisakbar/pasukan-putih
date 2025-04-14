@@ -19,7 +19,7 @@
                 </li>
                 @if (auth()->user()->role != 'perawat')
                 <li class="nav-item">
-                    <a href="/users?role=perawat" class="nav-link">
+                    <a href="{{ url()->route('pasiens.index', ['role' => 'perawat']) }}" class="nav-link">
                         <i class="nav-icon bi bi-person"></i>
                         <p>DAFTAR PENGGUNA</p>
                     </a>
