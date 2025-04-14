@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Pasien;
+use App\Models\Visiting;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $data['jumlah_data_sasaran'] = Pasien::where('parent_id', auth()->user()->id)->count();
+        $data['jumlah_kunjungan'] = Visiting::where('user_id', auth()->user()->id)->count();
+
+        return view('home', $data);
     }
 }
