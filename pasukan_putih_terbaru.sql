@@ -568,7 +568,7 @@ INSERT INTO `users` (`id`, `name`, `role`, `email`, `email_verified_at`, `passwo
 --
 
 CREATE TABLE `visitings` (
-  `id` char(36) NOT NULL,
+   `id` char(36) NOT NULL PRIMARY KEY,
   `pasien_id` char(36) NOT NULL,
   `user_id` char(36) NOT NULL,
   `tanggal` date NOT NULL,
