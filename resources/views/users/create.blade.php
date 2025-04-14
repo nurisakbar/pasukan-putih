@@ -86,7 +86,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-lg-6 col-md-6">
-                                        <select class="form-control" name="pustu_id">
+                                        <select class="form-control" name="pustu_id" id="pustu">
                                             @foreach(\App\Models\Pustu::all() as $pustu)
                                             <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
                                             @endforeach
@@ -245,6 +245,7 @@
 @push('script')
     <script>
         $(document).ready(function() {
+            $('#pustu').select2();
             // Show/hide parent field based on role selection (for superadmin only)
             @if (Auth::user()->role == 'superadmin')
                 $('select[name="role"]').on('change', function() {
