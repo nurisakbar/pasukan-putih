@@ -29,7 +29,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 --
 
 CREATE TABLE `users` (
-  `id` char(36) NOT NULL,
+  `id` char(36) NOT NULL PRIMARY KEY,
   `name` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
