@@ -26,8 +26,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $data['jumlah_data_sasaran'] = Pasien::where('parent_id', auth()->user()->id)->count();
-        $data['jumlah_kunjungan'] = Visiting::where('user_id', auth()->user()->id)->count();
+
+       $user = auth()->user();
+        if ($user->role === 'superadmin') {
+            $data['jumlah_data_sasaran'] = Pasien::count();
+            $data['jumlah_kunjungan'] = Visiting::count();
+        } else {
+            $data['jumlah_data_sasaran'] = Pasien::where('parent_id', $user->id)->count();
+            $data['jumlah_kunjungan'] = Visiting::where('user_id', $user->id)->count();
+        }
 
         return view('home', $data);
     }
