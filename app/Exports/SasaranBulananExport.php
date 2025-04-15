@@ -71,7 +71,6 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
             });
         }
 
-        // Group by Nama dan Alamat
         $query->groupBy(
             'regencies.name',
             'districts.name',
@@ -83,7 +82,8 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
             'visitings.tanggal',
             'health_forms.skor_aks',
         )
-        ->orderBy('pasiens.name');
+        ->orderBy('villages.name')
+        ->orderBy('pasiens.name');;
 
         $data = $query->get();
 

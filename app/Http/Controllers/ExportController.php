@@ -102,4 +102,35 @@ class ExportController extends Controller
         return Excel::download(new KohortHsExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'kohort_hs.xlsx');
     }
 
+    function test() 
+    {
+        $query = \DB::table('visitings')
+            ->select(
+                'regencies.name as regency_name',
+                'districts.name as district_name',
+                'villages.name as village_name',
+                'pasiens.nik as pasien_nik',
+                'pasiens.name as pasien_name',
+                'pasiens.jenis_ktp as pasien_jenis_ktp',
+                'pasiens.tanggal_lahir as pasien_tanggal_lahir',
+                'visitings.tanggal as tanggal_kunjungan',
+                'health_forms.skor_aks as skor_aks',
+            )
+            ->join('pasiens', 'visitings.pasien_id', '=', 'pasiens.id')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('users', 'visitings.user_id', '=', 'users.id')
+            ->join('health_forms', 'visitings.id', '=', 'health_forms.visiting_id');
+
+        // Filter jika perawat
+        if (\Auth::user()->role === 'perawat') {
+            $query->where('visitings.user_id', \Auth::id());
+        }
+
+        $visiting = $query->get();
+
+        return $visiting;
+    }
+
 }
