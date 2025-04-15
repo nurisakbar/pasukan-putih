@@ -154,7 +154,7 @@ class PasienController extends Controller
             $pasiens->map(function ($pasien) {
                 return [
                     'id' => $pasien->id,
-                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village_id}",
+                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village->name}" . ", {$pasien->village->district->name}" . ", {$pasien->village->district->regency->name}",
                     'fullData' => [
                         'id' => $pasien->id,
                         'name' => $pasien->name,
@@ -163,8 +163,6 @@ class PasienController extends Controller
                         'rt' => $pasien->rt,
                         'rw' => $pasien->rw,
                         'village_id' => $pasien->village_id,
-                        'district_id' => $pasien->district_id,
-                        'regency_id' => $pasien->regency_id,
                     ]
                 ];
             })
