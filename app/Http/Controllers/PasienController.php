@@ -41,7 +41,6 @@ class PasienController extends Controller
 
         $pasiens = $pasiens->get();
 
-
         return view('pasiens.index', compact('pasiens'));
     }
 
@@ -90,9 +89,23 @@ class PasienController extends Controller
         $regencies = Regency::all();
         $districts = District::all();
         $villages = Village::all();
-        $pasien = $pasien;
-        return view('pasiens.edit', compact('pasien', 'provinces', 'regencies', 'districts', 'villages'));
+
+        $selectedVillage = DB::table('villages')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+            ->select(
+                'villages.id as village_id', 'villages.name as village_name',
+                'districts.name as district_name',
+                'regencies.name as regency_name',
+                'provinces.name as province_name'
+            )
+            ->where('villages.id', $pasien->village_id)
+            ->first();
+
+        return view('pasiens.edit', compact('pasien', 'provinces', 'regencies', 'districts', 'villages', 'selectedVillage'));
     }
+
 
     public function update(PasienRequest $request, Pasien $pasien): \Illuminate\Http\RedirectResponse
     {

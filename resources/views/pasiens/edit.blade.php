@@ -151,12 +151,18 @@
                                     </div>
                                 
                                     <div class="col-12 col-md-8 col-lg-3 mb-2">
-                                        <select id="village_search" name="village_search"  class="form-select custom-select-height" required></select>
-                                        <input type="hidden" name="village_id" id="village_id">
-                                        <input type="hidden" name="district_id" id="district_id">
-                                        <input type="hidden" name="regency_id" id="regency_id">
-                                        <input type="hidden" name="province_id" id="province_id">
-                                    </div>
+                                        <select id="village_search" name="village_search" class="form-select custom-select-height" required>
+                                            @if($selectedVillage)
+                                                <option 
+                                                    value="{{ $selectedVillage->village_id }}" 
+                                                    data-full="{{ json_encode($selectedVillage) }}" 
+                                                    selected>
+                                                    {{ $selectedVillage->village_name }}
+                                                </option>
+                                            @endif
+                                        </select>
+                                        <input type="hidden" name="village_id" id="village_id" value="{{ $pasien->village_id }}">
+                                    </div>                                    
                                 </div>
 
                                 <div class="row mt-4">
@@ -178,14 +184,6 @@
             </div>
         </div>
     </div>
-    @php
-        $villageOld = [
-            'village_name' => old('village_name', $pasien->village_id ?? ''),
-            'district_name' => old('district_name', $pasien->district_id ?? ''),
-            'regency_name' => old('regency_name', $pasien->regency_id ?? ''),
-            'province_name' => old('province_name', $pasien->province_id ?? ''),
-        ];
-    @endphp
 
 @endsection
 
@@ -193,8 +191,6 @@
 @push('script')
     <script>
         
-        const oldVillage = @json($villageOld);
-
         $(document).ready(function() {
             // Initialize select2 with better styling
             $('.select2').select2({
@@ -216,58 +212,51 @@
                 });
             })();
 
+            $('#village_search').select2({
+                placeholder: 'Cari kelurahan/desa...',
+                minimumInputLength: 3,
+                ajax: {
+                    url: '{{ route('search.village') }}',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return { q: params.term };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(function(item) {
+                                return {
+                                    id: item.village_id,
+                                    text: `${item.village_name}, ${item.district_name}, ${item.regency_name}, ${item.province_name}`,
+                                    fullData: item
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
 
-        $('#village_search').select2({
-            placeholder: 'Cari kelurahan/desa...',
-            minimumInputLength: 3,
-            ajax: {
-                url: '{{ url("/apps/pasukanputih/search-village") }}',
-                dataType: 'json',
-                delay: 300,
-                data: function (params) {
-                    return { q: params.term };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.map(function(item) {
-                            return {
-                                id: item.village_id,
-                                text: `${item.village_name}, ${item.district_name}, ${item.regency_name}, ${item.province_name}`,
-                                fullData: item
-                            };
-                        })
-                    };
-                },
-                cache: true
+            // Saat user pilih dari hasil pencarian
+            $('#village_search').on('select2:select', function (e) {
+                const data = e.params.data.fullData;
+                $('#village_id').val(data.village_id);
+            });
+
+            // Saat page load: inject fullData dari option default
+            const selectedOption = $('#village_search').find('option:selected');
+            if (selectedOption.length && selectedOption.data('full')) {
+                const data = JSON.parse(selectedOption.attr('data-full'));
+                const option = new Option(
+                    `${data.village_name}, ${data.district_name}, ${data.regency_name}, ${data.province_name}`,
+                    data.village_id,
+                    true,
+                    true
+                );
+                option.fullData = data; // inject agar select2:select bisa jalan
+                $('#village_search').append(option).trigger('change');
+                $('#village_id').val(data.village_id);
             }
         });
-
-        // Isi form saat user pilih desa
-        $('#village_search').on('select2:select', function (e) {
-            const data = e.params.data.fullData;
-
-            $('#province_id').val(data.province_name);
-            $('#regency_id').val(data.regency_name);
-            $('#district_id').val(data.district_name);
-            $('#village_id').val(data.village_name);
-        });
-
-        // Isi value lama jika ada
-        if (oldVillage) {
-            const option = new Option(
-                `${oldVillage.village_name}, ${oldVillage.district_name}, ${oldVillage.regency_name}, ${oldVillage.province_name}`,
-                oldVillage.village_id,
-                true,
-                true
-            );
-
-            $('#village_search').append(option).trigger('change');
-            
-            $('#province_id').val(oldVillage.province_name);
-            $('#regency_id').val(oldVillage.regency_name);
-            $('#district_id').val(oldVillage.district_name);
-            $('#village_id').val(oldVillage.village_name);
-        }
-    });
     </script>
 @endpush
