@@ -28,7 +28,7 @@
             <!--begin::Row-->
             <div class="row">
                 <!--begin::Col-->
-                <div class="col-lg-6 col-12">
+                <div class="col-lg-3 col-6">
                     <!--begin::Small Box Widget 1-->
                     <div class="small-box text-bg-primary">
                         <div class="inner">
@@ -43,11 +43,11 @@
                     <!--end::Small Box Widget 1-->
                 </div>
                 <!--end::Col-->
-                {{-- <div class="col-lg-3 col-6">
+                <div class="col-lg-3 col-6">
                     <!--begin::Small Box Widget 2-->
                     <div class="small-box text-bg-success">
                         <div class="inner">
-                            <h3>53</h3>
+                            <h3>{{ $jumlah_kunjungan_selesai }}</h3>
                             <p>Jumlah Kunjugan Yang Sudah Selesai</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"
@@ -68,7 +68,7 @@
                     <!--begin::Small Box Widget 3-->
                     <div class="small-box text-bg-warning">
                         <div class="inner">
-                            <h3>44</h3>
+                            <h3>{{ $jumlah_kunjungan_belum_selesai }}</h3>
                             <p>Jumlah Kunjugan Yang Belum Selesai</p>
                         </div>
                         <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24"
@@ -83,9 +83,9 @@
                         </a>
                     </div>
                     <!--end::Small Box Widget 3-->
-                </div> --}}
+                </div>
                 <!--end::Col-->
-                <div class="col-lg-6 col-12">
+                <div class="col-lg-3 col-6">
                     <!--begin::Small Box Widget 4-->
                     <div class="small-box text-bg-danger">
                         <div class="inner">
