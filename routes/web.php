@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::get('henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportHentiLayanan'])->name('export.henti-layanan');
     Route::get('summary-henti-layanan/export', [\App\Http\Controllers\ExportController::class, 'exportSummaryHentiLayanan'])->name('export.summary-henti-layanan');
     Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
+    Route::get('export/test', [\App\Http\Controllers\ExportController::class, 'test'])->name('export.test');
 
     //visiting
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);

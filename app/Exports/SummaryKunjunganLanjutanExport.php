@@ -24,47 +24,53 @@ class SummaryKunjunganLanjutanExport implements FromCollection, WithHeadings, Sh
 
     public function collection()
     {
-        return DB::table('kunjungans as k')
+        $query = DB::table('visitings')
             ->select(
                 'regencies.name as kabupaten_kota',
                 'districts.name as kecamatan',
                 'villages.name as kelurahan',
-                DB::raw('COUNT(k.id) as jumlah_sasaran'),
-                DB::raw("SUM(CASE WHEN k.jenis = 'awal' THEN 1 ELSE 0 END) as jumlah_total_warga_sasaran_setelah_kunjungan_awal"),
-                DB::raw("SUM(CASE WHEN k.jenis = 'lanjutan' THEN 1 ELSE 0 END) as jumlah_warga_yang_mendapat_kunjungan_lanjutan"),
-                DB::raw("SUM(CASE WHEN k.jenis = 'lanjutan' AND s.total_score > 8 THEN 1 ELSE 0 END) as jumlah_bukan_warga_sasaran_setelah_kunjungan_lanjutan"),
-                DB::raw("SUM(CASE WHEN k.jenis = 'lanjutan' AND s.total_score <= 8 THEN 1 ELSE 0 END) as jumlah_total_warga_sasaran_setelah_kunjungan_lanjutan")
-            )
-            ->leftJoin('pasiens as p', 'k.pasien_id', '=', 'p.id')
-            ->leftJoin('villages', 'p.village_id', '=', 'villages.id')
-            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
-            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
-            ->leftJoin('skrining_adl as s', 's.kunjungan_id', '=', 'k.id')
+                DB::raw('COALESCE(COUNT(DISTINCT visitings.id), 0) as jumlah_sasaran'),
+                DB::raw("COALESCE(COUNT(DISTINCT CASE WHEN visitings.status = 'Kunjungan Awal' AND health_forms.skor_aks IN ('ketergantungan_berat', 'ketergantungan_total') THEN visitings.id END), 0) as jumlah_total_warga_sasaran_setelah_kunjungan_awal"),
+                DB::raw("COALESCE(COUNT(DISTINCT CASE WHEN visitings.status = 'Kunjungan Lanjutan' THEN visitings.id END), 0) as jumlah_warga_yang_mendapat_kunjungan_lanjutan"),
+                DB::raw("COALESCE(COUNT(DISTINCT CASE WHEN visitings.status = 'Kunjungan Lanjutan' AND health_forms.skor_aks NOT IN ('ketergantungan_berat', 'ketergantungan_total') THEN visitings.id END), 0) as jumlah_bukan_warga_sasaran_setelah_kunjungan_lanjutan"),
+                DB::raw("COALESCE(COUNT(DISTINCT CASE WHEN visitings.status = 'Kunjungan Lanjutan' AND health_forms.skor_aks IN ('ketergantungan_berat', 'ketergantungan_total') THEN visitings.id END), 0) as jumlah_total_warga_sasaran_setelah_kunjungan_lanjutan")
+            )        
+            ->join('pasiens', 'visitings.pasien_id', '=', 'pasiens.id')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->leftJoin('health_forms', 'visitings.id', '=', 'health_forms.visiting_id');
+            
+        // Filter berdasarkan bulan
+        if ($this->bulan) {
+            $query->whereMonth('visitings.tanggal', $this->bulan);
+        }
 
-            // Filter berdasarkan bulan
-            ->when($this->bulan, function ($query) {
-                return $query->whereMonth('k.tanggal', $this->bulan);
-            })
+        // Filter berdasarkan rentang tanggal
+        if ($this->tanggalAwal && $this->tanggalAkhir) {
+            $query->whereBetween('visitings.tanggal', [$this->tanggalAwal, $this->tanggalAkhir]);
+        }
 
-            // Filter berdasarkan rentang tanggal
-            ->when($this->tanggalAwal && $this->tanggalAkhir, function ($query) {
-                return $query->whereBetween('k.tanggal', [$this->tanggalAwal, $this->tanggalAkhir]);
-            })
+        if (\Auth::user()->role === 'perawat') {
+            $query->where('visitings.user_id', \Auth::id());
+        }
 
-            // Filter berdasarkan pencarian (misalnya nama atau NIK)
-            ->when($this->search, function ($query) {
-                return $query->where(function ($subquery) {
-                    $subquery->where('p.name', 'LIKE', '%' . $this->search . '%')
-                        ->orWhere('p.nik', 'LIKE', '%' . $this->search . '%');
-                });
-            })
+        // Filter berdasarkan pencarian (misalnya nama atau NIK)
+        if ($this->search) {
+            $query->where(function ($subquery) {
+                $subquery->where('pasiens.name', 'LIKE', '%' . $this->search . '%')
+                    ->orWhere('pasiens.nik', 'LIKE', '%' . $this->search . '%');
+            });
+        }
 
-            ->groupBy('regencies.name', 'districts.name', 'villages.name')
+        // Group dan order
+        return $query->groupBy('regencies.name', 'districts.name', 'villages.name')
             ->orderBy('regencies.name')
             ->orderBy('districts.name')
             ->orderBy('villages.name')
             ->get();
     }
+
 
     public function headings(): array
     {
