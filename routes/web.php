@@ -97,7 +97,6 @@ Route::middleware('auth')->group(function () {
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
     Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
-
     //
 });
 
@@ -117,12 +116,4 @@ Route::get('/get-villages/{district_id}', function ($district_id) {
 
 Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
-Route::get('/test-view', function () {
-
-    return view('kunjungans.create-kunjungan');
-});
-Route::get('/test-view-form', function () {
-
-    return view('kunjungans.form-kesehatan');
-});
 

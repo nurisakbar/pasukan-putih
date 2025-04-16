@@ -64,7 +64,7 @@
                                 <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan
                                 </a>
-                                <a href="{{ route('export.kohort-hs', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                <a href="#" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> KOHORT HS
                                 </a>
                                 <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
@@ -73,22 +73,22 @@
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Jumlah Sasaran
                                 </a>
-                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                <a href="#" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan Awal
                                 </a>
                                 <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Awal
                                 </a>
-                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                <a href="#" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan Lanjutan
                                 </a>
                                 <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Lanjutan
                                 </a>
-                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                <a href="#" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Henti Layanan
                                 </a>
-                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
+                                <a href="#" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Henti
                                 </a>
                             </div>
@@ -97,7 +97,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
-                        <table class="table table-bordered">
+                        <table id="example2" class="table table-bordered table-striped dataTable-responsive">
                             <thead class="table-light">
                                 <tr>
                                     <th class="text-center" width="110">Aksi</th>
@@ -206,9 +206,16 @@
 
 @push('script')
 
-{{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
+    $(function() {
+        $("#example2").DataTable();
+    });
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

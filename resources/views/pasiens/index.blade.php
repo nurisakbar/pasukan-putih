@@ -1,25 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="app-content-header">
-        <div class="container-fluid">
+<div class="app-content-header py-3">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 col-12 mb-2 mb-md-0">
+                <h3 class="mb-0">Pasien</h3>
+            </div>
+            <div class="col-md-6 col-12 text-md-end text-start">
+                <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
+                    <i class="fas fa-plus-circle me-1"></i> Tambah Pasien
+                </a>
+            </div>
         </div>
     </div>
+</div>
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">DAFTAR PASIEN</h5>
-                            <a href="{{ route('pasiens.create') }}" style="float: right" class="btn btn-primary btn-md btn-sm shadow-sm ">
-                                <i class="fas fa-plus-circle me-1"></i> Tambah Pasien
-                            </a>
-                        </div>
-
                         <div class="card-body">
                             <div class="table-responsive-sm">
-                                <table id="example1" class="table table-bordered">
+                                <table id="example3" class="table table-bordered table-striped dataTable-responsive">
                                     <thead>
                                         <tr>
                                             <th class="text-center" width="110">Aksi</th>
@@ -132,20 +135,31 @@
 
 @endsection
 
-@section('scripts')
-    <script>
-          $(document).ready(function() {
-            // Event delegation untuk tombol delete di dalam dropdown
-            $('body').on('click', '.delete-btn', function(event) {
-                event.preventDefault();
-                const id = $(this).data('id');
-                const pasienNama = $(this).data('nama');
+@push('script')
+    <!-- DataTables JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-        document.querySelectorAll('.delete-btn').forEach(function(button) {
-        button.addEventListener('click', function(event) {
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#example3').DataTable({
+            responsive: true,
+            autoWidth: false,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json"
+            }
+        });
+
+        $('body').on('click', '.delete-btn', function(event) {
             event.preventDefault();
-            const id = this.getAttribute('data-id');
-            const pasienNama = this.getAttribute('data-nama');
+            const id = $(this).data('id');
+            const pasienNama = $(this).data('nama');
             Swal.fire({
                 title: 'Apakah Anda yakin?',
                 text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
@@ -161,5 +175,7 @@
                 }
             });
         });
-    </script>
-@endsection
+    });
+</script>
+
+@endpush

@@ -41,7 +41,6 @@ class PasienController extends Controller
 
         $pasiens = $pasiens->get();
 
-
         return view('pasiens.index', compact('pasiens'));
     }
 
@@ -56,7 +55,7 @@ class PasienController extends Controller
     {
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'nik' => 'string|max:255|unique:pasiens,nik',
+            'nik' => 'string|min:16|max:16|unique:pasiens,nik',
             'alamat' => 'string|max:255',
             'jenis_kelamin' => 'string|max:255',
             'jenis_ktp' => 'string|max:255',
@@ -90,9 +89,23 @@ class PasienController extends Controller
         $regencies = Regency::all();
         $districts = District::all();
         $villages = Village::all();
-        $pasien = $pasien;
-        return view('pasiens.edit', compact('pasien', 'provinces', 'regencies', 'districts', 'villages'));
+
+        $selectedVillage = DB::table('villages')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+            ->select(
+                'villages.id as village_id', 'villages.name as village_name',
+                'districts.name as district_name',
+                'regencies.name as regency_name',
+                'provinces.name as province_name'
+            )
+            ->where('villages.id', $pasien->village_id)
+            ->first();
+
+        return view('pasiens.edit', compact('pasien', 'provinces', 'regencies', 'districts', 'villages', 'selectedVillage'));
     }
+
 
     public function update(PasienRequest $request, Pasien $pasien): \Illuminate\Http\RedirectResponse
     {
@@ -141,7 +154,7 @@ class PasienController extends Controller
             $pasiens->map(function ($pasien) {
                 return [
                     'id' => $pasien->id,
-                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village_id}",
+                    'text' => "{$pasien->name} ({$pasien->nik}) - {$pasien->alamat}," . "{$pasien->village->name}" . ", {$pasien->village->district->name}" . ", {$pasien->village->district->regency->name}",
                     'fullData' => [
                         'id' => $pasien->id,
                         'name' => $pasien->name,
@@ -150,8 +163,6 @@ class PasienController extends Controller
                         'rt' => $pasien->rt,
                         'rw' => $pasien->rw,
                         'village_id' => $pasien->village_id,
-                        'district_id' => $pasien->district_id,
-                        'regency_id' => $pasien->regency_id,
                     ]
                 ];
             })

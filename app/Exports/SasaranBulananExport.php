@@ -2,20 +2,15 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use App\Models\Kunjungan;
-use App\Models\SkriningAdl;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Carbon\Carbon;
 
 class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
 {
-
     protected $bulan;
     protected $tanggalAwal;
     protected $tanggalAkhir;
@@ -31,62 +26,93 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
 
     public function array(): array
     {
-        $query = SkriningAdl::with('kunjungan', 'kunjungan.pasien', 'pemeriksa');
+        $query = DB::table('visitings')
+            ->select(
+                'regencies.name as regency_name',
+                'districts.name as district_name',
+                'villages.name as village_name',
+                'pasiens.nik as pasien_nik',
+                'pasiens.name as pasien_name',
+                'pasiens.jenis_ktp as pasien_jenis_ktp',
+                'pasiens.tanggal_lahir as pasien_tanggal_lahir',
+                'visitings.tanggal as tanggal_kunjungan',
+                'health_forms.skor_aks as skor_aks',
+            )
+            ->join('pasiens', 'visitings.pasien_id', '=', 'pasiens.id')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->join('users', 'visitings.user_id', '=', 'users.id')
+            ->join('health_forms', 'visitings.id', '=', 'health_forms.visiting_id');
 
-        // Filter berdasarkan bulan kunjungan
-        if ($this->bulan) {
-            $query->whereMonth('kunjungans.tanggal', $this->bulan);
+        // Filter jika perawat
+        if (Auth::user()->role === 'perawat') {
+            $query->where('visitings.user_id', Auth::id());
         }
 
-        // Filter berdasarkan rentang tanggal kunjungan
+        // Filter berdasarkan bulan
+        if ($this->bulan) {
+            $query->whereMonth('visitings.tanggal', $this->bulan);
+        }
+
+        // Filter rentang tanggal
         if ($this->tanggalAwal && $this->tanggalAkhir) {
-            $query->whereBetween('kunjungans.tanggal', [
+            $query->whereBetween('visitings.tanggal', [
                 Carbon::parse($this->tanggalAwal)->startOfDay(),
                 Carbon::parse($this->tanggalAkhir)->endOfDay(),
             ]);
         }
 
-        // Filter pencarian berdasarkan nama atau NIK pasien
+        // Filter search by name/nik
         if ($this->search) {
-            $query->whereHas('kunjungan.pasien', function ($q) {
-                $q->where('name', 'LIKE', "%{$this->search}%")
-                    ->orWhere('nik', 'LIKE', "%{$this->search}%");
+            $query->where(function ($q) {
+                $q->where('pasiens.name', 'LIKE', "%{$this->search}%")
+                  ->orWhere('pasiens.nik', 'LIKE', "%{$this->search}%");
             });
         }
 
-        // Sorting berdasarkan Nama dan Alamat
-        $query->join('kunjungans', 'skrining_adl.kunjungan_id', '=', 'kunjungans.id')
-            ->join('pasiens', 'kunjungans.pasien_id', '=', 'pasiens.id')
-            ->orderBy('pasiens.name', 'asc')
-            ->orderBy('pasiens.regency_id', 'asc')
-            ->orderBy('pasiens.district_id', 'asc')
-            ->orderBy('pasiens.village_id', 'asc');
+        $query->groupBy(
+            'regencies.name',
+            'districts.name',
+            'villages.name',
+            'pasiens.nik',
+            'pasiens.name',
+            'pasiens.jenis_ktp',
+            'pasiens.tanggal_lahir',
+            'visitings.tanggal',
+            'health_forms.skor_aks',
+        )
+        ->orderBy('villages.name')
+        ->orderBy('pasiens.name');;
 
-        $data = $query->select('skrining_adl.*')->get();
+        $data = $query->get();
 
-        return $data->map(function ($skrining, $index) {
-            $tanggal_lahir = $skrining->kunjungan->pasien->tanggal_lahir ?? null;
-            $umur = $tanggal_lahir ? Carbon::parse($tanggal_lahir)->age : '';
-
+        return $data->map(function ($row, $index) {
+            $umur = $row->pasien_tanggal_lahir
+                ? Carbon::parse($row->pasien_tanggal_lahir)->age
+                : 'Belum Ada';
+        
+            $skorAksRaw = $row->skor_aks ?? 'Belum Ada';
+            $skorAks = $skorAksRaw === 'Belum Ada' ? $skorAksRaw : strtoupper(str_replace('_', ' ', $skorAksRaw));
+        
+            $isSasaran = in_array(strtolower($skorAksRaw), ['ketergantungan_berat', 'ketergantungan_total']) ? 'YA' : 'TIDAK';
+        
             return [
                 'No' => $index + 1,
-                'KABUPATEN/KOTA' => $skrining->kunjungan->pasien->regency->name ?? '',
-                'KECAMATAN' => $skrining->kunjungan->pasien->district->name ?? '',
-                'KELURAHAN' => $skrining->kunjungan->pasien->village->name ?? '',
-                'NIK' => $skrining->kunjungan->pasien->nik ?? '',
-                'NAMA' => $skrining->kunjungan->pasien->name ?? '',
-                'JENIS KTP' => $skrining->kunjungan->pasien->jenis_ktp ?? '',
+                'KABUPATEN/KOTA' => $row->regency_name ?? 'Belum Ada',
+                'KECAMATAN' => $row->district_name ?? 'Belum Ada',
+                'KELURAHAN' => $row->village_name ?? 'Belum Ada',
+                'NIK' => '`' . $row->pasien_nik . '`' ?? 'Belum Ada',
+                'NAMA' => $row->pasien_name ?? 'Belum Ada',
+                'JENIS KTP' => $row->pasien_jenis_ktp ?? 'Belum Ada',
                 'UMUR' => $umur,
-                'TANGGAL KUNJUNGAN' => $skrining->kunjungan->tanggal ?? '',
-                'MEMBUTUHKAN BANTUAN UNTUK KEGIATAN SEHARI-HARI' => $skrining->buth_orang == 1 ? 'YA' : 'TIDAK',
-                'SKOR AKS' => $skrining->total_score ?? '',
-                'MEMILIKI PENDAMPING DALAM MELAKUKAN AKTIVITAS SEHARI-HARI' => $skrining->pendamping_tetap == 1 ? 'YA' : 'TIDAK',
-                'SASARAN' => $skrining->sasaran_home_service == 1 ? 'YA' : 'TIDAK',
+                'TANGGAL KUNJUNGAN' => $row->tanggal_kunjungan ?? 'Belum Ada',
+                'SKOR AKS' => $skorAks,
+                'SASARAN' => $isSasaran,
             ];
         })->toArray();
+        
     }
-
-
 
     public function headings(): array
     {
@@ -100,11 +126,15 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
             'JENIS KTP', 
             'UMUR', 
             'TANGGAL KUNJUNGAN',
-            'MEMBUTUHKAN BANTUAN UNTUK KEGIATAN SEHARI-HARI', 
             'SKOR AKS', 
-            'MEMILIKI PENDAMPING DALAM MELAKUKAN AKTIVITAS SEHARI-HARI',
             'SASARAN'
         ];
     }
 
+    public function columnFormats(): array
+    {
+        return [
+            'E' => NumberFormat::FORMAT_TEXT, // Format kolom NIK (kolom C) sebagai teks
+        ];
+    }
 }
