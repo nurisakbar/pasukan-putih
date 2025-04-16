@@ -179,7 +179,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-4">
+                                        <td colspan="10" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                                                 <h5 class="text-muted">Tidak ada data kunjungan</h5>
