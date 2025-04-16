@@ -35,10 +35,10 @@ class HomeController extends Controller
             $data['jumlah_kunjungan_belum_selesai'] = HealthForm::where('kunjungan_lanjutan', 'ya')->count();
             $data['jumlah_kunjungan_selesai'] = HealthForm::where('kunjungan_lanjutan', 'tidak')->count();
         } else {
-            $data['jumlah_data_sasaran'] = Pasien::where('parent_id', $user->id)->count();
+            $data['jumlah_data_sasaran'] = Pasien::where('user_id', $user->id)->count();
             $data['jumlah_kunjungan'] = Visiting::where('user_id', $user->id)->count();
-            $data['jumlah_kunjungan_belum_selesai'] = HealthForm::where('kunjungan_lanjutan', 'ya')->where('user_id', $user->id)->count();
-            $data['jumlah_kunjungan_selesai'] = HealthForm::where('kunjungan_lanjutan', 'tidak')->where('user_id', $user->id)->count();
+            $data['jumlah_kunjungan_belum_selesai'] = Visiting::where('selesai', 0)->where('user_id', $user->id)->count();
+            $data['jumlah_kunjungan_selesai'] = Visitng::where('seelsai', 1)->where('user_id', $user->id)->count();
         }
         return view('home', $data);
     }
