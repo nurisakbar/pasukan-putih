@@ -374,7 +374,11 @@
 
                         <div class="col-12 mt-3 p-3 bg-light rounded">
                             <strong>Tingkat Kemandirian:</strong>
-                            <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
+                            @if (isset($healthForm->tingkat_kemandirian))
+                                <span id="tingkatKemandirianLabel" class="fw-bold ms-2">{{ $healthForm->tingkat_kemandirian }}</span>
+                            @else
+                                <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -425,6 +429,20 @@
                             </div>
                         </div>
                     </div>
+                    <div id="form_henti_layanan" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium">Alasan Henti Layanan</label>
+                                <select name="henti_layanan" id="alasan_henti_layanan" class="form-select">
+                                    <option value="">Pilih...</option>
+                                    <option value="kenaikan_nilai_aks" {{ $healthForm->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>KENAIKAN NILAI AKS</option>
+                                    <option value="meninggal" {{ $healthForm->henti_layanan == 'meninggal' ? 'selected' : '' }}>MENINGGAL</option>
+                                    <option value="menolak" {{ $healthForm->henti_layanan == 'menolak' ? 'selected' : '' }}>MENOLAK</option>
+                                    <option value="pindah_domisili" {{ $healthForm->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>PINDAH DOMISILI</option>
+                                </select>                                
+                            </div>
+                        </div>
+                    </div>                    
                 </div>
 
                 <!-- Submit Button -->
@@ -447,70 +465,105 @@
 @push('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    $(document).ready(function () {
         // No Disease Checkbox
-        const noDiseaseCheckbox = document.getElementById('no_disease');
-        const diseaseCheckboxes = document.querySelectorAll('.disease-checkbox');
-
-        noDiseaseCheckbox.addEventListener('change', function() {
-            diseaseCheckboxes.forEach(checkbox => {
-                checkbox.disabled = this.checked;
-                checkbox.checked = false;
-            });
+        $('#no_disease').on('change', function () {
+            const isChecked = $(this).is(':checked');
+            $('.disease-checkbox').prop('disabled', isChecked).prop('checked', false);
         });
 
-        // Conditional Fields
-        const cancerCheckbox = document.getElementById('cancer');
-        const cancerTypeSelect = document.querySelector('.cancer-type');
-        const lungDiseaseCheckbox = document.getElementById('lung_disease');
-        const lungDiseaseTypeSelect = document.querySelector('.lung-disease-type');
-
         // Toggle Cancer Type Dropdown
-        cancerCheckbox.addEventListener('change', function() {
-            cancerTypeSelect.style.display = this.checked ? 'block' : 'none';
-            if (!this.checked) cancerTypeSelect.value = '';
+        $('#cancer').on('change', function () {
+            const show = $(this).is(':checked');
+            $('.cancer-type').toggle(show).val('');
         });
 
         // Toggle Lung Disease Type Dropdown
-        lungDiseaseCheckbox.addEventListener('change', function() {
-            lungDiseaseTypeSelect.style.display = this.checked ? 'block' : 'none';
-            if (!this.checked) lungDiseaseTypeSelect.value = '';
+        $('#lung_disease').on('change', function () {
+            const show = $(this).is(':checked');
+            $('.lung-disease-type').toggle(show).val('');
         });
 
-        // Screening Dropdown Logic
-        const screenings = <?php echo json_encode(array_column($screenings, "id")); ?>;
-        
+        // Screening logic
+        const screenings = @json(array_column($screenings, 'id'));
         screenings.forEach(id => {
-            const radios = document.querySelectorAll(`input[name="screening_${id}"]`);
-            const statusDropdown = document.querySelector(`.${id}-status`);
-
-            radios.forEach(radio => {
-                radio.addEventListener("change", function () {
-                    statusDropdown.style.display = this.value === "1" ? "block" : "none";
-                    if (this.value !== "1") statusDropdown.value = "";
-                });
+            $(`input[name="screening_${id}"]`).on('change', function () {
+                const show = $(this).val() === "1";
+                $(`.${id}-status`).toggle(show).val('');
             });
         });
 
-        // Kunjungan Lanjutan Logic
-        const kunjunganLanjutanSelect = document.getElementById('kunjungan_lanjutan');
-        const detailKunjunganLanjutan = document.getElementById('detail_kunjungan_lanjutan');
-        const permasalahanLanjutan = document.getElementById('permasalahan_lanjutan');
-        const tanggalKunjungan = document.getElementById('tanggal_kunjungan');
+        // Form validation with SweetAlert
+        $('form.needs-validation').on('submit', function (e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon lengkapi semua field yang diperlukan.'
+                });
+            }
+            $(this).addClass('was-validated');
+        });
 
-        kunjunganLanjutanSelect.addEventListener('change', function() {
-            if (this.value === 'ya') {
-                detailKunjunganLanjutan.style.display = 'block';
-                permasalahanLanjutan.required = true;
-                tanggalKunjungan.required = true;
+        // Tingkat Kemandirian Logic
+        function updateKemandirianLevel() {
+            const checkedCount = $('.kemandirian-checkbox:checked').length;
+            let level = 'Belum Ditentukan';
+            if (checkedCount >= 7) {
+                level = 'Keluarga IV';
+            } else if (checkedCount === 6) {
+                level = 'Keluarga III';
+            } else if (checkedCount === 5) {
+                level = 'Keluarga II';
+            } else if (checkedCount >= 1 && checkedCount <= 4) {
+                level = 'Keluarga I';
+            }
+            $('#tingkatKemandirianLabel').text(level);
+        }
+        $('.kemandirian-checkbox').on('change', updateKemandirianLevel);
+
+        // Kunjungan Lanjutan Logic
+        $('#kunjungan_lanjutan').on('change', function () {
+            const val = $(this).val();
+
+            const $detail = $('#detail_kunjungan_lanjutan');
+            const $formHenti = $('#form_henti_layanan');
+            const $permasalahan = $('#permasalahan_lanjutan');
+            const $tanggal = $('input[name="tanggal_kunjungan"]');
+            const $alasan = $('#alasan_henti_layanan');
+
+            if (val === 'ya') {
+                $detail.show();
+                $formHenti.hide();
+
+                $permasalahan.prop('required', true);
+                $tanggal.prop('required', true);
+                $alasan.prop('required', false).val('');
+            } else if (val === 'tidak') {
+                $detail.hide();
+                $formHenti.show();
+
+                $permasalahan.prop('required', false).val('');
+                $tanggal.prop('required', false).val('');
+                $alasan.prop('required', true);
             } else {
-                detailKunjunganLanjutan.style.display = 'none';
-                permasalahanLanjutan.required = false;
-                tanggalKunjungan.required = false;
-                permasalahanLanjutan.value = '';
-                tanggalKunjungan.value = '';
+                $detail.hide();
+                $formHenti.hide();
+
+                $permasalahan.prop('required', false).val('');
+                $tanggal.prop('required', false).val('');
+                $alasan.prop('required', false).val('');
             }
         });
+
+        // Jalankan logic saat halaman dimuat
+        $(document).ready(function () {
+            $('#kunjungan_lanjutan').trigger('change');
+        });
+
     });
 </script>
 @endpush
+
