@@ -62,15 +62,6 @@
                                        <option value="Kunjungan Lanjutan" {{ old('status', $visiting->status) == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
                                    </select>
                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="nik" class="form-label">NIK</label>
-                                    <input type="text" class="form-control nik" id="nik" name="nik" placeholder="NIK" value="{{ old('nik', $visiting->pasien->nik) }}" disabled>
-                                    @error('nik')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
                                 <div class="form-group mb-3">
                                     <label for="name" class="form-label">Nama</label>
                                     <input type="text" class="form-control name" id="name" name="name" 
@@ -79,63 +70,6 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="alamat" class="form-label">Alamat</label>
-                                    <input type="text" class="form-control alamat" id="alamat" name="alamat"
-                                        placeholder="Alamat" value="{{ old('alamat', $visiting->pasien->alamat) }}" disabled>
-                                    @error('alamat')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-6 col-md-3">
-                                        <label for="rt" class="form-label">RT</label>
-                                        <input type="number" class="form-control rt" id="rt" name="rt"
-                                            placeholder="RT" value="{{ old('rt', $visiting->pasien->rt) }}">
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label for="rw" class="form-label">RW</label>
-                                        <input type="number" class="form-control rw" id="rw" name="rw"
-                                            placeholder="RW" value="{{ old('rw', $visiting->pasien->rw) }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kelurahan" class="form-label">Kelurahan</label>
-                                        <input type="text" class="form-control kelurahan" id="kelurahan" name="kelurahan"
-                                            placeholder="Kelurahan" value="{{ old('kelurahan', $visiting->pasien->village_id) }}">
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="kecamatan" class="form-label">Kecamatan</label>
-                                        <input type="text" class="form-control kecamatan" id="kecamatan" name="kecamatan"
-                                            placeholder="Kecamatan" value="{{ old('kecamatan', $visiting->pasien->district_id) }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="kabupaten" class="form-label">Kabupaten/Kota</label>
-                                        <input type="text" class="form-control kabupaten" id="kabupaten" name="kabupaten"
-                                            placeholder="Kabupaten/Kota" value="{{ old('kabupaten', $visiting->pasien->regency_id) }}">
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                   <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
-                                   <input type="number" step="0.1" class="form-control" id="berat_badan" name="berat_badan"
-                                       placeholder="Masukkan berat badan" value="{{ old('berat_badan', $visiting->berat_badan) }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
-                                   <input type="number" step="0.1" class="form-control" id="tinggi_badan" name="tinggi_badan"
-                                       placeholder="Masukkan tinggi badan" value="{{ old('tinggi_badan', $visiting->tinggi_badan) }}" oninput="hitungIMT()">
-                               </div>
-                               
-                               <div class="form-group mb-3">
-                                   <label for="imt" class="form-label">Indeks Massa Tubuh (IMT)</label>
-                                   <input type="text" class="form-control" id="imt" name="imt" readonly value="{{ old('imt', $visiting->imt) }}">
-                               </div>
                                 
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Update</button>
