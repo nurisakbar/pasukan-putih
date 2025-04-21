@@ -46,7 +46,7 @@
                                                                 <i class="fas fa-cogs"></i> Aksi
                                                             </button>
                                                             <ul class="dropdown-menu">
-                                                                <li>
+                                                                <li style="display: none">
                                                                     <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="dropdown-item">
                                                                         <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
                                                                     </a>
