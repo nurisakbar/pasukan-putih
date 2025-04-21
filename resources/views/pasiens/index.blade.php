@@ -142,9 +142,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<!-- SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(document).ready(function () {
@@ -152,7 +150,8 @@
             responsive: true,
             autoWidth: false,
             language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json"
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                emptyTable: "Belum ada data untuk ditampilkan"
             }
         });
 

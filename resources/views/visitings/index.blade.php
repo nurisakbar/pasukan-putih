@@ -213,8 +213,13 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(function() {
-        $("#example2").DataTable();
+    $('#example2').DataTable({
+        responsive: true,
+        autoWidth: false,
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+            emptyTable: "Belum ada data untuk ditampilkan"
+        }
     });
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
@@ -224,26 +229,27 @@
         });
     });
 
-    document.querySelectorAll('.delete-btn').forEach(function(button) {
-        button.addEventListener('click', function(event) {
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('.delete-btn')) {
             event.preventDefault();
-            const id = this.getAttribute('data-id');
-            const pasienNama = this.getAttribute('data-nama');
+            const button = event.target.closest('.delete-btn');
+            const id = button.getAttribute('data-id');
+            const pasienNama = button.getAttribute('data-nama');
             Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus data ini!',
-                cancelButtonText: 'Batal'
+            title: 'Apakah Anda yakin?',
+            text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus data ini!',
+            cancelButtonText: 'Batal'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + id).submit();
-                }
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
             });
-        });
+        }
     });
 
 </script>
