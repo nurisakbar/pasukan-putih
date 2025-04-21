@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HealthForm;
 use App\Models\Visiting;
 use App\Models\Ttv;
+use App\Models\Pasien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -288,25 +289,47 @@ class HealthFormController extends Controller
         
             if ($pasienId) {
                 try {
-                    // Create kunjungan lanjutan (Visiting baru)
-                    $kunjunganBaru = Visiting::create([
-                        'pasien_id' => $pasienId,
-                        'user_id' => auth()->id(),
-                        'tanggal' => $request->input('tanggal_kunjungan'),
-                        'status' => 'kunjungan lanjutan',
-                    ]);
-        
-                    // Create TTV kosong
-                    $ttvBaru = Ttv::create([
-                        'kunjungan_id' => $kunjunganBaru->id,
-                    ]);
-        
-                    // Create HealthForm kosong
-                    $formBaru = HealthForm::create([
-                        'visiting_id' => $kunjunganBaru->id,
-                        'user_id' => auth()->id(),
-                    ]);
-        
+                    $tanggalKunjungan = $request->input('tanggal_kunjungan');
+            
+                    // Ambil data pasien untuk dapatkan NIK
+                    $pasien = Pasien::find($pasienId);
+            
+                    if (!$pasien) {
+                        Log::warning('Pasien tidak ditemukan.');
+                        return;
+                    }
+            
+                    // Cek apakah sudah ada kunjungan dengan NIK dan tanggal yang sama
+                    $sudahAdaKunjungan = Visiting::whereHas('pasien', function ($query) use ($pasien) {
+                            $query->where('nik', $pasien->nik);
+                        })
+                        ->whereDate('tanggal', $tanggalKunjungan)
+                        ->exists();
+            
+                    if ($sudahAdaKunjungan) {
+                        Log::info('Kunjungan dengan NIK dan tanggal yang sama sudah ada, tidak dibuat ulang.');
+                    } else {
+                        // Jika belum ada, buat kunjungan baru
+                        $kunjunganBaru = Visiting::create([
+                            'pasien_id' => $pasienId,
+                            'user_id' => auth()->id(),
+                            'tanggal' => $tanggalKunjungan,
+                            'status' => 'kunjungan lanjutan',
+                        ]);
+                
+                        // Create TTV kosong
+                        $ttvBaru = Ttv::create([
+                            'kunjungan_id' => $kunjunganBaru->id,
+                        ]);
+                
+                        // Create HealthForm kosong
+                        $formBaru = HealthForm::create([
+                            'visiting_id' => $kunjunganBaru->id,
+                            'user_id' => auth()->id(),
+                        ]);
+                    }
+            
+            
                 } catch (\Exception $e) {
                     Log::error('Gagal membuat kunjungan lanjutan:', [
                         'message' => $e->getMessage(),
@@ -316,6 +339,7 @@ class HealthFormController extends Controller
             } else {
                 Log::warning('Pasien ID tidak ditemukan untuk kunjungan lanjutan.');
             }
+            
         }        
 
         return redirect()->back()

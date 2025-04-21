@@ -116,6 +116,6 @@ Route::get('/get-villages/{district_id}', function ($district_id) {
 
 Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
-Route::get('/test-export', [App\Http\Controllers\ExportController::class, 'test']);
+Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test']);
 
 
