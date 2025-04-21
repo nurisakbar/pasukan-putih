@@ -102,4 +102,61 @@ class ExportController extends Controller
         return Excel::download(new KohortHsExport($bulan, $tanggalAwal, $tanggalAkhir, $search), 'kohort_hs.xlsx');
     }
 
+    function test()
+    {
+        // row excel
+// 'NO', 
+// 'KABUPATEN/KOTA', 
+// 'KECAMATAN', 
+// 'KELURAHAN', 
+// 'NIK', 
+// 'JENIS KTP', 
+// 'NAMA', 
+// 'ALAMAT', 
+// 'JENIS KELAMIN', 
+// 'UMUR',
+// 'BB', 'TB', 'IMT', 
+// 'TANGGAL KUNJUNGAN AWAL', 
+// 'TANGGAL KUNJUNGAN TERAKHIR', 
+// 'TOTAL BULAN KUNJUNGAN',   
+// 'SKOR AKS-DATA SASARAN', 
+// 'SKOR AKS TERAKHIR', 
+// 'SKOR AKS LANJUTAN', 
+// 'TANGGAL KONFIRMASI LANJUT KUNJUNGAN',        
+// 'TANGGAL-HENTI LAYANAN-KENAIKAN AKS', 
+// 'TANGGAL-HENTI LAYANAN-MENINGGAL', 
+// 'TANGGAL-HENTI-LAYANAN-MENOLAK',
+// 'TANGGAL-HENTI LAYANAN PINDAH-DOMISILI'
+        $data = \DB::table('visitings')
+            ->join('users', 'users.id', '=', 'visitings.user_id')
+            ->join('pasiens', 'pasiens.id', '=', 'visitings.pasien_id')
+            ->join('health_forms', 'health_forms.visiting_id', '=', 'visitings.id')
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->join('ttvs', 'ttvs.kunjungan_id', '=', 'visitings.id')
+            ->select(
+                'visitings.*',
+                'villages.name as village_name',
+                'districts.name as district_name',
+                'regencies.name as regency_name',
+                'pasiens.nik as pasien_nik',
+                'pasiens.jenis_ktp as pasien_jenis_ktp',
+                'pasiens.name as pasien_name',
+                'pasiens.alamat as pasien_alamat',
+                'pasiens.jenis_kelamin as pasien_jenis_kelamin',
+                'pasiens.tanggal_lahir as pasien_tanggal_lahir',
+                'ttvs.weight as ttv_weight',
+                'ttvs.height as ttv_height',
+                'ttvs.bmi as ttv_bmi',
+                'health_forms.*'
+            )
+            ->get();
+
+        return response()->json([
+            'data' => $data,
+        ]);
+            
+    }
+
 }

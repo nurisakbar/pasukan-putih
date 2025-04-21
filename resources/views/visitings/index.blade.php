@@ -211,16 +211,22 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+@if ($visitings->count() > 0)
+    <script>
+        $(function () {
+            $('#example2').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                    emptyTable: "Belum ada data untuk ditampilkan"
+                }
+            });
+        });
+    </script>
+@endif
 
 <script>
-    $('#example2').DataTable({
-        responsive: true,
-        autoWidth: false,
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
-            emptyTable: "Belum ada data untuk ditampilkan"
-        }
-    });
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

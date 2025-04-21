@@ -144,16 +144,23 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if ($pasiens->count() > 0)
+    <script>
+        $(function () {
+            $('#example3').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                    emptyTable: "Belum ada data untuk ditampilkan"
+                }
+            });
+        });
+    </script>
+@endif
+
 <script>
     $(document).ready(function () {
-        $('#example3').DataTable({
-            responsive: true,
-            autoWidth: false,
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
-                emptyTable: "Belum ada data untuk ditampilkan"
-            }
-        });
 
         $('body').on('click', '.delete-btn', function(event) {
             event.preventDefault();
