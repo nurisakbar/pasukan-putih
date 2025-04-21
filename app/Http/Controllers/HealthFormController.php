@@ -191,8 +191,6 @@ class HealthFormController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
-        // Validate the basic form data (similar to store method)
         $validator = Validator::make($request->all(), [
             'cancer_type' => 'nullable|required_if:diseases,cancer',
             'lung_disease_type' => 'nullable|required_if:diseases,lung_disease',
@@ -204,6 +202,7 @@ class HealthFormController extends Controller
             'keluaran' => 'nullable|integer|between:1,3',
             'keterangan' => 'nullable|string',
             'skor_aks' => 'nullable|string',
+            'henti_layanan' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -229,6 +228,7 @@ class HealthFormController extends Controller
             'permasalahan_lanjutan' => $request->input('permasalahan_lanjutan'),
             'tanggal_kunjungan' => $request->input('tanggal_kunjungan'),
             'catatan_keperawatan' => $request->input('catatan_keperawatan'),
+            'henti_layanan' => $request->input('henti_layanan'),
         ];
 
         // Process Screening Fields
@@ -278,7 +278,6 @@ class HealthFormController extends Controller
             $field = "perawatan_{$perawatan}";
             $formData[$field] = $request->has($field) && $request->input($field) == 1;
         }
-
         // Update the health form
         $healthForm->update($formData);
 
