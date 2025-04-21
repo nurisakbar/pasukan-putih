@@ -117,7 +117,7 @@
                                             <div class="col-12 col-md-8 col-lg-10">
                                                 <input type="password" name="password"
                                                     class="form-control @error('password') is-invalid @enderror"
-                                                    value="{{ old('password', $user->password) }}">
+                                                    value="{{ old('password') }}">
                                                 @error('password')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
@@ -132,7 +132,7 @@
                                             <div class="col-12 col-md-8 col-lg-10">
                                                 <input type="password" name="password_confirmation"
                                                     class="form-control"
-                                                    value="{{ old('password_confirmation', $user->password) }}">
+                                                    value="{{ old('password_confirmation') }}">
                                             </div>
                                         </div>
 
@@ -218,7 +218,7 @@
                                         </div>
 
                                         {{-- Alamat dan Desa --}}
-                                        <div class="row mb-4">
+                                        <div class="row mb-4" style="display: none;">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
                                                 <label for="alamat" class="form-label fw-bold">Alamat, Nama Desa <span class="text-danger">*</span></label>
                                             </div>
@@ -232,7 +232,7 @@
                                             </div>
 
                                             <div class="col-12 col-md-8 col-lg-7 mb-2">
-                                                <select id="village_search" name="village_search" class="form-select custom-select-height" required></select>
+                                                <select id="village_search" name="village_search" class="form-select custom-select-height"></select>
                                                 <input type="hidden" name="village" id="village_id">
                                                 <input type="hidden" name="district" id="district_id">
                                                 <input type="hidden" name="regency" id="regency_id">
@@ -244,7 +244,7 @@
                                 <div class="row">
                                     <div class="col-sm-12 mt-3">
                                         <button type="submit" class="btn btn-primary">Update</button>
-                                        <a href="{{ route('users.index') }}" class="btn btn-secondary">Kembali</a>
+                                        <a href="{{ route('users.index', ['role' => $user->role]) }}" class="btn btn-secondary">Kembali</a>
                                     </div>
                                 </div>
                             </form>
