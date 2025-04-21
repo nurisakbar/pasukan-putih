@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-sm-6">
-                <h3 class="mb-0"></i> Detail Pasien</h3>
+                <h3 class="mb-0"></i> Detail Data Sasaran</h3>
             </div>
         </div>
     </div>
@@ -17,7 +17,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informasi Pasien</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informasi Data Sasaran</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
