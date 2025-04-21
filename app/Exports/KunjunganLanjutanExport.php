@@ -2,11 +2,13 @@
 namespace App\Exports;
 
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Carbon\Carbon;
 
-class KunjunganLanjutanExport implements FromArray, WithHeadings, ShouldAutoSize
+
+class KunjunganLanjutanExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
     protected $bulan;
     protected $tanggalAwal;
@@ -21,84 +23,86 @@ class KunjunganLanjutanExport implements FromArray, WithHeadings, ShouldAutoSize
         $this->search = $search;
     }
 
-    public function array(): array
+    public function collection()
     {
-        $kunjungan = DB::table('kunjungans')
-            ->select(
-                'regencies.name as kabupaten_kota',
-                'districts.name as kecamatan',
-                'villages.name as kelurahan',
-                'pasiens.nik',
-                'pasiens.jenis_ktp',
-                'pasiens.name',
-                'pasiens.alamat',
-                'pasiens.jenis_kelamin',
-                DB::raw("TIMESTAMPDIFF(YEAR, pasiens.tanggal_lahir, CURDATE()) AS umur"),
-                DB::raw("(SELECT MIN(tanggal) FROM kunjungans WHERE pasien_id = kunjungans.pasien_id) AS tanggal_kunjungan_awal"),
-                DB::raw("
-                    COALESCE(
-                        (SELECT MAX(tanggal) FROM kunjungans 
-                         WHERE pasien_id = kunjungans.pasien_id),
-                        (SELECT MIN(tanggal) FROM kunjungans 
-                         WHERE pasien_id = kunjungans.pasien_id)
-                    ) AS tanggal_kunjungan_terakhir"),
-                DB::raw("(SELECT tanggal FROM kunjungans WHERE pasien_id = kunjungans.pasien_id ORDER BY tanggal DESC LIMIT 1) AS tanggal_kunjungan_lanjutan"),
-                DB::raw("(SELECT total_score FROM skrining_adl 
-                           WHERE kunjungan_id = (SELECT id FROM kunjungans 
-                                                 WHERE pasien_id = kunjungans.pasien_id 
-                                                 ORDER BY tanggal ASC LIMIT 1)) AS skor_aks_data_sasaran"),
-                DB::raw("
-                    COALESCE(
-                        (SELECT total_score FROM skrining_adl 
-                         WHERE kunjungan_id = (SELECT id FROM kunjungans 
-                                               WHERE pasien_id = kunjungans.pasien_id 
-                                               ORDER BY tanggal DESC LIMIT 1)),
-                        (SELECT total_score FROM skrining_adl 
-                         WHERE kunjungan_id = (SELECT id FROM kunjungans 
-                                               WHERE pasien_id = kunjungans.pasien_id 
-                                               ORDER BY tanggal ASC LIMIT 1))
-                    ) AS skor_aks_terakhir"),
-                DB::raw("(SELECT total_score FROM skrining_adl 
-                           WHERE kunjungan_id = (SELECT id FROM kunjungans 
-                                                 WHERE pasien_id = kunjungans.pasien_id 
-                                                 ORDER BY tanggal DESC LIMIT 1 OFFSET 1)) AS skor_aks_lanjutan"),
-                DB::raw("IF(kunjungans.lanjut_kunjungan = 1, 'IYA', 'TIDAK') AS lanjut_kunjungan"),
-                DB::raw("IF(kunjungans.henti_layanan_kenaikan_aks = 1, 'IYA', 'TIDAK') AS henti_layanan_kenaikan_aks"),
-                DB::raw("IF(kunjungans.henti_layanan_meninggal = 1, 'IYA', 'TIDAK') AS henti_layanan_meninggal"),
-                DB::raw("IF(kunjungans.henti_layanan_menolak = 1, 'IYA', 'TIDAK') AS henti_layanan_menolak"),
-                DB::raw("IF(kunjungans.henti_layanan_pindah_domisili = 1, 'IYA', 'TIDAK') AS henti_layanan_pindah_domisili"),
-                DB::raw("IF(kunjungans.rujukan = 1, 'IYA', 'TIDAK') AS rujukan"),
-                DB::raw("IF(kunjungans.konversi_data_ke_sasaran_kunjungan_lanjutan = 1, 'IYA', 'TIDAK') AS konversi_data_ke_sasaran_kunjungan_lanjutan")
+        return \DB::table('pasiens as p')
+        ->join('villages as vil', 'vil.id', '=', 'p.village_id')
+        ->join('districts as d', 'd.id', '=', 'vil.district_id')
+        ->join('regencies as r', 'r.id', '=', 'd.regency_id')
+
+        // Join untuk visiting terakhir per pasien
+        ->leftJoin(\DB::raw('(
+            SELECT *
+            FROM visitings
+            WHERE (pasien_id, tanggal) IN (
+                SELECT pasien_id, MIN(tanggal)
+                FROM visitings
+                GROUP BY pasien_id
             )
-            ->leftJoin('pasiens', 'kunjungans.pasien_id', '=', 'pasiens.id')
-            ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
-            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
-            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+        ) as v'), 'v.pasien_id', '=', 'p.id')
 
-            ->when($this->bulan, function ($query) {
-                return $query->whereMonth('kunjungans.tanggal', $this->bulan);
-            })
-            ->when($this->tanggalAwal, function ($query) {
-                return $query->whereDate('kunjungans.tanggal', '>=', $this->tanggalAwal);
-            })
-            ->when($this->tanggalAkhir, function ($query) {
-                return $query->whereDate('kunjungans.tanggal', '<=', $this->tanggalAkhir);
-            })
-            ->when($this->search, function ($query) {
-                return $query->where('pasiens.nik', 'like', '%' . $this->search . '%')
-                             ->orWhere('pasiens.name', 'like', '%' . $this->search . '%')
-                             ->orWhere('pasiens.alamat', 'like', '%' . $this->search . '%')
-                             ->orWhere('pasiens.jenis_ktp', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('regencies.name')
-            ->orderBy('districts.name')
-            ->orderBy('villages.name')
-            ->get()
-            ->toArray();
+        // Join health_form berdasarkan visiting terakhir
+        ->leftJoin('health_forms as hf', 'hf.visiting_id', '=', 'v.id')
 
-        return array_map(function ($data, $index) {
-            return array_merge(['no' => $index + 1], (array) $data);
-        }, $kunjungan, array_keys($kunjungan));
+        // Join ttv berdasarkan kunjungan terakhir
+        ->leftJoin('ttvs as t', 't.kunjungan_id', '=', 'v.id')
+
+        // Join user (optional, dari visiting)
+        ->leftJoin('users as u', 'u.id', '=', 'v.user_id')
+
+        // Tanggal kunjungan lanjutan
+        ->leftJoin(\DB::raw('(
+            SELECT pasien_id, MIN(tanggal) as tanggal_lanjutan
+            FROM visitings
+            WHERE status = "kunjungan lanjutan"
+            GROUP BY pasien_id
+        ) as vl'), 'vl.pasien_id', '=', 'p.id')
+
+        ->select(
+            \DB::raw('ROW_NUMBER() OVER () as NO'),
+            \DB::raw('r.name as `KABUPATEN/KOTA`'),
+            'd.name as KECAMATAN',
+            'vil.name as KELURAHAN',
+            \DB::raw("CONCAT('\'', p.nik, '\'') as NIK"), 
+            \DB::raw('p.jenis_ktp as `JENIS KTP`'),
+            'p.name as NAMA',
+            'p.alamat as ALAMAT',
+            \DB::raw('p.jenis_kelamin as `JENIS KELAMIN`'),
+            \DB::raw('TIMESTAMPDIFF(YEAR, p.tanggal_lahir, CURDATE()) as UMUR'),
+            \DB::raw('v.tanggal as `TANGGAL KUNJUNGAN AWAL`'),
+            \DB::raw('vl.tanggal_lanjutan as `TANGGAL KUNJUNGAN TERAKHIR`'),
+            \DB::raw('vl.tanggal_lanjutan as `TANGGAL KUNJUNGAN LANJUTAN`'),
+            \DB::raw('hf.skor_aks as `SKOR AKS-DATA SASARAN`'),
+            \DB::raw('hf.skor_aks as `SKOR AKS TERAKHIR`'),
+            \DB::raw('hf.skor_aks as `SKOR AKS LANJUTAN`'),
+            \DB::raw("CASE WHEN hf.tanggal_kunjungan IS NOT NULL THEN 'Ya' ELSE 'Tidak' END as `LANJUT KUNJUNGAN`"),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'meninggal' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI LAYANAN-MENINGGAL`"),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'menolak' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI-LAYANAN-MENOLAK`"),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'pindah_domisili' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI LAYANAN PINDAH-DOMISILI`"),
+            \DB::raw('NULL as `RUJUKAN`'),
+            \DB::raw('NULL as `KONVERSI DATA KE SASARAN KUNJUNGAN LANJUTAN`')
+        )
+
+        ->when($this->bulan, function ($query) {
+            return $query->whereMonth('visitings.tanggal', $this->bulan);
+        })
+        ->when($this->tanggalAwal, function ($query) {
+            return $query->whereDate('visitings.tanggal', '>=', $this->tanggalAwal);
+        })
+        ->when($this->tanggalAkhir, function ($query) {
+            return $query->whereDate('visitings.tanggal', '<=', $this->tanggalAkhir);
+        })
+        ->when($this->search, function ($query) {
+            return $query->where('pasiens.nik', 'like', '%' . $this->search . '%')
+                            ->orWhere('pasiens.name', 'like', '%' . $this->search . '%')
+                            ->orWhere('pasiens.alamat', 'like', '%' . $this->search . '%')
+                            ->orWhere('pasiens.jenis_ktp', 'like', '%' . $this->search . '%');
+        })
+        ->distinct() // Prevent duplicate records
+        ->orderBy('r.name')
+        ->orderBy('d.name')
+        ->orderBy('vil.name')
+        ->get();
     }
 
     public function headings(): array

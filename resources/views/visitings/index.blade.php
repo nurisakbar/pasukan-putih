@@ -73,22 +73,22 @@
                                 <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Jumlah Sasaran
                                 </a>
-                                <a href="#" class="btn btn-outline-success btn-sm">
+                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan Awal
                                 </a>
                                 <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Awal
                                 </a>
-                                <a href="#" class="btn btn-outline-success btn-sm">
+                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Kunjungan Lanjutan
                                 </a>
                                 <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Lanjutan
                                 </a>
-                                <a href="#" class="btn btn-outline-success btn-sm">
+                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Henti Layanan
                                 </a>
-                                <a href="#" class="btn btn-outline-success btn-sm">
+                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-file-export me-1"></i> Summary Henti
                                 </a>
                             </div>
