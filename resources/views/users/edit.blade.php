@@ -166,25 +166,25 @@
                                             <div class="row mb-4 parent-field" id="parent-field"
                                                 style="{{ old('role', $user->role) == 'superadmin' ? '' : 'display: none;' }}">
                                                 <div class="col-12 col-md-4 col-lg-2 mb-2">
-                                                    <label for="parent_id" class="form-label fw-bold">Parent</label>
+                                                    <label for="pustu_id" class="form-label fw-bold">Parent</label>
                                                 </div>
                                                 <div class="col-12 col-md-8 col-lg-10">
-                                                    <select class="form-control @error('parent_id') is-invalid @enderror" name="parent_id">
+                                                    <select class="form-control @error('pustu_id') is-invalid @enderror" name="pustu_id">
                                                         <option value="">-- Pilih Parent --</option>
                                                         @foreach ($parents as $parent)
                                                             <option value="{{ $parent->id }}"
-                                                                {{ old('parent_id', $user->parent_id) == $parent->id ? 'selected' : '' }}>
+                                                                {{ old('pustu_id', $user->pustu_id) == $parent->id ? 'selected' : '' }}>
                                                                 {{ $parent->name }} ({{ ucfirst($parent->role) }})
                                                             </option>
                                                         @endforeach
                                                     </select>
-                                                    @error('parent_id')
+                                                    @error('pustu_id')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                             </div>
                                         @else
-                                            <input type="hidden" name="parent_id" value="{{ old('parent_id', Auth::user()->id) }}">
+                                            <input type="hidden" name="pustu_id" value="{{ old('pustu_id', Auth::user()->id) }}">
                                         @endif
 
                                         <div class="row mb-4">

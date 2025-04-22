@@ -8551,7 +8551,7 @@ CREATE TABLE `users` (
   `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `parent_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pustu_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -8564,7 +8564,7 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `role`, `parent_id`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+INSERT INTO `users` (`id`, `name`, `role`, `pustu_id`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
 ('69f6c283-c446-45dd-a552-a25c4110a44b', 'Admin', 'superadmin', NULL, 'admin@gmail.com', '2025-03-13 11:39:39', '$2y$12$/ty18tgQ2B5Pd357QyjkrOBc56s.CWm3Tcxn/yQDozoFRmQ3xhO5.', 'a4BftF8jrSctRolL6cKotD8VLsNfzOvnYNRFoGKIeJYtxYAjMhVDUsaf1Fua', '2025-03-13 11:39:39', '2025-03-13 11:39:39'),
 ('9e6d4cf5-b1db-468b-b9d7-b2f4629c3dd5', 'puskesmas a', 'puskesmas', NULL, 'Puskesmas@gmail.com', NULL, '$2y$12$hQRXZblm6iR9zv8.dWOw/uzruZcoDrjK0MvuG21u/Al7YBEgFPjPy', NULL, '2025-03-13 20:26:37', '2025-03-13 20:26:37'),
 ('9e6d4d1d-c23d-49bf-aff5-1f45ae4b1e89', 'puskesmasb', 'puskesmas', NULL, 'puskesmasb@gmail.com', NULL, '$2y$12$VSG52GoxwEAYPc2r5YDZn.rf6WLttBG9MncQGKcZpPrZsnlOrnvgm', NULL, '2025-03-13 20:27:04', '2025-03-13 20:27:04'),

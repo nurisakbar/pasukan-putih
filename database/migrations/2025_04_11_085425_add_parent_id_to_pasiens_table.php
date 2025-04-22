@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pasiens', function (Blueprint $table) {
-            $table->uuid('parent_id')->nullable();
-            $table->index('parent_id');
+            $table->uuid('pustu_id')->nullable();
+            $table->index('pustu_id');
             $table->softDeletes();
         });
     }
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pasiens', function (Blueprint $table) {
-            $table->dropColumn('parent_id');
+            $table->dropColumn('pustu_id');
             $table->dropSoftDeletes();
         });
     }

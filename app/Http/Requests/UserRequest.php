@@ -16,7 +16,7 @@ class UserRequest extends FormRequest
         return [
             'name' => 'string|max:255',
             'role' => 'string|max:255',
-            'parent_id' => 'nullable|string|max:255',
+            'pustu_id' => 'nullable|string|max:255',
             'email' => 'string|max:255',
             'email_verified_at' => 'nullable|date',
             'password' => 'nullable|string|max:255|confirmed',

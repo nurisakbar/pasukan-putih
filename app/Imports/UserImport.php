@@ -385,7 +385,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
 
         //         $existingPuskesmas = $this->findUser([
         //             'role' => 'puskesmas',
-        //             'parent_id' => self::SUPERADMIN_ID,
+        //             'pustu_id' => self::SUPERADMIN_ID,
         //             'name_like' => $data['nama_puskesmas_pembantu']
         //         ]);
 
@@ -400,7 +400,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         //                 'name' => $puskesmasName,
         //                 'email' => $puskesmasEmail,
         //                 'role' => 'puskesmas',
-        //                 'parent_id' => self::SUPERADMIN_ID,
+        //                 'pustu_id' => self::SUPERADMIN_ID,
         //                 'no_wa' => $data['nomor_hp'] ?? null,
         //                 'keterangan' => $data['keterangan'] ?? $puskesmasName,
         //                 'password' => Hash::make('puskesmas123'),
@@ -430,7 +430,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
 
         //         $existingPustu = $this->findUser([
         //             'role' => 'pustu',
-        //             'parent_id' => $puskesmasId,
+        //             'pustu_id' => $puskesmasId,
         //             'name_like' => $data['nama_puskesmas_pembantu']
         //         ]);
 
@@ -445,7 +445,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         //                 'name' => $pustuName,
         //                 'email' => $pustuEmail,
         //                 'role' => 'pustu',
-        //                 'parent_id' => $puskesmasId,
+        //                 'pustu_id' => $puskesmasId,
         //                 'no_wa' => $data['nomor_hp'] ?? null,
         //                 'keterangan' => $data['keterangan'] ?? $pustuName,
         //                 'password' => Hash::make('pustu123'),
@@ -485,7 +485,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         //             if (!$existingPerawat) {
         //                 $existingPerawat = $this->findUser([
         //                     'role' => 'perawat',
-        //                     'parent_id' => $pustuId,
+        //                     'pustu_id' => $pustuId,
         //                     'name' => $perawatName
         //                 ]);
         //             }
@@ -506,7 +506,7 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         //                     'status_pegawai' => $data['status_pegawai'] ?? null,
         //                     'keterangan' => $data['keterangan'] ?? null,
         //                     'role' => 'perawat',
-        //                     'parent_id' => $pustuId,
+        //                     'pustu_id' => $pustuId,
         //                     'password' => Hash::make('perawat123'),
         //                     'village' => $data['kelurahan'] ?? null,
         //                     'district' => $data['kecamatan'] ?? null,

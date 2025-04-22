@@ -88,7 +88,7 @@ class User extends Authenticatable
     // Relasi ke user bawahan (anaknya)
     public function children()
     {
-        return $this->hasMany(User::class, 'parent_id');
+        return $this->hasMany(User::class, 'pustu_id');
     }
 
     public function kunjungan()

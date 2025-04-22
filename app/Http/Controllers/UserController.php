@@ -24,7 +24,7 @@ class UserController extends Controller
         $query = User::where('role',$request->role);
 
         if ($currentUser->role !== 'superadmin') {
-            $query->where('parent_id', $currentUser->id);
+            $query->where('pustu_id', $currentUser->id);
         }
 
         // Filter berdasarkan pencarian nama atau email
@@ -98,12 +98,12 @@ class UserController extends Controller
                 ->withInput();
         }
 
-        // Determine parent_id
+        // Determine pustu_id
         $parentId = null;
 
-        // If superadmin and parent_id provided, use it
-        if ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
-            $parentId = $request->parent_id;
+        // If superadmin and pustu_id provided, use it
+        if ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
+            $parentId = $request->pustu_id;
         }
         // If not superadmin, use current user as parent
         elseif ($currentUser->role != 'superadmin') {
@@ -180,9 +180,9 @@ class UserController extends Controller
             $rules['password'] = ['confirmed', Rules\Password::defaults()];
         }
 
-        // Additional validation for parent_id when needed
+        // Additional validation for pustu_id when needed
         if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'])) {
-            $rules['parent_id'] = ['required', 'exists:users,id'];
+            $rules['pustu_id'] = ['required', 'exists:users,id'];
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -194,12 +194,12 @@ class UserController extends Controller
                 ->withInput();
         }
 
-        // Determine parent_id
-        $parentId = $user->parent_id;
+        // Determine pustu_id
+        $parentId = $user->pustu_id;
 
-        // If superadmin and parent_id provided, use it
-        if ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
-            $parentId = $request->parent_id;
+        // If superadmin and pustu_id provided, use it
+        if ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
+            $parentId = $request->pustu_id;
         }
 
         // Role access validation
@@ -210,7 +210,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
-            'parent_id' => $parentId,
+            'pustu_id' => $parentId,
             'no_wa' => $request->no_wa,
             'keterangan' => $request->keterangan,
             'village' => $request->village,
@@ -239,7 +239,7 @@ class UserController extends Controller
         $this->authorizeAccess($user);
 
         // Cek apakah user punya child
-        $hasChildren = User::where('parent_id', $user->id)->exists();
+        $hasChildren = User::where('pustu_id', $user->id)->exists();
 
         if ($hasChildren) {
             return redirect()
@@ -272,7 +272,7 @@ class UserController extends Controller
         }
 
         // Other users can only access users they created
-        if ($user->parent_id != $currentUser->id) {
+        if ($user->pustu_id != $currentUser->id) {
             abort(403, 'Unauthorized action.');
         }
 

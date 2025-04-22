@@ -47,7 +47,7 @@ class PasienController extends Controller
     public function create(): \Illuminate\Contracts\View\View
     {
         $provinces = Province::all();
-        $parentId = auth()->user()->parent_id;
+        $parentId = auth()->user()->pustu_id;
         return view('pasiens.create', compact('provinces', 'parentId'));
     }
 

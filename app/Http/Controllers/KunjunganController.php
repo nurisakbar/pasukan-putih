@@ -291,7 +291,7 @@ class KunjunganController extends Controller
 
         $allChildren = collect();
         
-        $directChildren = User::where('parent_id', $userId)->pluck('id');
+        $directChildren = User::where('pustu_id', $userId)->pluck('id');
         
         foreach ($directChildren as $childId) {
             $allChildren->push($childId);

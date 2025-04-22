@@ -137,8 +137,8 @@
                                                     class="text-danger">*</span></label>
                                         </div>
                                         <div class="col-lg-10 col-md-8">
-                                            <select class="form-control @error('parent_id') is-invalid @enderror"
-                                                    name="parent_id">
+                                            <select class="form-control @error('pustu_id') is-invalid @enderror"
+                                                    name="pustu_id">
                                                     <option value="">-- Pilih Parent --</option>
                                                     @foreach ($parents as $parent)
                                                         <option value="{{ $parent->id }}">{{ $parent->name }}
@@ -146,7 +146,7 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                @error('parent_id')
+                                                @error('pustu_id')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
                                                     </span>

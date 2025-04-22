@@ -600,7 +600,7 @@ ALTER TABLE `pasiens`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `pasiens_nik_unique` (`nik`),
   ADD KEY `pasiens_id_index` (`id`),
-  ADD KEY `pasiens_parent_id_index` (`pustu_id`);
+  ADD KEY `pasiens_pustu_id_index` (`pustu_id`);
 
 --
 -- Indexes for table `pustus`
