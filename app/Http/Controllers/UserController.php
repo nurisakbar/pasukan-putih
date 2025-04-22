@@ -21,37 +21,35 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-        $query = User::where('role',$request->role);
+        $query = DB::table('users')
+        ->select(
+            'users.*', 
+            'pustus.nama_pustu as nama_pustu',  
+            'districts.name as nama_district', 
+            'regencies.name as nama_regency'
+            )
+            ->join('pustus', 'users.pustu_id', '=', 'pustus.id')
+            ->join('villages', 'pustus.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id');
 
-        // Filter berdasarkan role (jika bukan superadmin, tampilkan hanya user yang parent_id-nya sama)
-        if ($currentUser->role !== 'superadmin') {
-            $query->where('parent_id', $currentUser->id);
+        if ($currentUser->role == 'sudinkes') {
+            $query->where('regencies.id', $currentUser->regency_id);
         }
 
-        // Filter berdasarkan pencarian nama atau email
-        if (!empty($request->search)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
-            });
+        if ($currentUser->role !== 'superadmin' && $currentUser->role !== 'sudinkes') {
+            $query->where('pustu_id', $currentUser->pustu_id);
         }
 
-        // Filter berdasarkan rentang tanggal
-        if (!empty($request->start_date) && !empty($request->end_date)) {
-            $query->whereBetween('created_at', [
-                Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay()
-            ]);
+        if ($request->role) {
+            $query->where('users.role', $request->role);
         }
 
-        // Ambil data dengan paginasi
-        $users = $query->orderBy('created_at', 'asc')->get();
-
-        // Pastikan filter ikut saat ganti halaman (pagination)
-        //$users->appends($request->all());
+        $users = $query->orderBy('users.created_at', 'asc')->get();
 
         return view('users.index', compact('users'));
     }
+
 
     /**
      * Show the form for creating a new user.

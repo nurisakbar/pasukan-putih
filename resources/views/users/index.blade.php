@@ -139,10 +139,10 @@
                                                 <td>{{ strtoupper($data->role) }}</td>
                                                 <td>{{ $data->no_wa ?? '-' }}</td>
                                                 @if ($_GET['role'] == 'perawat')
-                                                    <td>{{ $data->pustu->nama_pustu ?? '-' }}</td>
+                                                    <td>{{ $data->nama_pustu ?? '-' }}</td>
                                                 @endif
                                                 @if ($_GET['role'] == 'sudinkes')
-                                                    <td>{{ $data->regency->name ?? '-' }}</td>
+                                                    <td>{{ $data->nama_regency ?? '-' }}</td>
                                                 @endif
                                                 <td width="100px">
                                                     <form action="{{ route('users.destroy', $data->id) }}" method="POST"
