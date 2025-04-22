@@ -102,6 +102,10 @@
                                                 class="fa-solid fa-user-secret"></i> SUPER ADMIN</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link {{ $_GET['role'] == 'sudinkes' ? 'active' : '' }}"
+                                            href="users?role=sudinkes"><i class="fa-solid fa-users"></i> SUDINKES</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'perawat' ? 'active' : '' }}"
                                             href="users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
                                     </li>
@@ -120,6 +124,9 @@
                                             @if ($_GET['role'] == 'perawat')
                                                 <th>NAMA PUSTU</th>
                                             @endif
+                                            @if ($_GET['role'] == 'sudinkes')
+                                                <th>WILAYAH</th>
+                                            @endif
                                             <th widht="100px">Aksi</th>
                                         </tr>
                                     </thead>
@@ -133,6 +140,9 @@
                                                 <td>{{ $data->no_wa ?? '-' }}</td>
                                                 @if ($_GET['role'] == 'perawat')
                                                     <td>{{ $data->pustu->nama_pustu ?? '-' }}</td>
+                                                @endif
+                                                @if ($_GET['role'] == 'sudinkes')
+                                                    <td>{{ $data->regency->name ?? '-' }}</td>
                                                 @endif
                                                 <td width="100px">
                                                     <form action="{{ route('users.destroy', $data->id) }}" method="POST"

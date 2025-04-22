@@ -39,7 +39,7 @@
                         <div class="card-header bg-white">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h5 class="card-title text-primary mb-0">Daftar Data Pasien</h5>
+                                    <h5 class="card-title text-primary mb-0">TAMBAH DATA PENGGUNA</h5>
                                 </div>
                             </div>
                         </div>
@@ -68,10 +68,11 @@
                                             <option value="">-- Pilih Role --</option>
                                             @if (Auth::user()->role == 'superadmin')
                                                 <option value="superadmin">Super Admin</option>
+                                                <option value="sudinkes">Sudinkes</option>
                                                 <option value="puskesmas">Puskesmas</option>
                                                 <option value="pustu">Pustu</option>
                                                 <option value="perawat">Perawat</option>
-                                                {{-- <option value="dinkes">Dinkes</option> --}}
+
                                             @elseif(Auth::user()->role == 'puskesmas')
                                                 <option value="pustu">Pustu</option>
                                             @elseif(Auth::user()->role == 'pustu')
@@ -86,9 +87,15 @@
                                         @enderror
                                     </div>
                                     <div class="col-lg-6 col-md-6">
-                                        <select class="form-control" name="pustu_id" id="pustu">
+                                        <select class="form-control" name="pustu_id" id="pustus">
                                             @foreach(\App\Models\Pustu::all() as $pustu)
                                             <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <select class="form-control" name="regency_id" id="kabupaten">
+                                            @foreach(\App\Models\Regency::where('province_id',31)->get() as $regency)
+                                            <option value="{{$regency->id}}">{{$regency->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -246,6 +253,30 @@
     <script>
         $(document).ready(function() {
             $('#pustu').select2();
+
+            $('select[name="role"]').on('change', function() {
+                var selectedRole = $(this).val(); // Ambil nilai yang dipilih
+                console.log("Role yang dipilih: " + selectedRole); // Cetak ke console (bisa diganti dengan logika lain)
+
+                // Contoh aksi lain (misalnya menampilkan alert atau manipulasi elemen):
+
+
+                // if (selectedRole === 'superadmin') {
+                //     $("#pustu").hide();
+                //     $("#kabupaten").hide();
+                // }
+
+                if (selectedRole === 'pustu') {
+                    $("#kabupaten").hide();
+                    $("#pustus").show();
+                }else if (selectedRole === 'sudinkes') {
+                    $("#pustus").hide();
+                    $("#kabupaten").show();
+                }
+
+                // Tambahkan aksi lain sesuai kebutuhan
+            });
+
             // Show/hide parent field based on role selection (for superadmin only)
             @if (Auth::user()->role == 'superadmin')
                 $('select[name="role"]').on('change', function() {
