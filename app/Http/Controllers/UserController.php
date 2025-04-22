@@ -120,8 +120,9 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => $request->pustu_id,
+            'pustu_id' => $request->role=='pustu'?$request->pustu_id:null,
             'no_wa' => $request->no_wa,
+            'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
             'keterangan' => $request->keterangan,
             'status_pegawai' => $request->status_pegawai
         ]);

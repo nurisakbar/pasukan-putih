@@ -32,6 +32,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'regency_id',
         'role',
         'no_wa',
         'keterangan',
@@ -77,6 +78,11 @@ class User extends Authenticatable
     public function pustu()
     {
         return $this->belongsTo(Pustu::class, 'pustu_id');
+    }
+
+    public function regency()
+    {
+        return $this->belongsTo(Regency::class, 'regency_id');
     }
 
     // Relasi ke user bawahan (anaknya)
