@@ -28,7 +28,7 @@
                 <li class="nav-item">
                     <a href="{{ route('pasiens.index') }}" class="nav-link">
                         <i class="nav-icon bi bi-person-badge"></i>
-                        <p>DAFTAR PASIEN</p>
+                        <p>DAFTAR DATA SASARAN</p>
                     </a>
                 </li>
                 {{-- <li class="nav-item">

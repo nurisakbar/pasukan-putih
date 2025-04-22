@@ -23,38 +23,46 @@ class SummaryHentiLayananExport implements FromCollection, WithHeadings, ShouldA
 
     public function collection()
     {
-        return DB::table('kunjungans as k')
+        return \DB::table('pasiens as p')
+            ->join('villages as vil', 'vil.id', '=', 'p.village_id')
+            ->join('districts as d', 'd.id', '=', 'vil.district_id')
+            ->join('regencies as r', 'r.id', '=', 'd.regency_id')
+    
+            // Left join untuk health_form berdasarkan visiting terakhir
+            ->leftJoin('visitings as v', 'v.pasien_id', '=', 'p.id')
+            ->leftJoin('health_forms as hf', 'hf.visiting_id', '=', 'v.id')
+    
+            // Query untuk menghitung jumlah sasaran dan total henti layanan
             ->select(
-                'regencies.name as kabupaten_kota',
-                'districts.name as kecamatan',
-                'villages.name as kelurahan',
-                DB::raw('COUNT(DISTINCT k.pasien_id) as jumlah_sasaran'),
-                DB::raw('SUM(CASE WHEN k.henti_layanan_kenaikan_aks = 1 THEN 1 ELSE 0 END) as total_henti_kenaikan_aks'),
-                DB::raw('SUM(CASE WHEN k.henti_layanan_meninggal = 1 THEN 1 ELSE 0 END) as total_henti_meninggal'),
-                DB::raw('SUM(CASE WHEN k.henti_layanan_menolak = 1 THEN 1 ELSE 0 END) as total_henti_menolak'),
-                DB::raw('SUM(CASE WHEN k.henti_layanan_pindah_domisili = 1 THEN 1 ELSE 0 END) as total_henti_pindah_domisili')
+                'r.name as `KABUPATEN/KOTA`',
+                'd.name as `KECAMATAN`',
+                'vil.name as `KELURAHAN`',
+                \DB::raw('COUNT(p.id) as `JUMLAH SASARAN`'),
+                \DB::raw('COUNT(CASE WHEN hf.henti_layanan = "kenaikan_aks" THEN 1 END) as `TOTAL HENTI LAYANAN - KENAIKAN AKS`'),
+                \DB::raw('COUNT(CASE WHEN hf.henti_layanan = "meninggal" THEN 1 END) as `TOTAL HENTI LAYANAN - MENINGGAL`'),
+                \DB::raw('COUNT(CASE WHEN hf.henti_layanan = "menolak" THEN 1 END) as `TOTAL HENTI LAYANAN - MENOLAK`'),
+                \DB::raw('COUNT(CASE WHEN hf.henti_layanan = "pindah_domisili" THEN 1 END) as `TOTAL HENTI LAYANAN - PINDAH DOMISILI`')
             )
-            ->leftJoin('pasiens as p', 'k.pasien_id', '=', 'p.id')
-            ->leftJoin('villages', 'p.village_id', '=', 'villages.id')
-            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
-            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
-            
+    
+            // Grouping berdasarkan KABUPATEN/KOTA, KECAMATAN, KELURAHAN
+            ->groupBy('r.name', 'd.name', 'vil.name')
+    
+            // Optional, bisa ditambahkan filter jika diperlukan
             ->when($this->bulan, function ($query) {
-                return $query->whereMonth('k.tanggal', $this->bulan);
+                return $query->whereMonth('v.tanggal', $this->bulan);
             })
-            ->when($this->tanggalAwal && $this->tanggalAkhir, function ($query) {
-                return $query->whereBetween('k.tanggal', [$this->tanggalAwal, $this->tanggalAkhir]);
+            ->when($this->tanggalAwal, function ($query) {
+                return $query->whereDate('v.tanggal', '>=', $this->tanggalAwal);
+            })
+            ->when($this->tanggalAkhir, function ($query) {
+                return $query->whereDate('v.tanggal', '<=', $this->tanggalAkhir);
             })
             ->when($this->search, function ($query) {
-                return $query->where(function ($subquery) {
-                    $subquery->where('p.name', 'LIKE', '%' . $this->search . '%')
-                        ->orWhere('p.nik', 'LIKE', '%' . $this->search . '%');
-                });
+                return $query->where('p.nik', 'like', '%' . $this->search . '%')
+                                ->orWhere('p.name', 'like', '%' . $this->search . '%')
+                                ->orWhere('p.alamat', 'like', '%' . $this->search . '%')
+                                ->orWhere('p.jenis_ktp', 'like', '%' . $this->search . '%');
             })
-            ->groupBy('regencies.name', 'districts.name', 'villages.name')
-            ->orderBy('regencies.name')
-            ->orderBy('districts.name')
-            ->orderBy('villages.name')
             ->get();
     }
 

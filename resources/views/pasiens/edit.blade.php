@@ -38,7 +38,7 @@
                         <div class="card-header bg-white">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h5 class="card-title text-primary mb-0">Edit Data Pasien</h5>
+                                    <h5 class="card-title text-primary mb-0">Edit Data Sasaran</h5>
                                 </div>
                             </div>
                         </div>

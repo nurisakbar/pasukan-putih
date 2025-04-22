@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Exports;
 
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Carbon\Carbon;
 
-
-class KunjunganAwalExport implements FromCollection, ShouldAutoSize
+class KunjunganAwalExport implements FromCollection, ShouldAutoSize, WithHeadings
 {
-
     protected $bulan;
     protected $tanggalAwal;
     protected $tanggalAkhir;
@@ -22,90 +23,99 @@ class KunjunganAwalExport implements FromCollection, ShouldAutoSize
         $this->search = $search;
     }
 
-
     public function collection()
     {
-        $bulan = $this->bulan;
-        $tanggalAwal = $this->tanggalAwal;
-        $tanggalAkhir = $this->tanggalAkhir;
-        $search = $this->search;
+        return \DB::table('pasiens as p')
+        ->join('villages as vil', 'vil.id', '=', 'p.village_id')
+        ->join('districts as d', 'd.id', '=', 'vil.district_id')
+        ->join('regencies as r', 'r.id', '=', 'd.regency_id')
 
-        $query = \DB::table('kunjungans as kunjungan')
-            ->select(
-                'pasien.id as pasien_id',
-                'pasien.name as pasien_nama',
-                'pasien.alamat as pasien_alamat',
-                'pasien.nik as pasien_nik',
-                'pasien.jenis_kelamin as pasien_jenis_kelamin',
-                'pasien.tanggal_lahir as pasien_tanggal_lahir',
-                'villages.name as village_name',
-                'districts.name as district_name',
-                'regencies.name as regency_name',
-                'kunjungan.tanggal as kunjungan_tanggal',
-                'kunjungan.skor_aks_data_sasaran as kunjungan_skor_aks_data_sasaran',
-                'skrining_adl.total_score as skrining_adl_skor_aks',
-                'kunjungan.lanjut_kunjungan as kunjungan_lanjut_kunjungan',
-                'kunjungan.rencana_kunjungan_lanjutan as kunjungan_rencana_lanjut_kunjungan',
-                'kunjungan.henti_layanan_kenaikan_aks as kunjungan_henti_layanan_kenaikan_aks',
-                'kunjungan.henti_layanan_meninggal as kunjungan_henti_layanan_meninggal',
-                'kunjungan.henti_layanan_pindah_domisili as kunjungan_henti_layanan_pindah_domisili',
-                'kunjungan.rujukan as kunjungan_rujukan',
-                'kunjungan.konversi_data_ke_sasaran_kunjungan_lanjutan as kunjungan_konversi_data_ke_sasaran_kunjungan_lanjutan',
+        // Join untuk visiting terakhir per pasien
+        ->leftJoin(\DB::raw('(
+            SELECT *
+            FROM visitings
+            WHERE (pasien_id, tanggal) IN (
+                SELECT pasien_id, MIN(tanggal)
+                FROM visitings
+                GROUP BY pasien_id
             )
-            ->leftJoin('pasiens as pasien', 'kunjungan.pasien_id', '=', 'pasien.id')
-            ->leftJoin('villages', 'pasien.village_id', '=', 'villages.id')
-            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
-            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
-            ->leftJoin('skrining_adl', 'skrining_adl.kunjungan_id', '=', 'kunjungan.id')
-            ->whereNotNull('skrining_adl.total_score')
-            ->whereNotNull('kunjungan.skor_aks_data_sasaran')
-            ->where('kunjungan.jenis', 'awal');
+        ) as v'), 'v.pasien_id', '=', 'p.id')
 
-        // **Filter berdasarkan tanggal jika diberikan**
-        if ($tanggalAwal && $tanggalAkhir) {
-            $query->whereBetween('kunjungan.tanggal', [$tanggalAwal, $tanggalAkhir]);
-        }
+        // Join health_form berdasarkan visiting terakhir
+        ->leftJoin('health_forms as hf', 'hf.visiting_id', '=', 'v.id')
 
-        // **Filter berdasarkan bulan kunjungan jika diberikan**
-        if ($bulan) {
-            $query->whereMonth('kunjungan.tanggal', $bulan);
-        }
+        // Join ttv berdasarkan kunjungan terakhir
+        ->leftJoin('ttvs as t', 't.kunjungan_id', '=', 'v.id')
 
-        // **Filter pencarian berdasarkan nama atau NIK pasien jika diberikan**
-        if ($search) {
-            $query->whereHas('pasien', function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('nik', 'LIKE', "%{$search}%");
+        // Join user (optional, dari visiting)
+        ->leftJoin('users as u', 'u.id', '=', 'v.user_id')
+
+        // Tanggal kunjungan awal
+        ->leftJoin(\DB::raw('(
+            SELECT pasien_id, MIN(tanggal) as tanggal_awal
+            FROM visitings
+            GROUP BY pasien_id
+        ) as va'), 'va.pasien_id', '=', 'p.id')
+
+        // Join untuk mengambil data kunjungan awal saja - use quote escape
+        ->join('visitings as vInit', function($join) {
+            $join->on('vInit.pasien_id', '=', 'p.id')
+                 ->where('vInit.status', '=', \DB::raw('"kunjungan awal"'));
+        })
+
+        ->select(
+            \DB::raw('ROW_NUMBER() OVER () as NO'),
+            \DB::raw('r.name as `KABUPATEN/KOTA`'),
+            'd.name as KECAMATAN',
+            'vil.name as KELURAHAN',
+            \DB::raw("CONCAT('\'', p.nik, '\'') as NIK"), 
+            \DB::raw('p.jenis_ktp as `JENIS KTP`'),
+            'p.name as NAMA',
+            'p.alamat as ALAMAT',
+            \DB::raw('p.jenis_kelamin as `JENIS KELAMIN`'),
+            \DB::raw('TIMESTAMPDIFF(YEAR, p.tanggal_lahir, CURDATE()) as UMUR'),
+            \DB::raw('va.tanggal_awal as `TANGGAL KUNJUNGAN AWAL`'),
+            \DB::raw('hf.skor_aks as `SKOR AKS-DATA SASARAN`'),
+            \DB::raw('hf.skor_aks as `SKOR AKS TERAKHIR`'),
+            \DB::raw("CASE WHEN hf.tanggal_kunjungan IS NOT NULL THEN 'Ya' ELSE 'Tidak' END as `LANJUT KUNJUNGAN`"),
+            \DB::raw('hf.tanggal_kunjungan as `RENCANA KUNJUNGAN LANJUTAN`'),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'meninggal' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI LAYANAN-MENINGGAL`"),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'menolak' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI-LAYANAN-MENOLAK`"),
+            \DB::raw("CASE WHEN hf.henti_layanan = 'pindah_domisili' THEN DATE(hf.updated_at) ELSE NULL END as `HENTI LAYANAN PINDAH-DOMISILI`"),
+            \DB::raw('NULL as `RUJUKAN`'),
+            \DB::raw('NULL as `KONVERSI DATA KE SASARAN KUNJUNGAN LANJUTAN`')
+        )
+        // Add the auth filter here
+        ->when(\Auth::user()->role === 'perawat', function($query) {
+            return $query->where('vInit.user_id', \Auth::id());
+        })
+        // Add the same filtering conditions from your original method
+        ->when($this->bulan, function ($query) {
+            return $query->whereMonth('vInit.tanggal', $this->bulan);
+        })
+        ->when($this->tanggalAwal && $this->tanggalAkhir, function ($query) {
+            return $query->whereBetween('vInit.tanggal', [$this->tanggalAwal, $this->tanggalAkhir]);
+        })
+        ->when($this->search, function ($query) {
+            return $query->where(function ($subquery) {
+                $subquery->where('p.name', 'LIKE', '%' . $this->search . '%')
+                    ->orWhere('p.nik', 'LIKE', '%' . $this->search . '%');
             });
-        }
-
-        $kunjunganAwal = $query->orderBy('kunjungan.tanggal', 'desc')->get();
-
-        // Tambahkan nomor urut & format data
-        return $kunjunganAwal->map(function ($kunjungan, $index) {
-            return [
-                'NO' => $index + 1,
-                'KABUPATEN/KOTA' => $kunjungan->regency_name,
-                'KECAMATAN' => $kunjungan->district_name,
-                'KELURAHAN' => $kunjungan->village_name,
-                'NIK' => $kunjungan->pasien_nik,
-                'JENIS KTP' => 'KTP',
-                'NAMA' => $kunjungan->pasien_nama,
-                'ALAMAT' => $kunjungan->pasien_alamat,
-                'JENIS KELAMIN' => $kunjungan->pasien_jenis_kelamin,
-                'UMUR' => \Carbon\Carbon::parse($kunjungan->pasien_tanggal_lahir)->age,
-                'TANGGAL KUNJUNGAN AWAL' => $kunjungan->kunjungan_tanggal,
-                'SKOR AKS-DATA SASARAN' => $kunjungan->kunjungan_skor_aks_data_sasaran,
-                'SKOR AKS' => $kunjungan->skrining_adl_skor_aks,
-                'LANJUT KUNJUNGAN' => $kunjungan->kunjungan_lanjut_kunjungan ? 'Iya' : 'Tidak',
-                'RENCANA KUNJUNGAN LANJUTAN' => $kunjungan->kunjungan_rencana_lanjut_kunjungan,
-                'HENTI LAYANAN-KENAIKAN AKS' => $kunjungan->kunjungan_henti_layanan_kenaikan_aks ? 'Iya' : 'Tidak',
-                'HENTI LAYANAN-MENINGGAL' => $kunjungan->kunjungan_henti_layanan_meninggal ? 'Iya' : 'Tidak',
-                'HENTI LAYANAN-PINDAH DOMISILI' => $kunjungan->kunjungan_henti_layanan_pindah_domisili ? 'Iya' : 'Tidak',
-                'RUJUKAN' => $kunjungan->kunjungan_rujukan ? 'Iya' : 'Tidak',
-                'KONVERSI DATA KE SASARAN KUNJUNGAN LANJUTAN' => $kunjungan->kunjungan_konversi_data_ke_sasaran_kunjungan_lanjutan ? 'Iya' : 'Tidak',
-            ];
-        });
+        })
+        ->distinct() // Prevent duplicate records
+        ->orderBy('r.name')
+        ->orderBy('d.name')
+        ->orderBy('vil.name')
+        ->get();
     }
 
+    public function headings(): array
+    {
+        return [
+            'NO', 'KABUPATEN/KOTA', 'KECAMATAN', 'KELURAHAN', 'NIK', 'JENIS KTP', 'NAMA', 'ALAMAT', 'JENIS KELAMIN', 'UMUR',
+            'TANGGAL KUNJUNGAN AWAL', 'SKOR AKS-DATA SASARAN', 'SKOR AKS', 'LANJUT KUNJUNGAN', 'RENCANA KUNJUNGAN LANJUTAN',
+            'HENTI LAYANAN-KENAIKAN AKS', 'HENTI LAYANAN-MENINGGAL', 'HENTI LAYANAN-PINDAH DOMISILI', 'RUJUKAN',
+            'KONVERSI DATA KE SASARAN KUNJUNGAN LANJUTAN'
+        ];
+    }
 }

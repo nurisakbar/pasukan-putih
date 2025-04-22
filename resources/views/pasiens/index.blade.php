@@ -5,11 +5,11 @@
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-md-6 col-12 mb-2 mb-md-0">
-                <h3 class="mb-0">Pasien</h3>
+                <h3 class="mb-0">Data Sasaran</h3>
             </div>
             <div class="col-md-6 col-12 text-md-end text-start">
                 <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
-                    <i class="fas fa-plus-circle me-1"></i> Tambah Pasien
+                    <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                 </a>
             </div>
         </div>
@@ -54,19 +54,19 @@
 
                                                                 <li>
                                                                     <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-eye me-2"></i> Detail Pasien
+                                                                        <i class="fas fa-eye me-2"></i> Detail Data Sasaran
                                                                     </a>
                                                                 </li>
                                                                 <li>
                                                                     <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-edit me-2"></i> Edit Pasien
+                                                                        <i class="fas fa-edit me-2"></i> Edit Data Sasaran
                                                                     </a>
                                                                 </li>
                                                                 <li>
                                                                     <button class="dropdown-item text-danger delete-btn"
                                                                             data-id="{{ $pasien->id }}"
                                                                             data-nama="{{ $pasien->name }}">
-                                                                        <i class="fas fa-trash me-2"></i> Hapus Pasien
+                                                                        <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
                                                                     </button>
                                                                 </li>
                                                             </ul>
@@ -93,8 +93,8 @@
                                             <td colspan="9" class="text-center py-4">
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                                                    <h5 class="text-muted">Tidak ada data Pasien</h5>
-                                                    <p class="text-muted">Silakan tambahkan Pasien baru</p>
+                                                    <h5 class="text-muted">Tidak ada Data Sasaran</h5>
+                                                    <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -142,19 +142,25 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if ($pasiens->count() > 0)
+    <script>
+        $(function () {
+            $('#example3').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                    emptyTable: "Belum ada data untuk ditampilkan"
+                }
+            });
+        });
+    </script>
+@endif
 
 <script>
     $(document).ready(function () {
-        $('#example3').DataTable({
-            responsive: true,
-            autoWidth: false,
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json"
-            }
-        });
 
         $('body').on('click', '.delete-btn', function(event) {
             event.preventDefault();
