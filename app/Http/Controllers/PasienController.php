@@ -31,18 +31,25 @@ class PasienController extends Controller
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $pasiens = Pasien::select('pasiens.*', 'villages.name as village_name', 'districts.name as district_name', 'regencies.name as regency_name')
-        ->join('villages', 'villages.id', 'pasiens.village_id')
-        ->join('districts', 'districts.id', 'villages.district_id')
-        ->join('regencies', 'regencies.id', 'districts.regency_id');
+            ->join('villages', 'villages.id', 'pasiens.village_id')
+            ->join('districts', 'districts.id', 'villages.district_id')
+            ->join('regencies', 'regencies.id', 'districts.regency_id');
 
-        if(\Auth::user()->role=='perawat'){
-            $pasiens = $pasiens->where('pustu_id',\Auth::user()->pustu_id);
+        $user = \Auth::user();
+
+        if ($user->role == 'perawat') {
+            $pasiens = $pasiens->where('pustu_id', $user->pustu_id);
+        }
+
+        if ($user->role == 'sudinkes') {
+            $pasiens = $pasiens->where('regencies.id', $user->regency_id);
         }
 
         $pasiens = $pasiens->get();
 
         return view('pasiens.index', compact('pasiens'));
     }
+
 
     public function create(): \Illuminate\Contracts\View\View
     {
