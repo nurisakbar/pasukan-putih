@@ -74,35 +74,14 @@
                             <input type="text" id="status_pegawai" name="status_pegawai" value="{{ old('status_pegawai', $user->status_pegawai) }}" class="form-control">
                         </div>
 
-                        <div class="row mb-4">
-                            <label for="alamat" class="form-label fw-bold fw-bold">Alamat, Nama Desa <span class="text-danger">*</span></label>
-                            <div class="col-12 col-md-8 col-lg-5 mb-2">
-                                <input class="form-control @error('alamat') is-invalid @enderror" id="alamat"
-                                    name="alamat" placeholder="Alamat Jalan (Opsional)"
-                                    value="{{ old('alamat') }}">
-                                @error('alamat')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-12 col-md-8 col-lg-7 mb-2">
-                                <select id="village_search" name="village_search"
-                                    class="form-select custom-select-height" required></select>
-                                <input type="hidden" name="village" id="village_id">
-                                <input type="hidden" name="district" id="district_id">
-                                <input type="hidden" name="regency" id="regency_id">
-
-                            </div>
-                        </div>
-
                         <div class="mb-3">
                             <label for="password" class="form-label fw-bold">Password Baru (Opsional)</label>
-                            <input type="password" id="password" name="password" class="form-control" value="{{ old('password', $user->password) }}">
+                            <input type="password" id="password" name="password" class="form-control" value="{{ old('password') }}">
                         </div>
 
                         <div class="mb-4">
                             <label for="password_confirmation" class="form-label fw-bold">Konfirmasi Password</label>
-                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" value="{{ old('password', $user->password) }}">
+                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" value="{{ old('password') }}">
                         </div>
 
                         <div class="d-grid">
@@ -116,25 +95,16 @@
         </div>
     </div>
 </div>
-@php
-    $villageOld = [
-        'village_name' => old('village_name', $user->village ?? ''),
-        'district_name' => old('district_name', $user->district ?? ''),
-        'regency_name' => old('regency_name', $user->regency ?? ''),
-    ];
-@endphp
 @endsection
 
 
 @push('script')
     <script>
-        const oldVillage = @json($villageOld);
-
         $('#village_search').select2({
                 placeholder: 'Cari kelurahan/desa...',
                 minimumInputLength: 3,
                 ajax: {
-                    url: '{{ url("/apps/pasukanputih/search-village") }}',
+                    url: '{{ route('search.village') }}',
                     dataType: 'json',
                     delay: 300,
                     data: function (params) {
@@ -145,7 +115,7 @@
                             results: data.map(function(item) {
                                 return {
                                     id: item.village_id,
-                                    text: `${item.village_name}, ${item.district_name}, ${item.regency_name}`,
+                                    text: `${item.village_name}, ${item.district_name}, ${item.regency_name}, ${item.province_name}`,
                                     fullData: item
                                 };
                             })
@@ -154,31 +124,27 @@
                     cache: true
                 }
             });
-    
-            // Isi form saat user pilih desa
+
+            // Saat user pilih dari hasil pencarian
             $('#village_search').on('select2:select', function (e) {
                 const data = e.params.data.fullData;
-                $('#regency_id').val(data.regency_name);
-                $('#district_id').val(data.district_name);
-                $('#village_id').val(data.village_name);
+                $('#village_id').val(data.village_id);
             });
-    
-            // Isi value lama jika ada
-            if (oldVillage) {
+
+            // Saat page load: inject fullData dari option default
+            const selectedOption = $('#village_search').find('option:selected');
+            if (selectedOption.length && selectedOption.data('full')) {
+                const data = JSON.parse(selectedOption.attr('data-full'));
                 const option = new Option(
-                    `${oldVillage.village_name}, ${oldVillage.district_name}, ${oldVillage.regency_name}`,
-                    oldVillage.village_id,
+                    `${data.village_name}, ${data.district_name}, ${data.regency_name}, ${data.province_name}`,
+                    data.village_id,
                     true,
                     true
                 );
-    
+                option.fullData = data; // inject agar select2:select bisa jalan
                 $('#village_search').append(option).trigger('change');
-                
-                $('#regency_id').val(oldVillage.regency_name);
-                $('#district_id').val(oldVillage.district_name);
-                $('#village_id').val(oldVillage.village_name);
+                $('#village_id').val(data.village_id);
             }
-
             
     </script>
 @endpush
