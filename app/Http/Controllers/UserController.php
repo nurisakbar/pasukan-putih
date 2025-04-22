@@ -21,35 +21,36 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-        $query = DB::table('users')
-        ->select(
-            'users.*', 
-            'pustus.nama_pustu as nama_pustu',  
-            'districts.name as nama_district', 
-            'regencies.name as nama_regency'
-            )
-            ->join('pustus', 'users.pustu_id', '=', 'pustus.id')
-            ->join('villages', 'pustus.village_id', '=', 'villages.id')
-            ->join('districts', 'villages.district_id', '=', 'districts.id')
-            ->join('regencies', 'districts.regency_id', '=', 'regencies.id');
+        $query = User::where('role',$request->role);
 
-        if ($currentUser->role == 'sudinkes') {
-            $query->where('regencies.id', $currentUser->regency_id);
+        if ($currentUser->role !== 'superadmin') {
+            $query->where('parent_id', $currentUser->id);
         }
 
-        if ($currentUser->role !== 'superadmin' && $currentUser->role !== 'sudinkes') {
-            $query->where('pustu_id', $currentUser->pustu_id);
+        // Filter berdasarkan pencarian nama atau email
+        if (!empty($request->search)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
         }
 
-        if ($request->role) {
-            $query->where('users.role', $request->role);
+        // Filter berdasarkan rentang tanggal
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
         }
 
-        $users = $query->orderBy('users.created_at', 'asc')->get();
+        // Ambil data dengan paginasi
+        $users = $query->orderBy('created_at', 'asc')->get();
+
+        // Pastikan filter ikut saat ganti halaman (pagination)
+        //$users->appends($request->all());
 
         return view('users.index', compact('users'));
     }
-
 
     /**
      * Show the form for creating a new user.
@@ -118,9 +119,8 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => $request->role=='pustu'?$request->pustu_id:null,
+            'pustu_id' => $request->pustu_id,
             'no_wa' => $request->no_wa,
-            'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
             'keterangan' => $request->keterangan,
             'status_pegawai' => $request->status_pegawai
         ]);

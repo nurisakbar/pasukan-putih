@@ -14,7 +14,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KunjunganExport;
 use App\Models\Province;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class VisitingController extends Controller
 {
@@ -24,57 +23,41 @@ class VisitingController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = DB::table('visitings')
-            ->join('users', 'visitings.user_id', '=', 'users.id')
-            ->join('pasiens', 'visitings.pasien_id', '=', 'pasiens.id')
-            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
-            ->join('districts', 'villages.district_id', '=', 'districts.id')
-            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
-            ->select(
-                'visitings.*',
-                'pasiens.name as pasien_name',
-                'pasiens.rt as pasien_rt',
-                'pasiens.rw as pasien_rw',
-                'pasiens.alamat as pasien_alamat',
-                'villages.name as village_name',
-                'districts.name as district_name',
-                'regencies.name as regency_name'
-            ); 
-        // Filter berdasarkan role
+        $query = Visiting::query()->latest();
+
+        // Filter berdasarkan role user
         if (in_array($user->role, ['perawat', 'caregiver'])) {
-            $query->where('visitings.user_id', $user->id);
-        } elseif ($user->role === 'sudinkes') {
-            $query->where('regencies.id', $user->regency_id);
+            $query->where('user_id', $user->id);
         } else {
-            $childUserIds = $this->getAllChildUserIds($user->id, $user->role);
-            $query->whereIn('visitings.user_id', $childUserIds);
+            $childUserIds = $this->getAllChildUserIds($user->id, $user->role); // pastikan method ini ada
+            $query->whereIn('user_id', $childUserIds);
         }
 
         // Filter pencarian berdasarkan pasien (nama atau NIK)
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('pasiens.name', 'like', "%{$search}%")
-                ->orWhere('pasiens.nik', 'like', "%{$search}%");
+            $query->whereHas('pasien', function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('nik', 'LIKE', "%{$search}%");
             });
         }
 
         // Filter tanggal
-        $tanggalAwal = $request->filled('tanggal_awal')
+        $tanggalAwal = $request->filled('tanggal_awal') 
             ? Carbon::parse($request->input('tanggal_awal'))->startOfDay()
             : Carbon::today()->startOfDay();
 
-        $tanggalAkhir = $request->filled('tanggal_akhir')
+        $tanggalAkhir = $request->filled('tanggal_akhir') 
             ? Carbon::parse($request->input('tanggal_akhir'))->endOfDay()
             : Carbon::today()->endOfDay();
 
-        $query->whereBetween('visitings.tanggal', [$tanggalAwal, $tanggalAkhir]);
+        $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
+
         // Ambil hasil paginasi
-        $visitings = $query->orderBy('visitings.tanggal', 'desc')->paginate(10);
+        $visitings = $query->paginate(10);
 
         return view('visitings.index', compact('visitings'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -201,7 +184,7 @@ class VisitingController extends Controller
 
         $allChildren = collect();
         
-        $directChildren = User::where('pustu_id', $userId)->pluck('id');
+        $directChildren = User::where('parent_id', $userId)->pluck('id');
         
         foreach ($directChildren as $childId) {
             $allChildren->push($childId);

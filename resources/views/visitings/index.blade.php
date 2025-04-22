@@ -151,7 +151,7 @@
                                                         <li>
                                                             <button class="dropdown-item text-danger delete-btn"
                                                                     data-id="{{ $kunjungan->id }}"
-                                                                    data-nama="{{ $kunjungan->pasien_name }}">
+                                                                    data-nama="{{ $kunjungan->pasien->name }}">
                                                                 <i class="fas fa-trash me-2"></i> Hapus Kunjungan
                                                             </button>
                                                         </li>
@@ -165,17 +165,17 @@
                                             </form>
                                         </td>
 
-                                        <td class="align-middle">{{ $kunjungan->pasien_name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
                                         <td class="align-middle">{{ $kunjungan->status }}</td>
                                         <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td>
                                         <td class="align-middle text-truncate" style="max-width: 150px;">
-                                            {{ $kunjungan->pasien_alamat }}
+                                            {{ $kunjungan->pasien->alamat }}
                                         </td>
-                                        <td class="align-middle">{{ $kunjungan->pasien_rt }} / {{ $kunjungan->pasien_rw }}</td>
-                                        <td class="align-middle">{{ $kunjungan->regency_name }}</td>
-                                        <td class="align-middle">{{ $kunjungan->district_name }}</td>
-                                        <td class="align-middle">{{ $kunjungan->village_name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->rt }} / {{ $kunjungan->pasien->rw }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->regency->name; }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->name }}</td>
+                                        <td class="align-middle">{{ $kunjungan->pasien->village->name }}</td>
                                     </tr>
                                 @empty
                                     <tr>
