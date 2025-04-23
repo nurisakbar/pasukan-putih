@@ -96,6 +96,7 @@
                             </div> --}}
                             <div class="card-body">
                                 <ul class="nav nav-tabs" style="margin-bottom:10px">
+                                    @if ($_GET['role'] == 'superadmin')
                                     <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'superadmin' ? 'active' : '' }}"
                                             aria-current="page" href="users?role=superadmin"><i
@@ -103,8 +104,9 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'sudinkes' ? 'active' : '' }}"
-                                            href="users?role=sudinkes"><i class="fa-solid fa-users"></i> SUDINKES</a>
+                                        href="users?role=sudinkes"><i class="fa-solid fa-users"></i> SUDINKES</a>
                                     </li>
+                                    @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'perawat' ? 'active' : '' }}"
                                             href="users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
@@ -139,10 +141,10 @@
                                                 <td>{{ strtoupper($data->role) }}</td>
                                                 <td>{{ $data->no_wa ?? '-' }}</td>
                                                 @if ($_GET['role'] == 'perawat')
-                                                    <td>{{ $data->pustu->nama_pustu ?? '-' }}</td>
+                                                    <td>{{ $data->nama_pustu ?? '-' }}</td>
                                                 @endif
                                                 @if ($_GET['role'] == 'sudinkes')
-                                                    <td>{{ $data->regency->name ?? '-' }}</td>
+                                                    <td>{{ $data->nama_regency ?? '-' }}</td>
                                                 @endif
                                                 <td width="100px">
                                                     <form action="{{ route('users.destroy', $data->id) }}" method="POST"

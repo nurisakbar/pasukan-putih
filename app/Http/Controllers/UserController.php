@@ -21,37 +21,41 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-        $query = User::where('role',$request->role);
-
-        if ($currentUser->role !== 'superadmin') {
-            $query->where('pustu_id', $currentUser->id);
-        }
-
-        // Filter berdasarkan pencarian nama atau email
-        if (!empty($request->search)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+    
+        $query = DB::table('users')
+            ->select(
+                'users.*',
+                'pustus.nama_pustu as nama_pustu',
+                'districts.name as nama_district',
+                DB::raw('COALESCE(regencies.name, regencies_user.name) as nama_regency'),
+            )
+            ->leftJoin('pustus', 'users.pustu_id', '=', 'pustus.id')
+            ->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->leftJoin('regencies as regencies_user', 'users.regency_id', '=', 'regencies_user.id');
+    
+        if ($currentUser->role === 'sudinkes') {
+            $query->where(function ($q) use ($currentUser) {
+                $q->where('regencies.id', $currentUser->regency_id)
+                  ->orWhere(function ($q2) use ($currentUser) {
+                      $q2->where('users.role', 'sudinkes')
+                         ->where('users.regency_id', $currentUser->regency_id);
+                  });
             });
+        } elseif ($currentUser->role !== 'superadmin') {
+            $query->where('users.pustu_id', $currentUser->pustu_id);
         }
-
-        // Filter berdasarkan rentang tanggal
-        if (!empty($request->start_date) && !empty($request->end_date)) {
-            $query->whereBetween('created_at', [
-                Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay()
-            ]);
+    
+        if ($request->role) {
+            $query->where('users.role', $request->role);
         }
-
-        // Ambil data dengan paginasi
-        $users = $query->orderBy('created_at', 'asc')->get();
-
-        // Pastikan filter ikut saat ganti halaman (pagination)
-        //$users->appends($request->all());
-
+    
+        $users = $query->orderBy('users.created_at', 'asc')->get();
+    
         return view('users.index', compact('users'));
     }
-
+    
     /**
      * Show the form for creating a new user.
      */
