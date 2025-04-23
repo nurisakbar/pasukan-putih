@@ -200,10 +200,10 @@ class OphLogController extends Controller
         }
 
 
-        if ($systole !== null && $slack !== null) {
-            $examination->blood_pressure = $systole . '/' . $slack;
+        // if ($systole !== null && $slack !== null) {
+        //     $examination->blood_pressure = $systole . '/' . $slack;
 
-        }
+        // }
         $examination->save();
 
         $logData = [
