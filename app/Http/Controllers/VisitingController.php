@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KunjunganExport;
 use App\Models\Province;
 use Carbon\Carbon;
+use DB;
 
 class VisitingController extends Controller
 {
@@ -23,42 +24,89 @@ class VisitingController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = Visiting::query()->latest();
-
-        // Filter berdasarkan role user
-        if (in_array($user->role, ['perawat', 'caregiver'])) {
-            $query->where('user_id', $user->id);
+    
+        $query = DB::table('visitings')
+            ->join('pasiens', 'pasiens.id', '=', 'visitings.pasien_id')
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->join('users', 'users.id', '=', 'visitings.user_id')
+            ->select(
+                'visitings.*',
+                'pasiens.name as pasien_name',
+                'pasiens.alamat as pasien_alamat',
+                'pasiens.rt as pasien_rt',
+                'pasiens.rw as pasien_rw',
+                'villages.name as village_name',
+                'districts.name as district_name',
+                'regencies.name as regency_name'
+            )
+            ->latest();
+    
+        // Filter berdasarkan role
+        if ($user->role === 'superadmin') {
+            // tidak filter
+        } elseif ($user->role === 'sudinkes') {
+            $pasienIds = DB::table('pasiens')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->where('regencies.id', $user->regency_id)
+            ->pluck('pasiens.id');
+        
+            $query->whereIn('visitings.pasien_id', $pasienIds);
         } else {
-            $childUserIds = $this->getAllChildUserIds($user->id, $user->role); // pastikan method ini ada
-            $query->whereIn('user_id', $childUserIds);
+            // perawat dan caregiver
+            $query->where('visitings.user_id', $user->id);
         }
-
-        // Filter pencarian berdasarkan pasien (nama atau NIK)
+    
+        // Filter pencarian nama / nik pasien
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->whereHas('pasien', function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                ->orWhere('nik', 'LIKE', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('pasiens.name', 'like', "%$search%")
+                  ->orWhere('pasiens.nik', 'like', "%$search%");
             });
         }
-
+    
         // Filter tanggal
         $tanggalAwal = $request->filled('tanggal_awal') 
             ? Carbon::parse($request->input('tanggal_awal'))->startOfDay()
             : Carbon::today()->startOfDay();
-
+    
         $tanggalAkhir = $request->filled('tanggal_akhir') 
             ? Carbon::parse($request->input('tanggal_akhir'))->endOfDay()
             : Carbon::today()->endOfDay();
-
-        $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
-
-        // Ambil hasil paginasi
-        $visitings = $query->paginate(10);
-
+    
+        $query->whereBetween('visitings.tanggal', [$tanggalAwal, $tanggalAkhir]);
+        
+        // Ambil data paginasi
+        $visitingsRaw = $query->paginate(10);
+    
+        // Map ke objek mirip model agar view tidak error
+        $visitings = $visitingsRaw->through(function ($item) {
+            $item = (object) $item;
+            $item->pasien = (object) [
+                'name' => $item->pasien_name,
+                'alamat' => $item->pasien_alamat,
+                'rt' => $item->pasien_rt,
+                'rw' => $item->pasien_rw,
+                'village' => (object) [
+                    'name' => $item->village_name,
+                    'district' => (object) [
+                        'name' => $item->district_name,
+                        'regency' => (object) [
+                            'name' => $item->regency_name,
+                        ]
+                    ]
+                ]
+            ];
+            return $item;
+        });
+    
         return view('visitings.index', compact('visitings'));
     }
-
+    
     /**
      * Show the form for creating a new resource.
      */
