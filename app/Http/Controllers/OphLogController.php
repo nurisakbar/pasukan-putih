@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OphLog;
 use App\Models\Ttv;
-use App\Models\Kunjungan;
+use App\Models\Visiting;
 use Carbon\Carbon;
 
 class OphLogController extends Controller
@@ -31,7 +31,9 @@ class OphLogController extends Controller
     {
         $data = $request->json()->all();
 
+
         $nik = $data['nik'];
+
 
         $tanggal = Carbon::parse($data['date'])->toDateString();
 
@@ -48,7 +50,8 @@ class OphLogController extends Controller
             ], 400);
         }
 
-        $kunjunganIds = Kunjungan::where('tanggal',$tanggal)->whereHas('pasien', function ($query) use ($nik) {
+        $kunjunganIds = Visiting::where('tanggal',$tanggal)
+        ->whereHas('pasien', function ($query) use ($nik) {
             $query->where('nik', $nik);
         })->pluck('id');
 

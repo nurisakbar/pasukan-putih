@@ -75,6 +75,8 @@
 
                                             @elseif(Auth::user()->role == 'puskesmas')
                                                 <option value="pustu">Pustu</option>
+                                            @elseif(Auth::user()->role == 'sudinkes')
+                                                <option value="perawat">Perawat</option>
                                             @elseif(Auth::user()->role == 'pustu')
                                                 <option value="perawat">Perawat</option>
                                                 <option value="caregiver">Caregiver</option>
@@ -88,7 +90,7 @@
                                     </div>
                                     <div class="col-lg-6 col-md-6">
                                         <select class="form-control" name="pustu_id" id="pustus">
-                                            @foreach(\App\Models\Pustu::all() as $pustu)
+                                            @foreach($pustus as $pustu)
                                             <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
                                             @endforeach
                                         </select>
@@ -256,26 +258,20 @@
 
             $('select[name="role"]').on('change', function() {
                 var selectedRole = $(this).val(); // Ambil nilai yang dipilih
-                console.log("Role yang dipilih: " + selectedRole); // Cetak ke console (bisa diganti dengan logika lain)
-
-                // Contoh aksi lain (misalnya menampilkan alert atau manipulasi elemen):
-
-
-                // if (selectedRole === 'superadmin') {
-                //     $("#pustu").hide();
-                //     $("#kabupaten").hide();
-                // }
-
-                if (selectedRole === 'pustu') {
+                if (selectedRole === 'pustu' || selectedRole === 'perawat') {
                     $("#kabupaten").hide();
                     $("#pustus").show();
-                }else if (selectedRole === 'sudinkes') {
+                } else if (selectedRole === 'sudinkes') {
                     $("#pustus").hide();
                     $("#kabupaten").show();
+                } else {
+                    $("#pustus").hide();
+                    $("#kabupaten").hide();
                 }
-
-                // Tambahkan aksi lain sesuai kebutuhan
             });
+
+            // Trigger event change saat halaman pertama kali dimuat
+            $('select[name="role"]').trigger('change');
 
             // Show/hide parent field based on role selection (for superadmin only)
             @if (Auth::user()->role == 'superadmin')

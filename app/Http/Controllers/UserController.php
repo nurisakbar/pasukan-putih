@@ -21,20 +21,22 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $currentUser = Auth::user();
-    
+
         $query = DB::table('users')
             ->select(
                 'users.*',
                 'pustus.nama_pustu as nama_pustu',
                 'districts.name as nama_district',
+                'regencies.name as nama_regency',
                 DB::raw('COALESCE(regencies.name, regencies_user.name) as nama_regency'),
             )
             ->leftJoin('pustus', 'users.pustu_id', '=', 'pustus.id')
             ->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
             ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
             ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->whereNull('users.deleted_at')
             ->leftJoin('regencies as regencies_user', 'users.regency_id', '=', 'regencies_user.id');
-    
+
         if ($currentUser->role === 'sudinkes') {
             $query->where(function ($q) use ($currentUser) {
                 $q->where('regencies.id', $currentUser->regency_id)
@@ -46,22 +48,32 @@ class UserController extends Controller
         } elseif ($currentUser->role !== 'superadmin') {
             $query->where('users.pustu_id', $currentUser->pustu_id);
         }
-    
+
         if ($request->role) {
             $query->where('users.role', $request->role);
         }
-    
+
         $users = $query->orderBy('users.created_at', 'asc')->get();
-    
+
         return view('users.index', compact('users'));
     }
-    
+
     /**
      * Show the form for creating a new user.
      */
     public function create()
     {
         $currentUser = Auth::user();
+
+        if(Auth::user()->role=='sudinkes'){
+            $pustus = \App\Models\Pustu::select('pustus.nama_pustu','pustus.id')->join('villages','villages.id','pustus.village_id')
+            ->join('districts','districts.id','villages.district_id')
+            ->join('regencies','regencies.id','districts.regency_id')
+            ->where('regencies.id',Auth::user()->regency_id)
+            ->get();
+        }else{
+            $pustus = \App\Models\Pustu::all();
+        }
         $parents = collect();
 
         // If user is superadmin, get potential parents for dropdown
@@ -71,7 +83,7 @@ class UserController extends Controller
                            ->get();
         }
 
-        return view('users.create', compact('parents'));
+        return view('users.create', compact('parents','pustus'));
     }
 
     /**
@@ -115,16 +127,18 @@ class UserController extends Controller
         }
 
         // Role access validation
-        $this->validateRoleAccess($currentUser->role, $request->role);
+        //$this->validateRoleAccess($currentUser->role, $request->role);
 
+        //return $request->all();
         // Create the user
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => $request->pustu_id,
+            'pustu_id' => $request->role=='perawat'?$request->pustu_id:null,
             'no_wa' => $request->no_wa,
+            'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
             'keterangan' => $request->keterangan,
             'status_pegawai' => $request->status_pegawai
         ]);
@@ -241,25 +255,25 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->authorizeAccess($user);
-
+        $role = $user->role;
         // Cek apakah user punya child
         $hasChildren = User::where('pustu_id', $user->id)->exists();
 
         if ($hasChildren) {
             return redirect()
-                ->route('users.index')
+                ->route('users.index', ['role' => $role])
                 ->with('error', 'User tidak dapat dihapus karena masih memiliki user-user di bawahnya!');
         }
 
         // Soft delete
         if ($user->delete()) {
             return redirect()
-                ->route('users.index')
-                ->with('success', 'User berhasil dihapus!');
+            ->route('users.index', ['role' => $role])
+            ->with('success', 'User berhasil dihapus!');
         }
 
         return redirect()
-            ->route('users.index')
+            ->route('users.index', ['role' => $role])
             ->with('error', 'Terjadi kesalahan saat menghapus user.');
     }
 
