@@ -29,7 +29,7 @@ class OphLogController extends Controller
 
     public function store(Request $request)
     {
-        \Log::debug($request->all());
+        //\Log::debug($request->all());
 
         $data = $request->json()->all();
 
@@ -199,6 +199,11 @@ class OphLogController extends Controller
             }
         }
 
+
+        if ($systole !== null && $slack !== null) {
+            $examination->blood_pressure = $systole . '/' . $slack;
+
+        }
         $examination->save();
 
         $logData = [
