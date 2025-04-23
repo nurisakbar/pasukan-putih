@@ -30,19 +30,32 @@ class PasienController extends Controller
 {
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
-        $pasiens = Pasien::select('pasiens.*', 'villages.name as village_name', 'districts.name as district_name', 'regencies.name as regency_name')
-        ->join('villages', 'villages.id', 'pasiens.village_id')
-        ->join('districts', 'districts.id', 'villages.district_id')
-        ->join('regencies', 'regencies.id', 'districts.regency_id');
+        $currentUser = \Auth::user();
 
-        if(\Auth::user()->role=='perawat'){
-            $pasiens = $pasiens->where('pustu_id',\Auth::user()->pustu_id);
+        $pasiens = DB::table('pasiens')
+            ->select(
+                'pasiens.*', 
+                'villages.name as village_name', 
+                'districts.name as district_name', 
+                'regencies.name as regency_name'
+            )
+            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
+            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id');
+
+        // Filtering berdasarkan role user
+        if ($currentUser->role === 'sudinkes') {
+            $pasiens->where('regencies.id', $currentUser->regency_id);
+        } elseif ($currentUser->role !== 'superadmin') {
+            // Perawat difilter berdasarkan desa (pustu_id) dari pustu tempat dia bertugas
+            $pasiens->where('pasiens.pustu_id', $currentUser->pustu_id);
         }
 
-        $pasiens = $pasiens->get();
+        $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
 
         return view('pasiens.index', compact('pasiens'));
     }
+
 
     public function create(): \Illuminate\Contracts\View\View
     {
