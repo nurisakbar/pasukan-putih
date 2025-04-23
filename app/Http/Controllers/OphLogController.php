@@ -29,6 +29,8 @@ class OphLogController extends Controller
 
     public function store(Request $request)
     {
+        \Log::debug($request->all());
+
         $data = $request->json()->all();
 
 
