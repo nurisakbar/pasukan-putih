@@ -96,7 +96,7 @@
                             </div> --}}
                             <div class="card-body">
                                 <ul class="nav nav-tabs" style="margin-bottom:10px">
-                                    @if ($_GET['role'] == 'superadmin')
+                                    @if (auth()->user()->role == 'superadmin')
                                     <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'superadmin' ? 'active' : '' }}"
                                             aria-current="page" href="users?role=superadmin"><i
