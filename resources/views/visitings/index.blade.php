@@ -44,7 +44,7 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
                                 <input type="date" name="tanggal_akhir" class="form-control" placeholder="Sampai Tanggal"
-                                    value="{{ request('tanggal_akhir') }}">
+                                    value="{{ request('tanggal_akhir', Carbon::today()->toDateString()) }}">
                             </div>
                         </div>
                         <div class="col-md-3 col-12 text-md-end text-start">

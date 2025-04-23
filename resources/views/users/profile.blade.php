@@ -64,12 +64,12 @@
                             <input type="text" id="no_wa" name="no_wa" value="{{ old('no_wa', $user->no_wa) }}" class="form-control">
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" style="display: none">
                             <label for="keterangan" class="form-label fw-bold">Keterangan</label>
                             <input type="text" id="keterangan" name="keterangan" value="{{ old('keterangan', $user->keterangan) }}" class="form-control">
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" style="display: none">
                             <label for="status_pegawai" class="form-label fw-bold">Status Pegawai</label>
                             <input type="text" id="status_pegawai" name="status_pegawai" value="{{ old('status_pegawai', $user->status_pegawai) }}" class="form-control">
                         </div>
