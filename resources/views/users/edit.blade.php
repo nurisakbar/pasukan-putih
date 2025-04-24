@@ -56,14 +56,22 @@
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
                                                 <label for="name" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
                                             </div>
-                                            <div class="col-12 col-md-8 col-lg-10">
+                                            <div class="col-6 col-md-4 col-lg-5">
                                                 <input type="text" class="form-control @error('name') is-invalid @enderror"
                                                     name="name" value="{{ old('name', $user->name) }}" required>
                                                 @error('name')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
+                                            <div class="col-6 col-md-4 col-lg-5">
+                                                <input disabled type="text" class="form-control @error('name') is-invalid @enderror"
+                                                     value="{{ old('name', $user->pustu->nama_pustu) }}" required>
+                                                @error('name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
                                         </div>
+
 
                                         {{-- Email --}}
                                         <div class="row mb-4">
@@ -150,6 +158,8 @@
                                                         <option value="pustu" {{ old('role', $user->role) == 'pustu' ? 'selected' : '' }}>Pustu</option>
                                                     @elseif(Auth::user()->role == 'puskesmas')
                                                         <option value="pustu" {{ old('role', $user->role) == 'pustu' ? 'selected' : '' }}>Pustu</option>
+                                                    @elseif(Auth::user()->role == 'sudinkes')
+                                                        <option value="perawat" {{ old('role', $user->role) == 'perawat' ? 'selected' : '' }}>Perawat</option>
                                                     @elseif(Auth::user()->role == 'pustu')
                                                         <option value="perawat" {{ old('role', $user->role) == 'perawat' ? 'selected' : '' }}>Perawat</option>
                                                         <option value="caregiver" {{ old('role', $user->role) == 'caregiver' ? 'selected' : '' }}>Caregiver</option>

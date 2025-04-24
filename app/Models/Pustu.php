@@ -9,5 +9,5 @@ class Pustu extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-
+    protected $fillable=['nama_pustu','village_id','id'];
 }

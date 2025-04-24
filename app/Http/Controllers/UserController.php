@@ -162,7 +162,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $this->authorizeAccess($user);
+        //$this->authorizeAccess($user);
 
         $currentUser = Auth::user();
         $parents = collect();
@@ -181,7 +181,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $this->authorizeAccess($user);
+        //$this->authorizeAccess($user);
         $currentUser = Auth::user();
 
         // Validation rules
@@ -221,19 +221,19 @@ class UserController extends Controller
         }
 
         // Role access validation
-        $this->validateRoleAccess($currentUser->role, $request->role);
+        //$this->validateRoleAccess($currentUser->role, $request->role);
 
         // Update user data
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
-            'pustu_id' => $parentId,
+            //'role' => $request->role,
+            //'pustu_id' => $parentId,
             'no_wa' => $request->no_wa,
             'keterangan' => $request->keterangan,
-            'village' => $request->village,
-            'district' => $request->district,
-            'regency' => $request->regency,
+            //'village' => $request->village,
+            //'district' => $request->district,
+            //'regency' => $request->regency,
             'status_pegawai' => $request->status_pegawai
         ];
 

@@ -328,6 +328,24 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
     {
         set_time_limit(0);
         foreach($rows as $data){
+
+            \Log::debug(array ($data));
+            if(isset($data['kelurahan'])){
+                $village = \DB::table('villages')
+                ->where('name',$data['kelurahan'])
+                ->first();
+                if($village!=null && $data['nama_puskesmas_pembantu']!=null){
+                    Pustu::firstOrCreate(
+                        ['nama_pustu' => $data['nama_puskesmas_pembantu']],
+                        [
+                            'id' => \Str::uuid(),
+                            'village_id' => $village->id ?? 0
+                        ]
+                    );
+                }
+            }
+
+
             if($data['email']){
                 \Log::debug((array)$data);
                 // Cari pustu_id dari tabel pustus berdasarkan nama_puskesmas_pembantu
