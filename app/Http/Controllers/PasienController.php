@@ -28,15 +28,32 @@ use Auth;
 
 class PasienController extends Controller
 {
+    // public function index(){
+    //     $pasien = Pasien::limit(10000)->get();
+    //     foreach($pasien as $p){
+    //         // cek pustu
+    //         $pustu2 = \DB::table('pustus2')->where('id',$p->pustu_id)->first();
+    //         if($pustu2){
+    //             $pustu = \DB::table('pustus')->where('nama_pustu',$pustu2->nama_pustu)->first();
+    //             if($pustu){
+    //                 \DB::table('pasiens')->where('id',$p->id)->update(['pustu_id'=>$pustu->id]);
+    //             }
+
+    //         }
+
+    //     }
+    //     //return $pasien;
+    // }
+
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $currentUser = \Auth::user();
 
         $pasiens = DB::table('pasiens')
             ->select(
-                'pasiens.*', 
-                'villages.name as village_name', 
-                'districts.name as district_name', 
+                'pasiens.*',
+                'villages.name as village_name',
+                'districts.name as district_name',
                 'regencies.name as regency_name'
             )
             ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
