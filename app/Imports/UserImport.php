@@ -330,34 +330,35 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         foreach($rows as $data){
 
             \Log::debug(array ($data));
-            if(isset($data['kelurahan']) && isset($data['pustu_pengampuh'])){
-                $village = \DB::table('villages')
-                ->where('name',$data['kelurahan'])
+            if(isset($data['wilayah_2']) && isset($data['pustu'])){
+                $districts = \DB::table('districts')
+                ->where('name',$data['wilayah_2'])
                 ->first();
-                if($village!=null && $data['pustu_pengampuh']!=null){
+                if($districts!=null && $data['pustu']!=null){
                     Pustu::firstOrCreate(
-                        ['nama_pustu' => $data['pustu_pengampuh']],
+                        ['nama_pustu' => $data['pustu']],
                         [
                             'id' => \Str::uuid(),
-                            'village_id' => $village->id ?? 0
+                            'village_id'=>0,
+                            'district_id' => $districts->id ?? 0
                         ]
                     );
                 }
             }
 
 
-            if(isset($data['email']) && isset($data['pustu_pengampuh'])){
+            if(isset($data['email']) && isset($data['pustu'])){
                 \Log::debug((array)$data);
                 // Cari pustu_id dari tabel pustus berdasarkan nama_puskesmas_pembantu
-                $pustu = Pustu::where('nama_pustu', $data['pustu_pengampuh'])->first();
+                $pustu = Pustu::where('nama_pustu', $data['pustu'])->first();
                 $pustu_id = $pustu ? $pustu->id : null;
                 // Insert ke tabel users pakai firstOrCreate
                 User::firstOrCreate(
                     ['email' => $data['email']], // Kolom unik untuk dicek
                     [
-                        'name' => $data['koordinator_perawat'],
+                        'name' => $data['user'],
                         'password' => Hash::make('perawat123'),
-                        'no_wa' => $data['hp']??'0',
+                        'no_wa' => $data['phone']??'0',
                         'role'=>'perawat',
                         'status_pegawai' => 'PNS',
                         'keterangan' => '-',

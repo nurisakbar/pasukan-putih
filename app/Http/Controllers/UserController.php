@@ -31,8 +31,8 @@ class UserController extends Controller
                 DB::raw('COALESCE(regencies.name, regencies_user.name) as nama_regency'),
             )
             ->leftJoin('pustus', 'users.pustu_id', '=', 'pustus.id')
-            ->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
-            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            //->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'pustus.district_id', '=', 'districts.id')
             ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
             ->whereNull('users.deleted_at')
             ->leftJoin('regencies as regencies_user', 'users.regency_id', '=', 'regencies_user.id');
@@ -54,6 +54,7 @@ class UserController extends Controller
         }
 
         $users = $query->orderBy('users.created_at', 'asc')->get();
+
 
         return view('users.index', compact('users'));
     }
