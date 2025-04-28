@@ -25,7 +25,7 @@
                                 <table id="example3" class="table table-bordered table-striped dataTable-responsive">
                                     <thead>
                                         <tr>
-                                            <th class="text-center" width="110">Aksi</th>
+                                            <th class="text-center" width="90">Aksi</th>
                                             <th>NAMA</th>
                                             <th>NIK</th>
                                             <th>JENIS KELAMIN</th>

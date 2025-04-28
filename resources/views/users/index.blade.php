@@ -125,7 +125,8 @@
                                             <th>No Whatsapp</th>
                                             @if ($_GET['role'] == 'perawat')
                                                 <th>NAMA PUSTU</th>
-                                                <th>WILAYAH</th>
+                                                <th>KECAMATAN</th>
+                                                <th>KABUPATEN</th>
                                             @endif
                                             @if ($_GET['role'] == 'sudinkes')
                                                 <th>WILAYAH</th>
@@ -143,6 +144,7 @@
                                                 <td>{{ $data->no_wa ?? '-' }}</td>
                                                 @if ($_GET['role'] == 'perawat')
                                                     <td>{{ $data->nama_pustu ?? '-' }}</td>
+                                                    <td>{{ $data->nama_district ?? '-' }}</td>
                                                     <td>{{ $data->nama_regency ?? '-' }}</td>
                                                 @endif
                                                 @if ($_GET['role'] == 'sudinkes')
