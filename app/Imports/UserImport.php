@@ -330,13 +330,13 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
         foreach($rows as $data){
 
             \Log::debug(array ($data));
-            if(isset($data['kelurahan'])){
+            if(isset($data['kelurahan']) && isset($data['pustu_pengampuh'])){
                 $village = \DB::table('villages')
                 ->where('name',$data['kelurahan'])
                 ->first();
-                if($village!=null && $data['nama_puskesmas_pembantu']!=null){
+                if($village!=null && $data['pustu_pengampuh']!=null){
                     Pustu::firstOrCreate(
-                        ['nama_pustu' => $data['nama_puskesmas_pembantu']],
+                        ['nama_pustu' => $data['pustu_pengampuh']],
                         [
                             'id' => \Str::uuid(),
                             'village_id' => $village->id ?? 0
@@ -346,21 +346,21 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
             }
 
 
-            if($data['email']){
+            if(isset($data['email']) && isset($data['pustu_pengampuh'])){
                 \Log::debug((array)$data);
                 // Cari pustu_id dari tabel pustus berdasarkan nama_puskesmas_pembantu
-                $pustu = Pustu::where('nama_pustu', $data['nama_puskesmas_pembantu'])->first();
+                $pustu = Pustu::where('nama_pustu', $data['pustu_pengampuh'])->first();
                 $pustu_id = $pustu ? $pustu->id : null;
                 // Insert ke tabel users pakai firstOrCreate
                 User::firstOrCreate(
                     ['email' => $data['email']], // Kolom unik untuk dicek
                     [
-                        'name' => $data['nama_perawat_koordinator'],
+                        'name' => $data['koordinator_perawat'],
                         'password' => Hash::make('perawat123'),
-                        'no_wa' => $data['nomor_hp']??'0',
+                        'no_wa' => $data['hp']??'0',
                         'role'=>'perawat',
-                        'status_pegawai' => $data['status_pegawai'],
-                        'keterangan' => $data['keterangan'],
+                        'status_pegawai' => 'PNS',
+                        'keterangan' => '-',
                         'pustu_id' => $pustu_id,
                     ]
                 );
