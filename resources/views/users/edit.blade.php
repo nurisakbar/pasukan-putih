@@ -63,13 +63,15 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                            <div class="col-6 col-md-4 col-lg-5">
-                                                <input disabled type="text" class="form-control @error('name') is-invalid @enderror"
-                                                     value="{{ old('name', $user->pustu->nama_pustu) }}" required>
-                                                @error('name')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                            @if($user->role=='perawat')
+                                                <div class="col-6 col-md-4 col-lg-5">
+                                                    <input disabled type="text" class="form-control @error('name') is-invalid @enderror"
+                                                        value="{{ old('name', $user->pustu->nama_pustu) }}" required>
+                                                    @error('name')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            @endif
                                         </div>
 
 
@@ -145,7 +147,7 @@
                                         </div>
 
                                         {{-- Role --}}
-                                        <div class="row mb-4">
+                                        {{-- <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
                                                 <label for="role" class="form-label fw-bold">Role <span class="text-danger">*</span></label>
                                             </div>
@@ -169,7 +171,7 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                        </div>
+                                        </div> --}}
 
                                         {{-- Parent (jika superadmin) --}}
                                         @if (Auth::user()->role == 'superadmin')
