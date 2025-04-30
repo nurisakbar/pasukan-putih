@@ -48,7 +48,8 @@ class HomeController extends Controller
                 ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
                 ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
                 ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-                ->where('districts.id', $districtId)
+                // ->where('districts.id', $districtId)
+                ->where('pasiens.user_id', $user->id)
                 ->count();
             } else {
                 $data['jumlah_data_sasaran'] = 0;
