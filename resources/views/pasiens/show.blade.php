@@ -89,7 +89,14 @@
                                     <td class="align-middle">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') ?? 'Belum ada' }}</td>
                                     <td class="align-middle">{{ $item->status ?? 'Belum ada' }}</td>
                                     <td class="align-middle">
-                                        <span class="badge {{ $item->healthForms->kunjungan_lanjutan == 'ya' ? 'bg-success' : 'bg-warning' }}">{{ $item->healthForms->kunjungan_lanjutan ?? 'Belum ada' }}</span>
+                                        @php
+                                            $kunjungan = $item->healthForms->kunjungan_lanjutan ?? null;
+                                        @endphp
+                                        <span class="badge 
+                                            {{ $kunjungan === 'ya' ? 'bg-success' : 
+                                            ($kunjungan === 'tidak' ? 'bg-warning' : 'bg-secondary') }}">
+                                            {{ $kunjungan ?? '-' }}
+                                        </span>
                                     </td>
                                     <td class="align-middle">{{ $item->healthForms->skor_aks ?? 'Belum ada' }}</td>
                                     {{-- <td class="align-middle">{{ $item->skriningAdl->total_score ?? 'Belum ada' }}</td> --}}
