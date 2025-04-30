@@ -30,6 +30,7 @@
                                             <th>NAMA PUSTU</th>
                                             <th>DESA</th>
                                             <th>KECAMATAN</th>
+                                            <th>KABUPATEN</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -64,8 +65,9 @@
                                                     </form>
                                                 </td>
                                                 <td>{{ $data->nama_pustu }}</td>
-                                                <td>{{ strtoupper($data->villages->name ?? '-') }}</td>
+                                                <td>{{ strtoupper($data->villages->name ?? '-' ) }}</td>
                                                 <td>{{ strtoupper($data->districts->name) }}</td>
+                                                <td>{{ strtoupper($data->districts->regency->name) }}</td>
                                             </tr>
                                         @empty
                                         <tr>

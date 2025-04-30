@@ -266,6 +266,7 @@ class PasienController extends Controller
                 'provinces.id as province_id', 'provinces.name as province_name'
             )
             ->where('villages.name', 'LIKE', '%' . $q . '%')
+            ->where('provinces.id', 31)
             ->limit(20)
             ->get();
         return response()->json($results);
