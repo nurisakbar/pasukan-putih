@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Pustu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -167,14 +168,14 @@ class UserController extends Controller
 
         $currentUser = Auth::user();
         $parents = collect();
-
+        $pustus = \App\Models\Pustu::all();
         // If user is superadmin, get potential parents for dropdown
         if ($currentUser->role == 'superadmin') {
             $parents = User::whereIn('role', ['puskesmas', 'pustu', 'klinik'])
                            ->get();
         }
 
-        return view('users.edit', compact('user', 'parents'));
+        return view('users.edit', compact('user', 'parents', 'pustus'));
     }
 
     /**
@@ -183,14 +184,14 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         //$this->authorizeAccess($user);
+        
         $currentUser = Auth::user();
-
         // Validation rules
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'role' => ['required', 'string'],
             'no_wa' => ['string', 'max:255'],
+            'pustu_id' => ['nullable', 'exists:pustus,id'],
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
 
@@ -224,17 +225,24 @@ class UserController extends Controller
         // Role access validation
         //$this->validateRoleAccess($currentUser->role, $request->role);
 
+        $regencyId = $user->regency_id; // default
+        if (!empty($parentId)) {
+            $pustu = Pustu::with('districts.regency')->find($parentId);
+            if ($pustu && $pustu->districts && $pustu->districts->regency) {
+                $regencyId = $pustu->districts->regency->id;
+            }
+        }
         // Update user data
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
             //'role' => $request->role,
-            //'pustu_id' => $parentId,
+            'pustu_id' => $parentId ?? $request->pustu_id,
             'no_wa' => $request->no_wa,
             'keterangan' => $request->keterangan,
             //'village' => $request->village,
             //'district' => $request->district,
-            //'regency' => $request->regency,
+            'regency_id' => $regencyId,
             'status_pegawai' => $request->status_pegawai
         ];
 
@@ -246,7 +254,7 @@ class UserController extends Controller
         $user->update($userData);
 
         return redirect()
-            ->route('users.index')
+            ->route('users.index' , ['role' => auth()->user()->role])
             ->with('success', 'User berhasil diperbarui!');
     }
 

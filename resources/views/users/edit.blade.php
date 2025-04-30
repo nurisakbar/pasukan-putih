@@ -50,6 +50,15 @@
                                 @method('PUT')
                                 <div class="row">
                                     <div class="col-sm-12">
+                                        @if ($errors->any())
+                                            <div class="alert alert-danger">
+                                                <ul>
+                                                    @foreach ($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
 
                                         {{-- Name --}}
                                         <div class="row mb-4">
@@ -63,10 +72,10 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                            @if($user->role=='perawat')
+                                            @if($user->role=='perawat' && auth()->user()->role != 'superadmin')
                                                 <div class="col-6 col-md-4 col-lg-5">
                                                     <input disabled type="text" class="form-control @error('name') is-invalid @enderror"
-                                                        value="{{ old('name', $user->pustu->nama_pustu) }}" required>
+                                                        value="{{ old('name', $user->pustu->nama_pustu ?? '') }}" required>
                                                     @error('name')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -175,18 +184,17 @@
 
                                         {{-- Parent (jika superadmin) --}}
                                         @if (Auth::user()->role == 'superadmin')
-                                            <div class="row mb-4 parent-field" id="parent-field"
-                                                style="{{ old('role', $user->role) == 'superadmin' ? '' : 'display: none;' }}">
+                                            <div class="row mb-4 parent-field {{ old('role', $user->role) != 'superadmin' ? '' : 'd-none' }}" id="parent-field">
                                                 <div class="col-12 col-md-4 col-lg-2 mb-2">
-                                                    <label for="pustu_id" class="form-label fw-bold">Parent</label>
+                                                    <label for="pustu_id" class="form-label fw-bold">Pusut</label>
                                                 </div>
                                                 <div class="col-12 col-md-8 col-lg-10">
                                                     <select class="form-control @error('pustu_id') is-invalid @enderror" name="pustu_id">
                                                         <option value="">-- Pilih Parent --</option>
-                                                        @foreach ($parents as $parent)
+                                                        @foreach ($pustus as $parent)
                                                             <option value="{{ $parent->id }}"
                                                                 {{ old('pustu_id', $user->pustu_id) == $parent->id ? 'selected' : '' }}>
-                                                                {{ $parent->name }} ({{ ucfirst($parent->role) }})
+                                                                {{ $parent->nama_pustu }} 
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -195,8 +203,6 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                        @else
-                                            <input type="hidden" name="pustu_id" value="{{ old('pustu_id', Auth::user()->id) }}">
                                         @endif
 
                                         <div class="row mb-4">
