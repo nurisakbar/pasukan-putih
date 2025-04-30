@@ -189,7 +189,7 @@
                                                     <label for="pustu_id" class="form-label fw-bold">Pusut</label>
                                                 </div>
                                                 <div class="col-12 col-md-8 col-lg-10">
-                                                    <select class="form-control @error('pustu_id') is-invalid @enderror" name="pustu_id">
+                                                    <select class="form-control select2 @error('pustu_id') is-invalid @enderror" name="pustu_id">
                                                         <option value="">-- Pilih Parent --</option>
                                                         @foreach ($pustus as $parent)
                                                             <option value="{{ $parent->id }}"
@@ -285,6 +285,13 @@
 @push('script')
     <script>
         const oldVillage = @json($villageOld);
+
+        //select 2
+
+        $(document).ready(function() {
+            $('.select2').select2({
+            });
+        });
 
         $(document).ready(function() {
             // Show/hide parent field based on role selection (for superadmin only)
