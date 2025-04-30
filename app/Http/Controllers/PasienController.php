@@ -65,8 +65,7 @@ class PasienController extends Controller
         if ($currentUser->role === 'sudinkes') {
             $pasiens->where('regencies.id', $currentUser->regency_id);
         } elseif ($currentUser->role !== 'superadmin') {
-            // Perawat difilter berdasarkan desa (pustu_id) dari pustu tempat dia bertugas
-            $pasiens->where('districts.id', $currentUser->pustu->district_id);
+            $pasiens->where('pasiens.id', $currentUser->id);
         }
 
         $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();

@@ -35,19 +35,24 @@ class HomeController extends Controller
             $data['jumlah_kunjungan_belum_selesai'] = HealthForm::where('kunjungan_lanjutan', 'ya')->count();
             $data['jumlah_kunjungan_selesai'] = HealthForm::where('kunjungan_lanjutan', 'tidak')->count();
         } elseif($user->role=='perawat') {
-            $data['jumlah_data_sasaran'] = \DB::table('pasiens')
-            ->select(
-                'pasiens.*',
-                'villages.name as village_name',
-                'districts.name as district_name',
-                'regencies.name as regency_name'
-            )
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->where('districts.id', \Auth::user()->pustu->district_id)
-            ->count();
+            $districtId = \Auth::user()->pustu->district_id;
 
+            if ($districtId) {
+                $data['jumlah_data_sasaran'] = \DB::table('pasiens')
+                ->select(
+                    'pasiens.*',
+                    'villages.name as village_name',
+                    'districts.name as district_name',
+                    'regencies.name as regency_name'
+                )
+                ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
+                ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
+                ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+                ->where('districts.id', \Auth::user()->pustu->district_id)
+                ->count();
+            } else {
+                $data['jumlah_data_sasaran'] = 0;
+            }
             $data['jumlah_kunjungan'] = Visiting::where('user_id', $user->id)->count();
             $data['jumlah_kunjungan_belum_selesai'] = Visiting::where('selesai', 0)->where('user_id', $user->id)->count();
             $data['jumlah_kunjungan_selesai'] = Visiting::where('selesai', 1)->where('user_id', $user->id)->count();
