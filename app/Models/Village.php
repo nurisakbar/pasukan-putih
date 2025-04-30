@@ -50,4 +50,9 @@ class Village extends Model
     // {
     //     return $this->hasMany(Pasien::class, 'village_id', 'id');
     // }
+
+    public function pustus()
+    {
+        return $this->hasMany(Pustu::class, 'village_id', 'id');
+    }
 }

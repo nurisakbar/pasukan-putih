@@ -97,7 +97,9 @@ Route::middleware('auth')->group(function () {
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
     Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
-    //
+
+    //pustu
+    Route::resource('pustu', \App\Http\Controllers\PustuController::class);
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);

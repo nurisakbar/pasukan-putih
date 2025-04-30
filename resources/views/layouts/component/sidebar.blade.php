@@ -43,6 +43,14 @@
                         <p>DAFTAR KUNJUNGAN</p>
                     </a>
                 </li>
+                @if (auth()->user()->role == 'superadmin')
+                <li class="nav-item">
+                    <a href="{{ route('pustu.index') }}" class="nav-link">
+                        <i class="nav-icon bi bi-calendar-event"></i>
+                        <p>DATA PUSTU</p>
+                    </a>
+                </li>
+                @endif
             </ul>
         </nav>
     </div>

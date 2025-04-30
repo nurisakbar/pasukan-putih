@@ -57,6 +57,11 @@ class District extends Model
         return $this->hasMany(Village::class);
     }
 
+    public function pustus()
+    {
+        return $this->hasMany(Pustu::class, 'district_id', 'id');
+    }
+
     // public function pasiens()
     // {
     //     return $this->hasMany(Pasien::class, 'district_id', 'id');
