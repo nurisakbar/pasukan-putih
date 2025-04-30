@@ -65,7 +65,7 @@ class PasienController extends Controller
         if ($currentUser->role === 'sudinkes') {
             $pasiens->where('regencies.id', $currentUser->regency_id);
         } elseif ($currentUser->role !== 'superadmin') {
-            $pasiens->where('pasiens.id', $currentUser->id);
+            $pasiens->where('pasiens.user_id', $currentUser->id);
         }
 
         $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
