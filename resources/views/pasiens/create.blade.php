@@ -45,9 +45,19 @@
                             </div>
                         </div>
                         <div class="card-body p-4">
+                            @if ($errors->any())
+                                <div class="alert alert-danger alert-dismissible fade show" id="error-alert">
+                                    <strong>Validasi Error!</strong>
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
                             <form action="{{ route('pasiens.store') }}" method="POST" class="needs-validation" novalidate>
                                 @csrf
-
                                 <div class="row mb-4">
                                     <div class="col-lg-2 col-md-4 mb-2">
                                         <label for="nik" class="form-label fw-bold">NIK <span
@@ -204,27 +214,6 @@
 @push('script')
     <script>
         $(document).ready(function() {
-
-            (function() {
-                'use strict';
-                
-                window.addEventListener('load', function() {
-                    var forms = document.querySelectorAll('.needs-validation');
-                    
-                    // Hapus class 'was-validated' saat halaman di-load
-                    Array.prototype.slice.call(forms).forEach(function(form) {
-                        form.classList.remove('was-validated');
-
-                        form.addEventListener('submit', function(event) {
-                            if (!form.checkValidity()) {
-                                event.preventDefault();
-                                event.stopPropagation();
-                            }
-                            form.classList.add('was-validated');
-                        }, false);
-                    });
-                });
-            })();
 
             $('#village_search').select2({
                 placeholder: 'Cari kelurahan/desa...',
