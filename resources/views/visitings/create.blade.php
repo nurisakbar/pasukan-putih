@@ -298,6 +298,13 @@
 @push('script')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        if ($('#error-alert').length > 0) {
+            setTimeout(function() {
+                $('#error-alert').fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            }, 4000); // 4 seconds
+        }
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let currentSelectedDay = null;

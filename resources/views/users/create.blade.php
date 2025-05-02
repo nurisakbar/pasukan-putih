@@ -253,6 +253,13 @@
 
 @push('script')
     <script>
+        if ($('#error-alert').length > 0) {
+            setTimeout(function() {
+                $('#error-alert').fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            }, 4000); // 4 seconds
+        }
         $(document).ready(function() {
             $('#pustu').select2();
 
