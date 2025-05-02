@@ -60,13 +60,12 @@ class PasienController extends Controller
             ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id');
 
-
-        // Filtering berdasarkan role user
         if ($currentUser->role === 'sudinkes') {
             $pasiens->where('regencies.id', $currentUser->regency_id);
+        } elseif ($currentUser->role === 'perawat') {
+            $pasiens->where('pasiens.user_id', $currentUser->id);
         } elseif ($currentUser->role !== 'superadmin') {
-            // Perawat difilter berdasarkan desa (pustu_id) dari pustu tempat dia bertugas
-            $pasiens->where('districts.id', $currentUser->pustu->district_id);
+            $pasiens->where('pasiens.user_id', $currentUser->id);
         }
 
         $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
