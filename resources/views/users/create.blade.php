@@ -45,7 +45,7 @@
                         </div>
                         <div class="card-body p-4">
                             @if ($errors->any())
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger" id="error-alert">
                                     <strong>Terjadi kesalahan!</strong>
                                     <ul class="mb-0 mt-2">
                                         @foreach ($errors->all() as $error)
