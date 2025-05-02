@@ -205,18 +205,24 @@
     <script>
         $(document).ready(function() {
 
-            // Form validation
             (function() {
                 'use strict';
-                var forms = document.querySelectorAll('.needs-validation');
-                Array.prototype.slice.call(forms).forEach(function(form) {
-                    form.addEventListener('submit', function(event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
+                
+                window.addEventListener('load', function() {
+                    var forms = document.querySelectorAll('.needs-validation');
+                    
+                    // Hapus class 'was-validated' saat halaman di-load
+                    Array.prototype.slice.call(forms).forEach(function(form) {
+                        form.classList.remove('was-validated');
+
+                        form.addEventListener('submit', function(event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                            form.classList.add('was-validated');
+                        }, false);
+                    });
                 });
             })();
 
