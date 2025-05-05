@@ -86,7 +86,7 @@ class PasienController extends Controller
     {
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'nik' => 'string|min:16|max:16|unique:pasiens,nik',
+            'nik' => 'string|min:16|max:16',
             'alamat' => 'string|max:255',
             'jenis_kelamin' => 'string|max:255',
             'jenis_ktp' => 'string|max:255',
