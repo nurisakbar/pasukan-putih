@@ -18,7 +18,7 @@ class PasienRequest extends FormRequest
 
         return [
             'name' => 'string|max:255',
-            'nik' => 'string|max:255|unique:pasiens,nik,' . $id,
+            'nik' => 'string|max:255' . $id,
             'alamat' => 'string|max:255',
             'jenis_kelamin' => 'string|max:255',
             'jenis_ktp' => 'string|max:255',
