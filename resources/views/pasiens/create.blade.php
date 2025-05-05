@@ -64,12 +64,9 @@
                                                 class="text-danger">*</span></label>
                                     </div>
                                     <div class="col-lg-10 col-md-8">
-                                        <input type="text" class="form-control @error('nik') is-invalid @enderror nik"
+                                        <input type="text" class="form-control"
                                             id="nik" name="nik" value="{{ old('nik') }}"
                                             placeholder="Masukkan NIK" minlength="16" maxlength="16" required>
-                                            <div class="invalid-feedback">
-                                                NIK wajib diisi dan harus 16 karakter.
-                                            </div>
                                     </div>
                                 </div>
                                 <div id="loading-indicator" class="p-3 d-none">
