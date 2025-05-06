@@ -36,7 +36,6 @@ class HomeController extends Controller
             $data['jumlah_kunjungan_selesai'] = HealthForm::where('kunjungan_lanjutan', 'tidak')->count();
         } elseif($user->role=='perawat') {
             $districtId = \Auth::user()->pustu->district_id;
-
             if ($districtId) {
                 $data['jumlah_data_sasaran'] = \DB::table('pasiens')
                 ->select(
@@ -52,7 +51,9 @@ class HomeController extends Controller
                 ->where('pasiens.user_id', $user->id)
                 ->count();
             } else {
-                $data['jumlah_data_sasaran'] = 0;
+                $data['jumlah_data_sasaran'] = \DB::table('pasiens')
+                ->where('pasiens.user_id', $user->id)
+                ->count();
             }
             $data['jumlah_kunjungan'] = Visiting::where('user_id', $user->id)->count();
             $data['jumlah_kunjungan_belum_selesai'] = Visiting::where('selesai', 0)->where('user_id', $user->id)->count();
