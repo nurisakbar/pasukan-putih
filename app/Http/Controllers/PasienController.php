@@ -59,7 +59,7 @@ class PasienController extends Controller
             ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
             ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->whereNull('pasiens.deleted_at');;
+            ->whereNull('pasiens.deleted_at');
 
         if ($currentUser->role === 'sudinkes') {
             $pasiens->where('regencies.id', $currentUser->regency_id);

@@ -40,12 +40,11 @@ class VisitingController extends Controller
                 'villages.name as village_name',
                 'districts.name as district_name',
                 'regencies.name as regency_name'
-            )
-            ->latest();
+            );
     
         // Filter berdasarkan role
-        if ($user->role === 'superadmin') {
-            // tidak filter
+        if ($user->role === 'perawat') {
+            $query->where('visitings.user_id', $user->id);
         } elseif ($user->role === 'sudinkes') {
             $pasienIds = DB::table('pasiens')
             ->join('villages', 'pasiens.village_id', '=', 'villages.id')
@@ -56,8 +55,7 @@ class VisitingController extends Controller
         
             $query->whereIn('visitings.pasien_id', $pasienIds);
         } else {
-            // perawat dan caregiver
-            $query->where('visitings.user_id', $user->id);
+            
         }
     
         // Filter pencarian nama / nik pasien
@@ -81,7 +79,7 @@ class VisitingController extends Controller
         $query->whereBetween('visitings.tanggal', [$tanggalAwal, $tanggalAkhir]);
         
         // Ambil data paginasi
-        $visitingsRaw = $query->get();
+        $visitingsRaw = $query->orderBy('visitings.created_at', 'desc')->get();
     
         // Map ke objek mirip model agar view tidak error
         $visitings = $visitingsRaw->map(function ($item) {
