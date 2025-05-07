@@ -217,15 +217,17 @@
             $('#example2').DataTable({
                 responsive: true,
                 autoWidth: false,
+                pageLength: 25, // Show 25 records per page instead of default 10
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]], // Add length menu options
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
                     emptyTable: "Belum ada data untuk ditampilkan"
                 }
             });
+            
         });
     </script>
 @endif
-
 <script>
     // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {

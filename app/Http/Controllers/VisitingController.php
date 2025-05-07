@@ -26,11 +26,11 @@ class VisitingController extends Controller
         $user = auth()->user();
     
         $query = DB::table('visitings')
-            ->join('pasiens', 'pasiens.id', '=', 'visitings.pasien_id')
-            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->join('districts', 'districts.id', '=', 'villages.district_id')
-            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->join('users', 'users.id', '=', 'visitings.user_id')
+            ->leftJoin('pasiens', 'pasiens.id', '=', 'visitings.pasien_id')
+            ->leftJoin('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
+            ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->leftJoin('users', 'users.id', '=', 'visitings.user_id')
             ->select(
                 'visitings.*',
                 'pasiens.name as pasien_name',
@@ -47,15 +47,15 @@ class VisitingController extends Controller
             $query->where('visitings.user_id', $user->id);
         } elseif ($user->role === 'sudinkes') {
             $pasienIds = DB::table('pasiens')
-            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
-            ->join('districts', 'villages.district_id', '=', 'districts.id')
-            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
             ->where('regencies.id', $user->regency_id)
             ->pluck('pasiens.id');
         
             $query->whereIn('visitings.pasien_id', $pasienIds);
         } else {
-            
+            // For other roles (like superadmin) no additional filter
         }
     
         // Filter pencarian nama / nik pasien
@@ -78,23 +78,23 @@ class VisitingController extends Controller
     
         $query->whereBetween('visitings.tanggal', [$tanggalAwal, $tanggalAkhir]);
         
-        // Ambil data paginasi
+        // Ambil semua data untuk DataTables
         $visitingsRaw = $query->orderBy('visitings.created_at', 'desc')->get();
     
         // Map ke objek mirip model agar view tidak error
         $visitings = $visitingsRaw->map(function ($item) {
             $item = (object) $item;
             $item->pasien = (object) [
-                'name' => $item->pasien_name,
-                'alamat' => $item->pasien_alamat,
-                'rt' => $item->pasien_rt,
-                'rw' => $item->pasien_rw,
+                'name' => $item->pasien_name ?? 'Data tidak tersedia',
+                'alamat' => $item->pasien_alamat ?? 'Alamat tidak tersedia',
+                'rt' => $item->pasien_rt ?? '-',
+                'rw' => $item->pasien_rw ?? '-',
                 'village' => (object) [
-                    'name' => $item->village_name,
+                    'name' => $item->village_name ?? 'Data tidak tersedia',
                     'district' => (object) [
-                        'name' => $item->district_name,
+                        'name' => $item->district_name ?? 'Data tidak tersedia',
                         'regency' => (object) [
-                            'name' => $item->regency_name,
+                            'name' => $item->regency_name ?? 'Data tidak tersedia',
                         ]
                     ]
                 ]
@@ -102,7 +102,10 @@ class VisitingController extends Controller
             return $item;
         });
     
-        return view('visitings.index', compact('visitings'));
+        // Debug information
+        $totalRecords = $visitings->count();
+    
+        return view('visitings.index', compact('visitings', 'totalRecords'));
     }
     
     /**
