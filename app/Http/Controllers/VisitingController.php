@@ -81,10 +81,10 @@ class VisitingController extends Controller
         $query->whereBetween('visitings.tanggal', [$tanggalAwal, $tanggalAkhir]);
         
         // Ambil data paginasi
-        $visitingsRaw = $query->paginate(10);
+        $visitingsRaw = $query->get();
     
         // Map ke objek mirip model agar view tidak error
-        $visitings = $visitingsRaw->through(function ($item) {
+        $visitings = $visitingsRaw->map(function ($item) {
             $item = (object) $item;
             $item->pasien = (object) [
                 'name' => $item->pasien_name,
