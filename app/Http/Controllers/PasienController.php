@@ -138,9 +138,10 @@ class PasienController extends Controller
     }
 
 
-    public function update(PasienRequest $request, Pasien $pasien): \Illuminate\Http\RedirectResponse
+    public function update(Request $request, Pasien $pasien)
     {
-        $pasien->update($request->validated());
+        // dd($request->all());
+        $pasien->update($request->all());
         return redirect()->route('pasiens.index')->with('success', 'Updated successfully');
     }
 
