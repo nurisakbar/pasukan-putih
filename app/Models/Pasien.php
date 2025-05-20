@@ -70,4 +70,9 @@ class Pasien extends Model
     {
         return $this->belongsTo(Province::class, 'province_id', 'id');
     }
+
+    public function pustu()
+    {
+        return $this->belongsTo(Pustu::class, 'pustu_id', 'id');
+    }
 }

@@ -340,6 +340,16 @@ class HealthFormController extends Controller
                 Log::warning('Pasien ID tidak ditemukan untuk kunjungan lanjutan.');
             }
             
+        }
+        else {
+            if ($healthForm->visiting) {
+                $healthForm->visiting->update([
+                    'selesai' => 1,
+                ]);
+                Log::info('Kunjungan ditandai sebagai selesai.');
+            } else {
+                Log::warning('Tidak ada visiting yang terkait untuk ditandai selesai.');
+            }
         }        
 
         return redirect()->back()

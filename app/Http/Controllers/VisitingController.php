@@ -31,6 +31,7 @@ class VisitingController extends Controller
             ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->leftJoin('users', 'users.id', '=', 'visitings.user_id')
+            ->whereNull('pasiens.deleted_at')
             ->select(
                 'visitings.*',
                 'pasiens.name as pasien_name',
@@ -44,7 +45,20 @@ class VisitingController extends Controller
     
         // Filter berdasarkan role
         if ($user->role === 'perawat') {
-            $query->where('visitings.user_id', $user->id);
+            if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $user->pustu->district_id;
+
+                // Ambil semua pasien dari district ini
+                $pasienIds = DB::table('pasiens')
+                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->where('villages.district_id', $districtId)
+                    ->pluck('pasiens.id');
+
+                $query->whereIn('visitings.pasien_id', $pasienIds);
+            } else {
+                // Perawat non-puskesmas: hanya kunjungan milik dia sendiri
+                $query->where('visitings.user_id', $user->id);
+            }
         } elseif ($user->role === 'sudinkes') {
             $pasienIds = DB::table('pasiens')
             ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
