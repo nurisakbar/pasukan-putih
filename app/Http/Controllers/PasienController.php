@@ -54,8 +54,10 @@ class PasienController extends Controller
                 'pasiens.*',
                 'villages.name as village_name',
                 'districts.name as district_name',
-                'regencies.name as regency_name'
+                'regencies.name as regency_name',
+                'pustus.jenis_faskes'
             )
+            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
             ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
             ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
@@ -64,7 +66,12 @@ class PasienController extends Controller
         if ($currentUser->role === 'sudinkes') {
             $pasiens->where('regencies.id', $currentUser->regency_id);
         } elseif ($currentUser->role === 'perawat') {
-            $pasiens->where('pasiens.user_id', $currentUser->id);
+            if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $currentUser->pustu->district_id;
+                $pasiens->where('districts.id', $districtId); 
+            } else {
+                $pasiens->where('pasiens.user_id', $currentUser->id);
+            }
         } elseif ($currentUser->role !== 'superadmin') {
             $pasiens->where('pasiens.user_id', $currentUser->id);
         }

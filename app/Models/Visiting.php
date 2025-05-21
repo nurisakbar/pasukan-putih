@@ -25,7 +25,8 @@ class Visiting extends Model
         'status',
         'berat_badan',
         'tinggi_badan',
-        'imt'
+        'imt',
+        'selesai'
     ];
 
     protected $casts = [
