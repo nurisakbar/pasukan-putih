@@ -230,6 +230,8 @@ class HealthFormController extends Controller
             'tanggal_kunjungan' => $request->input('tanggal_kunjungan'),
             'catatan_keperawatan' => $request->input('catatan_keperawatan'),
             'henti_layanan' => $request->input('henti_layanan'),
+            'non_medical_issues_status' => $request->input('non_medical_issues_status'),
+            'non_medical_issues_text' => $request->input('non_medical_issues_text'),
         ];
 
         // Process Screening Fields
