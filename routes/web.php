@@ -100,6 +100,8 @@ Route::middleware('auth')->group(function () {
 
     //pustu
     Route::resource('pustu', \App\Http\Controllers\PustuController::class);
+
+    
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'getDetailKunjungan']);

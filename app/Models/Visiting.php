@@ -56,4 +56,11 @@ class Visiting extends Model
     {
         return $this->hasOne(HealthForm::class, 'visiting_id');
     }
+
+    public function ttvs()
+    {
+        return $this->hasMany(Ttv::class, 'kunjungan_id');
+    }
+
+    
 }
