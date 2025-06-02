@@ -398,6 +398,32 @@
                     </div>
                 </div>
                 @endif
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3 d-flex">
+                        <i class="fas fa-users me-2"></i>
+                        <h5>DUKUNGAN KELUARGA / PENDAMPING</h5>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="caregiver_availability" class="form-label fw-medium">
+                                Apakah ada keluarga/pendamping yang membantu?
+                            </label>
+                            <select name="caregiver_availability" id="caregiver_availability" class="form-select" required>
+                                <option value="">Pilih...</option>
+                                <option value="selalu" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'selalu' ? 'selected' : '' }}>
+                                    Selalu ada
+                                </option>
+                                <option value="kadang" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'kadang' ? 'selected' : '' }}>
+                                    Tidak selalu ada
+                                </option>
+                                <option value="tidak" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'tidak' ? 'selected' : '' }}>
+                                    Tidak ada
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
