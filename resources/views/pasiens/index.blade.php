@@ -289,7 +289,7 @@
                                                     let percentage = progress.total_pages > 0
                                                         ? Math.round((progress.current_page / progress.total_pages) * 100)
                                                         : 0;
-
+                                                    console.log(percentage);
                                                     // Update progress text and bar
                                                     $('#progressText').text(progress.message);
                                                     $('#progressBar').val(percentage);
@@ -301,7 +301,7 @@
                                                     );
 
                                                     // Check if synchronization is complete
-                                                    if (progress.current_page = progress.total_pages) {
+                                                    if (percentage === 100) {
                                                         clearInterval(interval);
                                                         Swal.update({
                                                             showConfirmButton: true,

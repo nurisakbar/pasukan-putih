@@ -209,13 +209,29 @@ class SyncronisasiPasienCarik implements ShouldQueue
 
             // Log final status (no HTTP response in a job)
             Log::info("Sinkronisasi selesai", [
+                'sync_id' => $syncId,
                 'success' => empty($failedPages),
                 'processed_records' => $processedRecords,
                 'failed_pages' => $failedPages,
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Sinkronisasi Carik gagal: ' . $e->getMessage());
+            // Update cache with error status
+            Cache::put($cacheKey, [
+                'status' => 'failed',
+                'current_page' => $currentPage ?? 0,
+                'total_pages' => $totalPages ?? 0,
+                'processed_records' => $processedRecords ?? 0,
+                'failed_pages' => $failedPages ?? [],
+                'message' => 'Sinkronisasi gagal: ' . $e->getMessage()
+            ], 3600);
+
+            Log::error('Sinkronisasi Carik gagal: ' . $e->getMessage(), [
+                'sync_id' => $syncId,
+            ]);
+
+            // Re-throw exception to mark job as failed
+            throw $e;
         }
     }
 }
