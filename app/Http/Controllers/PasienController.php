@@ -25,6 +25,9 @@ use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use App\Jobs\SyncronisasiPasienCarik;
 use Auth;
 
 class PasienController extends Controller
@@ -367,4 +370,60 @@ class PasienController extends Controller
             return response()->json([]);
         }
     }
+
+    public function startSyncCarik(Request $request)
+    {
+        try {
+            $syncId = 'sync_carik_' . time();
+
+            // Dispatch the job with the authenticated user's ID
+            SyncronisasiPasienCarik::dispatch(auth()->user()->id, $syncId);
+
+            \Log::info('Sinkronisasi Carik dimulai', ['sync_id' => $syncId, 'user_id' => auth()->user()->id]);
+
+            return response()->json([
+                'success' => true,
+                'sync_id' => $syncId,
+                'message' => 'Sinkronisasi telah dimulai. Gunakan sync_id untuk memantau progres.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Gagal memulai sinkronisasi Carik: ' . $e->getMessage(), [
+                'sync_id' => $syncId ?? null,
+                'user_id' => auth()->user()->id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memulai sinkronisasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check the progress of the synchronization job.
+     *
+     * @param Request $request
+     * @param string $syncId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkSyncProgress(Request $request, $syncId)
+    {
+        $cacheKey = $syncId;
+        $progress = Cache::get($cacheKey);
+
+        if (!$progress) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Progres sinkronisasi tidak ditemukan atau telah kadaluarsa.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'progress' => $progress,
+            'message' => $progress['message']
+        ], 200);
+    }
+
 }

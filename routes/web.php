@@ -9,7 +9,7 @@ Auth::routes();
 
 Route::get('/lbe', function () {
     return view('auth.email.form');
-})->name('login-lbe');
+});
 
 Route::middleware('guest')->group(function () {
     Route::post('/lbe', [App\Http\Controllers\Auth\LoginController::class, 'loginByEmail'])->name('login.lbe');
@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/pasiens/{id}/asuhan-keluarga', [App\Http\Controllers\PasienController::class, 'createAsuhanKeluarga'])->name('pasiens.asuhanKeluarga');
     // Route::get('/pasiens/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('pasiens.searchVillage');
     Route::get('/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('search.village');
+    Route::post('/syncronisasi-carik', [App\Http\Controllers\PasienController::class, 'startSyncCarik'])->name('syncronisasi.carik');
+    Route::get('/sync-progress/{syncId}', [App\Http\Controllers\PasienController::class, 'checkSyncProgress'])->name('syncronisasi.progress');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');

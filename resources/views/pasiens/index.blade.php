@@ -8,6 +8,9 @@
                 <h3 class="mb-0">Data Sasaran</h3>
             </div>
             <div class="col-md-6 col-12 text-md-end text-start">
+                <a href="javascript:void(0)" id="startSync" class="btn btn-primary btn-md btn-sm shadow-sm">
+                    <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
+                </a>
                 <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                     <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                 </a>
@@ -181,7 +184,180 @@
                 }
             });
         });
+        // $('#btn-sinkron-carik').on('click', function(e) {
+        //     e.preventDefault();
+
+        //     Swal.fire({
+        //         title: 'Memproses...',
+        //         text: 'Sedang sinkronisasi data dari Si CARIK.',
+        //         allowOutsideClick: false,
+        //         didOpen: () => {
+        //             Swal.showLoading()
+        //         }
+        //     });
+
+        //     $.ajax({
+        //         url: $(this).attr('href'),
+        //         type: 'GET', // atau 'POST' jika perlu
+        //         headers: {
+        //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        //         },
+        //         success: function(response) {
+        //             console.log(response);
+        //             Swal.close();
+
+        //             if (response.success) {
+        //                 Swal.fire({
+        //                     icon: 'success',
+        //                     title: 'Berhasil!',
+        //                     text: response.message || 'Data berhasil disinkronisasi.'
+        //                 }).then(() => {
+        //                     location.reload(); // reload halaman setelah berhasil
+        //                 });
+        //             } else {
+        //                 Swal.fire({
+        //                     icon: 'error',
+        //                     title: 'Gagal!',
+        //                     text: response.message || 'Sinkronisasi gagal.'
+        //                 });
+        //             }
+        //         },
+        //         error: function(xhr, status, error) {
+        //             Swal.close();
+        //             Swal.fire({
+        //                 icon: 'error',
+        //                 title: 'Error!',
+        //                 text: 'Terjadi kesalahan saat menghubungi server.'
+        //             });
+        //             console.error(error);
+        //         }
+        //     });
+        // });
     });
 </script>
+<script>
+        $(document).ready(function () {
+            // Set CSRF token for AJAX requests
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Handle click on Start Sync button
+            $('#startSync').click(function () {
+                // Show initial loading SweetAlert
+                Swal.fire({
+                    title: 'Memulai Sinkronisasi...',
+                    html: 'Mohon tunggu...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Start synchronization
+                $.ajax({
+                    url: '{{ route("syncronisasi.carik") }}',
+                    method: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            // Get sync_id from response
+                            let syncId = response.sync_id;
+
+                            // Update SweetAlert to show progress
+                            Swal.fire({
+                                title: 'Progres Sinkronisasi',
+                                html: '<div id="progressText">Memulai sinkronisasi...</div>' +
+                                      '<div class="mt-4"><progress id="progressBar" value="0" max="100" class="w-full"></progress></div>' +
+                                      '<div id="progressDetails" class="mt-2 text-sm"></div>',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                showCancelButton: true,
+                                cancelButtonText: 'Tutup',
+                                didOpen: () => {
+                                    // Start polling for progress
+                                    let interval = setInterval(function () {
+                                        $.ajax({
+                                            url: `{{ url('sync-progress/${syncId}') }}`,
+                                            method: 'GET',
+                                            success: function (progressResponse) {
+                                                if (progressResponse.success) {
+                                                    let progress = progressResponse.progress;
+                                                    let percentage = progress.total_pages > 0
+                                                        ? Math.round((progress.current_page / progress.total_pages) * 100)
+                                                        : 0;
+
+                                                    // Update progress text and bar
+                                                    $('#progressText').text(progress.message);
+                                                    $('#progressBar').val(percentage);
+                                                    $('#progressDetails').html(
+                                                        `Data Diproses: ${progress.processed_records}<br>` +
+                                                        (progress.failed_pages.length > 0
+                                                            ? `Halaman Gagal: ${progress.failed_pages.join(', ')}`
+                                                            : '')
+                                                    );
+
+                                                    // Check if synchronization is complete
+                                                    if (percentage === 100) {
+                                                        clearInterval(interval);
+                                                        Swal.update({
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            showCancelButton: false
+                                                        });
+                                                        Swal.getConfirmButton().focus();
+                                                    }
+                                                } else {
+                                                    // Progress not found
+                                                    clearInterval(interval);
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: progressResponse.message,
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            },
+                                            error: function () {
+                                                clearInterval(interval);
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: 'Gagal memeriksa progres sinkronisasi.',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                            }
+                                        });
+                                    }, 3000); // Poll every 3 seconds
+                                },
+                                willClose: () => {
+                                    // Clear interval when modal is closed
+                                    clearInterval(interval);
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memulai sinkronisasi: ' + (xhr.responseJSON?.message || 'Unknown error'),
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
 @endpush
