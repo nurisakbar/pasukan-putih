@@ -227,7 +227,6 @@
                 }
             });
 
-            // Function to clear all form fields
             function clearFormFields() {
                 $('#name').val('');
                 $('#jenis_kelamin').val('').trigger('change');
@@ -235,7 +234,7 @@
                 $('#tanggal_lahir').val('');
                 $('#rt').val('');
                 $('#rw').val('');
-                $('#village_search').val(null).trigger('change'); // Clear Select2
+                $('#village_search').val(null).trigger('change'); 
                 $('#village_id').val('');
                 $('#district_id').val('');
                 $('#regency_id').val('');
@@ -243,18 +242,16 @@
                 $('#jenis_ktp').val('').trigger('change');
             }
 
-            // Function to search and populate village data
             function populateVillageData(kelurahanName) {
                 if (!kelurahanName) return;
 
-                // Search for village using the API
                 $.ajax({
                     url: '/search-village',
                     method: 'GET',
                     data: { q: kelurahanName },
                     success: function(villages) {
                         if (villages && villages.length > 0) {
-                            const village = villages[0]; // Take first match
+                            const village = villages[0]; 
                             
                             // Create option for Select2
                             const option = new Option(
@@ -280,27 +277,30 @@
                 });
             }
 
-            // Trigger AJAX on NIK input change
             $('#nik').on('change blur', function () {
                 const nik = $(this).val().trim();
 
-                // Check if NIK is exactly 16 digits
                 if (nik.length === 16 && /^\d+$/.test(nik)) {
-                    $('#loading-indicator').removeClass('d-none');
+                    Swal.fire({
+                        title: 'Mencari data...',
+                        text: 'Harap tunggu sebentar.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
                     $.ajax({
                         url: '{{ route("pasiens.carik") }}',
                         method: 'GET',
                         data: { nik: nik },
                         success: function (res) {
-                            $('#loading-indicator').addClass('d-none');
-                            console.log('Carik API Response:', res);
+                            // console.log('Carik API Response:', res);
                             
                             if (res.error) {
-                                alert(res.error);
+                                Swal.fire('Data Tidak Ditemukan', res.error, 'warning');
                                 clearFormFields();
                             } else {
-                                // Populate basic form fields
                                 $('#name').val(res.nama || '');
                                 $('#jenis_kelamin').val(res.jenis_kelamin || '').trigger('change');
                                 $('#alamat').val(res.alamat || '');
@@ -312,20 +312,17 @@
                                     $('#jenis_ktp').val('Non DKI').trigger('change');
                                 }
 
-                                // Populate village/location data
                                 if (res.nama_kelurahan) {
                                     populateVillageData(res.nama_kelurahan);
                                 }
-
-                                // Show success message
-                                // You can add a success notification here
-                                console.log('Data berhasil diisi dari Carik API');
+                                Swal.close();
+                                Swal.fire('Berhasil!', 'Data berhasil diisi dari Si CARIK.', 'success');
                             }
                         },
                         error: function (xhr) {
-                            $('#loading-indicator').addClass('d-none');
+                            Swal.close();
                             const errorMessage = xhr.responseJSON?.error || 'Gagal mengambil data dari server.';
-                            alert('Terjadi kesalahan: ' + errorMessage);
+                            Swal.fire('Terjadi Kesalahan', errorMessage, 'error');
                             clearFormFields();
                         }
                     });
@@ -333,8 +330,7 @@
                     // Clear form if NIK is empty
                     clearFormFields();
                 } else if (nik.length > 0 && nik.length !== 16) {
-                    // Show warning for invalid NIK length
-                    console.log('NIK harus 16 digit');
+                    Swal.fire('Format NIK Salah', 'NIK harus terdiri dari 16 digit angka.', 'warning');
                     clearFormFields();
                 }
             });
