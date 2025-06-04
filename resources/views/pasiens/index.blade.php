@@ -301,7 +301,7 @@
                                                     );
 
                                                     // Check if synchronization is complete
-                                                    if (percentage === 100) {
+                                                    if (progress.current_page = progress.total_pages) {
                                                         clearInterval(interval);
                                                         Swal.update({
                                                             showConfirmButton: true,
