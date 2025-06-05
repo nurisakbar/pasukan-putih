@@ -24,6 +24,10 @@ use App\Models\Visiting;
 use App\Imports\PasienImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use App\Jobs\SyncronisasiPasienCarik;
 use Auth;
 
 class PasienController extends Controller
@@ -259,24 +263,167 @@ class PasienController extends Controller
         return redirect()->back()->with('error', 'Template tidak ditemukan.');
     }
 
+    public function getDataPasienCarik(Request $request)
+    {
+        $nik = $request->input('nik');
+
+        // Validate NIK
+        if (!$nik || strlen($nik) !== 16 || !ctype_digit($nik)) {
+            return response()->json(['error' => 'NIK harus berupa 16 digit angka.'], 400);
+        }
+
+        try {
+            $response = Http::timeout(30)->withHeaders([
+                'carik-api-key' => 'WydtKanwCc0dhbaclOLy2uUBl7WVICQA',
+                'Cookie' => 'TS01f239ec=01b53461a6e068c46f652602c6a09733f49a58e0f31899b767a13a3358d6cac47368fe86ad7fb78a2034b98e8cb19c758b6dc2c1bf',
+            ])->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living', [
+                'nik' => $nik,
+            ]);
+
+            // Check if request was successful
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (isset($data['data']) && count($data['data']) > 0) {
+                    $d = $data['data'][0];
+                    
+                    return response()->json([
+                        'success' => true,
+                        'nama' => $d['nama'] ?? '',
+                        'alamat' => $d['alamat'] ?? '',
+                        'jenis_kelamin' => isset($d['gender']) ? ($d['gender'] == '1' ? 'Laki-laki' : 'Perempuan') : '',
+                        'kelurahan' => $d['kelurahan'] ?? '',
+                        'kecamatan' => $d['kecamatan'] ?? '',
+                        'kota' => $d['kota'] ?? '',
+                        'nama_kota' => $d['nama_kota'] ?? '',
+                        'nama_kelurahan' => $d['nama_kelurahan'] ?? '',
+                        'nama_kecamatan' => $d['nama_kecamatan'] ?? '',
+                        'message' => 'Data berhasil ditemukan dari Carik Jakarta'
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => 'Data tidak ditemukan di database Carik Jakarta. Silakan isi data secara manual.'
+                    ], 404);
+                }
+            } else {
+                \Log::warning('Carik API failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                
+                return response()->json([
+                    'error' => 'Layanan Carik Jakarta sedang tidak tersedia. Silakan isi data secara manual.'
+                ], $response->status());
+            }
+        } catch (\Exception $e) {
+            \Log::error('Carik API Exception', [
+                'message' => $e->getMessage(),
+                'nik' => $nik
+            ]);
+            
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat mengambil data dari Carik Jakarta. Silakan isi data secara manual.'
+            ], 500);
+        }
+    }
+
     public function searchVillage(Request $request)
     {
         $q = $request->input('q');
 
-        $results = DB::table('villages')
-            ->join('districts', 'villages.district_id', '=', 'districts.id')
-            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
-            ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
-            ->select(
-                'villages.id as village_id', 'villages.name as village_name',
-                'districts.id as district_id', 'districts.name as district_name',
-                'regencies.id as regency_id', 'regencies.name as regency_name',
-                'provinces.id as province_id', 'provinces.name as province_name'
-            )
-            ->where('villages.name', 'LIKE', '%' . $q . '%')
-            ->where('provinces.id', 31)
-            ->limit(20)
-            ->get();
-        return response()->json($results);
+        if (strlen($q) < 3) {
+            return response()->json([]);
+        }
+
+        try {
+            $results = DB::table('villages')
+                ->join('districts', 'villages.district_id', '=', 'districts.id')
+                ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+                ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+                ->select(
+                    'villages.id as village_id', 
+                    'villages.name as village_name',
+                    'districts.id as district_id', 
+                    'districts.name as district_name',
+                    'regencies.id as regency_id', 
+                    'regencies.name as regency_name',
+                    'provinces.id as province_id', 
+                    'provinces.name as province_name'
+                )
+                ->where(function ($query) use ($q) {
+                    $query->where('villages.name', 'LIKE', '%' . $q . '%')
+                        ->orWhere('districts.name', 'LIKE', '%' . $q . '%')
+                        ->orWhere('regencies.name', 'LIKE', '%' . $q . '%');
+                })
+                ->where('provinces.id', 31) // DKI Jakarta
+                ->orderBy('villages.name')
+                ->limit(20)
+                ->get();
+
+            return response()->json($results);
+        } catch (\Exception $e) {
+            \Log::error('Village search error', [
+                'message' => $e->getMessage(),
+                'query' => $q
+            ]);
+            
+            return response()->json([]);
+        }
     }
+
+    public function startSyncCarik(Request $request)
+    {
+        try {
+            $syncId = 'sync_carik_' . time();
+
+            // Dispatch the job with the authenticated user's ID
+            SyncronisasiPasienCarik::dispatch(auth()->user()->id, $syncId);
+
+            \Log::info('Sinkronisasi Carik dimulai', ['sync_id' => $syncId, 'user_id' => auth()->user()->id]);
+
+            return response()->json([
+                'success' => true,
+                'sync_id' => $syncId,
+                'message' => 'Sinkronisasi telah dimulai. Gunakan sync_id untuk memantau progres.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Gagal memulai sinkronisasi Carik: ' . $e->getMessage(), [
+                'sync_id' => $syncId ?? null,
+                'user_id' => auth()->user()->id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memulai sinkronisasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check the progress of the synchronization job.
+     *
+     * @param Request $request
+     * @param string $syncId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkSyncProgress(Request $request, $syncId)
+    {
+        $cacheKey = $syncId;
+        $progress = Cache::get($cacheKey);
+
+        if (!$progress) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Progres sinkronisasi tidak ditemukan atau telah kadaluarsa.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'progress' => $progress,
+            'message' => $progress['message']
+        ], 200);
+    }
+
 }

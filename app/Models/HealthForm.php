@@ -96,6 +96,9 @@ class HealthForm extends Model
         'tanggal_kunjungan',
         'catatan_keperawatan',
         'henti_layanan',
+        'non_medical_issues_status',
+        'non_medical_issues_text',
+        'caregiver_availability',
     ];
 
     /**

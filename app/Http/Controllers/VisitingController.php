@@ -173,6 +173,14 @@ class VisitingController extends Controller
             'status' => $request->status,
         ]);
 
+        $update_pustu_id = Pasien::where('id', $request->pasien_id)
+        ->where('user_id', '=', '-')
+        ->whereNull('pustu_id') 
+        ->update([
+            'pustu_id' => auth()->user()->pustu_id,
+            'user_id' => auth()->user()->id
+        ]);
+
         $ttv = Ttv::create([
             'kunjungan_id' => $visiting->id,
         ]);

@@ -167,6 +167,53 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3 d-flex">
+                        <i class="fas fa-users me-2"></i>
+                        <h5>DUKUNGAN KELUARGA / PENDAMPING</h5>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="caregiver_availability" class="form-label fw-medium">
+                                Apakah ada keluarga/pendamping yang membantu?
+                            </label>
+                            <select name="caregiver_availability" id="caregiver_availability" class="form-select" required>
+                                <option value="">Pilih...</option>
+                                <option value="selalu" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'selalu' ? 'selected' : '' }}>
+                                    Selalu ada
+                                </option>
+                                <option value="kadang" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'kadang' ? 'selected' : '' }}>
+                                    Tidak selalu ada
+                                </option>
+                                <option value="tidak" {{ old('caregiver_availability', $healthForm->caregiver_availability ?? '') == 'tidak' ? 'selected' : '' }}>
+                                    Tidak ada
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section mb-4">
+                    <div class="section-header mb-3 d-flex">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        <h5>PERMASALAHAN DI LUAR KESEHATAN</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium">Apakah adapermasalahan di luar kesehatan yang mempengaruhi kondisi pasien?</label>
+                            <select name="non_medical_issues_status" id="non_medical_issues_status" class="form-select">
+                                <option value="">Pilih...</option>
+                                <option value="1" {{ $healthForm->non_medical_issues_status == 1 ? 'selected' : '' }}>Ya</option>
+                                <option value="0" {{ $healthForm->non_medical_issues_status == 0 ? 'selected' : '' }}>Tidak</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="non_medical_issues_text_wrapper" class="mb-3" style="display: none;">
+                        <label for="non_medical_issues_text" class="form-label fw-medium">Tuliskan permasalahan di luar kesehatan</label>
+                        <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control">{{ old('non_medical_issues_text', $healthForm->non_medical_issues_text ?? '') }}</textarea>
+                    </div>
+                </div>
 
                 <!-- Jenis gangguan fungsional Caregiver & perawat-->
                 <div class="form-section mb-4">
@@ -563,7 +610,29 @@
             $('#kunjungan_lanjutan').trigger('change');
         });
 
+        $(document).ready(function () {
+            function toggleTextField() {
+                var status = $('#non_medical_issues_status').val();
+                if (status === '1') {
+                    $('#non_medical_issues_text_wrapper').slideDown();
+                } else {
+                    $('#non_medical_issues_text_wrapper').slideUp();
+                    $('#non_medical_issues_text').val(''); 
+                }
+            }
+
+            // Cek saat halaman dimuat
+            toggleTextField();
+
+            // Cek saat select berubah
+            $('#non_medical_issues_status').on('change', function () {
+                toggleTextField();
+            });
+        });
+
     });
+
+
 </script>
 @endpush
 
