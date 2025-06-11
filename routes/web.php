@@ -126,3 +126,14 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test']);
 
 
+Route::get('/tes-curl', function () {
+    try {
+        $response = Http::timeout(30)->withHeaders([
+            'carik-api-key' => env('CARIK_API_KEY'),
+            'Cookie' => env('CARIK_COOKIE') // opsional, jika diperlukan
+        ])->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
+        return $response->body();
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
