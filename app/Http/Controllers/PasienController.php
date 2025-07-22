@@ -35,11 +35,12 @@ use Illuminate\Support\Facades\Log;
 
 class PasienController extends Controller
 {
-    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
+
+    public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $currentUser = \Auth::user();
 
-        $query = DB::table('pasiens')
+        $pasiens = DB::table('pasiens')
             ->select(
                 'pasiens.*',
                 'villages.name as village_name',
@@ -48,74 +49,28 @@ class PasienController extends Controller
                 'pustus.jenis_faskes'
             )
             ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftJoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
+            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->whereNull('pasiens.deleted_at');
 
-        // Filter berdasarkan role user
         if ($currentUser->role === 'sudinkes') {
-            $query->where('regencies.id', $currentUser->regency_id);
+            $pasiens->where('regencies.id', $currentUser->regency_id);
         } elseif ($currentUser->role === 'perawat') {
             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
-                $query->where('districts.id', $currentUser->pustu->district_id);
+                $districtId = $currentUser->pustu->district_id;
+                $pasiens->where('districts.id', $districtId); 
             } else {
-                $query->where('pasiens.user_id', $currentUser->id);
+                $pasiens->where('pasiens.user_id', $currentUser->id);
             }
         } elseif ($currentUser->role !== 'superadmin') {
-            $query->where('pasiens.user_id', $currentUser->id);
+            $pasiens->where('pasiens.user_id', $currentUser->id);
         }
 
-        if ($request->ajax()) {
-            return DataTables::of($query)
-                ->addColumn('aksi', function ($row) {
-                    return view('pasiens.aksi', compact('row'))->render();
-                })
-                ->addColumn('rt_rw', function ($row) {
-                    return $row->rt . '/' . $row->rw;
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
-        }
+        $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
 
-        return view('pasiens.index');
+        return view('pasiens.index', compact('pasiens'));
     }
-
-    // public function index(Request $request): \Illuminate\Contracts\View\View
-    // {
-    //     $currentUser = \Auth::user();
-
-    //     $pasiens = DB::table('pasiens')
-    //         ->select(
-    //             'pasiens.*',
-    //             'villages.name as village_name',
-    //             'districts.name as district_name',
-    //             'regencies.name as regency_name',
-    //             'pustus.jenis_faskes'
-    //         )
-    //         ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-    //         ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-    //         ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-    //         ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-    //         ->whereNull('pasiens.deleted_at');
-
-    //     if ($currentUser->role === 'sudinkes') {
-    //         $pasiens->where('regencies.id', $currentUser->regency_id);
-    //     } elseif ($currentUser->role === 'perawat') {
-    //         if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
-    //             $districtId = $currentUser->pustu->district_id;
-    //             $pasiens->where('districts.id', $districtId); 
-    //         } else {
-    //             $pasiens->where('pasiens.user_id', $currentUser->id);
-    //         }
-    //     } elseif ($currentUser->role !== 'superadmin') {
-    //         $pasiens->where('pasiens.user_id', $currentUser->id);
-    //     }
-
-    //     $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
-
-    //     return view('pasiens.index', compact('pasiens'));
-    // }
 
 
     public function create(): \Illuminate\Contracts\View\View
