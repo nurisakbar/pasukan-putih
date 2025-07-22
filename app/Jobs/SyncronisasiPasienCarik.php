@@ -165,10 +165,10 @@ class SyncronisasiPasienCarik implements ShouldQueue
                         // Update progress after successful processing
                         $progress = Cache::get($cacheKey, []);
                         $progress['processed_records'] = $processedRecords;
-                        $progress['message'] = "Berhasil memproses halaman {$currentPage} dari {$totalPages}";
+                        $progress['message'] = "Berhasil memproses {$currentPage} dari {$totalPages}";
                         Cache::put($cacheKey, $progress, 3600);
 
-                        Log::info("Berhasil memproses halaman {$currentPage} dari {$totalPages}");
+                        Log::info("Berhasil memproses {$currentPage} dari {$totalPages}");
 
                     } else {
                         throw new \Exception("API Error: Status {$response->status()}, Body: {$response->body()}");
