@@ -147,21 +147,62 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if ($pasiens->count() > 0)
-    <script>
-        $(function () {
-            $('#example3').DataTable({
-                responsive: true,
-                autoWidth: false,
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
-                    emptyTable: "Belum ada data untuk ditampilkan"
-                }
-            });
+<script>
+    $(document).ready(function () {
+        $('#example3').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route("pasiens.index") }}',
+            columns: [
+                { data: 'action', name: 'action', orderable: false, searchable: false },
+                { data: 'name', name: 'pasiens.name' },
+                { data: 'nik', name: 'pasiens.nik' },
+                { data: 'jenis_kelamin', name: 'pasiens.jenis_kelamin' },
+                { data: 'alamat', name: 'pasiens.alamat' },
+                { data: null, render: function (data) {
+                    return data.rt + '/' + data.rw;
+                }, orderable: false, searchable: false },
+                { data: 'regency_name', name: 'regencies.name' },
+                { data: 'district_name', name: 'districts.name' },
+                { data: 'village_name', name: 'villages.name' }
+            ],
+            responsive: true,
+            order: [[1, 'desc']],
+            language: {
+                emptyTable: `
+                    <div class="d-flex flex-column align-items-center">
+                        <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                        <h5 class="text-muted">Tidak ada Data Sasaran</h5>
+                        <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
+                    </div>
+                `
+            }
         });
-    </script>
-@endif
 
+        // Handle delete button click
+        $('#example3').on('click', '.delete-btn', function () {
+            const id = $(this).data('id');
+            const nama = $(this).data('nama');
+            if (confirm(`Apakah Anda yakin ingin menghapus data ${nama}?`)) {
+                $.ajax({
+                    url: '{{ url("pasiens") }}/' + id,
+                    type: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function () {
+                        $('#example3').DataTable().ajax.reload();
+                        alert('Data berhasil dihapus!');
+                    },
+                    error: function () {
+                        alert('Terjadi kesalahan saat menghapus data.');
+                    }
+                });
+            }
+        });
+    });
+</script>
 <script>
     $(document).ready(function () {
 
