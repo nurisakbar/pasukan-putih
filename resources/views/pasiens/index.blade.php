@@ -25,7 +25,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive-sm">
-                                <table id="example3" class="table table-bordered table-striped dataTable-responsive">
+                                <table id="pasienTable" class="table table-bordered table-striped dataTable-responsive">
                                     <thead>
                                         <tr>
                                             <th class="text-center" width="90">Aksi</th>
@@ -40,68 +40,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($pasiens as $pasien)
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="btn-group">
-                                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <i class="fas fa-cogs"></i> Aksi
-                                                            </button>
-                                                            <ul class="dropdown-menu">
-                                                                <li style="display: none">
-                                                                    <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-                                                                    </a>
-                                                                </li>
-
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <button class="dropdown-item text-danger delete-btn"
-                                                                            data-id="{{ $pasien->id }}"
-                                                                            data-nama="{{ $pasien->name }}">
-                                                                        <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-
-                                                    <form id="delete-form-{{ $pasien->id }}" action="{{ route('pasiens.destroy', $pasien->id) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
-                                                </td>
-
-                                                <td>{{ $pasien->name }}</td>
-                                                <td>{{ $pasien->nik }}</td>
-                                                <td>{{ $pasien->jenis_kelamin }}</td>
-                                                <td>{{ $pasien->alamat }}</td>
-                                                <td>{{ $pasien->rt }}/{{ $pasien->rw }}</td>
-                                                <td>{{ $pasien->regency_name }}</td>
-                                                <td>{{ $pasien->district_name }}</td>
-                                                <td>{{ $pasien->village_name }}</td>
-                                            </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center py-4">
-                                                <div class="d-flex flex-column align-items-center">
-                                                    <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                                                    <h5 class="text-muted">Tidak ada Data Sasaran</h5>
-                                                    <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforelse
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -147,20 +86,182 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if ($pasiens->count() > 0)
     <script>
-        $(function () {
-            $('#example3').DataTable({
-                responsive: true,
-                autoWidth: false,
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
-                    emptyTable: "Belum ada data untuk ditampilkan"
+    $(document).ready(function() {
+    console.log('Initializing DataTable...');
+    
+    // Initialize DataTable with enhanced error handling
+    const table = $('#pasienTable').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        autoWidth: false,
+        ajax: {
+            url: "{{ route('pasiens.index') }}",
+            type: 'GET',
+            data: function(d) {
+                console.log('DataTable request data:', d);
+                return d;
+            },
+            error: function(xhr, error, thrown) {
+                console.error('DataTable Ajax Error Details:', {
+                    xhr: xhr,
+                    error: error,
+                    thrown: thrown,
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText
+                });
+                
+                let errorMessage = 'Gagal memuat data.';
+                
+                if (xhr.status === 500) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage = response.message || 'Server Error (500)';
+                    } catch (e) {
+                        errorMessage = 'Server Error (500). Periksa log server untuk detail.';
+                    }
+                } else if (xhr.status === 404) {
+                    errorMessage = 'Endpoint tidak ditemukan (404).';
+                } else if (xhr.status === 403) {
+                    errorMessage = 'Akses ditolak (403).';
+                } else if (xhr.status === 0) {
+                    errorMessage = 'Tidak dapat terhubung ke server.';
+                } else if (error === 'parsererror') {
+                    errorMessage = 'Server mengembalikan data yang tidak valid. Periksa format response.';
                 }
-            });
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Loading Data',
+                    html: `${errorMessage}<br><small>Status: ${xhr.status} - ${error}</small>`,
+                    footer: 'Silakan refresh halaman atau hubungi administrator.'
+                });
+            },
+            complete: function(xhr, status) {
+                console.log('DataTable request completed:', status);
+            }
+        },
+        columns: [
+            { 
+                data: 'aksi', 
+                name: 'aksi', 
+                orderable: false, 
+                searchable: false,
+                className: 'text-center'
+            },
+            { 
+                data: 'name', 
+                name: 'pasiens.name',
+                defaultContent: ''
+            },
+            { 
+                data: 'nik', 
+                name: 'pasiens.nik',
+                defaultContent: ''
+            },
+            { 
+                data: 'jenis_kelamin', 
+                name: 'pasiens.jenis_kelamin',
+                defaultContent: ''
+            },
+            { 
+                data: 'alamat', 
+                name: 'pasiens.alamat',
+                defaultContent: ''
+            },
+            { 
+                data: 'rt_rw', 
+                name: 'rt_rw', 
+                orderable: false,
+                defaultContent: ''
+            },
+            { 
+                data: 'regency_name', 
+                name: 'regencies.name',
+                defaultContent: ''
+            },
+            { 
+                data: 'district_name', 
+                name: 'districts.name',
+                defaultContent: ''
+            },
+            { 
+                data: 'village_name', 
+                name: 'villages.name',
+                defaultContent: ''
+            }
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+            processing: "Memuat data...",
+            emptyTable: "Tidak ada Data Sasaran yang tersedia",
+            zeroRecords: "Tidak ditemukan data yang sesuai",
+            loadingRecords: "Sedang memuat...",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+            infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+            infoFiltered: "(disaring dari _MAX_ entri keseluruhan)"
+        },
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+        order: [[1, 'asc']], // Sort by name by default
+        drawCallback: function(settings) {
+            console.log('DataTable draw completed');
+            // Reinitialize tooltips or other plugins if needed
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        },
+        initComplete: function(settings, json) {
+            console.log('DataTable initialization completed', json);
+        }
+    });
+
+    // Handle delete button clicks (using event delegation)
+    $('body').on('click', '.delete-btn', function(event) {
+        event.preventDefault();
+        const id = $(this).data('id');
+        const pasienNama = $(this).data('nama');
+        
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus data ini!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit delete form
+                document.getElementById('delete-form-' + id).submit();
+            }
         });
+    });
+
+    // Refresh table after successful operations
+    window.refreshTable = function() {
+        table.ajax.reload(null, false); // false to keep current page
+    };
+
+    // Debug button to check current DataTable state
+    window.debugDataTable = function() {
+        console.log('DataTable instance:', table);
+        console.log('DataTable settings:', table.settings());
+        console.log('Current AJAX URL:', table.ajax.url());
+    };
+});
     </script>
-@endif
+
 
 <script>
     $(document).ready(function () {

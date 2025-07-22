@@ -35,242 +35,242 @@ use Illuminate\Support\Facades\Log;
 
 class PasienController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     try {
-    //         // Debug: Log the request details
-    //         Log::info('PasienController::index called', [
-    //             'is_ajax' => $request->ajax(),
-    //             'headers' => $request->headers->all(),
-    //             'query_params' => $request->query(),
-    //         ]);
-
-    //         if ($request->ajax()) {
-    //             return $this->getDataTable($request);
-    //         }
-
-    //         return view('pasiens.index');
-    //     } catch (Exception $e) {
-    //         Log::error('Error in PasienController::index', [
-    //             'message' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine(),
-    //         ]);
-
-    //         if ($request->ajax()) {
-    //             return response()->json([
-    //                 'error' => true,
-    //                 'message' => 'Terjadi kesalahan saat memuat data: ' . $e->getMessage()
-    //             ], 500);
-    //         }
-
-    //         return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-    //     }
-    // }
-
-    // private function getDataTable(Request $request)
-    // {
-    //     try {
-    //         $currentUser = Auth::user();
-
-    //         if (!$currentUser) {
-    //             throw new Exception('User tidak terautentikasi');
-    //         }
-
-    //         $query = DB::table('pasiens')
-    //             ->select([
-    //                 'pasiens.id',
-    //                 'pasiens.name',
-    //                 'pasiens.nik',
-    //                 'pasiens.jenis_kelamin',
-    //                 'pasiens.alamat',
-    //                 'pasiens.rt',
-    //                 'pasiens.rw',
-    //                 'villages.name as village_name',
-    //                 'districts.name as district_name',
-    //                 'regencies.name as regency_name',
-    //                 'pustus.jenis_faskes'
-    //             ])
-    //             ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-    //             ->leftJoin('villages', 'villages.id', '=', 'pasiens.village_id')
-    //             ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
-    //             ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-    //             ->whereNull('pasiens.deleted_at');
-
-    //         // Apply role-based filtering
-    //         $this->applyRoleBasedFiltering($query, $currentUser);
-
-    //         // Debug: Log query details
-    //         Log::info('DataTable query prepared', [
-    //             'user_role' => $currentUser->role,
-    //             'sql' => $query->toSql(),
-    //         ]);
-
-    //         return DataTables::of($query)
-    //             ->addColumn('aksi', function ($row) {
-    //                 return $this->getActionButtons($row);
-    //             })
-    //             ->addColumn('rt_rw', function ($row) {
-    //                 return ($row->rt ?? '') . '/' . ($row->rw ?? '');
-    //             })
-    //             ->editColumn('jenis_kelamin', function ($row) {
-    //                 return $row->jenis_kelamin ?? '';
-    //             })
-    //             ->editColumn('name', function ($row) {
-    //                 return $row->name ?? '';
-    //             })
-    //             ->editColumn('nik', function ($row) {
-    //                 return $row->nik ?? '';
-    //             })
-    //             ->editColumn('alamat', function ($row) {
-    //                 return $row->alamat ?? '';
-    //             })
-    //             ->editColumn('village_name', function ($row) {
-    //                 return $row->village_name ?? '';
-    //             })
-    //             ->editColumn('district_name', function ($row) {
-    //                 return $row->district_name ?? '';
-    //             })
-    //             ->editColumn('regency_name', function ($row) {
-    //                 return $row->regency_name ?? '';
-    //             })
-    //             ->rawColumns(['aksi'])
-    //             ->make(true);
-
-    //     } catch (Exception $e) {
-    //         Log::error('Error in getDataTable', [
-    //             'message' => $e->getMessage(),
-    //             'file' => $e->getFile(),
-    //             'line' => $e->getLine(),
-    //             'trace' => $e->getTraceAsString(),
-    //         ]);
-
-    //         return response()->json([
-    //             'error' => true,
-    //             'message' => 'Error loading data: ' . $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
-    // private function applyRoleBasedFiltering($query, $currentUser)
-    // {
-    //     switch ($currentUser->role) {
-    //         case 'sudinkes':
-    //             if ($currentUser->regency_id) {
-    //                 $query->where('regencies.id', $currentUser->regency_id);
-    //             }
-    //             break;
-            
-    //         case 'perawat':
-    //             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
-    //                 $districtId = $currentUser->pustu->district_id;
-    //                 if ($districtId) {
-    //                     $query->where('districts.id', $districtId);
-    //                 }
-    //             } else {
-    //                 $query->where('pasiens.user_id', $currentUser->id);
-    //             }
-    //             break;
-            
-    //         case 'superadmin':
-    //             // No additional filtering for superadmin
-    //             break;
-            
-    //         default:
-    //             $query->where('pasiens.user_id', $currentUser->id);
-    //             break;
-    //     }
-    // }
-
-    // private function getActionButtons($row)
-    // {
-    //     try {
-    //         $showUrl = route('pasiens.show', $row->id);
-    //         $editUrl = route('pasiens.edit', $row->id);
-    //         $deleteUrl = route('pasiens.destroy', $row->id);
-    //         $asuhanKeluargaUrl = route('pasiens.asuhanKeluarga', $row->id);
-
-    //         return '
-    //             <div class="d-flex justify-content-center">
-    //                 <div class="btn-group">
-    //                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-    //                         <i class="fas fa-cogs"></i> Aksi
-    //                     </button>
-    //                     <ul class="dropdown-menu">
-    //                         <li style="display: none">
-    //                             <a href="' . $asuhanKeluargaUrl . '" class="dropdown-item">
-    //                                 <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-    //                             </a>
-    //                         </li>
-    //                         <li>
-    //                             <a href="' . $showUrl . '" class="dropdown-item">
-    //                                 <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-    //                             </a>
-    //                         </li>
-    //                         <li>
-    //                             <a href="' . $editUrl . '" class="dropdown-item">
-    //                                 <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-    //                             </a>
-    //                         </li>
-    //                         <li>
-    //                             <button class="dropdown-item text-danger delete-btn"
-    //                                     data-id="' . $row->id . '"
-    //                                     data-nama="' . htmlspecialchars($row->name ?? '', ENT_QUOTES, 'UTF-8') . '">
-    //                                 <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-    //                             </button>
-    //                         </li>
-    //                     </ul>
-    //                 </div>
-    //             </div>
-    //             <form id="delete-form-' . $row->id . '" action="' . $deleteUrl . '" method="POST" style="display: none;">
-    //                 ' . csrf_field() . '
-    //                 ' . method_field('DELETE') . '
-    //             </form>';
-    //     } catch (Exception $e) {
-    //         Log::error('Error generating action buttons', [
-    //             'row_id' => $row->id ?? 'unknown',
-    //             'message' => $e->getMessage(),
-    //         ]);
-            
-    //         return '<span class="text-danger">Error</span>';
-    //     }
-    // }
-
-    public function index(Request $request): \Illuminate\Contracts\View\View
+    public function index(Request $request)
     {
-        $currentUser = \Auth::user();
+        try {
+            // Debug: Log the request details
+            Log::info('PasienController::index called', [
+                'is_ajax' => $request->ajax(),
+                'headers' => $request->headers->all(),
+                'query_params' => $request->query(),
+            ]);
 
-        $pasiens = DB::table('pasiens')
-            ->select(
-                'pasiens.*',
-                'villages.name as village_name',
-                'districts.name as district_name',
-                'regencies.name as regency_name',
-                'pustus.jenis_faskes'
-            )
-            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->whereNull('pasiens.deleted_at');
-
-        if ($currentUser->role === 'sudinkes') {
-            $pasiens->where('regencies.id', $currentUser->regency_id);
-        } elseif ($currentUser->role === 'perawat') {
-            if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
-                $districtId = $currentUser->pustu->district_id;
-                $pasiens->where('districts.id', $districtId); 
-            } else {
-                $pasiens->where('pasiens.user_id', $currentUser->id);
+            if ($request->ajax()) {
+                return $this->getDataTable($request);
             }
-        } elseif ($currentUser->role !== 'superadmin') {
-            $pasiens->where('pasiens.user_id', $currentUser->id);
+
+            return view('pasiens.index');
+        } catch (Exception $e) {
+            Log::error('Error in PasienController::index', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Terjadi kesalahan saat memuat data: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
-
-        return view('pasiens.index', compact('pasiens'));
     }
+
+    private function getDataTable(Request $request)
+    {
+        try {
+            $currentUser = Auth::user();
+
+            if (!$currentUser) {
+                throw new Exception('User tidak terautentikasi');
+            }
+
+            $query = DB::table('pasiens')
+                ->select([
+                    'pasiens.id',
+                    'pasiens.name',
+                    'pasiens.nik',
+                    'pasiens.jenis_kelamin',
+                    'pasiens.alamat',
+                    'pasiens.rt',
+                    'pasiens.rw',
+                    'villages.name as village_name',
+                    'districts.name as district_name',
+                    'regencies.name as regency_name',
+                    'pustus.jenis_faskes'
+                ])
+                ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
+                ->leftJoin('villages', 'villages.id', '=', 'pasiens.village_id')
+                ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
+                ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+                ->whereNull('pasiens.deleted_at');
+
+            // Apply role-based filtering
+            $this->applyRoleBasedFiltering($query, $currentUser);
+
+            // Debug: Log query details
+            Log::info('DataTable query prepared', [
+                'user_role' => $currentUser->role,
+                'sql' => $query->toSql(),
+            ]);
+
+            return DataTables::of($query)
+                ->addColumn('aksi', function ($row) {
+                    return $this->getActionButtons($row);
+                })
+                ->addColumn('rt_rw', function ($row) {
+                    return ($row->rt ?? '') . '/' . ($row->rw ?? '');
+                })
+                ->editColumn('jenis_kelamin', function ($row) {
+                    return $row->jenis_kelamin ?? '';
+                })
+                ->editColumn('name', function ($row) {
+                    return $row->name ?? '';
+                })
+                ->editColumn('nik', function ($row) {
+                    return $row->nik ?? '';
+                })
+                ->editColumn('alamat', function ($row) {
+                    return $row->alamat ?? '';
+                })
+                ->editColumn('village_name', function ($row) {
+                    return $row->village_name ?? '';
+                })
+                ->editColumn('district_name', function ($row) {
+                    return $row->district_name ?? '';
+                })
+                ->editColumn('regency_name', function ($row) {
+                    return $row->regency_name ?? '';
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
+
+        } catch (Exception $e) {
+            Log::error('Error in getDataTable', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error loading data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function applyRoleBasedFiltering($query, $currentUser)
+    {
+        switch ($currentUser->role) {
+            case 'sudinkes':
+                if ($currentUser->regency_id) {
+                    $query->where('regencies.id', $currentUser->regency_id);
+                }
+                break;
+            
+            case 'perawat':
+                if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+                    $districtId = $currentUser->pustu->district_id;
+                    if ($districtId) {
+                        $query->where('districts.id', $districtId);
+                    }
+                } else {
+                    $query->where('pasiens.user_id', $currentUser->id);
+                }
+                break;
+            
+            case 'superadmin':
+                // No additional filtering for superadmin
+                break;
+            
+            default:
+                $query->where('pasiens.user_id', $currentUser->id);
+                break;
+        }
+    }
+
+    private function getActionButtons($row)
+    {
+        try {
+            $showUrl = route('pasiens.show', $row->id);
+            $editUrl = route('pasiens.edit', $row->id);
+            $deleteUrl = route('pasiens.destroy', $row->id);
+            $asuhanKeluargaUrl = route('pasiens.asuhanKeluarga', $row->id);
+
+            return '
+                <div class="d-flex justify-content-center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cogs"></i> Aksi
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li style="display: none">
+                                <a href="' . $asuhanKeluargaUrl . '" class="dropdown-item">
+                                    <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
+                                </a>
+                            </li>
+                            <li>
+                                <a href="' . $showUrl . '" class="dropdown-item">
+                                    <i class="fas fa-eye me-2"></i> Detail Data Sasaran
+                                </a>
+                            </li>
+                            <li>
+                                <a href="' . $editUrl . '" class="dropdown-item">
+                                    <i class="fas fa-edit me-2"></i> Edit Data Sasaran
+                                </a>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger delete-btn"
+                                        data-id="' . $row->id . '"
+                                        data-nama="' . htmlspecialchars($row->name ?? '', ENT_QUOTES, 'UTF-8') . '">
+                                    <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <form id="delete-form-' . $row->id . '" action="' . $deleteUrl . '" method="POST" style="display: none;">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                </form>';
+        } catch (Exception $e) {
+            Log::error('Error generating action buttons', [
+                'row_id' => $row->id ?? 'unknown',
+                'message' => $e->getMessage(),
+            ]);
+            
+            return '<span class="text-danger">Error</span>';
+        }
+    }
+
+    // public function index(Request $request): \Illuminate\Contracts\View\View
+    // {
+    //     $currentUser = \Auth::user();
+
+    //     $pasiens = DB::table('pasiens')
+    //         ->select(
+    //             'pasiens.*',
+    //             'villages.name as village_name',
+    //             'districts.name as district_name',
+    //             'regencies.name as regency_name',
+    //             'pustus.jenis_faskes'
+    //         )
+    //         ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
+    //         ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
+    //         ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
+    //         ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+    //         ->whereNull('pasiens.deleted_at');
+
+    //     if ($currentUser->role === 'sudinkes') {
+    //         $pasiens->where('regencies.id', $currentUser->regency_id);
+    //     } elseif ($currentUser->role === 'perawat') {
+    //         if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+    //             $districtId = $currentUser->pustu->district_id;
+    //             $pasiens->where('districts.id', $districtId); 
+    //         } else {
+    //             $pasiens->where('pasiens.user_id', $currentUser->id);
+    //         }
+    //     } elseif ($currentUser->role !== 'superadmin') {
+    //         $pasiens->where('pasiens.user_id', $currentUser->id);
+    //     }
+
+    //     $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
+
+    //     return view('pasiens.index', compact('pasiens'));
+    // }
 
 
     public function create(): \Illuminate\Contracts\View\View
