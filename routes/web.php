@@ -125,32 +125,24 @@ Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'i
 
 Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test']);
 
+Route::get('/test-carik', function () {
+    $response = Http::withOptions([
+        'proxy' => env('CARIK_PROXY'), // ← pakai proxy dari env
+        'verify' => true, // tetap verifikasi SSL (jika error SSL bisa false, tapi tidak disarankan)
+    ])
+    ->withHeaders([
+        'carik-api-key' => env('CARIK_API_KEY'),
+        'Cookie' => env('CARIK_COOKIE'),
+    ])
+    ->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
 
-Route::get('/tes-carik', function () {
-    try {
-        $response = Http::timeout(30)
-            ->withHeaders([
-                'carik-api-key' => env('CARIK_API_KEY'),
-                'Cookie' => env('CARIK_COOKIE'),
-            ])
-            ->withOptions([
-                'proxy' => [
-                    'http'  => env('HTTP_PROXY'),
-                    'https' => env('HTTPS_PROXY'),
-                ],
-                // 'verify' => false, // ← jika perlu bypass SSL (tidak direkomendasikan untuk production)
-            ])
-            ->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
+    // Cek status response
+    if ($response->successful()) {
+        return $response->json();
+    } else {
         return response()->json([
             'status' => $response->status(),
-            'message' => $response->json() ?? $response->body(),
+            'error' => $response->body(),
         ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()]);
     }
 });
