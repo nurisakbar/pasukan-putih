@@ -127,8 +127,8 @@ Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test'
 
 Route::get('/test-carik', function () {
     $response = Http::withOptions([
-        'proxy' => env('CARIK_PROXY'), // ← pakai proxy dari env
-        'verify' => true, // tetap verifikasi SSL (jika error SSL bisa false, tapi tidak disarankan)
+        'proxy' => 'http://10.15.3.20:80', 
+        'verify' => true, 
     ])
     ->withHeaders([
         'carik-api-key' => env('CARIK_API_KEY'),
