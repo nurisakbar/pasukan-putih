@@ -98,10 +98,14 @@
         autoWidth: false,
         ajax: {
             url: "{{ route('pasiens.index') }}",
-            type: 'GET',
+            type: 'POST', 
             data: function(d) {
-                console.log('DataTable request data:', d);
                 return d;
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             },
             error: function(xhr, error, thrown) {
                 console.error('DataTable Ajax Error Details:', {
