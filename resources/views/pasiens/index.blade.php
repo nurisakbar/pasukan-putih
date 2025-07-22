@@ -40,6 +40,68 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @forelse ($pasiens as $pasien)
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex justify-content-center">
+                                                        <div class="btn-group">
+                                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="fas fa-cogs"></i> Aksi
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li style="display: none">
+                                                                    <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="dropdown-item">
+                                                                        <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
+                                                                    </a>
+                                                                </li>
+
+                                                                <li>
+                                                                    <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
+                                                                        <i class="fas fa-eye me-2"></i> Detail Data Sasaran
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
+                                                                        <i class="fas fa-edit me-2"></i> Edit Data Sasaran
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <button class="dropdown-item text-danger delete-btn"
+                                                                            data-id="{{ $pasien->id }}"
+                                                                            data-nama="{{ $pasien->name }}">
+                                                                        <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <form id="delete-form-{{ $pasien->id }}" action="{{ route('pasiens.destroy', $pasien->id) }}" method="POST" style="display: none;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    </form>
+                                                </td>
+
+                                                <td>{{ $pasien->name }}</td>
+                                                <td>{{ $pasien->nik }}</td>
+                                                <td>{{ $pasien->jenis_kelamin }}</td>
+                                                <td>{{ $pasien->alamat }}</td>
+                                                <td>{{ $pasien->rt }}/{{ $pasien->rw }}</td>
+                                                <td>{{ $pasien->regency_name }}</td>
+                                                <td>{{ $pasien->district_name }}</td>
+                                                <td>{{ $pasien->village_name }}</td>
+                                            </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="9" class="text-center py-4">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                                                    <h5 class="text-muted">Tidak ada Data Sasaran</h5>
+                                                    <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -85,62 +147,21 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    $(document).ready(function () {
-        $('#example3').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '{{ route("pasiens.index") }}',
-            columns: [
-                { data: 'action', name: 'action', orderable: false, searchable: false },
-                { data: 'name', name: 'pasiens.name' },
-                { data: 'nik', name: 'pasiens.nik' },
-                { data: 'jenis_kelamin', name: 'pasiens.jenis_kelamin' },
-                { data: 'alamat', name: 'pasiens.alamat' },
-                { data: null, render: function (data) {
-                    return data.rt + '/' + data.rw;
-                }, orderable: false, searchable: false },
-                { data: 'regency_name', name: 'regencies.name' },
-                { data: 'district_name', name: 'districts.name' },
-                { data: 'village_name', name: 'villages.name' }
-            ],
-            responsive: true,
-            order: [[1, 'desc']],
-            language: {
-                emptyTable: `
-                    <div class="d-flex flex-column align-items-center">
-                        <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                        <h5 class="text-muted">Tidak ada Data Sasaran</h5>
-                        <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
-                    </div>
-                `
-            }
+@if ($pasiens->count() > 0)
+    <script>
+        $(function () {
+            $('#example3').DataTable({
+                responsive: true,
+                autoWidth: false,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                    emptyTable: "Belum ada data untuk ditampilkan"
+                }
+            });
         });
+    </script>
+@endif
 
-        // Handle delete button click
-        $('#example3').on('click', '.delete-btn', function () {
-            const id = $(this).data('id');
-            const nama = $(this).data('nama');
-            if (confirm(`Apakah Anda yakin ingin menghapus data ${nama}?`)) {
-                $.ajax({
-                    url: '{{ url("pasiens") }}/' + id,
-                    type: 'POST',
-                    data: {
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function () {
-                        $('#example3').DataTable().ajax.reload();
-                        alert('Data berhasil dihapus!');
-                    },
-                    error: function () {
-                        alert('Terjadi kesalahan saat menghapus data.');
-                    }
-                });
-            }
-        });
-    });
-</script>
 <script>
     $(document).ready(function () {
 
