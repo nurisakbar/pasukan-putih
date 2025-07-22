@@ -128,10 +128,22 @@ Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test'
 
 Route::get('/tes-curl', function () {
     try {
-        $response = Http::timeout(30)->withHeaders([
-            'carik-api-key' => env('CARIK_API_KEY'),
-            'Cookie' => env('CARIK_COOKIE') // opsional, jika diperlukan
-        ])->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'carik-api-key' => env('CARIK_API_KEY'),
+                'Cookie' => env('CARIK_COOKIE'),
+                'Accept' => 'application/json',
+            ])
+            ->withOptions([
+                'proxy' => [
+                    'http' => env('HTTP_PROXY'),
+                    'https' => env('HTTPS_PROXY'),
+                ],
+                // Optional: jika proxy memerlukan bypass SSL verifikasi
+                // 'verify' => false,
+            ])
+            ->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
+
         return $response->body();
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()]);
