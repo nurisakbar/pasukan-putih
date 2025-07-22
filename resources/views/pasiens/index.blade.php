@@ -40,68 +40,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($pasiens as $pasien)
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="btn-group">
-                                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <i class="fas fa-cogs"></i> Aksi
-                                                            </button>
-                                                            <ul class="dropdown-menu">
-                                                                <li style="display: none">
-                                                                    <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-                                                                    </a>
-                                                                </li>
-
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <button class="dropdown-item text-danger delete-btn"
-                                                                            data-id="{{ $pasien->id }}"
-                                                                            data-nama="{{ $pasien->name }}">
-                                                                        <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-
-                                                    <form id="delete-form-{{ $pasien->id }}" action="{{ route('pasiens.destroy', $pasien->id) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
-                                                </td>
-
-                                                <td>{{ $pasien->name }}</td>
-                                                <td>{{ $pasien->nik }}</td>
-                                                <td>{{ $pasien->jenis_kelamin }}</td>
-                                                <td>{{ $pasien->alamat }}</td>
-                                                <td>{{ $pasien->rt }}/{{ $pasien->rw }}</td>
-                                                <td>{{ $pasien->regency_name }}</td>
-                                                <td>{{ $pasien->district_name }}</td>
-                                                <td>{{ $pasien->village_name }}</td>
-                                            </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center py-4">
-                                                <div class="d-flex flex-column align-items-center">
-                                                    <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                                                    <h5 class="text-muted">Tidak ada Data Sasaran</h5>
-                                                    <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
