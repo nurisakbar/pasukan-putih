@@ -69,7 +69,10 @@ class SyncronisasiPasienCarik implements ShouldQueue
 
             $existingNiks = Pasien::pluck('nik')->toArray();
 
-            $initialResponse = Http::withHeaders($headers)
+            $initialResponse = Http::withOptions([
+                'proxy' => 'http://10.15.3.20:80',
+                'verify' => true, 
+            ])->withHeaders($headers)
                 ->timeout(30)
                 ->retry(3, 1000)
                 ->get($baseUrl, ['page' => 1]);

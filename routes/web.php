@@ -127,12 +127,12 @@ Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test'
 
 Route::get('/test-carik', function () {
     $response = Http::withOptions([
-        'proxy' => 'http://10.15.3.20:80', 
+        'proxy' => env('CARIK_PROXY'), 
         'verify' => true, 
     ])
     ->withHeaders([
-        'carik-api-key' => 'WydtKanwCc0dhbaclOLy2uUBl7WVICQA',
-        'Cookie' => 'TS01f239ec=01b53461a6e068c46f652602c6a09733f49a58e0f31899b767a13a3358d6cac47368fe86ad7fb78a2034b98e8cb19c758b6dc2c1bf',
+        'carik-api-key' => env('CARIK_API_KEY'),
+        'Cookie' => env('CARIK_COOKIE'),
     ])
     ->get('https://carik.jakarta.go.id/api/v1/dilan/activity-daily-living');
 
