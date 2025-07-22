@@ -278,7 +278,6 @@ class SyncronisasiPasienCarik implements ShouldQueue
     {
         $processedCount = 0;
         
-        // Get existing NIKs in chunks untuk menghindari memory issue
         $dataChunks = array_chunk($data, self::CHUNK_SIZE);
         
         foreach ($dataChunks as $chunk) {
