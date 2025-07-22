@@ -67,7 +67,7 @@ class PasienController extends Controller
                 $pasiens->where('pasiens.user_id', $currentUser->id);
             }
 
-            return \DataTables::of($pasiens)
+            return DataTables::of($pasiens)
                 ->addColumn('action', function ($pasien) {
                     $action = '<div class="btn-group">
                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
