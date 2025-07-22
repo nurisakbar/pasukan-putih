@@ -31,6 +31,7 @@ use App\Jobs\SyncronisasiPasienCarik;
 use Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class PasienController extends Controller
 {
