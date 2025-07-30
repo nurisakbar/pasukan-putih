@@ -28,6 +28,82 @@
         margin-left: 0 !important;
     }
 
+    /* Password Strength Indicator Styles */
+    .password-strength-meter {
+        height: 6px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        margin-top: 8px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s ease;
+        border-radius: 3px;
+    }
+
+    .strength-weak {
+        background-color: #dc3545;
+        width: 25%;
+    }
+
+    .strength-fair {
+        background-color: #fd7e14;
+        width: 50%;
+    }
+
+    .strength-good {
+        background-color: #ffc107;
+        width: 75%;
+    }
+
+    .strength-strong {
+        background-color: #198754;
+        width: 100%;
+    }
+
+    .password-requirements {
+        font-size: 0.8rem;
+        margin-top: 6px;
+    }
+
+    .requirement {
+        display: flex;
+        align-items: center;
+        margin-bottom: 3px;
+    }
+
+    .requirement i {
+        margin-right: 6px;
+        font-size: 0.7rem;
+        width: 12px;
+    }
+
+    .requirement.met {
+        color: #198754;
+    }
+
+    .requirement.unmet {
+        color: #6c757d;
+    }
+
+    .password-strength-text {
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+    .text-weak { color: #dc3545; }
+    .text-fair { color: #fd7e14; }
+    .text-good { color: #ffc107; }
+    .text-strong { color: #198754; }
+
+    .password-match-message {
+        font-size: 0.8rem;
+        margin-top: 6px;
+    }
 </style>
 @endpush
 
@@ -83,7 +159,6 @@
                                             @endif
                                         </div>
 
-
                                         {{-- Email --}}
                                         <div class="row mb-4">
                                             <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -134,12 +209,43 @@
                                                 <label for="password" class="form-label fw-bold">Password</label>
                                             </div>
                                             <div class="col-12 col-md-8 col-lg-10">
-                                                <input type="password" name="password"
+                                                <input type="password" name="password" id="password"
                                                     class="form-control @error('password') is-invalid @enderror"
-                                                    value="{{ old('password') }}">
+                                                    value="{{ old('password') }}" placeholder="Kosongkan jika tidak ingin mengubah password">
                                                 @error('password')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
+                                                
+                                                <!-- Password Strength Indicator -->
+                                                <div id="passwordStrengthContainer" style="display: none;">
+                                                    <div class="password-strength-meter">
+                                                        <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                                                    </div>
+                                                    <div id="passwordStrengthText" class="password-strength-text"></div>
+                                                    
+                                                    <div class="password-requirements">
+                                                        <div class="requirement unmet" id="req-length">
+                                                            <i class="fas fa-times"></i>
+                                                            <span>Min 8 karakter</span>
+                                                        </div>
+                                                        <div class="requirement unmet" id="req-uppercase">
+                                                            <i class="fas fa-times"></i>
+                                                            <span>Min 1 huruf besar</span>
+                                                        </div>
+                                                        <div class="requirement unmet" id="req-lowercase">
+                                                            <i class="fas fa-times"></i>
+                                                            <span>Min 1 huruf kecil</span>
+                                                        </div>
+                                                        <div class="requirement unmet" id="req-number">
+                                                            <i class="fas fa-times"></i>
+                                                            <span>Min 1 angka</span>
+                                                        </div>
+                                                        <div class="requirement unmet" id="req-special">
+                                                            <i class="fas fa-times"></i>
+                                                            <span>Min 1 karakter khusus</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -149,9 +255,10 @@
                                                 <label for="password_confirmation" class="form-label fw-bold">Konfirmasi Password</label>
                                             </div>
                                             <div class="col-12 col-md-8 col-lg-10">
-                                                <input type="password" name="password_confirmation"
+                                                <input type="password" name="password_confirmation" id="password_confirmation"
                                                     class="form-control"
-                                                    value="{{ old('password_confirmation') }}">
+                                                    value="{{ old('password_confirmation') }}" placeholder="Konfirmasi password baru">
+                                                <div id="passwordMatchMessage" class="password-match-message" style="display: none;"></div>
                                             </div>
                                         </div>
 
@@ -186,11 +293,11 @@
                                         @if (Auth::user()->role == 'superadmin')
                                             <div class="row mb-4 parent-field {{ old('role', $user->role) != 'superadmin' ? '' : 'd-none' }}" id="parent-field">
                                                 <div class="col-12 col-md-4 col-lg-2 mb-2">
-                                                    <label for="pustu_id" class="form-label fw-bold">Pusut</label>
+                                                    <label for="pustu_id" class="form-label fw-bold">Pustu</label>
                                                 </div>
                                                 <div class="col-12 col-md-8 col-lg-10">
                                                     <select class="form-control select2 @error('pustu_id') is-invalid @enderror" name="pustu_id">
-                                                        <option value="">-- Pilih Parent --</option>
+                                                        <option value="">-- Pilih Pustu --</option>
                                                         @foreach ($pustus as $parent)
                                                             <option value="{{ $parent->id }}"
                                                                 {{ old('pustu_id', $user->pustu_id) == $parent->id ? 'selected' : '' }}>
@@ -286,8 +393,129 @@
     <script>
         const oldVillage = @json($villageOld);
 
-        //select 2
+        // Password Strength Checker
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = '';
+            let className = '';
+            
+            // Kriteria password
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            // Update requirement indicators
+            updateRequirement('req-length', hasLength);
+            updateRequirement('req-uppercase', hasUppercase);
+            updateRequirement('req-lowercase', hasLowercase);
+            updateRequirement('req-number', hasNumber);
+            updateRequirement('req-special', hasSpecial);
+            
+            // Calculate score
+            if (hasLength) score++;
+            if (hasUppercase) score++;
+            if (hasLowercase) score++;
+            if (hasNumber) score++;
+            if (hasSpecial) score++;
+            
+            // Determine strength level
+            switch (score) {
+                case 0:
+                case 1:
+                    feedback = 'Sangat Lemah';
+                    className = 'strength-weak text-weak';
+                    break;
+                case 2:
+                    feedback = 'Lemah';
+                    className = 'strength-weak text-weak';
+                    break;
+                case 3:
+                    feedback = 'Cukup';
+                    className = 'strength-fair text-fair';
+                    break;
+                case 4:
+                    feedback = 'Baik';
+                    className = 'strength-good text-good';
+                    break;
+                case 5:
+                    feedback = 'Sangat Kuat';
+                    className = 'strength-strong text-strong';
+                    break;
+            }
+            
+            return { score, feedback, className };
+        }
+        
+        function updateRequirement(elementId, isMet) {
+            const element = document.getElementById(elementId);
+            const icon = element.querySelector('i');
+            
+            if (isMet) {
+                element.classList.remove('unmet');
+                element.classList.add('met');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-check');
+            } else {
+                element.classList.remove('met');
+                element.classList.add('unmet');
+                icon.classList.remove('fa-check');
+                icon.classList.add('fa-times');
+            }
+        }
+        
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('password_confirmation').value;
+            const messageDiv = document.getElementById('passwordMatchMessage');
+            
+            if (confirmPassword === '') {
+                messageDiv.style.display = 'none';
+                return;
+            }
+            
+            messageDiv.style.display = 'block';
+            
+            if (password === confirmPassword) {
+                messageDiv.innerHTML = '<small class="text-success"><i class="fas fa-check"></i> Password sudah cocok</small>';
+            } else {
+                messageDiv.innerHTML = '<small class="text-danger"><i class="fas fa-times"></i> Password tidak cocok</small>';
+            }
+        }
 
+        // Event listeners untuk password strength
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const container = document.getElementById('passwordStrengthContainer');
+            
+            if (password === '') {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            const strength = checkPasswordStrength(password);
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            // Update strength bar
+            strengthBar.className = 'password-strength-bar ' + strength.className.split(' ')[0];
+            
+            // Update strength text
+            strengthText.textContent = 'Kekuatan: ' + strength.feedback;
+            strengthText.className = 'password-strength-text ' + strength.className.split(' ')[1];
+            
+            // Check password match when password changes
+            checkPasswordMatch();
+        });
+        
+        document.getElementById('password_confirmation').addEventListener('input', function() {
+            checkPasswordMatch();
+        });
+
+        //select 2
         $(document).ready(function() {
             $('.select2').select2({
             });
@@ -356,6 +584,5 @@
                 $('#village_id').val(oldVillage.village_name);
             }
         });
-
     </script>
 @endpush
