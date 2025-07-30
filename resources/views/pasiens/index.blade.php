@@ -8,9 +8,9 @@
                 <h3 class="mb-0">Data Sasaran</h3>
             </div>
             <div class="col-md-6 col-12 text-md-end text-start">
-                <a href="javascript:void(0)" id="startSync" class="btn btn-primary btn-md btn-sm shadow-sm">
+                {{-- <a href="javascript:void(0)" id="startSync" class="btn btn-primary btn-md btn-sm shadow-sm">
                     <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
-                </a>
+                </a> --}}
                 <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                     <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                 </a>
