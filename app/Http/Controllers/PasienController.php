@@ -55,11 +55,11 @@ class PasienController extends Controller
             ->whereNull('pasiens.deleted_at');
 
         if ($currentUser->role === 'sudinkes') {
-            $pasiens->where('regencies.id', $currentUser->regency_id);
+            $pasiens->where('regencies.id', $currentUser->regency_id)->where('pasiens.user_id', '!=', '-');
         } elseif ($currentUser->role === 'perawat') {
             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $currentUser->pustu->district_id;
-                $pasiens->where('districts.id', $districtId); 
+                $pasiens->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
             } else {
                 $pasiens->where('pasiens.user_id', $currentUser->id);
             }
