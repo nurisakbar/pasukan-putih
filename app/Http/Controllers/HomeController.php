@@ -21,14 +21,11 @@ class HomeController extends Controller
         $user = auth()->user();
         $filters = $this->getFilters($request, $user);
         
-        // Get base queries based on user role
         $queries = $this->getBaseQueries($user, $filters);
         
-        // Calculate all metrics using the base queries
         $data = $this->calculateMetrics($queries, $filters);
         
         if ($user->role === 'superadmin') {
-            // Superadmin sees all districts in the province
             $data['districts'] = District::whereHas('regency', function ($query) {
                 $query->where('province_id', 31);
             })->orderBy('name')->pluck('name', 'id')->toArray();

@@ -22,7 +22,7 @@ Route::get('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'inde
 Route::post('/bridging-oph', [App\Http\Controllers\OphLogController::class, 'store']);
 
 // Semua rute yang butuh autentikasi
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/pasiens', [App\Http\Controllers\PasienController::class, 'index'])->name('pasiens.index');
     Route::resource('/pasiens', App\Http\Controllers\PasienController::class);

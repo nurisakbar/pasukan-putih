@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'dashboard.only' => \App\Http\Middleware\DashboardOnly::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
