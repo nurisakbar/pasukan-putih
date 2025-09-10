@@ -22,14 +22,16 @@ class SyncronisasiPasienCarik implements ShouldQueue
     protected $syncId;
     
     // Konfigurasi untuk memory management
-    const BATCH_SIZE = 1000;            // Jumlah record per batch insert
-    const MEMORY_LIMIT_THRESHOLD = 0.8; // 80% dari memory limit
-    const CHUNK_SIZE = 100;             // Ukuran chunk untuk query existing NIK
+    const BATCH_SIZE = 500;             // Jumlah record per batch insert (dikurangi untuk stabilitas)
+    const MEMORY_LIMIT_THRESHOLD = 0.7; // 70% dari memory limit (lebih konservatif)
+    const CHUNK_SIZE = 50;              // Ukuran chunk untuk query existing NIK (dikurangi)
+    const API_PAGE_SIZE = 100;          // Jumlah record per halaman API (untuk mengurangi frekuensi request)
     
     // Timeout konfigurasi
-    public $timeout = 7200; // 2 jam timeout untuk job
-    public $tries = 1;      // Hanya 1 kali percobaan
-    public $maxExceptions = 3;
+    public $timeout = 10800; // 3 jam timeout untuk job (diperpanjang)
+    public $tries = 3;       // 3 kali percobaan untuk retry
+    public $maxExceptions = 5;
+    public $backoff = [60, 300, 900]; // Backoff: 1min, 5min, 15min
 
     /**
      * Create a new job instance.
@@ -78,7 +80,7 @@ class SyncronisasiPasienCarik implements ShouldQueue
             $batchBuffer = [];
 
             // Get total pages first
-            $initialResponse = $this->makeApiRequest($baseUrl, $headers, ['page' => 1]);
+            $initialResponse = $this->makeApiRequest($baseUrl, $headers, ['page' => 1, 'size' => self::API_PAGE_SIZE]);
             if (!$initialResponse) {
                 throw new \Exception('Gagal mengambil data awal dari API');
             }
@@ -115,7 +117,7 @@ class SyncronisasiPasienCarik implements ShouldQueue
                         'message' => "Memproses halaman {$currentPage} dari {$totalPages}..."
                     ], false);
 
-                    $response = $this->makeApiRequest($baseUrl, $headers, ['page' => $currentPage]);
+                    $response = $this->makeApiRequest($baseUrl, $headers, ['page' => $currentPage, 'size' => self::API_PAGE_SIZE]);
                     
                     if (!$response) {
                         $failedPages[] = $currentPage;
@@ -165,8 +167,14 @@ class SyncronisasiPasienCarik implements ShouldQueue
                     
                     $this->updateProgress($cacheKey, [
                         'failed_pages' => $failedPages,
-                        'message' => "Timeout pada halaman {$currentPage}"
+                        'message' => "Timeout pada halaman {$currentPage} - akan dicoba ulang"
                     ], false);
+                    
+                    // Retry halaman yang timeout dengan delay
+                    if (count($failedPages) <= 3) {
+                        sleep(5); // Wait 5 seconds before retry
+                        $currentPage--; // Retry current page
+                    }
 
                 } catch (\Exception $e) {
                     Log::error("Error at page {$currentPage}: " . $e->getMessage());
@@ -178,8 +186,8 @@ class SyncronisasiPasienCarik implements ShouldQueue
                     ], false);
                 }
 
-                // Force garbage collection every 10 pages
-                if ($currentPage % 10 === 0) {
+                // Force garbage collection every 5 pages (lebih sering)
+                if ($currentPage % 5 === 0) {
                     $this->forceGarbageCollection();
                 }
 
@@ -238,15 +246,20 @@ class SyncronisasiPasienCarik implements ShouldQueue
     /**
      * Make API request with error handling
      */
-    private function makeApiRequest($url, $headers, $params, $retries = 3)
+    private function makeApiRequest($url, $headers, $params, $retries = 5)
     {
         for ($i = 0; $i < $retries; $i++) {
             try {
+                // Progressive timeout: 60s, 90s, 120s, 150s, 180s
+                $timeout = 60 + ($i * 30);
+                
                 $response = Http::withOptions([
                     'proxy' => 'http://10.15.3.20:80',
                     'verify' => true,
+                    'connect_timeout' => 30,
+                    'read_timeout' => $timeout,
                 ])->withHeaders($headers)
-                    ->timeout(30)
+                    ->timeout($timeout)
                     ->get($url, $params);
 
                 if ($response->successful()) {
@@ -256,14 +269,18 @@ class SyncronisasiPasienCarik implements ShouldQueue
                 Log::warning("API request failed (attempt " . ($i + 1) . "): " . $response->status());
                 
                 if ($i < $retries - 1) {
-                    sleep(2); // Wait before retry
+                    // Exponential backoff: 2s, 4s, 8s, 16s
+                    $waitTime = pow(2, $i + 1);
+                    sleep($waitTime);
                 }
 
             } catch (\Exception $e) {
                 Log::error("API request exception (attempt " . ($i + 1) . "): " . $e->getMessage());
                 
                 if ($i < $retries - 1) {
-                    sleep(2);
+                    // Exponential backoff: 2s, 4s, 8s, 16s
+                    $waitTime = pow(2, $i + 1);
+                    sleep($waitTime);
                 }
             }
         }
@@ -282,7 +299,8 @@ class SyncronisasiPasienCarik implements ShouldQueue
         
         foreach ($dataChunks as $chunk) {
             $niks = array_column($chunk, 'nik');
-            $existingNiks = Pasien::whereIn('nik', $niks)->pluck('nik')->toArray();
+            // Optimize query dengan select hanya kolom yang dibutuhkan
+            $existingNiks = Pasien::whereIn('nik', $niks)->select('nik')->pluck('nik')->toArray();
             
             foreach ($chunk as $item) {
                 if (!in_array($item['nik'], $existingNiks)) {
@@ -338,7 +356,7 @@ class SyncronisasiPasienCarik implements ShouldQueue
                 foreach ($chunks as $chunk) {
                     Pasien::insert($chunk);
                 }
-            }, 10); // 10 second transaction timeout
+            }, 300); // 5 minute transaction timeout for large batches
 
         } catch (\Exception $e) {
             Log::error("Failed to insert batch: " . $e->getMessage());
