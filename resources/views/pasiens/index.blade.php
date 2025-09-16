@@ -462,12 +462,14 @@
                 serverSide: true,
                 ajax: {
                     url: "{{ route('pasiens.data') }}",
+                    type: 'POST',
                     data: function (d) {
                         // Only include district filter for administrators
                         @if(auth()->user()->role === 'superadmin')
                         d.district_filter = $('#district_filter').val();
                         @endif
                         d.search_input = $('#search_input').val();
+                        d._token = '{{ csrf_token() }}';
                     }
                 },
                 columns: [
