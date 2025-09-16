@@ -39,10 +39,36 @@ class PasienController extends Controller
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $currentUser = \Auth::user();
+        
+        // Only load districts for administrators (superadmin)
+        $districts = collect();
+        if ($currentUser->role === 'superadmin') {
+            $districtsQuery = DB::table('districts')
+                ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+                ->join('provinces', 'regencies.province_id', '=', 'provinces.id')
+                ->select('districts.id', 'districts.name')
+                ->where('provinces.id', 31)
+                ->orderBy('districts.name');
+            
+            $districts = $districtsQuery->get();
+        }
+        
+        return view('pasiens.index', compact('districts'));
+    }
 
-        $pasiens = DB::table('pasiens')
+    public function getData(Request $request)
+    {
+        $currentUser = \Auth::user();
+
+        $query = DB::table('pasiens')
             ->select(
-                'pasiens.*',
+                'pasiens.id',
+                'pasiens.name',
+                'pasiens.nik',
+                'pasiens.jenis_kelamin',
+                'pasiens.alamat',
+                'pasiens.rt',
+                'pasiens.rw',
                 'villages.name as village_name',
                 'districts.name as district_name',
                 'regencies.name as regency_name',
@@ -54,22 +80,82 @@ class PasienController extends Controller
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->whereNull('pasiens.deleted_at');
 
+        // Apply user role restrictions
         if ($currentUser->role === 'sudinkes') {
-            $pasiens->where('regencies.id', $currentUser->regency_id)->where('pasiens.user_id', '!=', '-');
+            $query->where('regencies.id', $currentUser->regency_id)->where('pasiens.user_id', '!=', '-');
         } elseif ($currentUser->role === 'perawat') {
             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $currentUser->pustu->district_id;
-                $pasiens->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
+                $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
             } else {
-                $pasiens->where('pasiens.user_id', $currentUser->id);
+                $query->where('pasiens.user_id', $currentUser->id);
             }
         } elseif ($currentUser->role !== 'superadmin') {
-            $pasiens->where('pasiens.user_id', $currentUser->id);
+            $query->where('pasiens.user_id', $currentUser->id);
         }
 
-        $pasiens = $pasiens->orderBy('pasiens.created_at', 'desc')->get();
+        // Apply district filter if provided (only for administrators)
+        if ($request->filled('district_filter') && $currentUser->role === 'superadmin') {
+            $query->where('districts.id', $request->district_filter);
+        }
 
-        return view('pasiens.index', compact('pasiens'));
+        // Apply search filter if provided
+        if ($request->filled('search_input')) {
+            $searchTerm = $request->search_input;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('pasiens.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('pasiens.nik', 'like', "%{$searchTerm}%")
+                  ->orWhere('pasiens.alamat', 'like', "%{$searchTerm}%")
+                  ->orWhere('villages.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('districts.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('regencies.name', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        return DataTables::of($query)
+            ->addColumn('action', function ($pasien) {
+                $actions = '<div class="d-flex justify-content-center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cogs"></i> Aksi
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li style="display: none">
+                                <a href="' . route('pasiens.asuhanKeluarga', $pasien->id) . '" class="dropdown-item">
+                                    <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
+                                </a>
+                            </li>
+                            <li>
+                                <a href="' . route('pasiens.show', $pasien->id) . '" class="dropdown-item">
+                                    <i class="fas fa-eye me-2"></i> Detail Data Sasaran
+                                </a>
+                            </li>
+                            <li>
+                                <a href="' . route('pasiens.edit', $pasien->id) . '" class="dropdown-item">
+                                    <i class="fas fa-edit me-2"></i> Edit Data Sasaran
+                                </a>
+                            </li>
+                            <li>
+                                <button class="dropdown-item text-danger delete-btn"
+                                        data-id="' . $pasien->id . '"
+                                        data-nama="' . $pasien->name . '">
+                                    <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <form id="delete-form-' . $pasien->id . '" action="' . route('pasiens.destroy', $pasien->id) . '" method="POST" style="display: none;">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                </form>';
+                return $actions;
+            })
+            ->addColumn('rt_rw', function ($pasien) {
+                return $pasien->rt . '/' . $pasien->rw;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
 

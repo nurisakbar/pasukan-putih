@@ -20,6 +20,73 @@
         </div>
     </div>
 </div>
+
+<!-- Filter Section - Only for Administrators -->
+@if(auth()->user()->role === 'superadmin')
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <label for="district_filter" class="form-label">Filter Kecamatan:</label>
+                                <select id="district_filter" class="form-select">
+                                    <option value="">Semua Kecamatan</option>
+                                    @foreach($districts as $district)
+                                        <option value="{{ $district->id }}">{{ $district->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="search_input" class="form-label">Pencarian:</label>
+                                <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" id="apply_filter" class="btn btn-primary mt-4">
+                                    <i class="fas fa-filter me-1"></i> Terapkan Filter
+                                </button>
+                                <button type="button" id="clear_filter" class="btn btn-secondary mt-4 ms-2">
+                                    <i class="fas fa-times me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@else
+<!-- Search Section for Non-Administrators -->
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <label for="search_input" class="form-label">Pencarian:</label>
+                                <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" id="apply_filter" class="btn btn-primary mt-4">
+                                    <i class="fas fa-search me-1"></i> Cari
+                                </button>
+                                <button type="button" id="clear_filter" class="btn btn-secondary mt-4 ms-2">
+                                    <i class="fas fa-times me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
@@ -27,7 +94,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="table-responsive-sm">
-                                <table id="example3" class="table table-bordered table-striped dataTable-responsive">
+                                <table id="pasiens-table" class="table table-bordered table-striped dataTable-responsive">
                                     <thead>
                                         <tr>
                                             <th class="text-center" width="90">Aksi</th>
@@ -42,68 +109,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($pasiens as $pasien)
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <div class="btn-group">
-                                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <i class="fas fa-cogs"></i> Aksi
-                                                            </button>
-                                                            <ul class="dropdown-menu">
-                                                                <li style="display: none">
-                                                                    <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-                                                                    </a>
-                                                                </li>
-
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.show', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="{{ route('pasiens.edit', $pasien->id) }}" class="dropdown-item">
-                                                                        <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <button class="dropdown-item text-danger delete-btn"
-                                                                            data-id="{{ $pasien->id }}"
-                                                                            data-nama="{{ $pasien->name }}">
-                                                                        <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-
-                                                    <form id="delete-form-{{ $pasien->id }}" action="{{ route('pasiens.destroy', $pasien->id) }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
-                                                </td>
-
-                                                <td>{{ $pasien->name }}</td>
-                                                <td>{{ $pasien->nik }}</td>
-                                                <td>{{ $pasien->jenis_kelamin }}</td>
-                                                <td>{{ $pasien->alamat }}</td>
-                                                <td>{{ $pasien->rt }}/{{ $pasien->rw }}</td>
-                                                <td>{{ $pasien->regency_name }}</td>
-                                                <td>{{ $pasien->district_name }}</td>
-                                                <td>{{ $pasien->village_name }}</td>
-                                            </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center py-4">
-                                                <div class="d-flex flex-column align-items-center">
-                                                    <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
-                                                    <h5 class="text-muted">Tidak ada Data Sasaran</h5>
-                                                    <p class="text-muted">Silakan tambahkan Data Sasaran baru</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforelse
+                                        <!-- Data will be loaded via AJAX -->
                                     </tbody>
                                 </table>
                             </div>
@@ -144,25 +150,81 @@
     <!-- DataTables JS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if ($pasiens->count() > 0)
     <script>
-        $(function () {
-            $('#example3').DataTable({
+        $(document).ready(function () {
+            // Initialize DataTable with server-side processing
+            var table = $('#pasiens-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('pasiens.data') }}",
+                    data: function (d) {
+                        // Only include district filter for administrators
+                        @if(auth()->user()->role === 'superadmin')
+                        d.district_filter = $('#district_filter').val();
+                        @endif
+                        d.search_input = $('#search_input').val();
+                    }
+                },
+                columns: [
+                    { data: 'action', name: 'action', orderable: false, searchable: false },
+                    { data: 'name', name: 'name' },
+                    { data: 'nik', name: 'nik' },
+                    { data: 'jenis_kelamin', name: 'jenis_kelamin' },
+                    { data: 'alamat', name: 'alamat' },
+                    { data: 'rt_rw', name: 'rt_rw', orderable: false },
+                    { data: 'regency_name', name: 'regencies.name' },
+                    { data: 'district_name', name: 'districts.name' },
+                    { data: 'village_name', name: 'villages.name' }
+                ],
                 responsive: true,
                 autoWidth: false,
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
-                    emptyTable: "Belum ada data untuk ditampilkan"
-                }
+                    emptyTable: "Belum ada data untuk ditampilkan",
+                    processing: "Memproses data..."
+                },
+                order: [[1, 'asc']], // Order by name ascending
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+            });
+
+            // Apply filter button
+            $('#apply_filter').click(function() {
+                table.ajax.reload();
+            });
+
+            // Clear filter button
+            $('#clear_filter').click(function() {
+                @if(auth()->user()->role === 'superadmin')
+                $('#district_filter').val('');
+                @endif
+                $('#search_input').val('');
+                table.ajax.reload();
+            });
+
+            // Auto-reload when district filter changes (only for administrators)
+            @if(auth()->user()->role === 'superadmin')
+            $('#district_filter').change(function() {
+                table.ajax.reload();
+            });
+            @endif
+
+            // Search functionality with debounce
+            let searchTimeout;
+            $('#search_input').on('keyup', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    table.ajax.reload();
+                }, 500); // Wait 500ms after user stops typing
             });
         });
     </script>
-@endif
 
 <script>
     $(document).ready(function () {
@@ -182,6 +244,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Submit the delete form
                     document.getElementById('delete-form-' + id).submit();
                 }
             });
