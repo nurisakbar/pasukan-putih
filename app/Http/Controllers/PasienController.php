@@ -119,8 +119,8 @@ class PasienController extends Controller
             ->addColumn('action', function ($pasien) {
                 $actions = '<div class="d-flex justify-content-center">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-cogs"></i> Aksi
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" title="Menu Aksi">
+                            <i class="fas fa-cogs"></i> <span class="d-none d-md-inline">Aksi</span>
                         </button>
                         <ul class="dropdown-menu">
                             <li style="display: none">
@@ -129,19 +129,20 @@ class PasienController extends Controller
                                 </a>
                             </li>
                             <li>
-                                <a href="' . route('pasiens.show', $pasien->id) . '" class="dropdown-item">
+                                <a href="' . route('pasiens.show', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Lihat Detail">
                                     <i class="fas fa-eye me-2"></i> Detail Data Sasaran
                                 </a>
                             </li>
                             <li>
-                                <a href="' . route('pasiens.edit', $pasien->id) . '" class="dropdown-item">
+                                <a href="' . route('pasiens.edit', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Edit Data">
                                     <i class="fas fa-edit me-2"></i> Edit Data Sasaran
                                 </a>
                             </li>
                             <li>
                                 <button class="dropdown-item text-danger delete-btn"
                                         data-id="' . $pasien->id . '"
-                                        data-nama="' . $pasien->name . '">
+                                        data-nama="' . $pasien->name . '"
+                                        data-bs-toggle="tooltip" title="Hapus Data">
                                     <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
                                 </button>
                             </li>

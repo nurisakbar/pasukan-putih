@@ -13,9 +13,6 @@
                         <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
                     </a>
                 @endif
-                <button type="button" id="exportPasien" class="btn btn-success btn-md btn-sm shadow-sm">
-                    <i class="fas fa-file-excel me-1"></i> Export Excel
-                </button>
                 <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                     <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                 </a>
@@ -46,12 +43,15 @@
                                 <label for="search_input" class="form-label">Pencarian:</label>
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
                             </div>
-                            <div class="col-md-3">
-                                <button type="button" id="apply_filter" class="btn btn-primary mt-4">
+                            <div class="col d-flex align-items-end gap-2 mt-4">
+                                <button type="button" id="apply_filter" class="btn btn-primary">
                                     <i class="fas fa-filter me-1"></i> Terapkan Filter
                                 </button>
-                                <button type="button" id="clear_filter" class="btn btn-secondary mt-4 ms-2">
+                                <button type="button" id="clear_filter" class="btn btn-secondary">
                                     <i class="fas fa-times me-1"></i> Reset
+                                </button>
+                                <button type="button" id="exportPasien" class="btn btn-success">
+                                    <i class="fas fa-file-excel me-1"></i> Export Excel
                                 </button>
                             </div>
                         </div>
@@ -81,6 +81,9 @@
                                 <button type="button" id="clear_filter" class="btn btn-secondary mt-4 ms-2">
                                     <i class="fas fa-times me-1"></i> Reset
                                 </button>
+                                <button type="button" id="exportPasien" class="btn btn-success mt-4 ms-2">
+                                    <i class="fas fa-file-excel me-1"></i> Export Excel
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -96,8 +99,8 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive-sm">
-                                <table id="pasiens-table" class="table table-bordered table-striped dataTable-responsive">
+                            <div class="table-responsive">
+                                <table id="pasiens-table" class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th class="text-center" width="90">Aksi</th>
@@ -150,12 +153,305 @@
 @endsection
 
 @push('script')
-    <!-- DataTables JS -->
+    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+    
+    <!-- Custom CSS for responsive table -->
+    <style>
+        .table-responsive {
+            border-radius: 0.375rem;
+        }
+        
+        .table th {
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .table td {
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        
+        /* Responsive table styling */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.8rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border: 1px solid #dee2e6;
+                border-radius: 0.375rem;
+            }
+            
+            .table-responsive::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .table-responsive::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+            }
+            
+            .table-responsive::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 4px;
+            }
+            
+            .table-responsive::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+            
+            .btn-group .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .dropdown-menu {
+                font-size: 0.8rem;
+            }
+            
+            /* Ensure table doesn't break on mobile */
+            .table {
+                min-width: 600px;
+                margin-bottom: 0;
+            }
+            
+            .table th,
+            .table td {
+                white-space: nowrap;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .table-responsive {
+                font-size: 0.75rem;
+            }
+            
+            .table th,
+            .table td {
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .table {
+                min-width: 500px;
+            }
+        }
+        
+        /* Action button styling */
+        .btn-group .btn {
+            border-radius: 0.25rem;
+        }
+        
+        /* Remove ::before pseudo-element from action column */
+        .dataTables_wrapper .dataTable td:first-child::before {
+            display: none !important;
+        }
+        
+        .dataTables_wrapper .dataTable th:first-child::before {
+            display: none !important;
+        }
+        
+        /* DataTables responsive modal */
+        .dtr-details {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+        
+        .dtr-details table {
+            margin-bottom: 0;
+        }
+        
+        .dtr-details td:first-child {
+            font-weight: 600;
+            width: 40%;
+        }
+        
+        /* DataTables Pagination Styling - Compact */
+        .dataTables_wrapper .dataTables_paginate {
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.05rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            background-color: #fff;
+            color: #6c757d;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            color: #495057;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #6c757d;
+        }
+        
+        /* DataTables Info Styling */
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        /* DataTables Length Styling */
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 1rem;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            background-color: #fff;
+            font-size: 0.875rem;
+        }
+        
+        /* DataTables Filter Styling */
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            width: 200px;
+        }
+        
+        /* Mobile Responsive Pagination */
+        @media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_paginate {
+                margin-top: 0.5rem;
+                text-align: center;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 0 0.5rem;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.3rem 0.5rem;
+                margin: 0 0.1rem;
+                font-size: 0.8rem;
+                min-width: 35px;
+                text-align: center;
+                display: inline-block;
+            }
+            
+            .dataTables_wrapper .dataTables_info {
+                font-size: 0.8rem;
+                text-align: center;
+                margin-bottom: 0.5rem;
+                padding: 0.5rem;
+            }
+            
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                text-align: center;
+                margin-bottom: 0.75rem;
+            }
+            
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                max-width: 200px;
+                margin: 0 auto;
+            }
+            
+            .dataTables_wrapper .dataTables_length select {
+                width: auto;
+                margin: 0 auto;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .dataTables_wrapper .dataTables_paginate {
+                padding: 0 1rem;
+                overflow-x: auto;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.25rem 0.4rem;
+                margin: 0 0.05rem;
+                font-size: 0.75rem;
+                min-width: 30px;
+            }
+            
+            .dataTables_wrapper .dataTables_info {
+                font-size: 0.75rem;
+                padding: 0.25rem;
+            }
+            
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                max-width: 150px;
+            }
+            
+            /* Hide some pagination buttons on very small screens */
+            .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.previous):not(.next):not(.first):not(.last) {
+                display: none;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button.first,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.last {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.2rem 0.3rem;
+                margin: 0 0.03rem;
+                font-size: 0.7rem;
+                min-width: 25px;
+            }
+            
+            .dataTables_wrapper .dataTables_info {
+                font-size: 0.7rem;
+                line-height: 1.2;
+            }
+            
+            /* Show only essential buttons on very small screens */
+            .dataTables_wrapper .dataTables_paginate .paginate_button:not(.current):not(.previous):not(.next) {
+                display: none;
+            }
+        }
+    </style>
+    
+    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
@@ -175,26 +471,120 @@
                     }
                 },
                 columns: [
-                    { data: 'action', name: 'action', orderable: false, searchable: false },
-                    { data: 'name', name: 'name' },
-                    { data: 'nik', name: 'nik' },
-                    { data: 'jenis_kelamin', name: 'jenis_kelamin' },
-                    { data: 'alamat', name: 'alamat' },
-                    { data: 'rt_rw', name: 'rt_rw', orderable: false },
-                    { data: 'regency_name', name: 'regencies.name' },
-                    { data: 'district_name', name: 'districts.name' },
-                    { data: 'village_name', name: 'villages.name' }
+                    { 
+                        data: 'action', 
+                        name: 'action', 
+                        orderable: false, 
+                        searchable: false,
+                        className: 'text-center',
+                        responsivePriority: 1
+                    },
+                    { 
+                        data: 'name', 
+                        name: 'name',
+                        responsivePriority: 1
+                    },
+                    { 
+                        data: 'nik', 
+                        name: 'nik',
+                        responsivePriority: 1
+                    },
+                    { 
+                        data: 'jenis_kelamin', 
+                        name: 'jenis_kelamin',
+                        responsivePriority: 2
+                    },
+                    { 
+                        data: 'alamat', 
+                        name: 'alamat',
+                        responsivePriority: 3
+                    },
+                    { 
+                        data: 'rt_rw', 
+                        name: 'rt_rw', 
+                        orderable: false,
+                        responsivePriority: 4
+                    },
+                    { 
+                        data: 'regency_name', 
+                        name: 'regencies.name',
+                        responsivePriority: 5
+                    },
+                    { 
+                        data: 'district_name', 
+                        name: 'districts.name',
+                        responsivePriority: 6
+                    },
+                    { 
+                        data: 'village_name', 
+                        name: 'villages.name',
+                        responsivePriority: 7
+                    }
                 ],
-                responsive: true,
+                responsive: {
+                    breakpoints: [
+                        { name: 'bigdesktop', width: Infinity },
+                        { name: 'meddesktop', width: 1480 },
+                        { name: 'smalldesktop', width: 1280 },
+                        { name: 'medium', width: 1024 },
+                        { name: 'tabletl', width: 768 },
+                        { name: 'btwtabllandp', width: 640 },
+                        { name: 'mobilel', width: 480 },
+                        { name: 'mobilep', width: 320 }
+                    ],
+                    details: {
+                        display: $.fn.dataTable.Responsive.display.modal({
+                            header: function (row) {
+                                var data = row.data();
+                                return 'Detail Data: ' + data.name;
+                            }
+                        }),
+                        renderer: function (api, rowIdx, columns) {
+                            var data = $.map(columns, function (col, i) {
+                                return col.hidden ?
+                                    '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                                    '<td class="fw-bold">' + col.title + ':</td> ' +
+                                    '<td>' + col.data + '</td>' +
+                                    '</tr>' :
+                                    '';
+                            }).join('');
+
+                            return data ?
+                                $('<table class="table table-sm"/>').append('<tbody>' + data + '</tbody>') :
+                                false;
+                        }
+                    }
+                },
                 autoWidth: false,
+                scrollX: true,
+                scrollCollapse: true,
+                order: [[1, 'asc']], // Order by name ascending
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                dom: '<"row mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
                     emptyTable: "Belum ada data untuk ditampilkan",
-                    processing: "Memproses data..."
+                    processing: "Memproses data...",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    },
+                    lengthMenu: "Tampilkan _MENU_ data per halaman",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                    infoFiltered: "(disaring dari _MAX_ total data)",
+                    search: "Cari:",
+                    zeroRecords: "Tidak ada data yang cocok ditemukan"
                 },
-                order: [[1, 'asc']], // Order by name ascending
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+                drawCallback: function() {
+                    // Add tooltip to action buttons
+                    $('[data-bs-toggle="tooltip"]').tooltip();
+                }
             });
 
             // Apply filter button
