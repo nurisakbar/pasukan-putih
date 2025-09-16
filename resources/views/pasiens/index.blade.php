@@ -13,6 +13,9 @@
                         <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
                     </a>
                 @endif
+                <button type="button" id="exportPasien" class="btn btn-success btn-md btn-sm shadow-sm">
+                    <i class="fas fa-file-excel me-1"></i> Export Excel
+                </button>
                 <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                     <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                 </a>
@@ -417,6 +420,227 @@
                             icon: 'error',
                             title: 'Error',
                             text: 'Gagal memulai sinkronisasi: ' + (xhr.responseJSON?.message || 'Unknown error'),
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Export functionality -->
+    <script>
+        $(document).ready(function () {
+            // Handle export button click
+            $('#exportPasien').click(function () {
+                // Show initial loading SweetAlert
+                Swal.fire({
+                    title: 'Memulai Export...',
+                    html: 'Mohon tunggu...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Get current filters
+                let filters = {
+                    search_input: $('#search_input').val()
+                };
+
+                @if(auth()->user()->role === 'superadmin')
+                filters.district_filter = $('#district_filter').val();
+                @endif
+
+                // Start export
+                $.ajax({
+                    url: '{{ route("pasiens.export") }}',
+                    method: 'POST',
+                    data: filters,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // Check if direct export completed immediately
+                            if (response.file_url) {
+                                // Direct export completed
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Export Berhasil!',
+                                    html: `<div class="text-left">
+                                        <p><strong>File:</strong> ${response.file_name}</p>
+                                        <p><strong>Total Data:</strong> ${response.total_records} records</p>
+                                    </div>`,
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Download File',
+                                    cancelButtonText: 'Tutup'
+                                }).then((result) => {
+                                    if (result.isConfirmed && response.file_url) {
+                                        window.open(response.file_url, '_blank');
+                                    }
+                                });
+                                return;
+                            }
+
+                            // Get export_id from response for progress tracking
+                            let exportId = response.export_id;
+
+                            // Update SweetAlert to show progress
+                            Swal.fire({
+                                title: 'Progres Export',
+                                html: '<div class="text-left">' +
+                                      '<div id="exportProgressText" class="mb-3 font-weight-bold">Memulai export...</div>' +
+                                      '<div class="mb-3"><progress id="exportProgressBar" value="0" max="100" class="w-100" style="height: 20px;"></progress></div>' +
+                                      '<div id="exportProgressDetails" class="mb-3"></div>' +
+                                      '<div class="table-responsive">' +
+                                      '<table class="table table-sm table-bordered">' +
+                                      '<thead class="table-light">' +
+                                      '<tr><th>Status</th><th>Pesan</th><th>Waktu</th></tr>' +
+                                      '</thead>' +
+                                      '<tbody id="exportProgressTable">' +
+                                      '<tr><td><span class="badge bg-primary">Processing</span></td><td>Memulai export...</td><td>' + new Date().toLocaleTimeString() + '</td></tr>' +
+                                      '</tbody>' +
+                                      '</table>' +
+                                      '</div>' +
+                                      '</div>',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                showCancelButton: true,
+                                cancelButtonText: 'Tutup',
+                                width: '600px',
+                                didOpen: () => {
+                                    // Start polling for progress
+                                    let interval = setInterval(function () {
+                                        $.ajax({
+                                            url: `{{ url('export-progress/${exportId}') }}`,
+                                            method: 'GET',
+                                            success: function (progressResponse) {
+                                                if (progressResponse.success) {
+                                                    let progress = progressResponse.progress;
+                                                    let percentage = progress.percentage || 0;
+                                                    
+                                                    // Update progress text and bar
+                                                    $('#exportProgressText').text(progress.message);
+                                                    $('#exportProgressBar').val(percentage);
+                                                    
+                                                    // Show additional details if available
+                                                    if (progress.data && progress.data.total_records) {
+                                                        $('#exportProgressDetails').html(
+                                                            `<div class="alert alert-info mb-0">
+                                                                <strong>Total Data:</strong> ${progress.data.total_records} records<br>
+                                                                <strong>File:</strong> ${progress.data.file_name || 'Sedang diproses...'}
+                                                            </div>`
+                                                        );
+                                                    }
+
+                                                    // Update progress table
+                                                    let statusBadge = '';
+                                                    switch(progress.status) {
+                                                        case 'success':
+                                                            statusBadge = '<span class="badge bg-success">Success</span>';
+                                                            break;
+                                                        case 'error':
+                                                            statusBadge = '<span class="badge bg-danger">Error</span>';
+                                                            break;
+                                                        case 'warning':
+                                                            statusBadge = '<span class="badge bg-warning">Warning</span>';
+                                                            break;
+                                                        default:
+                                                            statusBadge = '<span class="badge bg-primary">Processing</span>';
+                                                    }
+
+                                                    // Add new row to progress table
+                                                    let newRow = `<tr>
+                                                        <td>${statusBadge}</td>
+                                                        <td>${progress.message}</td>
+                                                        <td>${new Date().toLocaleTimeString()}</td>
+                                                    </tr>`;
+                                                    
+                                                    // Add to top of table
+                                                    $('#exportProgressTable').prepend(newRow);
+                                                    
+                                                    // Keep only last 5 rows
+                                                    let rows = $('#exportProgressTable tr');
+                                                    if (rows.length > 5) {
+                                                        rows.slice(5).remove();
+                                                    }
+
+                                                    // Check if export is complete
+                                                    if (progress.status === 'success' && percentage === 100) {
+                                                        clearInterval(interval);
+                                                        Swal.update({
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'Download File',
+                                                            showCancelButton: false
+                                                        });
+                                                        
+                                                        // Handle download button click
+                                                        Swal.getConfirmButton().onclick = function() {
+                                                            if (progress.data && progress.data.file_url) {
+                                                                window.open(progress.data.file_url, '_blank');
+                                                            }
+                                                            Swal.close();
+                                                        };
+                                                    } else if (progress.status === 'error') {
+                                                        clearInterval(interval);
+                                                        Swal.update({
+                                                            showConfirmButton: true,
+                                                            confirmButtonText: 'OK',
+                                                            showCancelButton: false
+                                                        });
+                                                        Swal.getConfirmButton().focus();
+                                                    }
+                                                } else {
+                                                    // Progress not found
+                                                    clearInterval(interval);
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error',
+                                                        text: progressResponse.message,
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            },
+                                            error: function (xhr) {
+                                                clearInterval(interval);
+                                                let errorMessage = 'Gagal memeriksa progres export.';
+                                                
+                                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                                    errorMessage = xhr.responseJSON.message;
+                                                }
+                                                
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error',
+                                                    text: errorMessage,
+                                                    confirmButtonText: 'OK'
+                                                });
+                                            }
+                                        });
+                                    }, 2000); // Poll every 2 seconds
+                                },
+                                willClose: () => {
+                                    // Clear interval when modal is closed
+                                    clearInterval(interval);
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal memulai export: ' + (xhr.responseJSON?.message || 'Unknown error'),
                             confirmButtonText: 'OK'
                         });
                     }

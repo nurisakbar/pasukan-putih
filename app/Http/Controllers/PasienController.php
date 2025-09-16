@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\SyncronisasiPasienCarik;
+use App\Jobs\ExportPasienJob;
+use App\Models\ExportProgress;
+use App\Exports\PasienExport;
 use Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
@@ -497,6 +500,204 @@ class PasienController extends Controller
             'progress' => $progress,
             'message' => $progress['message']
         ], 200);
+    }
+
+    /**
+     * Export patients data
+     */
+    public function exportPasien(Request $request)
+    {
+        try {
+            $currentUser = auth()->user();
+            $filters = [
+                'district_filter' => $request->input('district_filter'),
+                'search_input' => $request->input('search_input')
+            ];
+
+            // Generate export ID
+            $exportId = 'export_pasien_' . time() . '_' . $currentUser->id;
+
+            // Create progress record
+            $exportProgress = ExportProgress::create([
+                'export_id' => $exportId,
+                'user_id' => $currentUser->id,
+                'type' => 'pasien',
+                'percentage' => 0,
+                'message' => 'Memulai proses export...',
+                'status' => 'processing',
+                'started_at' => now()
+            ]);
+
+            $exportProgress->updateProgress(10, 'Menyiapkan data...');
+
+            // Build query with filters
+            $query = $this->buildExportQuery($currentUser, $filters);
+            
+            $exportProgress->updateProgress(20, 'Mengambil data pasien...');
+
+            // Get total count for progress calculation
+            $totalRecords = $query->count();
+            
+            if ($totalRecords === 0) {
+                $exportProgress->updateProgress(100, 'Tidak ada data untuk diexport', 'warning');
+                return response()->json([
+                    'success' => true,
+                    'export_id' => $exportId,
+                    'message' => 'Tidak ada data untuk diexport'
+                ]);
+            }
+
+            $exportProgress->updateProgress(30, "Memproses {$totalRecords} data pasien...");
+
+            // Get all data
+            $pasiens = $query->get();
+
+            $exportProgress->updateProgress(60, 'Membuat file Excel...');
+
+            // Create export file
+            $fileName = 'export_pasien_' . date('Y-m-d_H-i-s') . '.xlsx';
+            $filePath = 'exports/' . $fileName;
+
+            // Use Excel export
+            Excel::store(new PasienExport($pasiens), $filePath, 'public');
+
+            $exportProgress->updateProgress(90, 'Menyimpan file...');
+
+            // Get file URL
+            $fileUrl = asset('storage/' . $filePath);
+
+            $exportProgress->markCompleted('Export selesai!', [
+                'file_url' => $fileUrl,
+                'file_name' => $fileName,
+                'total_records' => $totalRecords
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'export_id' => $exportId,
+                'file_url' => $fileUrl,
+                'file_name' => $fileName,
+                'total_records' => $totalRecords,
+                'message' => 'Export berhasil!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Export pasien failed: ' . $e->getMessage(), [
+                'user_id' => auth()->user()->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Export gagal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check export progress
+     */
+    public function checkExportProgress(Request $request, $exportId)
+    {
+        try {
+            $progress = ExportProgress::where('export_id', $exportId)
+                ->where('user_id', auth()->user()->id)
+                ->first();
+
+            if (!$progress) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Progres export tidak ditemukan atau telah kadaluarsa.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'progress' => [
+                    'percentage' => $progress->percentage,
+                    'message' => $progress->message,
+                    'status' => $progress->status,
+                    'data' => $progress->data,
+                    'updated_at' => $progress->updated_at->toISOString()
+                ],
+                'message' => $progress->message
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error checking export progress', [
+                'export_id' => $exportId,
+                'user_id' => auth()->user()->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memeriksa progres export.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Build query for export
+     */
+    private function buildExportQuery($user, $filters)
+    {
+        $query = DB::table('pasiens')
+            ->select(
+                'pasiens.id',
+                'pasiens.name',
+                'pasiens.nik',
+                'pasiens.jenis_kelamin',
+                'pasiens.alamat',
+                'pasiens.rt',
+                'pasiens.rw',
+                'pasiens.tanggal_lahir',
+                'villages.name as village_name',
+                'districts.name as district_name',
+                'regencies.name as regency_name',
+                'provinces.name as province_name',
+                'pustus.jenis_faskes',
+                'pasiens.created_at'
+            )
+            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
+            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
+            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->leftjoin('provinces', 'provinces.id', '=', 'regencies.province_id')
+            ->whereNull('pasiens.deleted_at');
+
+        // Apply user role restrictions
+        if ($user->role === 'sudinkes') {
+            $query->where('regencies.id', $user->regency_id)->where('pasiens.user_id', '!=', '-');
+        } elseif ($user->role === 'perawat') {
+            if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $user->pustu->district_id;
+                $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
+            } else {
+                $query->where('pasiens.user_id', $user->id);
+            }
+        } elseif ($user->role !== 'superadmin') {
+            $query->where('pasiens.user_id', $user->id);
+        }
+
+        // Apply filters
+        if (isset($filters['district_filter']) && !empty($filters['district_filter'])) {
+            $query->where('districts.id', $filters['district_filter']);
+        }
+
+        if (isset($filters['search_input']) && !empty($filters['search_input'])) {
+            $searchTerm = $filters['search_input'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('pasiens.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('pasiens.nik', 'like', "%{$searchTerm}%")
+                  ->orWhere('pasiens.alamat', 'like', "%{$searchTerm}%")
+                  ->orWhere('villages.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('districts.name', 'like', "%{$searchTerm}%")
+                  ->orWhere('regencies.name', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        return $query->orderBy('pasiens.created_at', 'desc');
     }
 
 }

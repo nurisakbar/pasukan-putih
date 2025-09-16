@@ -35,6 +35,10 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('search.village');
     Route::post('/syncronisasi-carik', [App\Http\Controllers\PasienController::class, 'startSyncCarik'])->name('syncronisasi.carik');
     Route::get('/sync-progress/{syncId}', [App\Http\Controllers\PasienController::class, 'checkSyncProgress'])->name('syncronisasi.progress');
+    
+    // Export routes
+    Route::post('/pasiens/export', [App\Http\Controllers\PasienController::class, 'exportPasien'])->name('pasiens.export');
+    Route::get('/export-progress/{exportId}', [App\Http\Controllers\PasienController::class, 'checkExportProgress'])->name('export.progress');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');
