@@ -44,12 +44,6 @@
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
                             </div>
                             <div class="col d-flex align-items-end gap-2 mt-4">
-                                <button type="button" id="apply_filter" class="btn btn-primary">
-                                    <i class="fas fa-filter me-1"></i> Terapkan Filter
-                                </button>
-                                <button type="button" id="clear_filter" class="btn btn-secondary">
-                                    <i class="fas fa-times me-1"></i> Reset
-                                </button>
                                 <button type="button" id="exportPasien" class="btn btn-success">
                                     <i class="fas fa-file-excel me-1"></i> Export Excel
                                 </button>
