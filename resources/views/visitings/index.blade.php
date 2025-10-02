@@ -122,12 +122,18 @@
                                                         <i class="fas fa-cogs"></i> Aksi
                                                     </button>
                                                     <ul class="dropdown-menu">
-                                                        {{-- <li>
-                                                            <a href="{{ route('kunjungan.skriningAdl', $kunjungan->id) }}"
+                                                        <li>
+                                                            <a href="{{ route('visitings.dashboard', $kunjungan->id) }}"
+                                                               class="dropdown-item">
+                                                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard Kunjungan
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="{{ route('visitings.skriningAdl', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
-                                                        </li> --}}
+                                                        </li>
                                                         @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}"

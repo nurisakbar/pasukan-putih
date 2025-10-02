@@ -172,7 +172,18 @@ class HealthForm extends Model
             return;
         }
 
-        $count = count($this->kemandirian);
+        // Handle both array and JSON string cases
+        $kemandirian = $this->kemandirian;
+        if (is_string($kemandirian)) {
+            $kemandirian = json_decode($kemandirian, true);
+        }
+        
+        if (!is_array($kemandirian)) {
+            $this->tingkat_kemandirian = 'Belum Ditentukan';
+            return;
+        }
+
+        $count = count($kemandirian);
         
         if ($count >= 7) {
             $this->tingkat_kemandirian = 'Keluarga IV';
