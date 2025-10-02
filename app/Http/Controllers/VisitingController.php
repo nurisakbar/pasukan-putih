@@ -412,6 +412,55 @@ class VisitingController extends Controller
     }
 
     /**
+     * Store Skrining ADL data via AJAX for SPA.
+     */
+    public function storeSkriningAdlAjax(Request $request, $id)
+    {
+        $visiting = Visiting::findOrFail($id);
+        
+        $request->validate([
+            'bab_control' => 'nullable|integer|min:0|max:2',
+            'bak_control' => 'nullable|integer|min:0|max:2',
+            'eating' => 'nullable|integer|min:0|max:2',
+            'stairs' => 'nullable|integer|min:0|max:2',
+            'bathing' => 'nullable|integer|min:0|max:2',
+            'transfer' => 'nullable|integer|min:0|max:2',
+            'walking' => 'nullable|integer|min:0|max:2',
+            'dressing' => 'nullable|integer|min:0|max:2',
+            'grooming' => 'nullable|integer|min:0|max:2',
+            'toilet_use' => 'nullable|integer|min:0|max:2',
+            'butuh_orang' => 'nullable|string',
+            'pendamping_tetap' => 'nullable|string',
+            'sasaran_home_service' => 'nullable|string',
+        ]);
+
+        // Calculate total score
+        $totalScore = 0;
+        $fields = ['bab_control', 'bak_control', 'eating', 'stairs', 'bathing', 'transfer', 'walking', 'dressing', 'grooming', 'toilet_use'];
+        foreach ($fields as $field) {
+            if ($request->has($field) && $request->input($field) !== null) {
+                $totalScore += (int)$request->input($field);
+            }
+        }
+
+        $data = $request->all();
+        $data['total_score'] = $totalScore;
+
+        // Update or create skrining ADL
+        $skriningAdl = $visiting->skriningAdl;
+        if ($skriningAdl) {
+            $skriningAdl->update($data);
+        } else {
+            $data['visiting_id'] = $visiting->id;
+            $data['pasien_id'] = $visiting->pasien_id;
+            $data['pemeriksa_id'] = auth()->id();
+            $skriningAdl = SkriningAdl::create($data);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Skrining ADL berhasil disimpan']);
+    }
+
+    /**
      * Store TTV data via AJAX for SPA.
      */
     public function storeTtv(Request $request, $id)

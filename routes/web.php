@@ -108,6 +108,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'skriningAdl'])->name('visitings.skriningAdl');
     Route::post('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdl'])->name('visitings.storeSkriningAdl');
     Route::put('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'updateSkriningAdl'])->name('visitings.updateSkriningAdl');
+    Route::post('/visitings/{id}/skrining-adl-ajax', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdlAjax'])->name('visitings.storeSkriningAdlAjax');
 
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);

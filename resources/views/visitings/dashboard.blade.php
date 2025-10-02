@@ -37,13 +37,13 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="health-form-tab" data-bs-toggle="pill" data-bs-target="#health-form" type="button" role="tab">
-                            <i class="fas fa-notes-medical me-2"></i>Form Kesehatan
+                        <button class="nav-link" id="skrining-adl-tab" data-bs-toggle="pill" data-bs-target="#skrining-adl" type="button" role="tab">
+                            <i class="fas fa-clipboard-list me-2"></i>Skrining ADL
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="skrining-adl-tab" data-bs-toggle="pill" data-bs-target="#skrining-adl" type="button" role="tab">
-                            <i class="fas fa-clipboard-list me-2"></i>Skrining ADL
+                        <button class="nav-link" id="health-form-tab" data-bs-toggle="pill" data-bs-target="#health-form" type="button" role="tab">
+                            <i class="fas fa-notes-medical me-2"></i>Form Kesehatan
                         </button>
                     </li>
                 </ul>
@@ -156,31 +156,38 @@
             <!-- Health Form Tab -->
             <div class="tab-pane fade" id="health-form" role="tabpanel">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-notes-medical me-2"></i>
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-notes-medical mr-2"></i>
                             Form Permasalahan Kesehatan
-                        </h5>
+                        </h3>
+                        {{-- <div class="card-tools">
+                            <span class="badge badge-primary" id="form-progress">0%</span>
+                        </div> --}}
                     </div>
                     <div class="card-body">
                         <form id="healthForm" data-visiting-id="{{ $visiting->id }}">
                             @csrf
                             
                             <!-- Riwayat Penyakit -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-history me-2"></i>
-                                    <h5>Riwayat Penyakit</h5>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="no_disease" name="no_disease" value="1" 
-                                                   {{ $visiting->healthForms->no_disease ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="no_disease">Tidak Ada Riwayat Penyakit</label>
+                            <div class="mb-4">
+                                <h4 class="text-primary mb-3">
+                                    <i class="fas fa-history mr-2"></i>
+                                    Riwayat Penyakit
+                                </h4>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="no_disease" name="no_disease" value="1" 
+                                                           {{ $visiting->healthForms->no_disease ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="no_disease">
+                                                        <i class="fas fa-check-circle mr-2"></i>Tidak Ada Riwayat Penyakit
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 <div class="row disease-checkboxes">
                                     @php
                                         $diseases = [
@@ -210,7 +217,7 @@
                                     @endforeach
 
                                     <!-- Kanker -->
-                                    <div class="col-md-4 col-lg-3 mb-2">
+                                    <div class="col-md-6 col-lg-4 mb-3">
                                         <div class="form-check">
                                             <input class="form-check-input disease-checkbox" type="checkbox"
                                                 id="cancer"
@@ -219,7 +226,7 @@
                                                 {{ in_array('cancer', $selectedDiseases) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="cancer">Kanker</label>
                                         </div>
-                                        <select class="form-select conditional-field cancer-type mt-2" name="cancer_type"
+                                        <select class="form-control conditional-field cancer-type mt-2" name="cancer_type"
                                             style="display: {{ in_array('cancer', $selectedDiseases) ? 'block' : 'none' }}">
                                             <option value="">Pilih Jenis Kanker</option>
                                             <option value="breast" {{ $cancerType == 'breast' ? 'selected' : '' }}>Kanker Payudara</option>
@@ -236,7 +243,7 @@
                                     </div>
 
                                     <!-- Penyakit Paru -->
-                                    <div class="col-md-4 col-lg-3 mb-2">
+                                    <div class="col-md-6 col-lg-4 mb-3">
                                         <div class="form-check">
                                             <input class="form-check-input disease-checkbox" type="checkbox"
                                                 id="lung_disease"
@@ -245,7 +252,7 @@
                                                 {{ in_array('lung_disease', $selectedDiseases) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="lung_disease">Penyakit Paru</label>
                                         </div>
-                                        <select class="form-select conditional-field lung-disease-type mt-2" name="lung_disease_type"
+                                        <select class="form-control conditional-field lung-disease-type mt-2" name="lung_disease_type"
                                             style="display: {{ in_array('lung_disease', $selectedDiseases) ? 'block' : 'none' }}">
                                             <option value="">Pilih Penyakit Paru</option>
                                             <option value="tbc" {{ $lungDiseaseType == 'tbc' ? 'selected' : '' }}>TBC</option>
@@ -258,396 +265,434 @@
 
                             @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                             <!-- Skrining ILP Perawat -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <h5>Skrining ILP</h5>
-                                </div>
-                                <div class="row">
-                                    @foreach($screenings as $screening)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">{{ $screening["label"] }}</label>
-                                        <div class="mb-2">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_yes" value="1" {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $screening['id'] }}_yes">Ya</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_no" value="0" {{ $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $screening['id'] }}_no">Tidak</label>
+                            <div class="mb-4">
+                                <h4 class="text-success mb-3">
+                                    <i class="fas fa-chart-line mr-2"></i>
+                                    Skrining ILP
+                                </h4>
+                                    <div class="row">
+                                        @foreach($screenings as $screening)
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label">{{ $screening["label"] }}</label>
+                                                <div class="mb-2">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_yes" value="1" {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $screening['id'] }}_yes">Ya</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="screening_{{ $screening['id'] }}" id="{{ $screening['id'] }}_no" value="0" {{ $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $screening['id'] }}_no">Tidak</label>
+                                                    </div>
+                                                </div>
+                                                <select class="form-control conditional-field {{ $screening['id'] }}-status" name="{{ $screening['id'] }}_status" style="display: {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
+                                                    <option value="">Pilih Status</option>
+                                                    <option value="penderita" {{ $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>Penderita</option>
+                                                    <option value="bukan_penderita" {{ $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>Bukan Penderita</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <select class="form-select conditional-field {{ $screening['id'] }}-status" name="{{ $screening['id'] }}_status" style="display: {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
-                                            <option value="">Pilih Status</option>
-                                            <option value="penderita" {{ $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>Penderita</option>
-                                            <option value="bukan_penderita" {{ $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>Bukan Penderita</option>
-                                        </select>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                </div>
                             </div>
                             @endif
 
                             <!-- Skor AKS -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-chart-bar me-2"></i>
-                                    <h5>Skor AKS</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label class="form-label fw-medium">Skor AKS</label>
-                                        <div class="d-flex flex-wrap gap-2">
+                            <div class="mb-4">
+                                <h4 class="text-info mb-3">
+                                    <i class="fas fa-chart-bar mr-2"></i>
+                                    Skor AKS (Activities of Daily Living)
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_mandiri" value="mandiri" {{ $visiting->healthForms->skor_aks == 'mandiri' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="skor_aks_mandiri">20 : Mandiri</label>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_ringan" value="ketergantungan_ringan" {{ $visiting->healthForms->skor_aks == 'ketergantungan_ringan' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="skor_aks_ringan">12 - 19 : Ketergantungan ringan</label>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_sedang" value="ketergantungan_sedang" {{ $visiting->healthForms->skor_aks == 'ketergantungan_sedang' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="skor_aks_sedang">9 - 11 : Ketergantungan sedang</label>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_berat" value="ketergantungan_berat" {{ $visiting->healthForms->skor_aks == 'ketergantungan_berat' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="skor_aks_berat">5 - 8 : Ketergantungan berat</label>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="skor_aks" id="skor_aks_total" value="ketergantungan_total" {{ $visiting->healthForms->skor_aks == 'ketergantungan_total' ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="skor_aks_total">0 - 4 : Ketergantungan total</label>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
 
                             <!-- Dukungan Keluarga/Pendamping -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-users me-2"></i>
-                                    <h5>DUKUNGAN KELUARGA / PENDAMPING</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="caregiver_availability" class="form-label fw-medium">
-                                            Apakah ada keluarga/pendamping yang membantu?
-                                        </label>
-                                        <select name="caregiver_availability" id="caregiver_availability" class="form-select">
-                                            <option value="">Pilih...</option>
-                                            <option value="selalu" {{ $visiting->healthForms->caregiver_availability == 'selalu' ? 'selected' : '' }}>Selalu ada</option>
-                                            <option value="kadang" {{ $visiting->healthForms->caregiver_availability == 'kadang' ? 'selected' : '' }}>Tidak selalu ada</option>
-                                            <option value="tidak" {{ $visiting->healthForms->caregiver_availability == 'tidak' ? 'selected' : '' }}>Tidak ada</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Permasalahan di Luar Kesehatan -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-calendar-check me-2"></i>
-                                    <h5>PERMASALAHAN DI LUAR KESEHATAN</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">Apakah ada permasalahan di luar kesehatan yang mempengaruhi kondisi pasien?</label>
-                                        <select name="non_medical_issues_status" id="non_medical_issues_status" class="form-select">
-                                            <option value="">Pilih...</option>
-                                            <option value="1" {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'selected' : '' }}>Ya</option>
-                                            <option value="0" {{ $visiting->healthForms->non_medical_issues_status == 0 ? 'selected' : '' }}>Tidak</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div id="non_medical_issues_text_wrapper" class="mb-3" style="display: {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'block' : 'none' }};">
-                                    <label for="non_medical_issues_text" class="form-label fw-medium">Tuliskan permasalahan di luar kesehatan</label>
-                                    <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control">{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
-                                </div>
-                            </div>
-
-                            <!-- Jenis Gangguan Fungsional -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    <h5>Jenis gangguan fungsional yang dialami</h5>
-                                </div>
-                                <div class="row">
-                                    @php
-                                        $gangguans = [
-                                            ["id" => "gangguan_komunikasi", "label" => "Gangguan komunikasi"],
-                                            ["id" => "kesulitan_makan", "label" => "Kesulitan makan (feeding problem)"],
-                                            ["id" => "gangguan_fungsi_kardiorespirasi", "label" => "Gangguan fungsi kardiorespirasi"],
-                                            ["id" => "gangguan_fungsi_berkemih", "label" => "Gangguan fungsi berkemih"],
-                                            ["id" => "gangguan_mobilisasi", "label" => "Gangguan mobilisasi"],
-                                            ["id" => "gangguan_partisipasi", "label" => "Gangguan aktifitas kehidupan sehari-hari/partisipasi"],
-                                        ];
-                                    @endphp
-                                    @foreach($gangguans as $gangguan)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">{{ ucfirst($gangguan["label"]) }}</label>
-                                        <div class="mb-2">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_yes" value="1" {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $gangguan['id'] }}_yes">Ya</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_no" value="0" {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $gangguan['id'] }}_no">Tidak</label>
+                            <div class="mb-4">
+                                <h4 class="text-warning mb-3">
+                                    <i class="fas fa-users mr-2"></i>
+                                    DUKUNGAN KELUARGA / PENDAMPING
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="caregiver_availability">Apakah ada keluarga/pendamping yang membantu?</label>
+                                                <select name="caregiver_availability" id="caregiver_availability" class="form-control">
+                                                    <option value="">Pilih...</option>
+                                                    <option value="selalu" {{ $visiting->healthForms->caregiver_availability == 'selalu' ? 'selected' : '' }}>Selalu ada</option>
+                                                    <option value="kadang" {{ $visiting->healthForms->caregiver_availability == 'kadang' ? 'selected' : '' }}>Tidak selalu ada</option>
+                                                    <option value="tidak" {{ $visiting->healthForms->caregiver_availability == 'tidak' ? 'selected' : '' }}>Tidak ada</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                    @endforeach
-                                </div>
+                            </div>
+
+                            <!-- Permasalahan di Luar Kesehatan -->
+                            <div class="mb-4">
+                                <h4 class="text-secondary mb-3">
+                                    <i class="fas fa-calendar-check mr-2"></i>
+                                    PERMASALAHAN DI LUAR KESEHATAN
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label>Apakah ada permasalahan di luar kesehatan yang mempengaruhi kondisi pasien?</label>
+                                                <select name="non_medical_issues_status" id="non_medical_issues_status" class="form-control">
+                                                    <option value="">Pilih...</option>
+                                                    <option value="1" {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'selected' : '' }}>Ya</option>
+                                                    <option value="0" {{ $visiting->healthForms->non_medical_issues_status == 0 ? 'selected' : '' }}>Tidak</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="non_medical_issues_text_wrapper" class="mb-3" style="display: {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'block' : 'none' }};">
+                                        <div class="form-group">
+                                            <label for="non_medical_issues_text">Tuliskan permasalahan di luar kesehatan</label>
+                                            <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control" rows="3">{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <!-- Jenis Gangguan Fungsional -->
+                            <div class="mb-4">
+                                <h4 class="text-danger mb-3">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    Jenis gangguan fungsional yang dialami
+                                </h4>
+                                    <div class="row">
+                                        @php
+                                            $gangguans = [
+                                                ["id" => "gangguan_komunikasi", "label" => "Gangguan komunikasi"],
+                                                ["id" => "kesulitan_makan", "label" => "Kesulitan makan (feeding problem)"],
+                                                ["id" => "gangguan_fungsi_kardiorespirasi", "label" => "Gangguan fungsi kardiorespirasi"],
+                                                ["id" => "gangguan_fungsi_berkemih", "label" => "Gangguan fungsi berkemih"],
+                                                ["id" => "gangguan_mobilisasi", "label" => "Gangguan mobilisasi"],
+                                                ["id" => "gangguan_partisipasi", "label" => "Gangguan aktifitas kehidupan sehari-hari/partisipasi"],
+                                            ];
+                                        @endphp
+                                        @foreach($gangguans as $gangguan)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label>{{ ucfirst($gangguan["label"]) }}</label>
+                                                <div class="mb-2">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_yes" value="1" {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $gangguan['id'] }}_yes">Ya</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="{{ $gangguan['id'] }}" id="{{ $gangguan['id'] }}_no" value="0" {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $gangguan['id'] }}_no">Tidak</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
                             </div>
 
                             @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                             <!-- Perawatan Yang Dilakukan (Perawat) -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-hand-holding-medical me-2"></i>
-                                    <h5>Perawatan Yang Dilakukan</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8 mb-3">
-                                        <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
+                            <div class="mb-4">
+                                <h4 class="text-primary mb-3">
+                                    <i class="fas fa-hand-holding-medical mr-2"></i>
+                                    Perawatan Yang Dilakukan
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label>Perawatan yang dilakukan</label>
+                                                <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                             </div>
                             @endif
 
                             @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')
                             <!-- Perawatan Umum Yang Dilakukan (Caregiver) -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <h5>Perawatan Umum Yang Dilakukan</h5>
-                                </div>
-                                <div class="row">
-                                    @php
-                                        $perawatans = [
-                                            ["id" => "hygiene", "label" => "Pemeliharaan kebersihan diri"],
-                                            ["id" => "skin_care", "label" => "Pencegahan Masalah Kesehatan Kulit"],
-                                            ["id" => "environment", "label" => "Pemeliharaan Kebersihan dan Keamanan Lingkungan"],
-                                            ["id" => "welfare", "label" => "Mempertahankan Tingkat Kemandirian warga jakarta yang membutuhkan"],
-                                            ["id" => "sunlight", "label" => "Tercukupinya pajanan Sinar Matahari"],
-                                            ["id" => "communication", "label" => "Komunikasi dengan baik"],
-                                            ["id" => "recreation", "label" => "Motivasi untuk melaksanakan Kegiatan Rekreasi"],
-                                            ["id" => "penamtauan_obat", "label" => "Pemantauan Penggunaan Obat"],
-                                            ["id" => "ibadah", "label" => "Motivasi untuk Pelaksanaan Ibadah"],
-                                        ];
-                                    @endphp
-                                    @foreach($perawatans as $perawatan)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">{{ $perawatan["label"] }}</label>
-                                        <div class="mb-2">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
+                            <div class="mb-4">
+                                <h4 class="text-success mb-3">
+                                    <i class="fas fa-chart-line mr-2"></i>
+                                    Perawatan Umum Yang Dilakukan
+                                </h4>
+                                    <div class="row">
+                                        @php
+                                            $perawatans = [
+                                                ["id" => "hygiene", "label" => "Pemeliharaan kebersihan diri"],
+                                                ["id" => "skin_care", "label" => "Pencegahan Masalah Kesehatan Kulit"],
+                                                ["id" => "environment", "label" => "Pemeliharaan Kebersihan dan Keamanan Lingkungan"],
+                                                ["id" => "welfare", "label" => "Mempertahankan Tingkat Kemandirian warga jakarta yang membutuhkan"],
+                                                ["id" => "sunlight", "label" => "Tercukupinya pajanan Sinar Matahari"],
+                                                ["id" => "communication", "label" => "Komunikasi dengan baik"],
+                                                ["id" => "recreation", "label" => "Motivasi untuk melaksanakan Kegiatan Rekreasi"],
+                                                ["id" => "penamtauan_obat", "label" => "Pemantauan Penggunaan Obat"],
+                                                ["id" => "ibadah", "label" => "Motivasi untuk Pelaksanaan Ibadah"],
+                                            ];
+                                        @endphp
+                                        @foreach($perawatans as $perawatan)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label>{{ $perawatan["label"] }}</label>
+                                                <div class="mb-2">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                </div>
                             </div>
 
                             <!-- Perawatan Khusus Yang Dilakukan (Caregiver) -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    <h5>Perawatan Khusus Yang Dilakukan</h5>
-                                </div>
-                                <div class="row">
-                                    @php
-                                        $perawatans = [
-                                            ["id" => "membantu_warga", "label" => "Membantu warga jakarta yang membutuhkan yang Mengalami Gangguan Gerak"],
-                                            ["id" => "monitoring_gizi", "label" => "Monitoring dan Edukasi Pemenuhan Gizi yang baik"],
-                                            ["id" => "membantu_bak_bab", "label" => "Membantu Buang Air Kecil (BAK) dan Buang Air Besar (BAB)"],
-                                            ["id" => "menangani_gangguan", "label" => "Menangani Gangguan Perilaku dengan Pikun/Demensial"],
-                                            ["id" => "pengelolaan_stres", "label" => "Pengelolaan Stres"],
-                                        ];
-                                    @endphp
-                                    @foreach($perawatans as $perawatan)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">{{ $perawatan["label"] }}</label>
-                                        <div class="mb-2">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
+                            <div class="mb-4">
+                                <h4 class="text-warning mb-3">
+                                    <i class="fas fa-chart-line mr-2"></i>
+                                    Perawatan Khusus Yang Dilakukan
+                                </h4>
+                                    <div class="row">
+                                        @php
+                                            $perawatans = [
+                                                ["id" => "membantu_warga", "label" => "Membantu warga jakarta yang membutuhkan yang Mengalami Gangguan Gerak"],
+                                                ["id" => "monitoring_gizi", "label" => "Monitoring dan Edukasi Pemenuhan Gizi yang baik"],
+                                                ["id" => "membantu_bak_bab", "label" => "Membantu Buang Air Kecil (BAK) dan Buang Air Besar (BAB)"],
+                                                ["id" => "menangani_gangguan", "label" => "Menangani Gangguan Perilaku dengan Pikun/Demensial"],
+                                                ["id" => "pengelolaan_stres", "label" => "Pengelolaan Stres"],
+                                            ];
+                                        @endphp
+                                        @foreach($perawatans as $perawatan)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label>{{ $perawatan["label"] }}</label>
+                                                <div class="mb-2">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_yes" value="1" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $perawatan['id'] }}_yes">Ya</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="perawatan_{{ $perawatan['id'] }}" id="{{ $perawatan['id'] }}_no" value="0" {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="{{ $perawatan['id'] }}_no">Tidak</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
                                 </div>
                             </div>
                             @endif
 
                             <!-- Keluaran dari perawatan yang dilakukan -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-clipboard-check me-2"></i>
-                                    <h5>Keluaran dari perawatan yang dilakukan</h5>
-                                </div>
-                                <div class="row align-items-center">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label fw-medium">Keluaran Perawatan</label>
-                                        <div class="d-flex gap-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1" {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="keluaran_meningkat">Meningkat</label>
+                            <div class="mb-4">
+                                <h4 class="text-info mb-3">
+                                    <i class="fas fa-clipboard-check mr-2"></i>
+                                    Keluaran dari perawatan yang dilakukan
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label>Keluaran Perawatan</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1" {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="keluaran_meningkat">Meningkat</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2" {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="keluaran_tetap">Tetap</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3" {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="keluaran_menurun">Menurun</label>
+                                                </div>
                                             </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2" {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="keluaran_tetap">Tetap</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3" {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="keluaran_menurun">Menurun</label>
+                                        </div>
+                                        <div class="col-md-8 mb-3">
+                                            <div class="form-group">
+                                                <label for="keterangan">Keterangan</label>
+                                                <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan hasil perawatan" value="{{ $visiting->healthForms->keterangan ?? '' }}">
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-8 mb-3">
-                                        <label class="form-label fw-medium">Keterangan</label>
-                                        <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan hasil perawatan" value="{{ $visiting->healthForms->keterangan ?? '' }}">
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- Pembinaan keluarga -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-users me-2"></i>
-                                    <h5>Dilakukan pembinaan keluarga</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">Pembinaan Keluarga</label>
-                                        <select name="pembinaan" id="pembinaan" class="form-select">
-                                            <option value="ya" {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>Ya</option>
-                                            <option value="tidak" {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                                        </select>
+                            <div class="mb-4">
+                                <h4 class="text-primary mb-3">
+                                    <i class="fas fa-users mr-2"></i>
+                                    Dilakukan pembinaan keluarga
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="pembinaan">Pembinaan Keluarga</label>
+                                                <select name="pembinaan" id="pembinaan" class="form-control">
+                                                    <option value="ya" {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                                    <option value="tidak" {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>Tidak</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                             </div>
 
                             <!-- Tingkat Kemandirian Keluarga -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-hand-holding-heart me-2"></i>
-                                    <h5>Tingkat Kemandirian Keluarga</h5>
-                                </div>
-                                <div class="row kemandirian-checkboxes">
-                                    @php
-                                        $tingkat_kemandirian = [
-                                            'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
-                                            'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
-                                            'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
-                                            'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
-                                            'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
-                                            'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
-                                            'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
-                                        ];
-                                        $selectedKemandirian = getArrayFromJsonOrArray($visiting->healthForms->kemandirian ?? []);
-                                    @endphp
-                                    @foreach($tingkat_kemandirian as $key => $label)
-                                    <div class="col-md-6 mb-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input kemandirian-checkbox" type="checkbox"
-                                                id="{{ $key }}"
-                                                name="kemandirian[]"
-                                                value="{{ $key }}"
-                                                {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
+                            <div class="mb-4">
+                                <h4 class="text-success mb-3">
+                                    <i class="fas fa-hand-holding-heart mr-2"></i>
+                                    Tingkat Kemandirian Keluarga
+                                </h4>
+                                    <div class="row kemandirian-checkboxes">
+                                        @php
+                                            $tingkat_kemandirian = [
+                                                'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
+                                                'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
+                                                'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
+                                                'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
+                                                'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
+                                                'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
+                                                'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
+                                            ];
+                                            $selectedKemandirian = getArrayFromJsonOrArray($visiting->healthForms->kemandirian ?? []);
+                                        @endphp
+                                        @foreach($tingkat_kemandirian as $key => $label)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input kemandirian-checkbox" type="checkbox"
+                                                    id="{{ $key }}"
+                                                    name="kemandirian[]"
+                                                    value="{{ $key }}"
+                                                    {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
+                                            </div>
+                                        </div>
+                                        @endforeach
+
+                                        <div class="col-12 mt-3">
+                                            <div class="alert alert-info">
+                                                <strong>Tingkat Kemandirian:</strong>
+                                                <span id="tingkatKemandirianLabel" class="font-weight-bold ml-2">Belum Ditentukan</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    @endforeach
-
-                                    <div class="col-12 mt-3 p-3 bg-light rounded">
-                                        <strong>Tingkat Kemandirian:</strong>
-                                        <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
-                                    </div>
-                                </div>
                             </div>
 
                             @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')
                             <!-- Catatan Keperawatan (Caregiver) -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-hand-holding-medical me-2"></i>
-                                    <h5>Catatan Keperawatan</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8 mb-3">
-                                        <textarea name="catatan_keperawatan" class="form-control" placeholder="Masukkan Catatan Keperawatan" rows="3">{{ $visiting->healthForms->catatan_keperawatan ?? '' }}</textarea>
+                            <div class="mb-4">
+                                <h4 class="text-info mb-3">
+                                    <i class="fas fa-hand-holding-medical mr-2"></i>
+                                    Catatan Keperawatan
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label for="catatan_keperawatan">Catatan Keperawatan</label>
+                                                <textarea name="catatan_keperawatan" class="form-control" placeholder="Masukkan Catatan Keperawatan" rows="3">{{ $visiting->healthForms->catatan_keperawatan ?? '' }}</textarea>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                             </div>
                             @endif
 
                             <!-- Kunjungan Lanjutan -->
-                            <div class="form-section mb-4">
-                                <div class="section-header mb-3 d-flex">
-                                    <i class="fas fa-calendar-check me-2"></i>
-                                    <h5>KUNJUNGAN LANJUTAN</h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-medium">Apakah akan dikunjungi kembali oleh perawat?</label>
-                                        <select name="kunjungan_lanjutan" id="kunjungan_lanjutan" class="form-select">
-                                            <option value="">Pilih...</option>
-                                            <option value="ya" {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>Ya</option>
-                                            <option value="tidak" {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                                        </select>
+                            <div class="mb-4">
+                                <h4 class="text-primary mb-3">
+                                    <i class="fas fa-calendar-check mr-2"></i>
+                                    KUNJUNGAN LANJUTAN
+                                </h4>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label>Apakah akan dikunjungi kembali oleh perawat?</label>
+                                                <select name="kunjungan_lanjutan" id="kunjungan_lanjutan" class="form-control">
+                                                    <option value="">Pilih...</option>
+                                                    <option value="ya" {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                                    <option value="tidak" {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>Tidak</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                                 
-                                <div id="detail_kunjungan_lanjutan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
-                                    <div class="row">
-                                        <div class="col-md-8 mb-3">
-                                            <label class="form-label fw-medium">Permasalahan kesehatan yang perlu kunjungan lanjutan</label>
-                                            <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
+                                    <div id="detail_kunjungan_lanjutan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
+                                        <div class="row">
+                                            <div class="col-md-8 mb-3">
+                                                <div class="form-group">
+                                                    <label>Permasalahan kesehatan yang perlu kunjungan lanjutan</label>
+                                                    <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-group">
+                                                    <label>Tanggal kunjungan lanjutan</label>
+                                                    <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label fw-medium">Tanggal kunjungan lanjutan</label>
-                                            <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}">
+                                    <div id="form_henti_layanan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-group">
+                                                    <label>Alasan Henti Layanan</label>
+                                                    <select name="henti_layanan" id="alasan_henti_layanan" class="form-control">
+                                                        <option value="">Pilih...</option>
+                                                        <option value="kenaikan_nilai_aks" {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>KENAIKAN NILAI AKS</option>
+                                                        <option value="meninggal" {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>MENINGGAL</option>
+                                                        <option value="menolak" {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>MENOLAK</option>
+                                                        <option value="pindah_domisili" {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>PINDAH DOMISILI</option>
+                                                    </select>                                
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div id="form_henti_layanan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label fw-medium">Alasan Henti Layanan</label>
-                                            <select name="henti_layanan" id="alasan_henti_layanan" class="form-select">
-                                                <option value="">Pilih...</option>
-                                                <option value="kenaikan_nilai_aks" {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>KENAIKAN NILAI AKS</option>
-                                                <option value="meninggal" {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>MENINGGAL</option>
-                                                <option value="menolak" {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>MENOLAK</option>
-                                                <option value="pindah_domisili" {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>PINDAH DOMISILI</option>
-                                            </select>                                
-                                        </div>
-                                    </div>
-                                </div>                    
                             </div>
                             
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center mt-3">
                                 <div class="autosave-status" id="health-status">
                                     <small class="text-muted">
-                                        <i class="fas fa-circle text-success me-1"></i>
+                                        <i class="fas fa-circle text-success mr-1"></i>
                                         <span>Auto-save aktif</span>
                                     </small>
                                 </div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>Simpan Form Kesehatan
+                                    <i class="fas fa-save mr-2"></i>Simpan Form Kesehatan
                                 </button>
                             </div>
                         </form>
@@ -673,9 +718,9 @@
                                         <label class="form-label fw-bold">Mengendalikan rangsangan BAB</label>
                                         <select name="bab_control" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Kadang-kadang tidak mampu</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 1 ? 'selected' : '' }}>1 - Kadang-kadang tidak mampu</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -684,9 +729,9 @@
                                         <label class="form-label fw-bold">Mengendalikan rangsangan BAK</label>
                                         <select name="bak_control" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Kadang-kadang tidak mampu</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 1 ? 'selected' : '' }}>1 - Kadang-kadang tidak mampu</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -697,9 +742,9 @@
                                         <label class="form-label fw-bold">Makan minum</label>
                                         <select name="eating" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -708,9 +753,9 @@
                                         <label class="form-label fw-bold">Naik turun tangga</label>
                                         <select name="stairs" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -721,9 +766,9 @@
                                         <label class="form-label fw-bold">Mandi</label>
                                         <select name="bathing" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -732,9 +777,9 @@
                                         <label class="form-label fw-bold">Bergerak dari kursi roda ke tempat tidur</label>
                                         <select name="transfer" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -745,9 +790,9 @@
                                         <label class="form-label fw-bold">Berjalan di tempat rata</label>
                                         <select name="walking" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -756,9 +801,9 @@
                                         <label class="form-label fw-bold">Berpakaian</label>
                                         <select name="dressing" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -769,9 +814,9 @@
                                         <label class="form-label fw-bold">Membersihkan diri</label>
                                         <select name="grooming" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -780,9 +825,9 @@
                                         <label class="form-label fw-bold">Penggunaan WC</label>
                                         <select name="toilet_use" class="form-select">
                                             <option value="">Pilih Skor</option>
-                                            <option value="0">0 - Tidak mampu</option>
-                                            <option value="1">1 - Perlu bantuan</option>
-                                            <option value="2">2 - Mampu</option>
+                                            <option value="0" {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 0 ? 'selected' : '' }}>0 - Tidak mampu</option>
+                                            <option value="1" {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 1 ? 'selected' : '' }}>1 - Perlu bantuan</option>
+                                            <option value="2" {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 2 ? 'selected' : '' }}>2 - Mampu</option>
                                         </select>
                                     </div>
                                 </div>
@@ -790,7 +835,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                        <h6 class="fw-bold">Total Skor: <span id="totalScore">0</span></h6>
+                                        <h6 class="fw-bold">Total Skor: <span id="totalScore">{{ $visiting->skriningAdl ? $visiting->skriningAdl->total_score : 0 }}</span></h6>
                                         <small>
                                             <strong>Interpretasi:</strong><br>
                                             • 20: Mandiri<br>
@@ -843,8 +888,12 @@
 
 @push('style')
 <style>
+/* Autosave Status */
 .autosave-status {
     transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: #f8f9fa;
 }
 
 .autosave-status i {
@@ -868,25 +917,6 @@
     font-weight: 500;
 }
 
-/* Notification styling */
-.alert {
-    border: none;
-    border-radius: 8px;
-    font-weight: 500;
-}
-
-.alert-success {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    color: #155724;
-    border-left: 4px solid #28a745;
-}
-
-.alert-danger {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-    color: #721c24;
-    border-left: 4px solid #dc3545;
-}
-
 /* Button loading state */
 .btn:disabled {
     opacity: 0.7;
@@ -907,6 +937,23 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card spacing */
+.card {
+    margin-bottom: 1rem;
+}
+
+/* Form group spacing */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
 }
 </style>
 @endpush
@@ -985,6 +1032,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize autosave
     initializeAutosave();
+
+    // Progress indicator functionality
+    function updateFormProgress() {
+        const form = document.getElementById('healthForm');
+        if (!form) return;
+        
+        const inputs = form.querySelectorAll('input, select, textarea');
+        let filledInputs = 0;
+        let totalInputs = 0;
+        
+        inputs.forEach(input => {
+            if (input.type === 'hidden' || input.name === '_token') return;
+            
+            totalInputs++;
+            
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                if (input.checked) filledInputs++;
+            } else if (input.type === 'select-one') {
+                if (input.value && input.value !== '') filledInputs++;
+            } else {
+                if (input.value && input.value.trim() !== '') filledInputs++;
+            }
+        });
+        
+        const progressPercentage = totalInputs > 0 ? Math.round((filledInputs / totalInputs) * 100) : 0;
+        
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('form-progress');
+        
+        if (progressBar) {
+            progressBar.style.width = progressPercentage + '%';
+        }
+        
+        if (progressText) {
+            progressText.textContent = progressPercentage + '%';
+            
+            // Update badge color based on progress
+            progressText.className = 'badge';
+            if (progressPercentage < 30) {
+                progressText.classList.add('bg-danger');
+            } else if (progressPercentage < 70) {
+                progressText.classList.add('bg-warning');
+            } else {
+                progressText.classList.add('bg-success');
+            }
+        }
+    }
+
+    // Update progress on form changes
+    const healthForm = document.getElementById('healthForm');
+    if (healthForm) {
+        healthForm.addEventListener('change', updateFormProgress);
+        healthForm.addEventListener('input', updateFormProgress);
+        
+        // Initial progress calculation
+        updateFormProgress();
+    }
 
     // BMI Calculation
     const weightInput = document.getElementById('weight');
@@ -1171,8 +1275,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 total += parseInt(select.value);
             }
         });
-        document.getElementById('totalScore').textContent = total;
+        const totalScoreElement = document.getElementById('totalScore');
+        if (totalScoreElement) {
+            totalScoreElement.textContent = total;
+        }
     }
+
+    // Initial calculation on page load
+    calculateTotalScore();
 
     function updateAutosaveStatus(formType, status, message) {
         const statusElement = document.getElementById(`${formType}-status`);
@@ -1213,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (formType === 'health') {
             formType = 'health-form';
         } else if (formType === 'skriningAdl') {
-            formType = 'skrining-adl';
+            formType = 'skrining-adl-ajax';
         }
         
         console.log('Saving form:', formType, 'for visiting:', visitingId);
