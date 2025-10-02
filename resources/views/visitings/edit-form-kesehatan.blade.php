@@ -3,13 +3,13 @@
 @section('content')
 <div class="container-fluid health-form-container">
     <div class="row justify-content-center">
-        <div class="col-12 col-xl-10">
+        <div class="col-12 col-xl-12">
             <form action="{{ route('health-form.update', $healthForm->id) }}" method="POST" class="needs-validation" novalidate>
                 @csrf
                 @method('PUT')
                 
                 <!-- Header Section -->
-                <div class="bg-primary text-white rounded-3 p-4 mb-4">
+                <div class="bg-primary text-white rounded-3 p-4 mb-4 mt-2">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-notes-medical me-3 fs-3"></i>
                         <div>
@@ -613,7 +613,7 @@
     .health-form-container {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         min-height: 100vh;
-        padding: 2rem 0;
+        padding: 0 0;
     }
     
     .bg-gradient-primary {
