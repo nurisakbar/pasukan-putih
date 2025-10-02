@@ -17,7 +17,7 @@
                         </p>
                     </a>
                 </li>
-                @if (auth()->user()->role != 'perawat')
+                @if (auth()->user()->role != 'perawat' && auth()->user()->role != 'operator')
                 <li class="nav-item">
                     <a href="{{ url()->route('users.index', ['role' => 'perawat']) }}" class="nav-link">
                         <i class="nav-icon bi bi-person"></i>

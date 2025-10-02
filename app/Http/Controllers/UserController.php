@@ -138,7 +138,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => $request->role=='perawat'?$request->pustu_id:null,
+            'pustu_id' => ($request->role=='perawat' || $request->role=='operator')?$request->pustu_id:null,
             'no_wa' => $request->no_wa,
             'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
             'keterangan' => $request->keterangan,
@@ -201,7 +201,7 @@ class UserController extends Controller
         }
 
         // Additional validation for pustu_id when needed
-        if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'farmasi', 'pendaftaran'])) {
+        if ($currentUser->role == 'superadmin' && in_array($request->role, ['pustu', 'dokter', 'perawat', 'operator', 'farmasi', 'pendaftaran'])) {
             $rules['pustu_id'] = ['required', 'exists:users,id'];
         }
 
@@ -322,13 +322,13 @@ class UserController extends Controller
             case 'puskesmas':
             case 'klinik':
                 // Puskesmas and Klinik can create Pustu and healthcare staff
-                $allowedRoles = ['pustu', 'dokter', 'perawat', 'caregiver', 'farmasi', 'pendaftaran'];
+                $allowedRoles = ['pustu', 'dokter', 'perawat', 'operator', 'caregiver', 'farmasi', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
 
             case 'pustu':
                 // Pustu can only create healthcare staff
-                $allowedRoles = ['dokter', 'perawat', 'farmasi', 'caregiver', 'pendaftaran'];
+                $allowedRoles = ['dokter', 'perawat', 'operator', 'farmasi', 'caregiver', 'pendaftaran'];
                 $allowed = in_array($requestedRole, $allowedRoles);
                 break;
 

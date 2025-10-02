@@ -42,7 +42,7 @@ class JumlahSasaranExport implements FromArray, WithHeadings, ShouldAutoSize
         }
 
         // Filter jika user adalah perawat
-        if (Auth::user()->role === 'perawat') {
+        if (Auth::user()->role === 'perawat' || Auth::user()->role === 'operator') {
             $query->where('visitings.user_id', Auth::id());
         }
 

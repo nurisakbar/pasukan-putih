@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
                 <!-- Skrining ILP -->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">
@@ -210,7 +210,7 @@
                     </div>
                 </div>
 
-                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')
+                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
                     
                 <!-- Perawatan -->
                 <div class="form-section mb-4">
@@ -380,7 +380,7 @@
                     </div>
                 </div>
 
-                @if (auth()->user()->role == 'perawat' && auth()->user()->role == 'superadmin')    
+                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')    
                 <!-- Perawatan only caregiver-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">

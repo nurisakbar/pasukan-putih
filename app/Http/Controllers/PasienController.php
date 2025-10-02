@@ -86,7 +86,7 @@ class PasienController extends Controller
         // Apply user role restrictions
         if ($currentUser->role === 'sudinkes') {
             $query->where('regencies.id', $currentUser->regency_id)->where('pasiens.user_id', '!=', '-');
-        } elseif ($currentUser->role === 'perawat') {
+        } elseif ($currentUser->role === 'perawat' || $currentUser->role === 'operator') {
             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $currentUser->pustu->district_id;
                 $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
@@ -272,7 +272,7 @@ class PasienController extends Controller
             $query->whereHas('village.district.regency', function ($q) use ($currentUser) {
                 $q->where('id', $currentUser->regency_id);
             })->where('user_id', '!=', '-');
-        } elseif ($currentUser->role === 'perawat') {
+        } elseif ($currentUser->role === 'perawat' || $currentUser->role === 'operator') {
             if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $currentUser->pustu->district_id;
                 $query->whereHas('village.district', function ($q) use ($districtId) {
@@ -689,7 +689,7 @@ class PasienController extends Controller
         // Apply user role restrictions
         if ($user->role === 'sudinkes') {
             $query->where('regencies.id', $user->regency_id)->where('pasiens.user_id', '!=', '-');
-        } elseif ($user->role === 'perawat') {
+        } elseif ($user->role === 'perawat' || $user->role === 'operator') {
             if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $user->pustu->district_id;
                 $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 

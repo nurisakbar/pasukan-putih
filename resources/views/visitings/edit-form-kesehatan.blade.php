@@ -100,7 +100,7 @@
                         </div>
 
 
-                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
                 <!-- Skrining ILP  Perawat-->
                 
                 <div class="form-section mb-4">
@@ -250,7 +250,7 @@
                     </div>
                 </div>
 
-                @if ( auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                @if ( auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
                 <!-- Perawatan only perawat-->
                 <div class="form-section mb-4">
                     <div class="section-header mb-3 d-flex">

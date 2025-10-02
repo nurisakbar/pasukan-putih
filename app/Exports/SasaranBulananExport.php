@@ -46,7 +46,7 @@ class SasaranBulananExport implements FromArray, WithHeadings, ShouldAutoSize
             ->join('health_forms', 'visitings.id', '=', 'health_forms.visiting_id');
 
         // Filter jika perawat
-        if (Auth::user()->role === 'perawat') {
+        if (Auth::user()->role === 'perawat' || Auth::user()->role === 'operator') {
             $query->where('visitings.user_id', Auth::id());
         }
 

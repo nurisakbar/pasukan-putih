@@ -148,7 +148,7 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                            @if($user->role=='perawat' && auth()->user()->role != 'superadmin')
+                                            @if(($user->role=='perawat' || $user->role=='operator') && auth()->user()->role != 'superadmin')
                                                 <div class="col-6 col-md-4 col-lg-5">
                                                     <input disabled type="text" class="form-control @error('name') is-invalid @enderror"
                                                         value="{{ old('name', $user->pustu->nama_pustu ?? '') }}" required>
@@ -278,8 +278,10 @@
                                                         <option value="pustu" {{ old('role', $user->role) == 'pustu' ? 'selected' : '' }}>Pustu</option>
                                                     @elseif(Auth::user()->role == 'sudinkes')
                                                         <option value="perawat" {{ old('role', $user->role) == 'perawat' ? 'selected' : '' }}>Perawat</option>
+                                                        <option value="operator" {{ old('role', $user->role) == 'operator' ? 'selected' : '' }}>Operator</option>
                                                     @elseif(Auth::user()->role == 'pustu')
                                                         <option value="perawat" {{ old('role', $user->role) == 'perawat' ? 'selected' : '' }}>Perawat</option>
+                                                        <option value="operator" {{ old('role', $user->role) == 'operator' ? 'selected' : '' }}>Operator</option>
                                                         <option value="caregiver" {{ old('role', $user->role) == 'caregiver' ? 'selected' : '' }}>Caregiver</option>
                                                     @endif
                                                 </select>

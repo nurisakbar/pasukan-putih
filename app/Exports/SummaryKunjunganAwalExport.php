@@ -48,7 +48,7 @@ class SummaryKunjunganAwalExport implements FromCollection, WithHeadings, Should
         }
 
         // Filter user
-        if (Auth::user()->role === 'perawat') {
+        if (Auth::user()->role === 'perawat' || Auth::user()->role === 'operator') {
             $query->where('visitings.user_id', Auth::id());
         }
 
