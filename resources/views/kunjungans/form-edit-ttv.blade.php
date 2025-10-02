@@ -69,13 +69,6 @@
                                  <span class="input-group-text">%</span>
                              </div>
                          </div>
-                         <div class="col-md-6 col-lg-3 mb-3">
-                             <label for="fetal_heart" class="form-label">Detak Jantung Janin</label>
-                             <div class="input-group">
-                                 <input type="number" class="form-control custom-placeholder" id="fetal_heart" placeholder="140" name="fetal_heart" value="{{ old('fetal_heart', $ttv->fetal_heart) }}">
-                                 <span class="input-group-text">bpm</span>
-                             </div>
-                         </div>
                      </div>
 
                      <!-- Antropometri -->
