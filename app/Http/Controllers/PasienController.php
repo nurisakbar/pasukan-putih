@@ -87,10 +87,16 @@ class PasienController extends Controller
         if ($currentUser->role === 'sudinkes') {
             $query->where('regencies.id', $currentUser->regency_id)->where('pasiens.user_id', '!=', '-');
         } elseif ($currentUser->role === 'perawat' || $currentUser->role === 'operator') {
-            if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+            if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
-                $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
+                // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
+                $pasienIds = DB::table('pasiens')
+                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->where('villages.district_id', $districtId)
+                    ->pluck('pasiens.id');
+                $query->whereIn('pasiens.id', $pasienIds);
             } else {
+                // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('pasiens.user_id', $currentUser->id);
             }
         } elseif ($currentUser->role !== 'superadmin') {
@@ -273,12 +279,14 @@ class PasienController extends Controller
                 $q->where('id', $currentUser->regency_id);
             })->where('user_id', '!=', '-');
         } elseif ($currentUser->role === 'perawat' || $currentUser->role === 'operator') {
-            if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+            if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
+                // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
                 $query->whereHas('village.district', function ($q) use ($districtId) {
                     $q->where('id', $districtId);
-                })->where('user_id', '!=', '-');
+                });
             } else {
+                // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('user_id', $currentUser->id);
             }
         } elseif ($currentUser->role !== 'superadmin') {
@@ -690,10 +698,16 @@ class PasienController extends Controller
         if ($user->role === 'sudinkes') {
             $query->where('regencies.id', $user->regency_id)->where('pasiens.user_id', '!=', '-');
         } elseif ($user->role === 'perawat' || $user->role === 'operator') {
-            if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+            if ($user->pustu) {
                 $districtId = $user->pustu->district_id;
-                $query->where('districts.id', $districtId)->where('pasiens.user_id', '!=', '-'); 
+                // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
+                $pasienIds = DB::table('pasiens')
+                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->where('villages.district_id', $districtId)
+                    ->pluck('pasiens.id');
+                $query->whereIn('pasiens.id', $pasienIds);
             } else {
+                // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('pasiens.user_id', $user->id);
             }
         } elseif ($user->role !== 'superadmin') {
