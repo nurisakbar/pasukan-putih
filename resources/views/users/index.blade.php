@@ -111,6 +111,10 @@
                                         <a class="nav-link {{ $_GET['role'] == 'perawat' ? 'active' : '' }}"
                                             href="users?role=perawat"><i class="fa-solid fa-users"></i> PERAWAT</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ $_GET['role'] == 'operator' ? 'active' : '' }}"
+                                            href="users?role=operator"><i class="fa-solid fa-users"></i> OPERATOR</a>
+                                    </li>
                                 </ul>
 
 
@@ -131,6 +135,11 @@
                                             @if ($_GET['role'] == 'sudinkes')
                                                 <th>WILAYAH</th>
                                             @endif
+                                            @if ($_GET['role'] == 'operator')
+                                                <th>NAMA PUSTU</th>
+                                                <th>KECAMATAN</th>
+                                                <th>KABUPATEN</th>
+                                            @endif
                                             <th widht="100px">Aksi</th>
                                         </tr>
                                     </thead>
@@ -148,6 +157,11 @@
                                                     <td>{{ $data->nama_regency ?? '-' }}</td>
                                                 @endif
                                                 @if ($_GET['role'] == 'sudinkes')
+                                                    <td>{{ $data->nama_regency ?? '-' }}</td>
+                                                @endif
+                                                @if ($_GET['role'] == 'operator')
+                                                    <td>{{ $data->nama_pustu ?? '-' }}</td>
+                                                    <td>{{ $data->nama_district ?? '-' }}</td>
                                                     <td>{{ $data->nama_regency ?? '-' }}</td>
                                                 @endif
                                                 <td width="100px">

@@ -72,14 +72,14 @@
                                                 <option value="puskesmas">Puskesmas</option>
                                                 <option value="pustu">Pustu</option>
                                                 <option value="perawat">Perawat</option>
-
+                                                <option value="operator">operator</option>
                                             @elseif(Auth::user()->role == 'puskesmas')
                                                 <option value="pustu">Pustu</option>
                                             @elseif(Auth::user()->role == 'sudinkes')
                                                 <option value="perawat">Perawat</option>
                                             @elseif(Auth::user()->role == 'pustu')
                                                 <option value="perawat">Perawat</option>
-                                                <option value="caregiver">Caregiver</option>
+                                                <option value="operator">operator</option>
                                             @endif
                                         </select>
                                         @error('role')
@@ -265,7 +265,7 @@
 
             $('select[name="role"]').on('change', function() {
                 var selectedRole = $(this).val(); // Ambil nilai yang dipilih
-                if (selectedRole === 'pustu' || selectedRole === 'perawat') {
+                if (selectedRole === 'pustu' || selectedRole === 'perawat' || selectedRole === 'operator') {
                     $("#kabupaten").hide();
                     $("#pustus").show();
                 } else if (selectedRole === 'sudinkes') {
