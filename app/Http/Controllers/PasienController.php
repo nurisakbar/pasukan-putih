@@ -259,14 +259,33 @@ class PasienController extends Controller
     public function getPasienByNik(Request $request)
     {
         $search = $request->input('q');
+        $currentUser = \Auth::user();
 
-        $pasiens = Pasien::with(['village', 'district', 'regency'])
+        $query = Pasien::with(['village', 'district', 'regency'])
             ->where(function ($query) use ($search) {
                 $query->where('nik', 'like', "%{$search}%")
                       ->orWhere('name', 'like', "%{$search}%");
-            })
-            ->limit(10)
-            ->get();
+            });
+
+        // Apply user role restrictions based on wilayah
+        if ($currentUser->role === 'sudinkes') {
+            $query->whereHas('village.district.regency', function ($q) use ($currentUser) {
+                $q->where('id', $currentUser->regency_id);
+            })->where('user_id', '!=', '-');
+        } elseif ($currentUser->role === 'perawat') {
+            if ($currentUser->pustu && $currentUser->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $currentUser->pustu->district_id;
+                $query->whereHas('village.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                })->where('user_id', '!=', '-');
+            } else {
+                $query->where('user_id', $currentUser->id);
+            }
+        } elseif ($currentUser->role !== 'superadmin') {
+            $query->where('user_id', $currentUser->id);
+        }
+
+        $pasiens = $query->limit(10)->get();
 
 
 
