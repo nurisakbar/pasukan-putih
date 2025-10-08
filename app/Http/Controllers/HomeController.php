@@ -408,8 +408,10 @@ class HomeController extends Controller
 
     private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
     {
-        // Clone the query and add flag_sicarik filter while preserving existing role-based filters
-        $carikQuery = $pasienQuery->clone()->where('flag_sicarik', 1);
+        $user = $filters['user'];
+        
+        // Build SiCarik query based on user role, similar to getBaseQueries logic
+        $carikQuery = $this->buildCarikQueryByRole($user, $filters);
         $carikTotalPasien = $carikQuery->count();
 
         // Get patient IDs for current filter with SiCarik flag
@@ -448,10 +450,10 @@ class HomeController extends Controller
 
     private function calculateManualData($pasienQuery, $visitingQuery, $filters)
     {
-        // Clone the query and add flag_sicarik filter while preserving existing role-based filters
-        $manualQuery = $pasienQuery->clone()->where(function($q) {
-            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
-        });
+        $user = $filters['user'];
+        
+        // Build manual query based on user role, similar to getBaseQueries logic
+        $manualQuery = $this->buildManualQueryByRole($user, $filters);
         $manualTotalPasien = $manualQuery->count();
 
         // Get patient IDs for current filter with manual input flag
@@ -486,5 +488,104 @@ class HomeController extends Controller
             'belum_dikunjungi' => $manualTotalPasien - $manualSudahDikunjungi,
             'henti_layanan' => $this->getHentiLayananCount($manualPasienIds)
         ];
+    }
+
+    private function buildCarikQueryByRole($user, $filters)
+    {
+        switch ($user->role) {
+            case 'superadmin':
+                $query = Pasien::where('flag_sicarik', 1);
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+                
+            case 'perawat':
+                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                    $districtId = $user->pustu->district_id;
+                    $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))
+                        ->where('flag_sicarik', 1);
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                } else {
+                    // For non-puskesmas perawat, include SiCarik data from their district
+                    $query = Pasien::where('flag_sicarik', 1);
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                }
+                
+            default: // regency role (sudinkes)
+                $regencyId = $user->regency_id;
+                $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))
+                    ->where('flag_sicarik', 1);
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+        }
+    }
+
+    private function buildManualQueryByRole($user, $filters)
+    {
+        switch ($user->role) {
+            case 'superadmin':
+                $query = Pasien::where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+                
+            case 'perawat':
+                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                    $districtId = $user->pustu->district_id;
+                    $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))
+                        ->where(function($q) {
+                            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                        });
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                } else {
+                    $query = Pasien::where('user_id', $user->id)
+                        ->where(function($q) {
+                            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                        });
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                }
+                
+            default: // regency role (sudinkes)
+                $regencyId = $user->regency_id;
+                $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))
+                    ->where('user_id', '!=', '-') // Exclude SiCarik data
+                    ->where(function($q) {
+                        $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                    });
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+        }
     }
 }
