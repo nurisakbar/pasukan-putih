@@ -106,25 +106,13 @@ class HomeController extends Controller
         // Get patient IDs for current filter
         $pasienIds = $pasienQuery->pluck('id');
         
-        // Calculate scheduled patients
-        $scheduledQuery = Visiting::whereIn('pasien_id', $pasienIds);
-        if (!empty($filters['start_date'])) {
-            $scheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $scheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
+        // Calculate scheduled patients - use the same visiting query that's already filtered
+        $scheduledQuery = $visitingQuery->clone();
         $sudahDijadwalkan = $scheduledQuery->distinct('pasien_id')->count();
 
-        // Calculate visited patients (those with temperature recorded)
-        $visitedQuery = Visiting::whereIn('pasien_id', $pasienIds)
+        // Calculate visited patients (those with temperature recorded) - use the same visiting query that's already filtered
+        $visitedQuery = $visitingQuery->clone()
             ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
-        if (!empty($filters['start_date'])) {
-            $visitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $visitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
         $sudahDikunjungi = $visitedQuery->distinct('pasien_id')->count();
 
         // Get latest visit IDs for completion status
@@ -506,8 +494,9 @@ class HomeController extends Controller
             case 'perawat':
                 if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                     $districtId = $user->pustu->district_id;
-                    $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))
-                        ->where('flag_sicarik', 1);
+                    // For SiCarik data, check village->district relationship since SiCarik data doesn't have pustu_id
+                    $query = Pasien::where('flag_sicarik', 1)
+                        ->whereHas('village.district', fn($q) => $q->where('id', $districtId));
                     if (!empty($filters['village_id'])) {
                         $query->where('village_id', $filters['village_id']);
                     }
@@ -523,10 +512,11 @@ class HomeController extends Controller
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))
-                    ->where('flag_sicarik', 1);
+                // For SiCarik data, we need to check village->district->regency relationship since SiCarik data doesn't have pustu_id
+                $query = Pasien::where('flag_sicarik', 1)
+                    ->whereHas('village.district.regency', fn($q) => $q->where('id', $regencyId));
                 if (!empty($filters['district_id'])) {
-                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                    $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
                 }
                 if (!empty($filters['village_id'])) {
                     $query->where('village_id', $filters['village_id']);
