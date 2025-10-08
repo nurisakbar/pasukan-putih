@@ -5,7 +5,12 @@
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-sm-6">
-                <h3 class="mb-0"></i> Detail Data Sasaran</h3>
+                <h3 class="mb-0"><i class="fas fa-user-circle me-2"></i> Detail Data Sasaran</h3>
+            </div>
+            <div class="col-sm-6 text-end">
+                <a href="{{ route('pasiens.index') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
             </div>
         </div>
     </div>
@@ -50,8 +55,28 @@
                                     <th>Jenis KTP</th>
                                     <td>{{ $pasien->jenis_ktp }}</td>
                                 </tr>
+                                <tr>
+                                    <th>Nomor WhatsApp</th>
+                                    <td>{{ $pasien->nomor_whatsapp ?: '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nama Pendamping</th>
+                                    <td>{{ $pasien->nama_pendamping ?: '-' }}</td>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{{ route('pasiens.edit', $pasien->id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit me-1"></i> Edit Data
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="{{ $pasien->id }}" data-nama="{{ $pasien->name }}">
+                                <i class="fas fa-trash me-1"></i> Hapus
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,4 +145,41 @@
         </div>
     </div>
 </div>
+
+<!-- Hidden Delete Form -->
+<form id="delete-form-{{ $pasien->id }}" action="{{ route('pasiens.destroy', $pasien->id) }}" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
 @endsection
+
+@push('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Handle delete button click
+    $('.delete-btn').on('click', function(event) {
+        event.preventDefault();
+        const id = $(this).data('id');
+        const pasienNama = $(this).data('nama');
+        
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus data ini!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the delete form
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    });
+});
+</script>
+@endpush

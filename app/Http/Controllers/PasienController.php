@@ -72,6 +72,7 @@ class PasienController extends Controller
                 'pasiens.alamat',
                 'pasiens.rt',
                 'pasiens.rw',
+                'pasiens.flag_sicarik',
                 'villages.name as village_name',
                 'districts.name as district_name',
                 'regencies.name as regency_name',
@@ -121,50 +122,20 @@ class PasienController extends Controller
             });
         }
 
+        // Apply data source filter if provided
+        if ($request->filled('flag_sicarik')) {
+            $flagSicarik = $request->flag_sicarik;
+            if ($flagSicarik == '1') {
+                $query->where('pasiens.flag_sicarik', 1);
+            } elseif ($flagSicarik == '0') {
+                $query->where('pasiens.flag_sicarik', 0);
+            }
+        }
+
         return DataTables::of($query)
-            ->addColumn('action', function ($pasien) {
-                $actions = '<div class="d-flex justify-content-center">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" title="Menu Aksi">
-                            <i class="fas fa-cogs"></i> <span class="d-none d-md-inline">Aksi</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li style="display: none">
-                                <a href="' . route('pasiens.asuhanKeluarga', $pasien->id) . '" class="dropdown-item">
-                                    <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . route('pasiens.show', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Lihat Detail">
-                                    <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . route('pasiens.edit', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Edit Data">
-                                    <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-                                </a>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-danger delete-btn"
-                                        data-id="' . $pasien->id . '"
-                                        data-nama="' . $pasien->name . '"
-                                        data-bs-toggle="tooltip" title="Hapus Data">
-                                    <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <form id="delete-form-' . $pasien->id . '" action="' . route('pasiens.destroy', $pasien->id) . '" method="POST" style="display: none;">
-                    ' . csrf_field() . '
-                    ' . method_field('DELETE') . '
-                </form>';
-                return $actions;
-            })
             ->addColumn('rt_rw', function ($pasien) {
                 return $pasien->rt . '/' . $pasien->rw;
             })
-            ->rawColumns(['action'])
             ->make(true);
     }
 
@@ -179,27 +150,30 @@ class PasienController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'string|max:255',
-            'nik' => 'string|min:16|max:16',
-            'alamat' => 'string|max:255',
-            'jenis_kelamin' => 'string|max:255',
-            'jenis_ktp' => 'string|max:255',
-            'tanggal_lahir' => 'date',
-            'village_id' => 'string|max:255',
-            'district_id' => 'string|max:255',
-            'regency_id' => 'string|max:255',
-            'province_id' => 'string|max:255',
-            'no_wa' => 'string|max:255',
-            'keterangan' => 'string|max:255',
-            'rt' => 'string|max:255',
-            'rw' => 'string|max:255',
+            'name' => 'required|string|max:255',
+            'nik' => 'required|string|min:16|max:16|unique:pasiens,nik',
+            'alamat' => 'nullable|string|max:255',
+            'jenis_kelamin' => 'required|string|max:255',
+            'jenis_ktp' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'village_id' => 'required|string|max:255',
+            'district_id' => 'nullable|string|max:255',
+            'regency_id' => 'nullable|string|max:255',
+            'province_id' => 'nullable|string|max:255',
+            'nomor_whatsapp' => 'nullable|string|max:20|regex:/^[0-9]{10,13}$/',
+            'nama_pendamping' => 'nullable|string|max:255',
+            'rt' => 'required|string|max:255',
+            'rw' => 'required|string|max:255',
         ]);
 
-        $request['pustu_id'] = auth()->user()->pustu_id;
-        $request['user_id'] = auth()->user()->id;
-        $request['village_id'] = $request->village_search;
-        $pasien = Pasien::create($request->all());
-        return redirect()->route('pasiens.index')->with('success', 'Created successfully');
+        // Set additional fields
+        $validated['pustu_id'] = auth()->user()->pustu_id;
+        $validated['user_id'] = auth()->user()->id;
+        $validated['village_id'] = $request->village_id;
+        $validated['flag_sicarik'] = 0; // Default value for manual entry
+
+        $pasien = Pasien::create($validated);
+        return redirect()->route('pasiens.show', $pasien->id)->with('success', 'Data pasien berhasil ditambahkan');
     }
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
@@ -234,9 +208,22 @@ class PasienController extends Controller
 
     public function update(Request $request, Pasien $pasien)
     {
-        // dd($request->all());
-        $pasien->update($request->all());
-        return redirect()->route('pasiens.index')->with('success', 'Updated successfully');
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'nik' => 'required|string|min:16|max:16|unique:pasiens,nik,' . $pasien->id,
+            'alamat' => 'nullable|string|max:255',
+            'jenis_kelamin' => 'required|string|max:255',
+            'jenis_ktp' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'village_id' => 'required|string|max:255',
+            'nomor_whatsapp' => 'nullable|string|max:20|regex:/^[0-9]{10,13}$/',
+            'nama_pendamping' => 'nullable|string|max:255',
+            'rt' => 'required|string|max:255',
+            'rw' => 'required|string|max:255',
+        ]);
+
+        $pasien->update($validated);
+        return redirect()->route('pasiens.show', $pasien->id)->with('success', 'Data pasien berhasil diperbarui');
     }
 
     public function destroy(Pasien $pasien): \Illuminate\Http\RedirectResponse
@@ -247,19 +234,59 @@ class PasienController extends Controller
 
     public function autofill(Request $request)
     {
-        $search = $request->get('term');
-        $field = $request->get('field');
+        try {
+            $nik = $request->get('nik');
+            
+            // Basic validation
+            if (empty($nik)) {
+                return response()->json(['error' => 'NIK tidak boleh kosong.'], 400);
+            }
 
+            // Query with village relation
+            $pasien = Pasien::with(['village.district.regency.province'])
+                ->where('nik', $nik)
+                ->first();
+            
+            if (!$pasien) {
+                return response()->json([
+                    'error' => 'Data pasien dengan NIK tersebut tidak ditemukan di database.'
+                ], 404);
+            }
 
-        if (!in_array($field, ['name', 'nik'])) {
-            return response()->json([]);
+            // Get village data safely
+            $villageData = null;
+            if ($pasien->village) {
+                $villageData = [
+                    'village_id' => $pasien->village->id,
+                    'village_name' => $pasien->village->name,
+                    'district_name' => $pasien->village->district->name ?? '',
+                    'regency_name' => $pasien->village->district->regency->name ?? '',
+                    'province_name' => $pasien->village->district->regency->province->name ?? '',
+                ];
+            }
+
+            // Return data with village information
+            return response()->json([
+                'success' => true,
+                'name' => $pasien->name ?? '',
+                'alamat' => $pasien->alamat ?? '',
+                'jenis_kelamin' => $pasien->jenis_kelamin ?? '',
+                'jenis_ktp' => $pasien->jenis_ktp ?? '',
+                'tanggal_lahir' => $pasien->tanggal_lahir ?? '',
+                'nomor_whatsapp' => $pasien->nomor_whatsapp ?? '',
+                'nama_pendamping' => $pasien->nama_pendamping ?? '',
+                'rt' => $pasien->rt ?? '',
+                'rw' => $pasien->rw ?? '',
+                'village_id' => $pasien->village_id ?? '',
+                'village_data' => $villageData,
+                'message' => 'Data berhasil ditemukan di database'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-
-        $pasiens = Pasien::where($field, 'LIKE', '%' . $search . '%')
-                        ->limit(10)
-                        ->get();
-
-        return response()->json($pasiens);
     }
 
     public function getPasienByNik(Request $request)
@@ -402,6 +429,8 @@ class PasienController extends Controller
                         'nama_kota' => $d['nama_kota'] ?? '',
                         'nama_kelurahan' => $d['nama_kelurahan'] ?? '',
                         'nama_kecamatan' => $d['nama_kecamatan'] ?? '',
+                        'nomor_whatsapp' => $d['nomor_whatsapp'] ?? $d['no_wa'] ?? $d['telepon'] ?? '',
+                        'nama_pendamping' => $d['nama_pendamping'] ?? $d['pendamping'] ?? '',
                         'message' => 'Data berhasil ditemukan dari Carik Jakarta'
                     ]);
                 } else {

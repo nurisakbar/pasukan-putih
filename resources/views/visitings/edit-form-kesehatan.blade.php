@@ -21,6 +21,7 @@
                 
                 <!-- Form Content -->
                 <div class="row g-4">
+                    @if (auth()->user()->role == 'perawat'|| auth()->user()->role == 'superadmin')
                     <!-- Riwayat Penyakit Section -->
                     <div class="col-12">
                         <div class="bg-white border rounded-3 p-4 shadow-sm">
@@ -118,7 +119,7 @@
                             </div>
                         </div>
                     </div>
-
+                    @endif
 
                     @if (auth()->user()->role == 'perawat'|| auth()->user()->role == 'superadmin')
                     <!-- Skrining ILP Section -->
