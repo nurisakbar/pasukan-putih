@@ -305,19 +305,22 @@ class SyncronisasiPasienCarik implements ShouldQueue
             foreach ($chunk as $item) {
                 if (!in_array($item['nik'], $existingNiks)) {
                     $batchBuffer[] = [
-                        'id'            => Str::uuid()->toString(),
-                        'name'          => $item['nama'],
-                        'nik'           => $item['nik'],
-                        'alamat'        => $item['alamat'] ?? '-',
-                        'jenis_kelamin' => $item['gender'] == '1' ? 'Laki-laki' : 'Perempuan',
-                        'village_id'    => $item['kelurahan'],
-                        'jenis_ktp'     => 'DKI',
-                        'tanggal_lahir' => null,
-                        'rt'            => '00',
-                        'rw'            => '00',
-                        'user_id'       => '-',
-                        'created_at'    => now(),
-                        'updated_at'    => now(),
+                        'id'                => Str::uuid()->toString(),
+                        'name'              => $item['nama'],
+                        'nik'               => $item['nik'],
+                        'alamat'            => $item['alamat'] ?? '-',
+                        'jenis_kelamin'     => $item['gender'] == '1' ? 'Laki-laki' : 'Perempuan',
+                        'village_id'        => $item['kelurahan'],
+                        'jenis_ktp'         => 'DKI',
+                        'tanggal_lahir'     => null,
+                        'rt'                => '00',
+                        'rw'                => '00',
+                        'nomor_whatsapp'    => $item['nomor_whatsapp'] ?? $item['no_wa'] ?? $item['telepon'] ?? null,
+                        'nama_pendamping'   => $item['nama_pendamping'] ?? $item['pendamping'] ?? null,
+                        'flag_sicarik'      => 1, // Mark as from Si CARIK
+                        'user_id'           => '-',
+                        'created_at'        => now(),
+                        'updated_at'        => now(),
                     ];
                     
                     $processedCount++;

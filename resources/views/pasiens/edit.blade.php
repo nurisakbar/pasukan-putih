@@ -124,6 +124,40 @@
                                     </div>
                                 </div>
 
+                                <!-- Nomor WhatsApp Section -->
+                                <div class="row mb-4">
+                                    <div class="col-lg-2 col-md-4 mb-2">
+                                        <label for="nomor_whatsapp" class="form-label fw-bold">Nomor WhatsApp</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-8">
+                                        <input type="text" class="form-control @error('nomor_whatsapp') is-invalid @enderror"
+                                            id="nomor_whatsapp" name="nomor_whatsapp" value="{{ old('nomor_whatsapp', $pasien->nomor_whatsapp) }}"
+                                            placeholder="Contoh: 081234567890" pattern="[0-9]{10,13}">
+                                        @error('nomor_whatsapp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @else
+                                            <div class="form-text">Masukkan nomor WhatsApp (10-13 digit angka)</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Nama Pendamping Section -->
+                                <div class="row mb-4">
+                                    <div class="col-lg-2 col-md-4 mb-2">
+                                        <label for="nama_pendamping" class="form-label fw-bold">Nama Pendamping</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-8">
+                                        <input type="text" class="form-control @error('nama_pendamping') is-invalid @enderror"
+                                            id="nama_pendamping" name="nama_pendamping" value="{{ old('nama_pendamping', $pasien->nama_pendamping) }}"
+                                            placeholder="Masukkan nama pendamping (jika ada)">
+                                        @error('nama_pendamping')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @else
+                                            <div class="form-text">Nama pendamping untuk pasien yang membutuhkan bantuan</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 <div class="row mb-4">
                                     <div class="col-12 col-md-4 col-lg-2 mb-2">
                                         <label for="alamat" class="form-label fw-bold">Alamat, Nama Desa <span class="text-danger">*</span></label>

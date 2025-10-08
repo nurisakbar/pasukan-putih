@@ -40,7 +40,7 @@
                         <div class="card-header bg-white">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasaran</h5>
+                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasara</h5>
                                 </div>
                             </div>
                         </div>
@@ -161,6 +161,40 @@
                                     </div>
                                 </div>
 
+                                <!-- Nomor WhatsApp Section -->
+                                <div class="row mb-4">
+                                    <div class="col-lg-2 col-md-4 mb-2">
+                                        <label for="nomor_whatsapp" class="form-label fw-bold">Nomor WhatsApp</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-8">
+                                        <input type="text" class="form-control @error('nomor_whatsapp') is-invalid @enderror"
+                                            id="nomor_whatsapp" name="nomor_whatsapp" value="{{ old('nomor_whatsapp') }}"
+                                            placeholder="Contoh: 081234567890" pattern="[0-9]{10,13}">
+                                        @error('nomor_whatsapp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @else
+                                            <div class="form-text">Masukkan nomor WhatsApp (10-13 digit angka)</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Nama Pendamping Section -->
+                                <div class="row mb-4">
+                                    <div class="col-lg-2 col-md-4 mb-2">
+                                        <label for="nama_pendamping" class="form-label fw-bold">Nama Pendamping</label>
+                                    </div>
+                                    <div class="col-lg-10 col-md-8">
+                                        <input type="text" class="form-control @error('nama_pendamping') is-invalid @enderror"
+                                            id="nama_pendamping" name="nama_pendamping" value="{{ old('nama_pendamping') }}"
+                                            placeholder="Masukkan nama pendamping (jika ada)">
+                                        @error('nama_pendamping')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @else
+                                            <div class="form-text">Nama pendamping untuk pasien yang membutuhkan bantuan</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 <!-- Address Section -->
                                 <div class="row mb-4">
                                     <div class="col-12 col-md-4 col-lg-2 mb-2">
@@ -234,12 +268,14 @@
                 $('#tanggal_lahir').val('');
                 $('#rt').val('');
                 $('#rw').val('');
-                $('#village_search').val(null).trigger('change'); 
+                $('#village_search').empty().trigger('change'); 
                 $('#village_id').val('');
                 $('#district_id').val('');
                 $('#regency_id').val('');
                 $('#province_id').val('');
                 $('#jenis_ktp').val('').trigger('change');
+                $('#nomor_whatsapp').val('');
+                $('#nama_pendamping').val('');
             }
 
             function populateVillageData(kelurahanName) {
@@ -277,8 +313,33 @@
                 });
             }
 
-            $('#nik').on('change blur', function () {
-                const nik = $(this).val().trim();
+            function populateVillageFromData(villageData) {
+                if (!villageData || !villageData.village_id) return;
+
+                // Clear existing options
+                $('#village_search').empty();
+                
+                // Create option for Select2 with full data
+                const option = new Option(
+                    `${villageData.village_name}, ${villageData.district_name}, ${villageData.regency_name}, ${villageData.province_name}`,
+                    villageData.village_id,
+                    true,
+                    true
+                );
+                
+                // Add option and trigger change
+                $('#village_search').append(option).trigger('change');
+                
+                // Populate hidden fields
+                $('#village_id').val(villageData.village_id);
+                $('#district_id').val(villageData.district_name);
+                $('#regency_id').val(villageData.regency_name);
+                $('#province_id').val(villageData.province_name);
+            }
+
+            // Function to search pasien by NIK
+            function searchPasienByNik() {
+                const nik = $('#nik').val().trim();
 
                 if (nik.length === 16 && /^\d+$/.test(nik)) {
                     Swal.fire({
@@ -291,32 +352,31 @@
                     });
 
                     $.ajax({
-                        url: '{{ route("pasiens.carik") }}',
+                        url: '{{ route("pasiens.search") }}',
                         method: 'GET',
                         data: { nik: nik },
                         success: function (res) {
-                            // console.log('Carik API Response:', res);
-                            
                             if (res.error) {
                                 Swal.fire('Data Tidak Ditemukan', res.error, 'warning');
                                 clearFormFields();
                             } else {
-                                $('#name').val(res.nama || '');
+                                $('#name').val(res.name || '');
                                 $('#jenis_kelamin').val(res.jenis_kelamin || '').trigger('change');
                                 $('#alamat').val(res.alamat || '');
+                                $('#nomor_whatsapp').val(res.nomor_whatsapp || '');
+                                $('#nama_pendamping').val(res.nama_pendamping || '');
+                                $('#jenis_ktp').val(res.jenis_ktp || '').trigger('change');
+                                $('#tanggal_lahir').val(res.tanggal_lahir || '');
+                                $('#rt').val(res.rt || '');
+                                $('#rw').val(res.rw || '');
                                 
-                                // Set jenis KTP based on city
-                                if (res.nama_kota && res.nama_kota.toLowerCase().includes('jakarta')) {
-                                    $('#jenis_ktp').val('DKI').trigger('change');
-                                } else {
-                                    $('#jenis_ktp').val('Non DKI').trigger('change');
+                                // Populate village data if available
+                                if (res.village_data) {
+                                    populateVillageFromData(res.village_data);
                                 }
-
-                                if (res.nama_kelurahan) {
-                                    populateVillageData(res.nama_kelurahan);
-                                }
+                                
                                 Swal.close();
-                                Swal.fire('Berhasil!', 'Data berhasil diisi dari Si CARIK.', 'success');
+                                Swal.fire('Berhasil!', 'Data berhasil ditemukan di database.', 'success');
                             }
                         },
                         error: function (xhr) {
@@ -333,12 +393,12 @@
                     Swal.fire('Format NIK Salah', 'NIK harus terdiri dari 16 digit angka.', 'warning');
                     clearFormFields();
                 }
-            });
+            }
 
-            // Also trigger search when search button is clicked
+            // Trigger search only when search button is clicked
             $('#search-button').on('click', function(e) {
                 e.preventDefault();
-                $('#nik').trigger('change');
+                searchPasienByNik();
             });
 
             // Initialize Select2 for village search
@@ -375,7 +435,7 @@
                 const data = e.params.data.fullData;
                 
                 if (data) {
-                    $('#village_id').val(data.village_name);
+                    $('#village_id').val(data.village_id);
                     $('#district_id').val(data.district_name);
                     $('#regency_id').val(data.regency_name);
                     $('#province_id').val(data.province_name);

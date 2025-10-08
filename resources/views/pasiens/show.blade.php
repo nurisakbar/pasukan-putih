@@ -50,6 +50,14 @@
                                     <th>Jenis KTP</th>
                                     <td>{{ $pasien->jenis_ktp }}</td>
                                 </tr>
+                                <tr>
+                                    <th>Nomor WhatsApp</th>
+                                    <td>{{ $pasien->nomor_whatsapp ?: '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nama Pendamping</th>
+                                    <td>{{ $pasien->nama_pendamping ?: '-' }}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
