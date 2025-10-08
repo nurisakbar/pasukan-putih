@@ -25,7 +25,10 @@ class Pasien extends Model
         'user_id',
         'rt',
         'rw',
-        'pustu_id'
+        'pustu_id',
+        'flag_sicarik',
+        'nomor_whatsapp',
+        'nama_pendamping'
     ];
 
     protected $dates = ['deleted_at'];
