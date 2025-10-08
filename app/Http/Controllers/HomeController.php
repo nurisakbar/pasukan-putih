@@ -72,7 +72,9 @@ class HomeController extends Controller
                     return [
                         'pasien' => $this->buildPasienQueryWithUser($user->id, $filters),
                         'visiting' => $this->buildVisitingQueryWithUser($user->id, $filters),
-                        'total_pasien' => Pasien::where('user_id', $user->id)->count()
+                        'total_pasien' => Pasien::where(function($q) use ($user) {
+                            $q->where('user_id', $user->id)->orWhere('user_id', '-');
+                        })->count()
                     ];
                 }
                 
@@ -81,7 +83,10 @@ class HomeController extends Controller
                 return [
                     'pasien' => $this->buildPasienQueryWithRegency($regencyId, $filters),
                     'visiting' => $this->buildVisitingQueryWithRegency($regencyId, $filters),
-                    'total_pasien' => Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))->count()
+                    'total_pasien' => Pasien::where(function($q) use ($regencyId) {
+                        $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+                          ->orWhere('user_id', '-');
+                    })->count()
                 ];
         }
     }
@@ -221,7 +226,9 @@ class HomeController extends Controller
 
     private function buildPasienQueryWithUser($userId, $filters)
     {
-        $query = Pasien::where('user_id', $userId);
+        $query = Pasien::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -232,7 +239,9 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithUser($userId, $filters)
     {
-        $query = Visiting::whereHas('pasien', fn($q) => $q->where('user_id', $userId));
+        $query = Visiting::whereHas('pasien', function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -249,7 +258,10 @@ class HomeController extends Controller
 
     private function buildPasienQueryWithRegency($regencyId, $filters)
     {
-        $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Pasien::where(function($q) use ($regencyId) {
+            $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+              ->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['district_id'])) {
             $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
@@ -263,7 +275,10 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithRegency($regencyId, $filters)
     {
-        $query = Visiting::whereHas('pasien.pustu.districts.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Visiting::where(function($q) use ($regencyId) {
+            $q->whereHas('pasien.pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+              ->orWhereHas('pasien', fn($subQ) => $subQ->where('user_id', '-'));
+        });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
