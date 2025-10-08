@@ -191,7 +191,9 @@ class HomeController extends Controller
             if ($filters['data_source'] === 'carik') {
                 $query->where('flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
-                $query->where('flag_sicarik', 0);
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
             }
         }
         
@@ -239,7 +241,9 @@ class HomeController extends Controller
             if ($filters['data_source'] === 'carik') {
                 $query->where('flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
-                $query->where('flag_sicarik', 0);
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
             }
         }
         
@@ -285,7 +289,9 @@ class HomeController extends Controller
             if ($filters['data_source'] === 'carik') {
                 $query->where('flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
-                $query->where('flag_sicarik', 0);
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
             }
         }
         
@@ -337,7 +343,9 @@ class HomeController extends Controller
             if ($filters['data_source'] === 'carik') {
                 $query->where('flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
-                $query->where('flag_sicarik', 0);
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
             }
         }
         
@@ -400,25 +408,83 @@ class HomeController extends Controller
 
     private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
     {
-        // Use the same filtered query as the main query, just add flag_sicarik filter
-        $carikTotalPasien = $pasienQuery->clone()
-            ->where('flag_sicarik', 1)
-            ->count();
+        // Clone the query and add flag_sicarik filter while preserving existing role-based filters
+        $carikQuery = $pasienQuery->clone()->where('flag_sicarik', 1);
+        $carikTotalPasien = $carikQuery->count();
+
+        // Get patient IDs for current filter with SiCarik flag
+        $carikPasienIds = $carikQuery->pluck('id');
+        
+        // Calculate scheduled patients for SiCarik data
+        $carikScheduledQuery = Visiting::whereIn('pasien_id', $carikPasienIds);
+        if (!empty($filters['start_date'])) {
+            $carikScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $carikScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $carikSudahDijadwalkan = $carikScheduledQuery->distinct('pasien_id')->count();
+
+        // Calculate visited patients for SiCarik data
+        $carikVisitedQuery = Visiting::whereIn('pasien_id', $carikPasienIds)
+            ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
+        if (!empty($filters['start_date'])) {
+            $carikVisitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $carikVisitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $carikSudahDikunjungi = $carikVisitedQuery->distinct('pasien_id')->count();
 
         return [
-            'total_pasien' => $carikTotalPasien
+            'total_pasien' => $carikTotalPasien,
+            'sudah_dijadwalkan' => $carikSudahDijadwalkan,
+            'belum_dijadwalkan' => $carikTotalPasien - $carikSudahDijadwalkan,
+            'sudah_dikunjungi' => $carikSudahDikunjungi,
+            'belum_dikunjungi' => $carikTotalPasien - $carikSudahDikunjungi,
+            'henti_layanan' => $this->getHentiLayananCount($carikPasienIds)
         ];
     }
 
     private function calculateManualData($pasienQuery, $visitingQuery, $filters)
     {
-        // Use the same filtered query as the main query, just add flag_sicarik filter
-        $manualTotalPasien = $pasienQuery->clone()
-            ->where('flag_sicarik', 0)
-            ->count();
+        // Clone the query and add flag_sicarik filter while preserving existing role-based filters
+        $manualQuery = $pasienQuery->clone()->where(function($q) {
+            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+        });
+        $manualTotalPasien = $manualQuery->count();
+
+        // Get patient IDs for current filter with manual input flag
+        $manualPasienIds = $manualQuery->pluck('id');
+        
+        // Calculate scheduled patients for manual data
+        $manualScheduledQuery = Visiting::whereIn('pasien_id', $manualPasienIds);
+        if (!empty($filters['start_date'])) {
+            $manualScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $manualScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $manualSudahDijadwalkan = $manualScheduledQuery->distinct('pasien_id')->count();
+
+        // Calculate visited patients for manual data
+        $manualVisitedQuery = Visiting::whereIn('pasien_id', $manualPasienIds)
+            ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
+        if (!empty($filters['start_date'])) {
+            $manualVisitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $manualVisitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $manualSudahDikunjungi = $manualVisitedQuery->distinct('pasien_id')->count();
 
         return [
-            'total_pasien' => $manualTotalPasien
+            'total_pasien' => $manualTotalPasien,
+            'sudah_dijadwalkan' => $manualSudahDijadwalkan,
+            'belum_dijadwalkan' => $manualTotalPasien - $manualSudahDijadwalkan,
+            'sudah_dikunjungi' => $manualSudahDikunjungi,
+            'belum_dikunjungi' => $manualTotalPasien - $manualSudahDikunjungi,
+            'henti_layanan' => $this->getHentiLayananCount($manualPasienIds)
         ];
     }
 }
