@@ -482,9 +482,10 @@ class HomeController extends Controller
     {
         switch ($user->role) {
             case 'superadmin':
+                // For SiCarik data, use village relationship since SiCarik data doesn't have pustu_id
                 $query = Pasien::where('flag_sicarik', 1);
                 if (!empty($filters['district_id'])) {
-                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                    $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
                 }
                 if (!empty($filters['village_id'])) {
                     $query->where('village_id', $filters['village_id']);
@@ -503,7 +504,19 @@ class HomeController extends Controller
                     return $query;
                 } else {
                     // For non-puskesmas perawat, include SiCarik data from their district
+                    // We need to find the district from user's village or pustu
+                    $districtId = null;
+                    if ($user->pustu) {
+                        $districtId = $user->pustu->district_id;
+                    } elseif ($user->village_id) {
+                        $village = \App\Models\Village::find($user->village_id);
+                        $districtId = $village ? $village->district_id : null;
+                    }
+                    
                     $query = Pasien::where('flag_sicarik', 1);
+                    if ($districtId) {
+                        $query->whereHas('village.district', fn($q) => $q->where('id', $districtId));
+                    }
                     if (!empty($filters['village_id'])) {
                         $query->where('village_id', $filters['village_id']);
                     }
