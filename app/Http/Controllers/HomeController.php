@@ -126,7 +126,7 @@ class HomeController extends Controller
 
         $currentPasienCount = $pasienQuery->count();
 
-        // Calculate Si Carik and Manual Input data metrics
+        // Calculate Si Carik and Manual Input data metrics using Query Builder
         $carikData = $this->calculateCarikData($pasienQuery, $visitingQuery, $filters);
         $manualData = $this->calculateManualData($pasienQuery, $visitingQuery, $filters);
 
@@ -135,11 +135,9 @@ class HomeController extends Controller
             'jumlah_data_sasaran' => $currentPasienCount,
             'jumlah_kunjungan' => $visitingQuery->count(),
             
-            // Visit completion status
-            'jumlah_kunjungan_belum_selesai' => HealthForm::whereIn('visiting_id', $latestVisitIds)
-                ->where('kunjungan_lanjutan', 'ya')->count(),
-            'jumlah_kunjungan_selesai' => HealthForm::whereIn('visiting_id', $latestVisitIds)
-                ->where('kunjungan_lanjutan', 'tidak')->count(),
+            // Visit completion status using Query Builder for better performance
+            'jumlah_kunjungan_belum_selesai' => $this->getKunjunganStatusCount($latestVisitIds, 'ya'),
+            'jumlah_kunjungan_selesai' => $this->getKunjunganStatusCount($latestVisitIds, 'tidak'),
             
             // Target data metrics
             'data_sasaran_keseluruhan' => $totalPasien,
@@ -148,7 +146,7 @@ class HomeController extends Controller
             'data_sasaran_belum_dijadwalkan' => $currentPasienCount - $sudahDijadwalkan,
             'data_sasaran_sudah_dikunjungi' => $sudahDikunjungi,
             'data_sasaran_belum_dikunjungi' => $currentPasienCount - $sudahDikunjungi,
-            'data_sasaran_henti_layanan' => $this->getHentiLayananCount($pasienIds),
+            'data_sasaran_henti_layanan' => $this->getHentiLayananCountQueryBuilder($pasienIds),
             
             // Visit type metrics
             'jumlah_kunjungan_awal' => $visitingQuery->clone()->whereIn('id', $firstVisitIds)->count(),
@@ -394,6 +392,38 @@ class HomeController extends Controller
             ->count();
     }
 
+    private function getHentiLayananCountQueryBuilder($pasienIds)
+    {
+        // Get latest visit IDs using Query Builder
+        $latestVisitIds = DB::table('visitings')
+            ->select(DB::raw('MAX(id) as id'))
+            ->whereIn('pasien_id', $pasienIds)
+            ->groupBy('pasien_id')
+            ->pluck('id');
+        
+        if (empty($latestVisitIds)) {
+            return 0;
+        }
+        
+        // Count henti layanan using Query Builder
+        return DB::table('health_forms')
+            ->whereIn('visiting_id', $latestVisitIds)
+            ->whereNotNull('henti_layanan')
+            ->count();
+    }
+
+    private function getKunjunganStatusCount($latestVisitIds, $status)
+    {
+        if (empty($latestVisitIds)) {
+            return 0;
+        }
+        
+        return DB::table('health_forms')
+            ->whereIn('visiting_id', $latestVisitIds)
+            ->where('kunjungan_lanjutan', $status)
+            ->count();
+    }
+
     private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
     {
         $user = $filters['user'];
@@ -402,33 +432,50 @@ class HomeController extends Controller
         $cacheKey = 'carik_data_' . $user->id . '_' . md5(serialize($filters));
         
         return \Cache::remember($cacheKey, 300, function() use ($user, $filters) { // Cache for 5 minutes
-            // Build SiCarik query based on user role, similar to getBaseQueries logic
+            // Build SiCarik query using Query Builder for maximum performance
             $carikQuery = $this->buildCarikQueryByRole($user, $filters);
             $carikTotalPasien = $carikQuery->count();
 
-        // Get patient IDs for current filter with SiCarik flag
-        $carikPasienIds = $carikQuery->pluck('id');
-        
-        // Calculate scheduled patients for SiCarik data
-        $carikScheduledQuery = Visiting::whereIn('pasien_id', $carikPasienIds);
-        if (!empty($filters['start_date'])) {
-            $carikScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $carikScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
-        $carikSudahDijadwalkan = $carikScheduledQuery->distinct('pasien_id')->count();
+            // Get patient IDs for current filter with SiCarik flag
+            $carikPasienIds = $carikQuery->pluck('id');
+            
+            if (empty($carikPasienIds)) {
+                return [
+                    'total_pasien' => 0,
+                    'sudah_dijadwalkan' => 0,
+                    'belum_dijadwalkan' => 0,
+                    'sudah_dikunjungi' => 0,
+                    'belum_dikunjungi' => 0,
+                    'henti_layanan' => 0
+                ];
+            }
 
-        // Calculate visited patients for SiCarik data
-        $carikVisitedQuery = Visiting::whereIn('pasien_id', $carikPasienIds)
-            ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
-        if (!empty($filters['start_date'])) {
-            $carikVisitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $carikVisitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
-        $carikSudahDikunjungi = $carikVisitedQuery->distinct('pasien_id')->count();
+            // Calculate scheduled patients using Query Builder
+            $carikScheduledQuery = DB::table('visitings')
+                ->whereIn('pasien_id', $carikPasienIds);
+            if (!empty($filters['start_date'])) {
+                $carikScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
+            }
+            if (!empty($filters['end_date'])) {
+                $carikScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
+            }
+            $carikSudahDijadwalkan = $carikScheduledQuery->distinct('pasien_id')->count();
+
+            // Calculate visited patients using Query Builder with JOIN
+            $carikVisitedQuery = DB::table('visitings')
+                ->join('ttvs', 'visitings.id', '=', 'ttvs.visiting_id')
+                ->whereIn('visitings.pasien_id', $carikPasienIds)
+                ->whereNotNull('ttvs.temperature');
+            if (!empty($filters['start_date'])) {
+                $carikVisitedQuery->whereDate('visitings.tanggal', '>=', $filters['start_date']);
+            }
+            if (!empty($filters['end_date'])) {
+                $carikVisitedQuery->whereDate('visitings.tanggal', '<=', $filters['end_date']);
+            }
+            $carikSudahDikunjungi = $carikVisitedQuery->distinct('visitings.pasien_id')->count();
+
+            // Calculate henti layanan using Query Builder
+            $carikHentiLayanan = $this->getHentiLayananCountQueryBuilder($carikPasienIds);
 
             return [
                 'total_pasien' => $carikTotalPasien,
@@ -436,7 +483,7 @@ class HomeController extends Controller
                 'belum_dijadwalkan' => $carikTotalPasien - $carikSudahDijadwalkan,
                 'sudah_dikunjungi' => $carikSudahDikunjungi,
                 'belum_dikunjungi' => $carikTotalPasien - $carikSudahDikunjungi,
-                'henti_layanan' => $this->getHentiLayananCount($carikPasienIds)
+                'henti_layanan' => $carikHentiLayanan
             ];
         });
     }
@@ -485,8 +532,9 @@ class HomeController extends Controller
 
     private function buildCarikQueryByRole($user, $filters)
     {
-        // Use optimized query with joins instead of whereHas for better performance
-        $query = Pasien::select('pasiens.*')
+        // Use DB Query Builder for maximum performance
+        $query = DB::table('pasiens')
+            ->select('pasiens.id')
             ->join('villages', 'pasiens.village_id', '=', 'villages.id')
             ->join('districts', 'villages.district_id', '=', 'districts.id')
             ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
@@ -508,7 +556,7 @@ class HomeController extends Controller
                     if ($user->pustu) {
                         $districtId = $user->pustu->district_id;
                     } elseif ($user->village_id) {
-                        $village = \App\Models\Village::find($user->village_id);
+                        $village = DB::table('villages')->where('id', $user->village_id)->first();
                         $districtId = $village ? $village->district_id : null;
                     }
                     
