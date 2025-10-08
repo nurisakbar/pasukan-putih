@@ -72,6 +72,7 @@ class PasienController extends Controller
                 'pasiens.alamat',
                 'pasiens.rt',
                 'pasiens.rw',
+                'pasiens.flag_sicarik',
                 'villages.name as village_name',
                 'districts.name as district_name',
                 'regencies.name as regency_name',
@@ -119,6 +120,16 @@ class PasienController extends Controller
                   ->orWhere('districts.name', 'like', "%{$searchTerm}%")
                   ->orWhere('regencies.name', 'like', "%{$searchTerm}%");
             });
+        }
+
+        // Apply data source filter if provided
+        if ($request->filled('flag_sicarik')) {
+            $flagSicarik = $request->flag_sicarik;
+            if ($flagSicarik == '1') {
+                $query->where('pasiens.flag_sicarik', 1);
+            } elseif ($flagSicarik == '0') {
+                $query->where('pasiens.flag_sicarik', 0);
+            }
         }
 
         return DataTables::of($query)
