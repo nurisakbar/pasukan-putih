@@ -36,6 +36,11 @@ class HomeController extends Controller
                 ->toArray();
         }
 
+        // If AJAX request, return only the dashboard content
+        if ($request->ajax()) {
+            return view('home', $data)->render();
+        }
+
         return view('home', $data);
     }
 
@@ -46,6 +51,7 @@ class HomeController extends Controller
             'end_date' => $request->get('end_date'),
             'district_id' => $request->get('district_id'),
             'village_id' => $request->get('village_id'),
+            'data_source' => $request->get('data_source'),
             'user' => $user
         ];
     }
@@ -132,6 +138,10 @@ class HomeController extends Controller
 
         $currentPasienCount = $pasienQuery->count();
 
+        // Calculate Si Carik and Manual Input data metrics
+        $carikData = $this->calculateCarikData($pasienQuery, $visitingQuery, $filters);
+        $manualData = $this->calculateManualData($pasienQuery, $visitingQuery, $filters);
+
         return [
             // Basic counts
             'jumlah_data_sasaran' => $currentPasienCount,
@@ -156,7 +166,13 @@ class HomeController extends Controller
             'jumlah_kunjungan_awal' => $visitingQuery->clone()->whereIn('id', $firstVisitIds)->count(),
             'jumlah_kunjungan_lanjutan' => $visitingQuery->clone()->whereNotIn('id', $firstVisitIds)->count(),
             'jumlah_henti_layanan' => $visitingQuery->clone()
-                ->whereHas('healthForms', fn($q) => $q->where('henti_layanan', 'ya'))->count()
+                ->whereHas('healthForms', fn($q) => $q->where('henti_layanan', 'ya'))->count(),
+            
+            // Si Carik data metrics
+            'carik_data' => $carikData,
+            
+            // Manual input data metrics
+            'manual_data' => $manualData
         ];
     }
 
@@ -170,6 +186,13 @@ class HomeController extends Controller
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where('flag_sicarik', 0);
+            }
         }
         
         return $query;
@@ -191,6 +214,15 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
@@ -202,6 +234,13 @@ class HomeController extends Controller
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where('flag_sicarik', 0);
+            }
         }
         
         return $query;
@@ -220,6 +259,15 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
@@ -232,6 +280,13 @@ class HomeController extends Controller
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where('flag_sicarik', 0);
+            }
         }
         
         return $query;
@@ -252,6 +307,15 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
@@ -268,6 +332,13 @@ class HomeController extends Controller
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where('flag_sicarik', 0);
+            }
         }
         
         return $query;
@@ -291,6 +362,15 @@ class HomeController extends Controller
         }
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
         }
         
         return $query;
@@ -316,5 +396,29 @@ class HomeController extends Controller
         return HealthForm::whereIn('visiting_id', $latestVisitIds)
             ->where('henti_layanan', '!=', null)
             ->count();
+    }
+
+    private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
+    {
+        // Use the same filtered query as the main query, just add flag_sicarik filter
+        $carikTotalPasien = $pasienQuery->clone()
+            ->where('flag_sicarik', 1)
+            ->count();
+
+        return [
+            'total_pasien' => $carikTotalPasien
+        ];
+    }
+
+    private function calculateManualData($pasienQuery, $visitingQuery, $filters)
+    {
+        // Use the same filtered query as the main query, just add flag_sicarik filter
+        $manualTotalPasien = $pasienQuery->clone()
+            ->where('flag_sicarik', 0)
+            ->count();
+
+        return [
+            'total_pasien' => $manualTotalPasien
+        ];
     }
 }
