@@ -122,49 +122,9 @@ class PasienController extends Controller
         }
 
         return DataTables::of($query)
-            ->addColumn('action', function ($pasien) {
-                $actions = '<div class="d-flex justify-content-center">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-toggle="tooltip" title="Menu Aksi">
-                            <i class="fas fa-cogs"></i> <span class="d-none d-md-inline">Aksi</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li style="display: none">
-                                <a href="' . route('pasiens.asuhanKeluarga', $pasien->id) . '" class="dropdown-item">
-                                    <i class="fas fa-plus-minus me-2"></i> Tambah Asuhan Keluarga
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . route('pasiens.show', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Lihat Detail">
-                                    <i class="fas fa-eye me-2"></i> Detail Data Sasaran
-                                </a>
-                            </li>
-                            <li>
-                                <a href="' . route('pasiens.edit', $pasien->id) . '" class="dropdown-item" data-bs-toggle="tooltip" title="Edit Data">
-                                    <i class="fas fa-edit me-2"></i> Edit Data Sasaran
-                                </a>
-                            </li>
-                            <li>
-                                <button class="dropdown-item text-danger delete-btn"
-                                        data-id="' . $pasien->id . '"
-                                        data-nama="' . $pasien->name . '"
-                                        data-bs-toggle="tooltip" title="Hapus Data">
-                                    <i class="fas fa-trash me-2"></i> Hapus Data Sasaran
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <form id="delete-form-' . $pasien->id . '" action="' . route('pasiens.destroy', $pasien->id) . '" method="POST" style="display: none;">
-                    ' . csrf_field() . '
-                    ' . method_field('DELETE') . '
-                </form>';
-                return $actions;
-            })
             ->addColumn('rt_rw', function ($pasien) {
                 return $pasien->rt . '/' . $pasien->rw;
             })
-            ->rawColumns(['action'])
             ->make(true);
     }
 
@@ -202,7 +162,7 @@ class PasienController extends Controller
         $validated['flag_sicarik'] = 0; // Default value for manual entry
 
         $pasien = Pasien::create($validated);
-        return redirect()->route('pasiens.index')->with('success', 'Data pasien berhasil ditambahkan');
+        return redirect()->route('pasiens.show', $pasien->id)->with('success', 'Data pasien berhasil ditambahkan');
     }
 
     public function show(Pasien $pasien): \Illuminate\Contracts\View\View
@@ -252,7 +212,7 @@ class PasienController extends Controller
         ]);
 
         $pasien->update($validated);
-        return redirect()->route('pasiens.index')->with('success', 'Data pasien berhasil diperbarui');
+        return redirect()->route('pasiens.show', $pasien->id)->with('success', 'Data pasien berhasil diperbarui');
     }
 
     public function destroy(Pasien $pasien): \Illuminate\Http\RedirectResponse

@@ -282,7 +282,7 @@
                 if (!kelurahanName) return;
 
                 $.ajax({
-                    url: `{{ url('search-village') }}`,
+                    url: `{{ route('search.village') }}`,
                     method: 'GET',
                     data: { q: kelurahanName },
                     success: function(villages) {
@@ -407,7 +407,7 @@
                 minimumInputLength: 3,
                 allowClear: true,
                 ajax: {
-                    url: `{{ url('search-village') }}`,
+                    url: `{{ route('search.village') }}`,
                     dataType: 'json',
                     delay: 300,
                     data: function(params) {
