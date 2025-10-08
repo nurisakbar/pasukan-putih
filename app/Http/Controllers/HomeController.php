@@ -8,6 +8,7 @@ use App\Models\Visiting;
 use App\Models\HealthForm;
 use App\Models\User;
 use App\Models\District;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -18,6 +19,10 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
+        // Optimize database connection for this request
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        DB::connection()->getPdo()->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        
         $user = auth()->user();
         $filters = $this->getFilters($request, $user);
         
@@ -40,6 +45,10 @@ class HomeController extends Controller
         if ($request->ajax()) {
             return view('home', $data)->render();
         }
+
+        // Clear memory after processing
+        unset($queries, $filters);
+        gc_collect_cycles();
 
         return view('home', $data);
     }
@@ -424,6 +433,52 @@ class HomeController extends Controller
             ->count();
     }
 
+    private function getCarikMetricsOptimized($pasienIds, $filters)
+    {
+        if (empty($pasienIds)) {
+            return [
+                'sudah_dijadwalkan' => 0,
+                'sudah_dikunjungi' => 0,
+                'henti_layanan' => 0
+            ];
+        }
+
+        $placeholders = str_repeat('?,', count($pasienIds) - 1) . '?';
+        $bindings = $pasienIds;
+        
+        // Build date filters
+        $dateFilter = '';
+        if (!empty($filters['start_date'])) {
+            $dateFilter .= " AND DATE(v.tanggal) >= ?";
+            $bindings[] = $filters['start_date'];
+        }
+        if (!empty($filters['end_date'])) {
+            $dateFilter .= " AND DATE(v.tanggal) <= ?";
+            $bindings[] = $filters['end_date'];
+        }
+
+        // Single optimized query to get all metrics
+        $sql = "
+            SELECT 
+                COUNT(DISTINCT v.pasien_id) as sudah_dijadwalkan,
+                COUNT(DISTINCT CASE WHEN t.temperature IS NOT NULL THEN v.pasien_id END) as sudah_dikunjungi,
+                COUNT(DISTINCT CASE WHEN hf.henti_layanan IS NOT NULL THEN v.pasien_id END) as henti_layanan
+            FROM visitings v
+            LEFT JOIN ttvs t ON v.id = t.kunjungan_id
+            LEFT JOIN health_forms hf ON v.id = hf.visiting_id
+            WHERE v.pasien_id IN ($placeholders)
+            $dateFilter
+        ";
+
+        $result = DB::selectOne($sql, $bindings);
+        
+        return [
+            'sudah_dijadwalkan' => $result->sudah_dijadwalkan ?? 0,
+            'sudah_dikunjungi' => $result->sudah_dikunjungi ?? 0,
+            'henti_layanan' => $result->henti_layanan ?? 0
+        ];
+    }
+
     private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
     {
         $user = $filters['user'];
@@ -432,12 +487,9 @@ class HomeController extends Controller
         $cacheKey = 'carik_data_' . $user->id . '_' . md5(serialize($filters));
         
         return \Cache::remember($cacheKey, 300, function() use ($user, $filters) { // Cache for 5 minutes
-            // Build SiCarik query using Query Builder for maximum performance
-            $carikQuery = $this->buildCarikQueryByRole($user, $filters);
-            $carikTotalPasien = $carikQuery->count();
-
-            // Get patient IDs for current filter with SiCarik flag
-            $carikPasienIds = $carikQuery->pluck('id');
+            // Get patient IDs using optimized raw SQL
+            $carikPasienIds = $this->buildCarikQueryByRole($user, $filters);
+            $carikTotalPasien = count($carikPasienIds);
             
             if (empty($carikPasienIds)) {
                 return [
@@ -450,40 +502,20 @@ class HomeController extends Controller
                 ];
             }
 
-            // Calculate scheduled patients using Query Builder
-            $carikScheduledQuery = DB::table('visitings')
-                ->whereIn('pasien_id', $carikPasienIds);
-            if (!empty($filters['start_date'])) {
-                $carikScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
-            }
-            if (!empty($filters['end_date'])) {
-                $carikScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
-            }
-            $carikSudahDijadwalkan = $carikScheduledQuery->distinct('pasien_id')->count();
-
-            // Calculate visited patients using Query Builder with JOIN
-            $carikVisitedQuery = DB::table('visitings')
-                ->join('ttvs', 'visitings.id', '=', 'ttvs.visiting_id')
-                ->whereIn('visitings.pasien_id', $carikPasienIds)
-                ->whereNotNull('ttvs.temperature');
-            if (!empty($filters['start_date'])) {
-                $carikVisitedQuery->whereDate('visitings.tanggal', '>=', $filters['start_date']);
-            }
-            if (!empty($filters['end_date'])) {
-                $carikVisitedQuery->whereDate('visitings.tanggal', '<=', $filters['end_date']);
-            }
-            $carikSudahDikunjungi = $carikVisitedQuery->distinct('visitings.pasien_id')->count();
-
-            // Calculate henti layanan using Query Builder
-            $carikHentiLayanan = $this->getHentiLayananCountQueryBuilder($carikPasienIds);
+            // Extract IDs for IN clause
+            $pasienIds = array_column($carikPasienIds, 'id');
+            $placeholders = str_repeat('?,', count($pasienIds) - 1) . '?';
+            
+            // Calculate all metrics in single optimized query
+            $metrics = $this->getCarikMetricsOptimized($pasienIds, $filters);
 
             return [
                 'total_pasien' => $carikTotalPasien,
-                'sudah_dijadwalkan' => $carikSudahDijadwalkan,
-                'belum_dijadwalkan' => $carikTotalPasien - $carikSudahDijadwalkan,
-                'sudah_dikunjungi' => $carikSudahDikunjungi,
-                'belum_dikunjungi' => $carikTotalPasien - $carikSudahDikunjungi,
-                'henti_layanan' => $carikHentiLayanan
+                'sudah_dijadwalkan' => $metrics['sudah_dijadwalkan'],
+                'belum_dijadwalkan' => $carikTotalPasien - $metrics['sudah_dijadwalkan'],
+                'sudah_dikunjungi' => $metrics['sudah_dikunjungi'],
+                'belum_dikunjungi' => $carikTotalPasien - $metrics['sudah_dikunjungi'],
+                'henti_layanan' => $metrics['henti_layanan']
             ];
         });
     }
@@ -532,15 +564,19 @@ class HomeController extends Controller
 
     private function buildCarikQueryByRole($user, $filters)
     {
-        // Use DB Query Builder for maximum performance
-        $query = DB::table('pasiens')
-            ->select('pasiens.id')
-            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
-            ->join('districts', 'villages.district_id', '=', 'districts.id')
-            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
-            ->where('pasiens.flag_sicarik', 1)
-            ->whereNull('pasiens.deleted_at');
-
+        // Use optimized raw SQL for maximum performance
+        $sql = "
+            SELECT p.id 
+            FROM pasiens p
+            INNER JOIN villages v ON p.village_id = v.id
+            INNER JOIN districts d ON v.district_id = d.id
+            INNER JOIN regencies r ON d.regency_id = r.id
+            WHERE p.flag_sicarik = 1 
+            AND p.deleted_at IS NULL
+        ";
+        
+        $bindings = [];
+        
         switch ($user->role) {
             case 'superadmin':
                 // No additional filtering for superadmin
@@ -549,38 +585,43 @@ class HomeController extends Controller
             case 'perawat':
                 if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                     $districtId = $user->pustu->district_id;
-                    $query->where('districts.id', $districtId);
+                    $sql .= " AND d.id = ?";
+                    $bindings[] = $districtId;
                 } else {
                     // For non-puskesmas perawat, find district from user's data
                     $districtId = null;
                     if ($user->pustu) {
                         $districtId = $user->pustu->district_id;
                     } elseif ($user->village_id) {
-                        $village = DB::table('villages')->where('id', $user->village_id)->first();
+                        $village = DB::selectOne("SELECT district_id FROM villages WHERE id = ?", [$user->village_id]);
                         $districtId = $village ? $village->district_id : null;
                     }
                     
                     if ($districtId) {
-                        $query->where('districts.id', $districtId);
+                        $sql .= " AND d.id = ?";
+                        $bindings[] = $districtId;
                     }
                 }
                 break;
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                $query->where('regencies.id', $regencyId);
+                $sql .= " AND r.id = ?";
+                $bindings[] = $regencyId;
                 break;
         }
 
         // Apply additional filters
         if (!empty($filters['district_id'])) {
-            $query->where('districts.id', $filters['district_id']);
+            $sql .= " AND d.id = ?";
+            $bindings[] = $filters['district_id'];
         }
         if (!empty($filters['village_id'])) {
-            $query->where('pasiens.village_id', $filters['village_id']);
+            $sql .= " AND p.village_id = ?";
+            $bindings[] = $filters['village_id'];
         }
 
-        return $query;
+        return DB::select($sql, $bindings);
     }
 
     private function buildManualQueryByRole($user, $filters)
