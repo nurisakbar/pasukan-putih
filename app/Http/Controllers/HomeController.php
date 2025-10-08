@@ -398,9 +398,13 @@ class HomeController extends Controller
     {
         $user = $filters['user'];
         
-        // Build SiCarik query based on user role, similar to getBaseQueries logic
-        $carikQuery = $this->buildCarikQueryByRole($user, $filters);
-        $carikTotalPasien = $carikQuery->count();
+        // Use cache key based on user and filters for better performance
+        $cacheKey = 'carik_data_' . $user->id . '_' . md5(serialize($filters));
+        
+        return \Cache::remember($cacheKey, 300, function() use ($user, $filters) { // Cache for 5 minutes
+            // Build SiCarik query based on user role, similar to getBaseQueries logic
+            $carikQuery = $this->buildCarikQueryByRole($user, $filters);
+            $carikTotalPasien = $carikQuery->count();
 
         // Get patient IDs for current filter with SiCarik flag
         $carikPasienIds = $carikQuery->pluck('id');
@@ -426,14 +430,15 @@ class HomeController extends Controller
         }
         $carikSudahDikunjungi = $carikVisitedQuery->distinct('pasien_id')->count();
 
-        return [
-            'total_pasien' => $carikTotalPasien,
-            'sudah_dijadwalkan' => $carikSudahDijadwalkan,
-            'belum_dijadwalkan' => $carikTotalPasien - $carikSudahDijadwalkan,
-            'sudah_dikunjungi' => $carikSudahDikunjungi,
-            'belum_dikunjungi' => $carikTotalPasien - $carikSudahDikunjungi,
-            'henti_layanan' => $this->getHentiLayananCount($carikPasienIds)
-        ];
+            return [
+                'total_pasien' => $carikTotalPasien,
+                'sudah_dijadwalkan' => $carikSudahDijadwalkan,
+                'belum_dijadwalkan' => $carikTotalPasien - $carikSudahDijadwalkan,
+                'sudah_dikunjungi' => $carikSudahDikunjungi,
+                'belum_dikunjungi' => $carikTotalPasien - $carikSudahDikunjungi,
+                'henti_layanan' => $this->getHentiLayananCount($carikPasienIds)
+            ];
+        });
     }
 
     private function calculateManualData($pasienQuery, $visitingQuery, $filters)
@@ -480,31 +485,25 @@ class HomeController extends Controller
 
     private function buildCarikQueryByRole($user, $filters)
     {
+        // Use optimized query with joins instead of whereHas for better performance
+        $query = Pasien::select('pasiens.*')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->where('pasiens.flag_sicarik', 1)
+            ->whereNull('pasiens.deleted_at');
+
         switch ($user->role) {
             case 'superadmin':
-                // For SiCarik data, use village relationship since SiCarik data doesn't have pustu_id
-                $query = Pasien::where('flag_sicarik', 1);
-                if (!empty($filters['district_id'])) {
-                    $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
-                }
-                if (!empty($filters['village_id'])) {
-                    $query->where('village_id', $filters['village_id']);
-                }
-                return $query;
+                // No additional filtering for superadmin
+                break;
                 
             case 'perawat':
                 if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                     $districtId = $user->pustu->district_id;
-                    // For SiCarik data, check village->district relationship since SiCarik data doesn't have pustu_id
-                    $query = Pasien::where('flag_sicarik', 1)
-                        ->whereHas('village.district', fn($q) => $q->where('id', $districtId));
-                    if (!empty($filters['village_id'])) {
-                        $query->where('village_id', $filters['village_id']);
-                    }
-                    return $query;
+                    $query->where('districts.id', $districtId);
                 } else {
-                    // For non-puskesmas perawat, include SiCarik data from their district
-                    // We need to find the district from user's village or pustu
+                    // For non-puskesmas perawat, find district from user's data
                     $districtId = null;
                     if ($user->pustu) {
                         $districtId = $user->pustu->district_id;
@@ -513,29 +512,27 @@ class HomeController extends Controller
                         $districtId = $village ? $village->district_id : null;
                     }
                     
-                    $query = Pasien::where('flag_sicarik', 1);
                     if ($districtId) {
-                        $query->whereHas('village.district', fn($q) => $q->where('id', $districtId));
+                        $query->where('districts.id', $districtId);
                     }
-                    if (!empty($filters['village_id'])) {
-                        $query->where('village_id', $filters['village_id']);
-                    }
-                    return $query;
                 }
+                break;
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                // For SiCarik data, we need to check village->district->regency relationship since SiCarik data doesn't have pustu_id
-                $query = Pasien::where('flag_sicarik', 1)
-                    ->whereHas('village.district.regency', fn($q) => $q->where('id', $regencyId));
-                if (!empty($filters['district_id'])) {
-                    $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
-                }
-                if (!empty($filters['village_id'])) {
-                    $query->where('village_id', $filters['village_id']);
-                }
-                return $query;
+                $query->where('regencies.id', $regencyId);
+                break;
         }
+
+        // Apply additional filters
+        if (!empty($filters['district_id'])) {
+            $query->where('districts.id', $filters['district_id']);
+        }
+        if (!empty($filters['village_id'])) {
+            $query->where('pasiens.village_id', $filters['village_id']);
+        }
+
+        return $query;
     }
 
     private function buildManualQueryByRole($user, $filters)
@@ -589,6 +586,29 @@ class HomeController extends Controller
                     $query->where('village_id', $filters['village_id']);
                 }
                 return $query;
+        }
+    }
+
+    /**
+     * Clear cache for dashboard data
+     * Call this method when data is updated
+     */
+    public function clearDashboardCache($userId = null)
+    {
+        if ($userId) {
+            // Clear cache for specific user
+            $pattern = 'carik_data_' . $userId . '_*';
+            $keys = \Cache::getRedis()->keys($pattern);
+            if (!empty($keys)) {
+                \Cache::getRedis()->del($keys);
+            }
+        } else {
+            // Clear all dashboard cache
+            $pattern = 'carik_data_*';
+            $keys = \Cache::getRedis()->keys($pattern);
+            if (!empty($keys)) {
+                \Cache::getRedis()->del($keys);
+            }
         }
     }
 }
