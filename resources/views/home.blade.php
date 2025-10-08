@@ -94,8 +94,8 @@
                         $sasaran_data = [
                             ['title' => 'Pasien dari Si Carik', 'value' => $carik_data['total_pasien'], 'icon' => 'bi-cloud-download', 'bg' => 'bg-primary', 'text' => 'text-white'],
                             ['title' => 'Pasien Input Manual', 'value' => $manual_data['total_pasien'], 'icon' => 'bi-pencil-square', 'bg' => 'bg-secondary', 'text' => 'text-white'],
-                            ['title' => 'Pasien Terjadwal', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
-                            ['title' => 'Pasien Belum Terjadwal', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
+                            ['title' => 'Pasien Sudah Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
+                            ['title' => 'Pasien Belum Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
                             ['title' => 'Pasien Sudah Dikunjungi', 'value' => $data_sasaran_sudah_dikunjungi, 'icon' => 'bi-house-check', 'bg' => 'bg-success', 'text' => 'text-white'],
                             ['title' => 'Pasien Belum Dikunjungi', 'value' => $data_sasaran_belum_dikunjungi, 'icon' => 'bi-house-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
                             ['title' => 'Pasien Henti Layanan', 'value' => $data_sasaran_henti_layanan, 'icon' => 'bi-person-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
@@ -152,7 +152,7 @@
                         ['title' => 'Kunjungan Berkelanjutan', 'value' => $jumlah_kunjungan_belum_selesai, 'icon' => 'bi-hourglass-split', 'bg' => 'bg-success', 'text' => 'text-white'],
                         ['title' => 'Kunjungan Pertama', 'value' => $jumlah_kunjungan_awal, 'icon' => 'bi-play-circle', 'bg' => 'bg-secondary', 'text' => 'text-white'],
                         ['title' => 'Yang Mendapatkan Kunjungan Lanjutan', 'value' => $jumlah_kunjungan_lanjutan, 'icon' => 'bi-arrow-repeat', 'bg' => 'bg-success', 'text' => 'text-white'],
-                        ['title' => 'Henti Layanan', 'value' => $jumlah_kunjungan_selesai, 'icon' => 'bi-check-circle', 'bg' => 'bg-danger', 'text' => 'text-white'],
+                        ['title' => 'Yang Berhenti Layanan', 'value' => $jumlah_kunjungan_selesai, 'icon' => 'bi-check-circle', 'bg' => 'bg-danger', 'text' => 'text-white'],
                     ];
                 @endphp
                 @foreach($kunjungan_data as $data)
