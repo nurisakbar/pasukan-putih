@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -50,14 +51,16 @@ return new class extends Migration
     }
 
     /**
-     * Check if index exists
+     * Check if index exists using raw SQL
      */
     private function indexExists($table, $indexName)
     {
-        $indexes = Schema::getConnection()
-            ->getDoctrineSchemaManager()
-            ->listTableIndexes($table);
-        
-        return array_key_exists($indexName, $indexes);
+        try {
+            $result = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$indexName]);
+            return count($result) > 0;
+        } catch (\Exception $e) {
+            // If table doesn't exist or other error, assume index doesn't exist
+            return false;
+        }
     }
 };
