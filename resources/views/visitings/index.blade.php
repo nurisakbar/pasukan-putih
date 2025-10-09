@@ -100,7 +100,6 @@
                         <table id="example2" class="table table-bordered table-striped dataTable-responsive">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" width="110">Aksi</th>
                                     <th>NAMA PASIEN</th>
                                     <th>TANGGAL</th>
                                     <th>JENIS KUNJUNGAN</th>
@@ -114,63 +113,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($visitings as $kunjungan)
-                                    <tr>
-                                        <td class="align-middle">
-                                            <div class="d-flex justify-content-center">
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-cogs"></i> Aksi
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <a href="{{ route('visitings.dashboard', $kunjungan->id) }}"
-                                                               class="dropdown-item">
-                                                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard Kunjungan
-                                                            </a>
-                                                        </li>
-                                                        {{-- <li>
-                                                            <a href="{{ route('visitings.skriningAdl', $kunjungan->id) }}"
-                                                               class="dropdown-item">
-                                                                <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
-                                                            </a>
-                                                        </li> --}}
-                                                        {{-- @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
-                                                        <li>
-                                                            <a href="{{ route('ttv.edit', $kunjungan->id) }}"
-                                                               class="dropdown-item">
-                                                                <i class="fas fa-edit me-2"></i> Edit TTV
-                                                            </a>
-                                                        </li>
-                                                        @endif --}}
-                                                        <li>
-                                                            <a href="{{ route('health-form.edit', $kunjungan->id) }}"
-                                                               class="dropdown-item">
-                                                                <i class="fas fa-edit me-2"></i> Edit Form Kesehatan
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="{{ route('visitings.edit', $kunjungan->id) }}"
-                                                               class="dropdown-item">
-                                                                <i class="fas fa-edit me-2"></i> Edit Kunjungan
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <button class="dropdown-item text-danger delete-btn"
-                                                                    data-id="{{ $kunjungan->id }}"
-                                                                    data-nama="{{ $kunjungan->pasien->name }}">
-                                                                <i class="fas fa-trash me-2"></i> Hapus Kunjungan
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <form id="delete-form-{{ $kunjungan->id }}" action="{{ route('visitings.destroy', $kunjungan->id) }}" method="POST" style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                        </td>
-
+                                    <tr class="clickable-row" data-url="{{ route('visitings.dashboard', $kunjungan->id) }}">
                                         <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
                                         <td class="align-middle">{{ $kunjungan->status }}</td>
@@ -185,7 +128,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="text-center py-4">
+                                        <td colspan="9" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                                                 <h5 class="text-muted">Tidak ada data kunjungan</h5>
@@ -209,6 +152,36 @@
         </div>
     </div>
 @endsection
+
+@push('style')
+<style>
+    .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .clickable-row:hover {
+        background-color: #f8f9fa !important;
+    }
+    
+    .clickable-row:active {
+        background-color: #e9ecef !important;
+    }
+    
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+        .clickable-row {
+            -webkit-tap-highlight-color: rgba(0, 123, 255, 0.2);
+        }
+        
+        .clickable-row:active {
+            background-color: #cce7ff !important;
+            transform: scale(0.98);
+        }
+    }
+</style>
+@endpush
 
 @push('script')
 
@@ -243,28 +216,48 @@
         });
     });
 
-    document.addEventListener('click', function(event) {
-        if (event.target.closest('.delete-btn')) {
-            event.preventDefault();
-            const button = event.target.closest('.delete-btn');
-            const id = button.getAttribute('data-id');
-            const pasienNama = button.getAttribute('data-nama');
-            Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: `Anda akan menghapus data pasien ${pasienNama}. Tindakan ini tidak dapat dibatalkan!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus data ini!',
-            cancelButtonText: 'Batal'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
+
+    // Mobile detection
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+               ('ontouchstart' in window) || 
+               (navigator.maxTouchPoints > 0);
+    }
+
+    // Click handler for table rows (single-click on mobile, double-click on desktop)
+    if (isMobileDevice()) {
+        // Single-click for mobile devices
+        document.addEventListener('click', function(event) {
+            // Prevent click if clicking on interactive elements
+            if (event.target.closest('button, a, input, select, textarea, .dropdown-menu')) {
+                return;
             }
-            });
-        }
-    });
+            
+            const row = event.target.closest('.clickable-row');
+            if (row) {
+                const url = row.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            }
+        });
+    } else {
+        // Double-click for desktop devices
+        document.addEventListener('dblclick', function(event) {
+            // Prevent double-click if clicking on interactive elements
+            if (event.target.closest('button, a, input, select, textarea, .dropdown-menu')) {
+                return;
+            }
+            
+            const row = event.target.closest('.clickable-row');
+            if (row) {
+                const url = row.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            }
+        });
+    }
 
 </script>
 @endpush
