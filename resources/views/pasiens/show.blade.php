@@ -71,15 +71,17 @@
                     <!-- Action Buttons -->
                     <div class="mt-4 pt-3 border-top">
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus-circle me-1"></i> Asuhan Keluarga
-                            </a>
-                            <a href="{{ route('pasiens.edit', $pasien->id) }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit me-1"></i> Edit Data
-                            </a>
-                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="{{ $pasien->id }}" data-nama="{{ $pasien->name }}">
-                                <i class="fas fa-trash me-1"></i> Hapus
-                            </button>
+                            @if (auth()->user()->role != 'sudinkes')
+                                <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus-circle me-1"></i> Asuhan Keluarga
+                                </a>
+                                <a href="{{ route('pasiens.edit', $pasien->id) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i> Edit Data
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="{{ $pasien->id }}" data-nama="{{ $pasien->name }}">
+                                    <i class="fas fa-trash me-1"></i> Hapus
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
