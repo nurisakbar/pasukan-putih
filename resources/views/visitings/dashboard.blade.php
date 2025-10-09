@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Making fetch request to:', `/visitings/${visitingId}/${formType}`);
         
-        fetch(`/visitings/${visitingId}/${formType}`, {
+        fetch("{{ url('/visitings') }}/" + visitingId + "/" + formType, {
             method: 'POST',
             body: formData,
             headers: {
