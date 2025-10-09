@@ -273,7 +273,7 @@
                 <div class="col-md-4 mb-4 mt-2">
                     <div id="scheduled-card" class="card shadow-sm d-none">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Jadwal Rencana Kunjungan Pasien</h6>
+                            <h6 class="mb-0">Jadwal RencanaKunjungan Pasien</h6>
                             <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('scheduled-card').classList.add('d-none')"></button>
                         </div>
                         <div class="card-body">

@@ -157,6 +157,10 @@
                                 <div class="info-item mb-2">
                                     <small class="text-muted d-block">Petugas</small>
                                     <span class="fw-bold">{{ $visiting->user->name ?? '-' }}</span>
+                                    
+                                    @if ($visiting->operator != null)
+                                        <span class="fw-bold">& {{ $visiting->operator->name ?? '-' }}</span>
+                                    @endif
                                 </div>
 
                                 <hr class="my-3">
