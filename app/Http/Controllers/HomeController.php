@@ -175,6 +175,7 @@ class HomeController extends Controller
     private function buildPasienQuery($filters)
     {
         $query = Pasien::query();
+        $query->whereNotNull('village_id');
         
         if (!empty($filters['district_id'])) {
             $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
@@ -198,6 +199,7 @@ class HomeController extends Controller
     private function buildVisitingQuery($filters)
     {
         $query = Visiting::query();
+        $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -228,6 +230,7 @@ class HomeController extends Controller
     private function buildPasienQueryWithDistrict($districtId, $filters)
     {
         $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId));
+        $query->whereNotNull('village_id');
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -248,6 +251,7 @@ class HomeController extends Controller
     private function buildVisitingQueryWithDistrict($districtId, $filters)
     {
         $query = Visiting::whereHas('pasien.pustu', fn($q) => $q->where('district_id', $districtId));
+        $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -276,6 +280,7 @@ class HomeController extends Controller
         $query = Pasien::where(function($q) use ($userId) {
             $q->where('user_id', $userId)->orWhere('user_id', '-');
         });
+        $query->whereNotNull('village_id');
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -303,6 +308,7 @@ class HomeController extends Controller
             // ATAU visiting yang ditugaskan ke user sebagai operator
             ->orWhere('operator_id', $userId);
         });
+        $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -332,6 +338,7 @@ class HomeController extends Controller
             $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
               ->orWhere('user_id', '-');
         });
+        $query->whereNotNull('village_id');
         
         if (!empty($filters['district_id'])) {
             $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
@@ -358,6 +365,7 @@ class HomeController extends Controller
             $q->whereHas('pasien.pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
               ->orWhereHas('pasien', fn($subQ) => $subQ->where('user_id', '-'));
         });
+        $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -578,6 +586,7 @@ class HomeController extends Controller
             INNER JOIN regencies r ON d.regency_id = r.id
             WHERE p.flag_sicarik = 1 
             AND p.deleted_at IS NULL
+            AND p.village_id IS NOT NULL
         ";
         
         $bindings = [];
