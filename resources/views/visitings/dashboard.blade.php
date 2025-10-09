@@ -1,5 +1,65 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    /* Mobile responsive styles for patient info card */
+    @media (max-width: 768px) {
+        .patient-info .info-item {
+            margin-bottom: 1rem;
+        }
+        
+        .patient-info .info-item small {
+            font-size: 0.75rem;
+        }
+        
+        .patient-info .info-item span {
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+        
+        .patient-avatar {
+            width: 60px !important;
+            height: 60px !important;
+            font-size: 1.5rem !important;
+        }
+        
+        .card-header h5 {
+            font-size: 1rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.8rem;
+            padding: 0.375rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .patient-info h5 {
+            font-size: 1.1rem;
+        }
+        
+        .patient-avatar {
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 1.25rem !important;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .d-grid .btn {
+            font-size: 0.8rem;
+        }
+    }
+    
+    /* Ensure card doesn't stretch on mobile */
+    .card {
+        max-width: 100%;
+    }
+</style>
+@endpush
+
 @php
     // Helper function to safely get array from JSON string or array
     function getArrayFromJsonOrArray($data)
@@ -30,8 +90,8 @@
             <!-- Main Content Layout -->
             <div class="row mt-1">
                 <!-- Patient Information Sidebar -->
-                <div class="col-lg-4 col-xl-3 mb-4">
-                    <div class="card h-100">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-4 order-2 order-lg-1">
+                    <div class="card" style="height: fit-content;">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0">
                                 <i class="fas fa-user me-2"></i>Informasi Pasien
@@ -50,7 +110,7 @@
 
                                 <div class="info-item mb-2">
                                     <small class="text-muted d-block">NIK</small>
-                                    <span class="fw-bold">{{ $visiting->pasien->nik ?? '-' }}</span>
+                                    <span class="fw-bold text-break">{{ $visiting->pasien->nik ?? '-' }}</span>
                                 </div>
 
                                 <div class="info-item mb-2">
@@ -66,7 +126,7 @@
 
                                 <div class="info-item mb-2">
                                     <small class="text-muted d-block">Alamat</small>
-                                    <span class="fw-bold">{{ $visiting->pasien->alamat ?? '-' }}</span>
+                                    <span class="fw-bold text-break">{{ $visiting->pasien->alamat ?? '-' }}</span>
                                 </div>
 
                                 <div class="info-item mb-2">
@@ -100,16 +160,16 @@
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
                                     <a href="{{ route('visitings.edit', $visiting->id) }}" 
-                                       class="btn btn-warning btn-sm text-white">
-                                        <i class="fas fa-edit me-1"></i>Edit Kunjungan
+                                       class="btn btn-warning btn-sm text-white w-100">
+                                        <i class="fas fa-edit me-1"></i><span class="d-none d-sm-inline">Edit Kunjungan</span><span class="d-sm-none">Edit</span>
                                     </a>
                                     <button type="button" 
-                                            class="btn btn-danger btn-sm" 
+                                            class="btn btn-danger btn-sm w-100" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#deleteModal"
                                             data-visiting-id="{{ $visiting->id }}"
                                             data-pasien-name="{{ $visiting->pasien->name }}">
-                                        <i class="fas fa-trash me-1"></i>Hapus Kunjungan
+                                        <i class="fas fa-trash me-1"></i><span class="d-none d-sm-inline">Hapus Kunjungan</span><span class="d-sm-none">Hapus</span>
                                     </button>
                                 </div>
                             </div>
@@ -118,7 +178,7 @@
                 </div>
 
                 <!-- Main Content Area -->
-                <div class="col-lg-8 col-xl-9">
+                <div class="col-12 col-md-6 col-lg-8 col-xl-9 order-1 order-lg-2">
                     <!-- Navigation Tabs -->
                     <div class="card">
                         <div class="card-header">
