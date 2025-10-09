@@ -130,8 +130,8 @@
                                 <div class="col-md-6 col-lg-4 mb-3">
                                     <label for="bmi" class="form-label">IMT</label>
                                     <div class="input-group">
-                                        <input type="number" step="0.01" class="form-control" id="bmi" name="bmi" readonly
-                                               value="{{ isset($visiting->ttvs->first()->bmi) ? number_format($visiting->ttvs->first()->bmi, 2, ',', '') : '' }}">
+                                        <input type="number" step="0.1" class="form-control" id="bmi" name="bmi" readonly
+                                               value="{{ $visiting->ttvs->first()->bmi ?? '' }}">
                                         <span class="input-group-text">kg/m²</span>
                                     </div>
                                     <div id="bmi-category" class="form-text"></div>
