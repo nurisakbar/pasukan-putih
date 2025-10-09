@@ -62,6 +62,7 @@
                                    </select>
                                    <input type="hidden" name="status" value="Kunjungan Lanjutan">
                                </div>
+                               @else
                                <div class="form-group mb-3">
                                    <label for="status" class="form-label">Kategori Kunjungan</label>
                                    <select name="status" id="status" class="form-select">
@@ -70,7 +71,7 @@
                                        <option value="Kunjungan Lanjutan" {{ old('status', $visiting->status) == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
                                    </select>
                                </div>
-
+                               @endif
                                @if (auth()->user()->role == 'perawat')
                                <div class="form-group mb-3">
                                    <label for="operator_id" class="form-label">Nama Operator</label>
