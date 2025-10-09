@@ -15,12 +15,20 @@
 @endphp
 
 @section('content')
-
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <h3 class="mb-0">Dashboard Kunjungan</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="app-content">
         <div class="container-fluid">
             <!-- Main Content Layout -->
-            <div class="row mt-3">
+            <div class="row mt-1">
                 <!-- Patient Information Sidebar -->
                 <div class="col-lg-4 col-xl-3 mb-4">
                     <div class="card h-100">
