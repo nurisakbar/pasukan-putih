@@ -41,11 +41,13 @@
                             <i class="fas fa-clipboard-list me-2"></i>Skrining ADL
                         </button>
                     </li>
+                    @if(auth()->user()->role !== 'operator')
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="health-form-tab" data-bs-toggle="pill" data-bs-target="#health-form" type="button" role="tab">
                             <i class="fas fa-notes-medical me-2"></i>Form Kesehatan
                         </button>
                     </li>
+                    @endif
                 </ul>
             </div>
         </div>
@@ -439,8 +441,8 @@
                             </div>
                             @endif
 
-                            @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')
-                            <!-- Perawatan Umum Yang Dilakukan (Caregiver) -->
+                            @if (auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
+                            <!-- Perawatan Umum Yang Dilakukan (Operator) -->
                             <div class="mb-4">
                                 <h4 class="text-success mb-3">
                                     <i class="fas fa-chart-line mr-2"></i>
@@ -480,7 +482,7 @@
                                     </div>
                             </div>
 
-                            <!-- Perawatan Khusus Yang Dilakukan (Caregiver) -->
+                            <!-- Perawatan Khusus Yang Dilakukan (Operator) -->
                             <div class="mb-4">
                                 <h4 class="text-warning mb-3">
                                     <i class="fas fa-chart-line mr-2"></i>
@@ -524,31 +526,31 @@
                                     <i class="fas fa-clipboard-check mr-2"></i>
                                     Keluaran dari perawatan yang dilakukan
                                 </h4>
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <div class="form-group">
-                                                <label>Keluaran Perawatan</label>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1" {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="keluaran_meningkat">Meningkat</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2" {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="keluaran_tetap">Tetap</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3" {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="keluaran_menurun">Menurun</label>
-                                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label class="form-label fw-bold">Keluaran Perawatan</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_meningkat" value="1" {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="keluaran_meningkat">Meningkat</label>
                                             </div>
-                                        </div>
-                                        <div class="col-md-8 mb-3">
-                                            <div class="form-group">
-                                                <label for="keterangan">Keterangan</label>
-                                                <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan hasil perawatan" value="{{ $visiting->healthForms->keterangan ?? '' }}">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_tetap" value="2" {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="keluaran_tetap">Tetap</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="keluaran" id="keluaran_menurun" value="3" {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="keluaran_menurun">Menurun</label>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label for="keterangan" class="form-label fw-bold">Keterangan</label>
+                                            <textarea class="form-control" id="keterangan" name="keterangan" rows="4" placeholder="Keterangan hasil perawatan">{{ $visiting->healthForms->keterangan ?? '' }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Pembinaan keluarga -->
@@ -557,17 +559,18 @@
                                     <i class="fas fa-users mr-2"></i>
                                     Dilakukan pembinaan keluarga
                                 </h4>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="pembinaan">Pembinaan Keluarga</label>
-                                                <select name="pembinaan" id="pembinaan" class="form-control">
-                                                    <option value="ya" {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>Ya</option>
-                                                    <option value="tidak" {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                                                </select>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="pembinaan" class="form-label fw-bold">Pembinaan Keluarga</label>
+                                            <select name="pembinaan" id="pembinaan" class="form-select">
+                                                <option value="">Pilih...</option>
+                                                <option value="ya" {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                                <option value="tidak" {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>Tidak</option>
+                                            </select>
                                         </div>
                                     </div>
+                                </div>
                             </div>
 
                             <!-- Tingkat Kemandirian Keluarga -->
@@ -576,43 +579,43 @@
                                     <i class="fas fa-hand-holding-heart mr-2"></i>
                                     Tingkat Kemandirian Keluarga
                                 </h4>
-                                    <div class="row kemandirian-checkboxes">
-                                        @php
-                                            $tingkat_kemandirian = [
-                                                'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
-                                                'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
-                                                'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
-                                                'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
-                                                'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
-                                                'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
-                                                'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
-                                            ];
-                                            $selectedKemandirian = getArrayFromJsonOrArray($visiting->healthForms->kemandirian ?? []);
-                                        @endphp
-                                        @foreach($tingkat_kemandirian as $key => $label)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input kemandirian-checkbox" type="checkbox"
-                                                    id="{{ $key }}"
-                                                    name="kemandirian[]"
-                                                    value="{{ $key }}"
-                                                    {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
-                                            </div>
-                                        </div>
-                                        @endforeach
-
-                                        <div class="col-12 mt-3">
-                                            <div class="alert alert-info">
-                                                <strong>Tingkat Kemandirian:</strong>
-                                                <span id="tingkatKemandirianLabel" class="font-weight-bold ml-2">Belum Ditentukan</span>
-                                            </div>
+                                <div class="row kemandirian-checkboxes">
+                                    @php
+                                        $tingkat_kemandirian = [
+                                            'menerima_petugas' => 'Menerima petugas Perawatan Kesehatan Masyarakat',
+                                            'menerima_pelayanan' => 'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
+                                            'mengenal_masalah' => 'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
+                                            'manfaatkan_fasilitas' => 'Memanfaatkan fasilitas pelayanan sesuai anjuran',
+                                            'melakukan_perawatan' => 'Melakukan perawatan sederhana sesuai yang dianjurkan',
+                                            'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
+                                            'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
+                                        ];
+                                        $selectedKemandirian = getArrayFromJsonOrArray($visiting->healthForms->kemandirian ?? []);
+                                    @endphp
+                                    @foreach($tingkat_kemandirian as $key => $label)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input kemandirian-checkbox" type="checkbox"
+                                                id="{{ $key }}"
+                                                name="kemandirian[]"
+                                                value="{{ $key }}"
+                                                {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="{{ $key }}">{{ $label }}</label>
                                         </div>
                                     </div>
+                                    @endforeach
+
+                                    <div class="col-12 mt-3">
+                                        <div class="alert alert-info">
+                                            <strong>Tingkat Kemandirian:</strong>
+                                            <span id="tingkatKemandirianLabel" class="fw-bold ms-2">Belum Ditentukan</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            @if (auth()->user()->role == 'caregiver' || auth()->user()->role == 'superadmin')
-                            <!-- Catatan Keperawatan (Caregiver) -->
+                            @if (auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
+                            <!-- Catatan Keperawatan (Operator) -->
                             <div class="mb-4">
                                 <h4 class="text-info mb-3">
                                     <i class="fas fa-hand-holding-medical mr-2"></i>
@@ -635,53 +638,54 @@
                                     <i class="fas fa-calendar-check mr-2"></i>
                                     KUNJUNGAN LANJUTAN
                                 </h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <label class="form-label fw-bold">Apakah akan dikunjungi kembali oleh perawat?</label>
+                                            <select name="kunjungan_lanjutan" id="kunjungan_lanjutan" class="form-select">
+                                                <option value="">Pilih...</option>
+                                                <option value="ya" {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>Ya</option>
+                                                <option value="tidak" {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>Tidak</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="detail_kunjungan_lanjutan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
+                                    <div class="row">
+                                        <div class="col-md-8 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label fw-bold">Permasalahan kesehatan yang perlu kunjungan lanjutan</label>
+                                                <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label>Apakah akan dikunjungi kembali oleh perawat?</label>
-                                                <select name="kunjungan_lanjutan" id="kunjungan_lanjutan" class="form-control">
-                                                    <option value="">Pilih...</option>
-                                                    <option value="ya" {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>Ya</option>
-                                                    <option value="tidak" {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>Tidak</option>
-                                                </select>
+                                                <label class="form-label fw-bold">Tanggal kunjungan lanjutan</label>
+                                                <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}">
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 
-                                    <div id="detail_kunjungan_lanjutan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
-                                        <div class="row">
-                                            <div class="col-md-8 mb-3">
-                                                <div class="form-group">
-                                                    <label>Permasalahan kesehatan yang perlu kunjungan lanjutan</label>
-                                                    <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3" placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <div class="form-group">
-                                                    <label>Tanggal kunjungan lanjutan</label>
-                                                    <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}">
-                                                </div>
+                                <div id="form_henti_layanan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label class="form-label fw-bold">Alasan Henti Layanan</label>
+                                                <select name="henti_layanan" id="alasan_henti_layanan" class="form-select">
+                                                    <option value="">Pilih...</option>
+                                                    <option value="kenaikan_nilai_aks" {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>KENAIKAN NILAI AKS</option>
+                                                    <option value="meninggal" {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>MENINGGAL</option>
+                                                    <option value="menolak" {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>MENOLAK</option>
+                                                    <option value="pindah_domisili" {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>PINDAH DOMISILI</option>
+                                                </select>                                
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="form_henti_layanan" style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <div class="form-group">
-                                                    <label>Alasan Henti Layanan</label>
-                                                    <select name="henti_layanan" id="alasan_henti_layanan" class="form-control">
-                                                        <option value="">Pilih...</option>
-                                                        <option value="kenaikan_nilai_aks" {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>KENAIKAN NILAI AKS</option>
-                                                        <option value="meninggal" {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>MENINGGAL</option>
-                                                        <option value="menolak" {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>MENOLAK</option>
-                                                        <option value="pindah_domisili" {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>PINDAH DOMISILI</option>
-                                                    </select>                                
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                </div>
                             </div>
                             
                             <div class="d-flex justify-content-between align-items-center mt-3">
