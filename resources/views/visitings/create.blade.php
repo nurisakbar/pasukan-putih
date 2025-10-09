@@ -171,7 +171,7 @@
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-10 mb-4 mt-2">
+                <div class="col-md-8 mb-4 mt-2">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white">
                             <div class="d-flex justify-content-between align-items-center">
@@ -209,6 +209,18 @@
                                    <input type="date" id="inputDay" class="form-control" name="tanggal" 
                                        placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
                                </div>
+
+                               <div class="form-group mb-3" style="display: none">
+                                   <label class="form-label">Kalender Jadwal</label>
+                                   <div class="calendar-container border rounded p-2">
+                                       <div class="d-flex justify-content-between align-items-center mb-2">
+                                           <button type="button" class="btn btn-sm btn-outline-secondary" onclick="prevMonth()">&laquo;</button>
+                                           <strong id="monthYear">&nbsp;</strong>
+                                           <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nextMonth()">&raquo;</button>
+                                       </div>
+                                       <div id="calendar" class="calendar"></div>
+                                   </div>
+                               </div>
                                @if (auth()->user()->role == 'operator')
                                 <div class="form-group mb-3">
                                     <label for="status" class="form-label">Kategori Kunjungan</label>
@@ -230,7 +242,7 @@
 
                                @if (auth()->user()->role == 'perawat')
                                <div class="form-group mb-3">
-                                   <label for="operator_id" class="form-label">Nama Operator</label>
+                                   <label for="operator_id" class="form-label">Nama Petugas Pelayanan Kesehatan Oleg  Warga</label>
                                    <select id="operator_search" name="operator_id" class="form-control custom-select-height" style="width: 100%">
                                        <option value="">-- Pilih Operator --</option>
                                    </select>
@@ -247,6 +259,8 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                
                                 
                                 <div class="d-grid gap-2 d-md-flex">
                                     <button type="submit" class="btn btn-primary px-4">Simpan</button>
@@ -256,7 +270,20 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="col-md-4 mb-4 mt-2">
+                    <div id="scheduled-card" class="card shadow-sm d-none">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Jadwal Rencana Kunjungan Pasien</h6>
+                            <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('scheduled-card').classList.add('d-none')"></button>
+                        </div>
+                        <div class="card-body">
+                            <div id="scheduled-dates-container" class="border rounded p-2 bg-light">
+                                <div id="scheduled-dates-empty" class="text-muted">Belum ada jadwal.</div>
+                                <ul id="scheduled-dates-list" class="mb-0"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -276,14 +303,8 @@
         let currentYear = new Date().getFullYear();
         let currentSelectedDay = null;
 
-        const visitQuota = {};
-        const year = new Date().getFullYear();
-        const month = new Date().getMonth();
-
-        for (let day = 1; day <= 31; day++) {
-            const fullDate = `${year}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-            visitQuota[fullDate] = Math.random() < 0.2 ? 0 : Math.floor(Math.random() * 10) + 1;
-        }
+        // Map of YYYY-MM-DD => true for dates returned from server (scheduled follow-ups)
+        let scheduledDates = {};
 
         function renderCalendar(month, year) {
             const calendarContainer = document.getElementById("calendar");
@@ -307,23 +328,26 @@
             // Create cells for each day of the month
             for (let date = 1; date <= lastDate; date++) {
                 const fullDate = `${year}-${(month + 1).toString().padStart(2, "0")}-${date.toString().padStart(2, "0")}`;
-                const isFull = visitQuota[fullDate] === 0;
+                const isScheduled = !!scheduledDates[fullDate];
                 const dayDiv = document.createElement("div");
 
                 dayDiv.classList.add("day");
-                if (isFull) dayDiv.classList.add("disabled");
+                if (isScheduled) {
+                    // Mark scheduled dates visually and disable picking to avoid duplicate scheduling
+                    dayDiv.classList.add("disabled");
+                }
 
                 const dateSpan = document.createElement("strong");
                 dateSpan.textContent = date;
                 
                 const quotaSpan = document.createElement("span");
                 quotaSpan.classList.add("quota");
-                quotaSpan.textContent = isFull ? "Penuh" : (visitQuota[fullDate] ? `Kuota: ${visitQuota[fullDate]}` : "");
+                quotaSpan.textContent = isScheduled ? "Terjadwal" : "";
                 
                 dayDiv.appendChild(dateSpan);
                 dayDiv.appendChild(quotaSpan);
 
-                if (!isFull) {
+                if (!isScheduled) {
                     dayDiv.onclick = () => {
                         if (currentSelectedDay) {
                             currentSelectedDay.classList.remove("today");
@@ -424,7 +448,60 @@
         $('#nik_search').on('select2:select', function (e) {
             const pasien = e.params.data.fullData;
             $('.id').val(pasien.id);
+            // Fetch scheduled dates for selected pasien
+            if (pasien.id) {
+                toggleLoading(true);
+                fetch(`{{ url('/pasiens') }}/${pasien.id}/scheduled-dates`)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        scheduledDates = {};
+                        if (data && Array.isArray(data.dates)) {
+                            data.dates.forEach(d => { scheduledDates[d] = true; });
+                        }
+                        // Re-render calendar for current month to reflect scheduled dates
+                        renderCalendar(currentMonth, currentYear);
+                        // Render list of scheduled dates in the div
+                        renderScheduledDatesList();
+                        // Show the right-side card if there is at least one date
+                        const hasDates = Object.keys(scheduledDates).length > 0;
+                        const cardEl = document.getElementById('scheduled-card');
+                        if (cardEl) {
+                            if (hasDates) {
+                                cardEl.classList.remove('d-none');
+                            } else {
+                                cardEl.classList.add('d-none');
+                            }
+                        }
+                    })
+                    .catch(() => { /* silently fail */ })
+                    .finally(() => toggleLoading(false));
+            }
         });
+
+        function renderScheduledDatesList() {
+            const listEl = document.getElementById('scheduled-dates-list');
+            const emptyEl = document.getElementById('scheduled-dates-empty');
+            if (!listEl || !emptyEl) return;
+
+            listEl.innerHTML = '';
+            const dates = Object.keys(scheduledDates).sort();
+            if (!dates.length) {
+                emptyEl.classList.remove('d-none');
+                return;
+            }
+            emptyEl.classList.add('d-none');
+            dates.forEach(d => {
+                const li = document.createElement('li');
+                li.textContent = formatDateId(d);
+                listEl.appendChild(li);
+            });
+        }
+
+        function formatDateId(yyyyMmDd) {
+            const [y, m, d] = yyyyMmDd.split('-').map(Number);
+            const dt = new Date(y, (m - 1), d);
+            return dt.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
 
         // Handle Operator input for autofill
         $('#operator_search').select2({

@@ -115,6 +115,10 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
     Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
 
+    // API: get scheduled follow-up dates for a pasien from health forms
+    Route::get('/pasiens/{pasien}/scheduled-dates', [\App\Http\Controllers\VisitingController::class, 'getScheduledDates'])
+        ->name('pasiens.scheduledDates');
+
     //pustu
     Route::resource('pustu', \App\Http\Controllers\PustuController::class);
 

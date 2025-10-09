@@ -690,4 +690,27 @@ class VisitingController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Form Kesehatan berhasil disimpan']);
     }
+
+    /**
+     * Return all scheduled follow-up dates (health_forms.tanggal_kunjungan) for a pasien.
+     */
+    public function getScheduledDates($pasienId)
+    {
+        // Dates from health forms related to visitings of this pasien
+        $dates = HealthForm::query()
+            ->select('tanggal_kunjungan')
+            ->whereNotNull('tanggal_kunjungan')
+            ->whereHas('visiting', function ($q) use ($pasienId) {
+                $q->where('pasien_id', $pasienId);
+            })
+            ->orderBy('tanggal_kunjungan', 'asc')
+            ->pluck('tanggal_kunjungan')
+            ->map(function ($date) {
+                return optional($date)->format('Y-m-d');
+            })
+            ->filter()
+            ->values();
+
+        return response()->json(['dates' => $dates]);
+    }
 }
