@@ -102,6 +102,13 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     //visiting
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
     Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
+    Route::get('/visitings/{id}/dashboard', [\App\Http\Controllers\VisitingController::class, 'dashboard'])->name('visitings.dashboard');
+    Route::post('/visitings/{id}/ttv', [\App\Http\Controllers\VisitingController::class, 'storeTtv'])->name('visitings.storeTtv');
+    Route::post('/visitings/{id}/health-form', [\App\Http\Controllers\VisitingController::class, 'storeHealthForm'])->name('visitings.storeHealthForm');
+    Route::get('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'skriningAdl'])->name('visitings.skriningAdl');
+    Route::post('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdl'])->name('visitings.storeSkriningAdl');
+    Route::put('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'updateSkriningAdl'])->name('visitings.updateSkriningAdl');
+    Route::post('/visitings/{id}/skrining-adl-ajax', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdlAjax'])->name('visitings.storeSkriningAdlAjax');
 
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);

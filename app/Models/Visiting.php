@@ -62,5 +62,8 @@ class Visiting extends Model
         return $this->hasMany(Ttv::class, 'kunjungan_id');
     }
 
-    
+    public function skriningAdl()
+    {
+        return $this->hasOne(SkriningAdl::class, 'visiting_id');
+    }
 }

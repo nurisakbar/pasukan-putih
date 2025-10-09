@@ -14,7 +14,7 @@ class SkriningAdl extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'kunjungan_id',
+        'visiting_id',
         'pasien_id',
         'bab_control',
         'bak_control',
@@ -33,9 +33,23 @@ class SkriningAdl extends Model
         'pemeriksa_id',
     ];
 
-    public function kunjungan()
+    protected $casts = [
+        'bab_control' => 'integer',
+        'bak_control' => 'integer',
+        'eating' => 'integer',
+        'stairs' => 'integer',
+        'bathing' => 'integer',
+        'transfer' => 'integer',
+        'walking' => 'integer',
+        'dressing' => 'integer',
+        'grooming' => 'integer',
+        'toilet_use' => 'integer',
+        'total_score' => 'integer',
+    ];
+
+    public function visiting()
     {
-        return $this->belongsTo(Kunjungan::class, 'kunjungan_id');
+        return $this->belongsTo(Visiting::class, 'visiting_id');
     }
 
     public function pasien()
