@@ -128,20 +128,20 @@
                                                                 <i class="fas fa-tachometer-alt me-2"></i> Dashboard Kunjungan
                                                             </a>
                                                         </li>
-                                                        <li>
+                                                        {{-- <li>
                                                             <a href="{{ route('visitings.skriningAdl', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-clipboard-list me-2"></i> Skrining ADL
                                                             </a>
                                                         </li> --}}
-                                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
+                                                        {{-- @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
                                                         <li>
                                                             <a href="{{ route('ttv.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
                                                                 <i class="fas fa-edit me-2"></i> Edit TTV
                                                             </a>
                                                         </li>
-                                                        @endif
+                                                        @endif --}}
                                                         <li>
                                                             <a href="{{ route('health-form.edit', $kunjungan->id) }}"
                                                                class="dropdown-item">
