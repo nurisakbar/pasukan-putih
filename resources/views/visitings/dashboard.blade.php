@@ -199,14 +199,12 @@
                                         <i class="fas fa-clipboard-list me-2"></i>Skrining AKS
                                     </button>
                                 </li>
-                                @if (auth()->user()->role !== 'operator')
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="health-form-tab" data-bs-toggle="tab"
-                                            data-bs-target="#health-form" type="button" role="tab">
-                                            <i class="fas fa-notes-medical me-2"></i>Form Kesehatan
-                                        </button>
-                                    </li>
-                                @endif
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="health-form-tab" data-bs-toggle="tab"
+                                        data-bs-target="#health-form" type="button" role="tab">
+                                        <i class="fas fa-notes-medical me-2"></i>Form Kesehatan
+                                    </button>
+                                </li>
                             </ul>
                         </div>
 
@@ -319,10 +317,10 @@
                                         @csrf
 
                                         <!-- Riwayat Penyakit -->
-                                        <div class="mb-4">
-                                <h4 class="text-primary mb-3">
-                                    Riwayat Penyakit
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                            <h4 class="text-primary mb-3">
+                                                Riwayat Penyakit
+                                            </h4>
                                             <div class="row mb-3">
                                                 <div class="col-12">
                                                     <div class="alert alert-info">
@@ -441,9 +439,9 @@
                                         @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                                             <!-- Skrining ILP Perawat -->
                                             <div class="mb-4">
-                                <h4 class="text-success mb-3">
-                                    Skrining ILP
-                                </h4>
+                                                <h4 class="text-success mb-3">
+                                                    Skrining ILP
+                                                </h4>
                                                 <div class="row">
                                                     @foreach ($screenings as $screening)
                                                         <div class="col-md-6 col-lg-4 mb-3">
@@ -489,10 +487,10 @@
                                         @endif
 
                                         <!-- Skor AKS -->
-                                        <div class="mb-4">
-                                <h4 class="text-info mb-3">
-                                    Skor AKS (Activities of Daily Living)
-                                </h4>
+                                        <div class="mb-4" style="display: none">
+                                            <h4 class="text-info mb-3">
+                                                Skor AKS (Activities of Daily Living)
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6 col-lg-4 mb-2">
                                                     <div class="form-check">
@@ -543,10 +541,10 @@
                                         </div>
 
                                         <!-- Dukungan Keluarga/Pendamping -->
-                                        <div class="mb-4">
-                                <h4 class="text-warning mb-3">
-                                    DUKUNGAN KELUARGA / PENDAMPING
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                            <h4 class="text-warning mb-3">
+                                                DUKUNGAN KELUARGA / PENDAMPING
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
@@ -571,10 +569,10 @@
                                         </div>
 
                                         <!-- Permasalahan di Luar Kesehatan -->
-                                        <div class="mb-4">
-                                <h4 class="text-secondary mb-3">
-                                    PERMASALAHAN DI LUAR KESEHATAN
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                            <h4 class="text-secondary mb-3">
+                                                PERMASALAHAN DI LUAR KESEHATAN
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <div class="form-group">
@@ -604,10 +602,10 @@
                                         </div>
 
                                         <!-- Jenis Gangguan Fungsional -->
-                                        <div class="mb-4">
-                                <h4 class="text-danger mb-3">
-                                    Jenis gangguan fungsional yang dialami
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                            <h4 class="text-danger mb-3">
+                                                Jenis gangguan fungsional yang dialami
+                                            </h4>
                                             <div class="row">
                                                 @php
                                                     $gangguans = [
@@ -666,12 +664,12 @@
                                             </div>
                                         </div>
 
-                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                                        @if (auth()->user()->role == 'superadmin' || auth()->user()->role == 'operator')
                                             <!-- Perawatan Yang Dilakukan (Perawat) -->
                                             <div class="mb-4">
-                                <h4 class="text-primary mb-3">
-                                    Perawatan Yang Dilakukan
-                                </h4>
+                                                <h4 class="text-primary mb-3">
+                                                    Perawatan Yang Dilakukan
+                                                </h4>
                                                 <div class="row">
                                                     <div class="col-md-8">
                                                         <div class="form-group">
@@ -683,12 +681,12 @@
                                             </div>
                                         @endif
 
-                                        @if (auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
+                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                                             <!-- Perawatan Umum Yang Dilakukan (Operator) -->
                                             <div class="mb-4">
-                                <h4 class="text-success mb-3">
-                                    Perawatan Umum Yang Dilakukan
-                                </h4>
+                                                <h4 class="text-success mb-3">
+                                                    Perawatan Umum Yang Dilakukan
+                                                </h4>
                                                 <div class="row">
                                                     @php
                                                         $perawatans = [
@@ -764,9 +762,9 @@
 
                                             <!-- Perawatan Khusus Yang Dilakukan (Operator) -->
                                             <div class="mb-4">
-                                <h4 class="text-warning mb-3">
-                                    Perawatan Khusus Yang Dilakukan
-                                </h4>
+                                                <h4 class="text-warning mb-3">
+                                                    Perawatan Khusus Yang Dilakukan
+                                                </h4>
                                                 <div class="row">
                                                     @php
                                                         $perawatans = [
@@ -827,10 +825,10 @@
                                         @endif
 
                                         <!-- Keluaran dari perawatan yang dilakukan -->
-                                        <div class="mb-4">
-                                <h4 class="text-info mb-3">
-                                    Keluaran dari perawatan yang dilakukan
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif" >
+                                            <h4 class="text-info mb-3">
+                                                Keluaran dari perawatan yang dilakukan
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <div class="form-group">
@@ -871,9 +869,9 @@
 
                                         <!-- Pembinaan keluarga -->
                                         <div class="mb-4">
-                                <h4 class="text-primary mb-3">
-                                    Dilakukan pembinaan keluarga
-                                </h4>
+                                            <h4 class="text-primary mb-3">
+                                                Dilakukan pembinaan keluarga
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
@@ -894,10 +892,10 @@
                                         </div>
 
                                         <!-- Tingkat Kemandirian Keluarga -->
-                                        <div class="mb-4">
-                                <h4 class="text-success mb-3">
-                                    Tingkat Kemandirian Keluarga
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                            <h4 class="text-success mb-3">
+                                                Tingkat Kemandirian Keluarga
+                                            </h4>
                                             <div class="row kemandirian-checkboxes">
                                                 @php
                                                     $tingkat_kemandirian = [
@@ -943,12 +941,12 @@
                                             </div>
                                         </div>
 
-                                        @if (auth()->user()->role == 'operator' || auth()->user()->role == 'superadmin')
+                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
                                             <!-- Catatan Keperawatan (Operator) -->
                                             <div class="mb-4">
-                                <h4 class="text-info mb-3">
-                                    Catatan Keperawatan
-                                </h4>
+                                                <h4 class="text-info mb-3">
+                                                    Catatan Keperawatan
+                                                </h4>
                                                 <div class="row">
                                                     <div class="col-md-8">
                                                         <div class="form-group">
@@ -961,10 +959,10 @@
                                         @endif
 
                                         <!-- Kunjungan Lanjutan -->
-                                        <div class="mb-4">
-                                <h4 class="text-primary mb-3">
-                                    KUNJUNGAN LANJUTAN
-                                </h4>
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal') d-none @endif">
+                                            <h4 class="text-primary mb-3">
+                                                KUNJUNGAN LANJUTAN
+                                            </h4>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <div class="form-group">

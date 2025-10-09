@@ -113,7 +113,7 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ $_GET['role'] == 'operator' ? 'active' : '' }}"
-                                            href="users?role=operator"><i class="fa-solid fa-users"></i> OPERATOR</a>
+                                            href="users?role=operator"><i class="fa-solid fa-users"></i> PETUGAS PELAYANAN KESEHATAN OLEH WARGA</a>
                                     </li>
                                 </ul>
 
@@ -149,7 +149,13 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $data->name }}</td>
                                                 <td>{{ $data->email }}</td>
-                                                <td>{{ strtoupper($data->role) }}</td>
+                                                <td>
+                                                    @if ($data->role == 'operator')
+                                                        PETUGAS PELAYANAN KESEHATAN OLEH WARGA
+                                                    @else
+                                                        {{ strtoupper($data->role) }}
+                                                    @endif
+                                                </td>
                                                 <td>{{ $data->no_wa ?? '-' }}</td>
                                                 @if ($_GET['role'] == 'perawat')
                                                     <td>{{ $data->nama_pustu ?? '-' }}</td>

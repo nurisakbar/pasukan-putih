@@ -295,8 +295,13 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithUser($userId, $filters)
     {
-        $query = Visiting::whereHas('pasien', function($q) use ($userId) {
-            $q->where('user_id', $userId)->orWhere('user_id', '-');
+        $query = Visiting::where(function($q) use ($userId) {
+            // Visiting yang dibuat oleh user
+            $q->whereHas('pasien', function($pasienQuery) use ($userId) {
+                $pasienQuery->where('user_id', $userId)->orWhere('user_id', '-');
+            })
+            // ATAU visiting yang ditugaskan ke user sebagai operator
+            ->orWhere('operator_id', $userId);
         });
         
         if (!empty($filters['start_date'])) {

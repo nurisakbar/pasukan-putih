@@ -219,6 +219,16 @@
                                    </select>
                                </div>
 
+                               <div class="form-group mb-3">
+                                   <label for="operator_id" class="form-label">Nama Operator</label>
+                                   <select id="operator_search" name="operator_id" class="form-control custom-select-height" style="width: 100%">
+                                       <option value="">-- Pilih Operator --</option>
+                                   </select>
+                                   @error('operator_id')
+                                       <div class="text-danger">{{ $message }}</div>
+                                   @enderror
+                               </div>
+
                                 <div class="form-group mb-3">
                                     <label for="nik" class="form-label">Nama Pasien</label>
                                     <select id="nik_search" name="nik" class="form-control custom-select-height" style="width: 100%"></select>
@@ -403,6 +413,23 @@
         $('#nik_search').on('select2:select', function (e) {
             const pasien = e.params.data.fullData;
             $('.id').val(pasien.id);
+        });
+
+        // Handle Operator input for autofill
+        $('#operator_search').select2({
+            placeholder: 'Pilih Operator',
+            ajax: {
+                url: "{{ route('users.operators') }}",
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                },
+                cache: true
+            }
         });
     </script>
 @endpush

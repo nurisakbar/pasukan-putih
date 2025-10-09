@@ -412,4 +412,55 @@ class UserController extends Controller
             ->back()
             ->with('success', 'Profil berhasil diperbarui!');
     }
+
+    /**
+     * Get operators for dropdown/select
+     */
+    public function getOperators(Request $request)
+    {
+        $currentUser = Auth::user();
+        
+        $query = User::select('users.id', 'users.name', 'users.role', 'users.pustu_id')
+            ->leftJoin('pustus', 'users.pustu_id', '=', 'pustus.id')
+            ->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            ->whereNull('users.deleted_at')
+            ->where('users.role', 'operator');
+
+        // Filter berdasarkan pustu_id atau kecamatan yang sama
+        if ($currentUser->role === 'sudinkes') {
+            // Untuk sudinkes, filter berdasarkan regency
+            $query->where('users.regency_id', $currentUser->regency_id);
+        } elseif ($currentUser->role !== 'superadmin') {
+            // Untuk perawat/operator, filter berdasarkan pustu_id atau kecamatan yang sama
+            if ($currentUser->pustu_id) {
+                $currentUserPustu = \App\Models\Pustu::find($currentUser->pustu_id);
+                if ($currentUserPustu) {
+                    $query->where(function($q) use ($currentUser, $currentUserPustu) {
+                        // Filter berdasarkan pustu_id yang sama
+                        $q->where('users.pustu_id', $currentUser->pustu_id)
+                          // Atau kecamatan yang sama
+                          ->orWhere('districts.id', $currentUserPustu->district_id);
+                    });
+                } else {
+                    $query->where('users.pustu_id', $currentUser->pustu_id);
+                }
+            }
+        }
+
+        if ($request->filled('q')) {
+            $query->where('users.name', 'LIKE', '%' . $request->q . '%');
+        }
+
+        $operators = $query->orderBy('users.name')->get();
+
+        return response()->json($operators->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'text' => $user->name . ' (' . ucfirst($user->role) . ')',
+                'name' => $user->name,
+                'role' => $user->role
+            ];
+        }));
+    }
 }

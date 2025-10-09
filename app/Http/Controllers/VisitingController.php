@@ -31,6 +31,7 @@ class VisitingController extends Controller
             ->leftJoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftJoin('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->leftJoin('users', 'users.id', '=', 'visitings.user_id')
+            ->leftJoin('users as operators', 'operators.id', '=', 'visitings.operator_id')
             ->whereNull('pasiens.deleted_at')
             ->select(
                 'visitings.*',
@@ -40,7 +41,8 @@ class VisitingController extends Controller
                 'pasiens.rw as pasien_rw',
                 'villages.name as village_name',
                 'districts.name as district_name',
-                'regencies.name as regency_name'
+                'regencies.name as regency_name',
+                'operators.name as operator_name'
             );
     
         // Filter berdasarkan role
@@ -56,8 +58,11 @@ class VisitingController extends Controller
 
                 $query->whereIn('visitings.pasien_id', $pasienIds);
             } else {
-                // Perawat non-puskesmas: hanya kunjungan milik dia sendiri
-                $query->where('visitings.user_id', $user->id);
+                // Perawat/Operator non-puskesmas: kunjungan yang dibuat oleh user ATAU ditugaskan ke user sebagai operator
+                $query->where(function($q) use ($user) {
+                    $q->where('visitings.user_id', $user->id)
+                      ->orWhere('visitings.operator_id', $user->id);
+                });
             }
         } elseif ($user->role === 'sudinkes') {
             $pasienIds = DB::table('pasiens')
@@ -113,6 +118,9 @@ class VisitingController extends Controller
                     ]
                 ]
             ];
+            $item->operator = $item->operator_name ? (object) [
+                'name' => $item->operator_name
+            ] : null;
             return $item;
         });
     
@@ -154,6 +162,7 @@ class VisitingController extends Controller
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',
             'nik' => 'required|string',
+            'operator_id' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -169,6 +178,7 @@ class VisitingController extends Controller
         $visiting = Visiting::create([
             'pasien_id' => $pasien->id,
             'user_id' => auth()->id(),
+            'operator_id' => $request->operator_id,
             'tanggal' => $request->tanggal,
             'status' => $request->status,
         ]);
@@ -214,6 +224,7 @@ class VisitingController extends Controller
      */
     public function edit(Visiting $visiting)
     {
+        $visiting->load('operator');
         return view('visitings.edit', compact('visiting'));
     }
 
@@ -225,6 +236,7 @@ class VisitingController extends Controller
         $validator = Validator::make($request->all(), [
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',
+            'operator_id' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -236,6 +248,7 @@ class VisitingController extends Controller
         $visiting->update([
             'tanggal' => $request->tanggal,
             'status' => $request->status,
+            'operator_id' => $request->operator_id,
         ]);
 
         return redirect()->route('visitings.index')

@@ -117,6 +117,7 @@
                                     <th>TANGGAL</th>
                                     <th>JENIS KUNJUNGAN</th>
                                     <th>STATUS</th>
+                                    <th>OPERATOR</th>
                                     <th>ALAMAT</th>
                                     <th>RT/ RW</th>
                                     <th>KABUPATEN</th>
@@ -131,6 +132,7 @@
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
                                         <td class="align-middle">{{ $kunjungan->status }}</td>
                                         <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td>
+                                        <td class="align-middle">{{ $kunjungan->operator ? $kunjungan->operator->name : '-' }}</td>
                                         <td class="align-middle text-truncate" style="max-width: 150px;">
                                             {{ $kunjungan->pasien->alamat }}
                                         </td>
@@ -141,7 +143,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center py-4">
+                                        <td colspan="10" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                                                 <h5 class="text-muted">Tidak ada data kunjungan</h5>
