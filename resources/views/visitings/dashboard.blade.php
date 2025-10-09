@@ -126,12 +126,16 @@
 
                                 <div class="info-item mb-2">
                                     <small class="text-muted d-block">Alamat</small>
-                                    <span class="fw-bold text-break">{{ $visiting->pasien->alamat ?? '-' }}</span>
+                                    <span class="fw-bold text-break">{{ $visiting->pasien->alamat ?? '-' }}, 
+                                                                     {{ $visiting->pasien->village->name ?? '-' }}
+                                                                     {{ $visiting->pasien->village->district->name ?? '-' }}
+                                                                     {{ $visiting->pasien->village->district->regency->name ?? '-' }}
+                                                                    </span>
                                 </div>
 
                                 <div class="info-item mb-2">
                                     <small class="text-muted d-block">No. Telepon</small>
-                                    <span class="fw-bold">{{ $visiting->pasien->no_telepon ?? '-' }}</span>
+                                    <span class="fw-bold">{{ $visiting->pasien->nomor_whatsapp ?? '-' }}</span>
                                 </div>
 
                                 <hr class="my-3">
