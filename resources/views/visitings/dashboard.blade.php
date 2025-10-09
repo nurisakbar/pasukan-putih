@@ -19,7 +19,7 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-12">
-                    <h3 class="mb-0">Dashboard Kunjungan</h3>
+                    <h3 class="mb-0">Form Pemeriksaan Kunjungan</h3>
                 </div>
             </div>
         </div>

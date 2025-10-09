@@ -96,6 +96,19 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- Instruction Note -->
+                    <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>
+                                <strong>Petunjuk:</strong>
+                                <span class="desktop-note">Double-click pada baris untuk melakukan pemeriksaan</span>
+                                <span class="mobile-note d-none">Tap pada baris untuk melakukan pemeriksaan</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    
                     <div class="table-responsive-sm">
                         <table id="example2" class="table table-bordered table-striped dataTable-responsive">
                             <thead class="table-light">
@@ -208,12 +221,15 @@
     </script>
 @endif
 <script>
-    // Initialize tooltips
+    // Initialize tooltips and show device-specific note
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
+        
+        // Show appropriate instruction note
+        showDeviceSpecificNote();
     });
 
 
@@ -222,6 +238,20 @@
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                ('ontouchstart' in window) || 
                (navigator.maxTouchPoints > 0);
+    }
+
+    // Show appropriate instruction note based on device
+    function showDeviceSpecificNote() {
+        const desktopNote = document.querySelector('.desktop-note');
+        const mobileNote = document.querySelector('.mobile-note');
+        
+        if (isMobileDevice()) {
+            desktopNote.classList.add('d-none');
+            mobileNote.classList.remove('d-none');
+        } else {
+            desktopNote.classList.remove('d-none');
+            mobileNote.classList.add('d-none');
+        }
     }
 
     // Click handler for table rows (single-click on mobile, double-click on desktop)
