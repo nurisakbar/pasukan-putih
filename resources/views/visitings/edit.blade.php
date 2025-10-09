@@ -54,6 +54,14 @@
                                
                                </div>
 
+                               @if(auth()->user()->role == 'operator')
+                               <div class="form-group mb-3">
+                                   <label for="status" class="form-label">Kategori Kunjungan</label>
+                                   <select name="status" id="status" class="form-select" disabled>
+                                       <option value="Kunjungan Lanjutan" selected>Kunjungan Lanjutan</option>
+                                   </select>
+                                   <input type="hidden" name="status" value="Kunjungan Lanjutan">
+                               </div>
                                <div class="form-group mb-3">
                                    <label for="status" class="form-label">Kategori Kunjungan</label>
                                    <select name="status" id="status" class="form-select">
@@ -63,6 +71,7 @@
                                    </select>
                                </div>
 
+                               @if (auth()->user()->role == 'perawat')
                                <div class="form-group mb-3">
                                    <label for="operator_id" class="form-label">Nama Operator</label>
                                    <select id="operator_search" name="operator_id" class="form-control custom-select-height" style="width: 100%">
@@ -72,6 +81,7 @@
                                        <div class="text-danger">{{ $message }}</div>
                                    @enderror
                                </div>
+                               @endif
                                 <div class="form-group mb-3">
                                     <label for="name" class="form-label">Nama</label>
                                     <input type="text" class="form-control name" id="name" name="name" 

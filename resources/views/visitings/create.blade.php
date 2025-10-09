@@ -209,16 +209,26 @@
                                    <input type="date" id="inputDay" class="form-control" name="tanggal" 
                                        placeholder="Tanggal" value="{{ old('tanggal', date('Y-m-d')) }}">
                                </div>
+                               @if (auth()->user()->role == 'operator')
+                                <div class="form-group mb-3">
+                                    <label for="status" class="form-label">Kategori Kunjungan</label>
+                                    <select name="status" id="status" class="form-select" disabled>
+                                        <option value="Kunjungan Lanjutan" selected>Kunjungan Lanjutan</option>
+                                    </select>
+                                    <input type="hidden" name="status" value="Kunjungan Lanjutan">
+                                </div>
+                               @else
+                                <div class="form-group mb-3">
+                                    <label for="status" class="form-label">Kategori Kunjungan</label>
+                                    <select name="status" id="status" class="form-select">
+                                        <option value="" selected> -- Pilih Status -- </option>
+                                        <option value="Kunjungan Awal" {{ old('status') == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
+                                        <option value="Kunjungan Lanjutan" {{ old('status') == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
+                                    </select>
+                                </div>
+                               @endif
 
-                               <div class="form-group mb-3">
-                                   <label for="status" class="form-label">Kategori Kunjungan</label>
-                                   <select name="status" id="status" class="form-select">
-                                       <option value="" selected> -- Pilih Status -- </option>
-                                       <option value="Kunjungan Awal" {{ old('status') == 'Kunjungan Awal' ? 'selected' : '' }}>Kunjungan Awal</option>
-                                       <option value="Kunjungan Lanjutan" {{ old('status') == 'Kunjungan Lanjutan' ? 'selected' : '' }}>Kunjungan Lanjutan</option>
-                                   </select>
-                               </div>
-
+                               @if (auth()->user()->role == 'perawat')
                                <div class="form-group mb-3">
                                    <label for="operator_id" class="form-label">Nama Operator</label>
                                    <select id="operator_search" name="operator_id" class="form-control custom-select-height" style="width: 100%">
@@ -228,6 +238,7 @@
                                        <div class="text-danger">{{ $message }}</div>
                                    @enderror
                                </div>
+                               @endif
 
                                 <div class="form-group mb-3">
                                     <label for="nik" class="form-label">Nama Pasien</label>
