@@ -156,9 +156,9 @@
                 @php
                     $kunjungan_data = [
                         ['title' => 'Total Kunjungan', 'value' => $jumlah_kunjungan, 'icon' => 'bi-bar-chart', 'bg' => 'bg-primary', 'text' => 'text-white'],
-                        ['title' => 'Kunjungan Berkelanjutan', 'value' => $jumlah_kunjungan_belum_selesai, 'icon' => 'bi-hourglass-split', 'bg' => 'bg-success', 'text' => 'text-white'],
                         ['title' => 'Kunjungan Pertama', 'value' => $jumlah_kunjungan_awal, 'icon' => 'bi-play-circle', 'bg' => 'bg-secondary', 'text' => 'text-white'],
                         ['title' => 'Yang Mendapatkan Kunjungan Lanjutan', 'value' => $jumlah_kunjungan_lanjutan, 'icon' => 'bi-arrow-repeat', 'bg' => 'bg-success', 'text' => 'text-white'],
+                        ['title' => 'Kunjungan Berkelanjutan', 'value' => $jumlah_kunjungan_belum_selesai, 'icon' => 'bi-hourglass-split', 'bg' => 'bg-success', 'text' => 'text-white'],
                         ['title' => 'Yang Berhenti Layanan', 'value' => $jumlah_kunjungan_selesai, 'icon' => 'bi-check-circle', 'bg' => 'bg-danger', 'text' => 'text-white'],
                     ];
                 @endphp
