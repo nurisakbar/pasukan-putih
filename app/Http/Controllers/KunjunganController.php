@@ -22,7 +22,7 @@ class KunjunganController extends Controller
         $user = auth()->user();
         $query = Kunjungan::query()->latest();
 
-        if ($user->role === 'perawat') {
+        if ($user->role === 'perawat' || $user->role === 'operator') {
             $query->where('user_id', $user->id);
         } elseif ($user->role === 'caregiver') {
             $query->where('user_id', $user->id);

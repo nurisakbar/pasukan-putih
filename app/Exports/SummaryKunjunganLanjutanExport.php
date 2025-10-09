@@ -51,7 +51,7 @@ class SummaryKunjunganLanjutanExport implements FromCollection, WithHeadings, Sh
             $query->whereBetween('visitings.tanggal', [$this->tanggalAwal, $this->tanggalAkhir]);
         }
 
-        if (\Auth::user()->role === 'perawat') {
+        if (\Auth::user()->role === 'perawat' || \Auth::user()->role === 'operator') {
             $query->where('visitings.user_id', \Auth::id());
         }
 

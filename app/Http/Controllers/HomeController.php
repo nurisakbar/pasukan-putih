@@ -8,6 +8,7 @@ use App\Models\Visiting;
 use App\Models\HealthForm;
 use App\Models\User;
 use App\Models\District;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -18,6 +19,10 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
+        // Optimize database connection for this request
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        DB::connection()->getPdo()->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        
         $user = auth()->user();
         $filters = $this->getFilters($request, $user);
         
@@ -36,6 +41,15 @@ class HomeController extends Controller
                 ->toArray();
         }
 
+        // If AJAX request, return only the dashboard content
+        if ($request->ajax()) {
+            return view('home', $data)->render();
+        }
+
+        // Clear memory after processing
+        unset($queries, $filters);
+        gc_collect_cycles();
+
         return view('home', $data);
     }
 
@@ -46,6 +60,7 @@ class HomeController extends Controller
             'end_date' => $request->get('end_date'),
             'district_id' => $request->get('district_id'),
             'village_id' => $request->get('village_id'),
+            'data_source' => $request->get('data_source'),
             'user' => $user
         ];
     }
@@ -72,7 +87,9 @@ class HomeController extends Controller
                     return [
                         'pasien' => $this->buildPasienQueryWithUser($user->id, $filters),
                         'visiting' => $this->buildVisitingQueryWithUser($user->id, $filters),
-                        'total_pasien' => Pasien::where('user_id', $user->id)->count()
+                        'total_pasien' => Pasien::where(function($q) use ($user) {
+                            $q->where('user_id', $user->id)->orWhere('user_id', '-');
+                        })->count()
                     ];
                 }
                 
@@ -81,7 +98,10 @@ class HomeController extends Controller
                 return [
                     'pasien' => $this->buildPasienQueryWithRegency($regencyId, $filters),
                     'visiting' => $this->buildVisitingQueryWithRegency($regencyId, $filters),
-                    'total_pasien' => Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))->count()
+                    'total_pasien' => Pasien::where(function($q) use ($regencyId) {
+                        $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+                          ->orWhere('user_id', '-');
+                    })->count()
                 ];
         }
     }
@@ -95,25 +115,13 @@ class HomeController extends Controller
         // Get patient IDs for current filter
         $pasienIds = $pasienQuery->pluck('id');
         
-        // Calculate scheduled patients
-        $scheduledQuery = Visiting::whereIn('pasien_id', $pasienIds);
-        if (!empty($filters['start_date'])) {
-            $scheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $scheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
+        // Calculate scheduled patients - use the same visiting query that's already filtered
+        $scheduledQuery = $visitingQuery->clone();
         $sudahDijadwalkan = $scheduledQuery->distinct('pasien_id')->count();
 
-        // Calculate visited patients (those with temperature recorded)
-        $visitedQuery = Visiting::whereIn('pasien_id', $pasienIds)
+        // Calculate visited patients (those with temperature recorded) - use the same visiting query that's already filtered
+        $visitedQuery = $visitingQuery->clone()
             ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
-        if (!empty($filters['start_date'])) {
-            $visitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
-        }
-        if (!empty($filters['end_date'])) {
-            $visitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
-        }
         $sudahDikunjungi = $visitedQuery->distinct('pasien_id')->count();
 
         // Get latest visit IDs for completion status
@@ -127,16 +135,18 @@ class HomeController extends Controller
 
         $currentPasienCount = $pasienQuery->count();
 
+        // Calculate Si Carik and Manual Input data metrics using Query Builder
+        $carikData = $this->calculateCarikData($pasienQuery, $visitingQuery, $filters);
+        $manualData = $this->calculateManualData($pasienQuery, $visitingQuery, $filters);
+
         return [
             // Basic counts
             'jumlah_data_sasaran' => $currentPasienCount,
             'jumlah_kunjungan' => $visitingQuery->count(),
             
-            // Visit completion status
-            'jumlah_kunjungan_belum_selesai' => HealthForm::whereIn('visiting_id', $latestVisitIds)
-                ->where('kunjungan_lanjutan', 'ya')->count(),
-            'jumlah_kunjungan_selesai' => HealthForm::whereIn('visiting_id', $latestVisitIds)
-                ->where('kunjungan_lanjutan', 'tidak')->count(),
+            // Visit completion status using Query Builder for better performance
+            'jumlah_kunjungan_belum_selesai' => $this->getKunjunganStatusCount($latestVisitIds, 'ya'),
+            'jumlah_kunjungan_selesai' => $this->getKunjunganStatusCount($latestVisitIds, 'tidak'),
             
             // Target data metrics
             'data_sasaran_keseluruhan' => $totalPasien,
@@ -145,13 +155,19 @@ class HomeController extends Controller
             'data_sasaran_belum_dijadwalkan' => $currentPasienCount - $sudahDijadwalkan,
             'data_sasaran_sudah_dikunjungi' => $sudahDikunjungi,
             'data_sasaran_belum_dikunjungi' => $currentPasienCount - $sudahDikunjungi,
-            'data_sasaran_henti_layanan' => $this->getHentiLayananCount($pasienIds),
+            'data_sasaran_henti_layanan' => $this->getHentiLayananCountQueryBuilder($pasienIds),
             
             // Visit type metrics
             'jumlah_kunjungan_awal' => $visitingQuery->clone()->whereIn('id', $firstVisitIds)->count(),
             'jumlah_kunjungan_lanjutan' => $visitingQuery->clone()->whereNotIn('id', $firstVisitIds)->count(),
             'jumlah_henti_layanan' => $visitingQuery->clone()
-                ->whereHas('healthForms', fn($q) => $q->where('henti_layanan', 'ya'))->count()
+                ->whereHas('healthForms', fn($q) => $q->where('henti_layanan', 'ya'))->count(),
+            
+            // Si Carik data metrics
+            'carik_data' => $carikData,
+            
+            // Manual input data metrics
+            'manual_data' => $manualData
         ];
     }
 
@@ -165,6 +181,15 @@ class HomeController extends Controller
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
         }
         
         return $query;
@@ -186,6 +211,15 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
@@ -197,6 +231,15 @@ class HomeController extends Controller
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
         }
         
         return $query;
@@ -215,16 +258,36 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
 
     private function buildPasienQueryWithUser($userId, $filters)
     {
-        $query = Pasien::where('user_id', $userId);
+        $query = Pasien::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
         }
         
         return $query;
@@ -232,7 +295,9 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithUser($userId, $filters)
     {
-        $query = Visiting::whereHas('pasien', fn($q) => $q->where('user_id', $userId));
+        $query = Visiting::whereHas('pasien', function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -243,13 +308,25 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
 
     private function buildPasienQueryWithRegency($regencyId, $filters)
     {
-        $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Pasien::where(function($q) use ($regencyId) {
+            $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+              ->orWhere('user_id', '-');
+        });
         
         if (!empty($filters['district_id'])) {
             $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
@@ -257,13 +334,25 @@ class HomeController extends Controller
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
         }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->where('flag_sicarik', 1);
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
+        }
         
         return $query;
     }
 
     private function buildVisitingQueryWithRegency($regencyId, $filters)
     {
-        $query = Visiting::whereHas('pasien.pustu.districts.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Visiting::where(function($q) use ($regencyId) {
+            $q->whereHas('pasien.pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
+              ->orWhereHas('pasien', fn($subQ) => $subQ->where('user_id', '-'));
+        });
         
         if (!empty($filters['start_date'])) {
             $query->whereDate('tanggal', '>=', $filters['start_date']);
@@ -276,6 +365,15 @@ class HomeController extends Controller
         }
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
+        }
+        if (!empty($filters['data_source'])) {
+            if ($filters['data_source'] === 'carik') {
+                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+            } elseif ($filters['data_source'] === 'manual') {
+                $query->whereHas('pasien', function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+            }
         }
         
         return $query;
@@ -301,5 +399,305 @@ class HomeController extends Controller
         return HealthForm::whereIn('visiting_id', $latestVisitIds)
             ->where('henti_layanan', '!=', null)
             ->count();
+    }
+
+    private function getHentiLayananCountQueryBuilder($pasienIds)
+    {
+        // Get latest visit IDs using Query Builder
+        $latestVisitIds = DB::table('visitings')
+            ->select(DB::raw('MAX(id) as id'))
+            ->whereIn('pasien_id', $pasienIds)
+            ->groupBy('pasien_id')
+            ->pluck('id');
+        
+        if (empty($latestVisitIds)) {
+            return 0;
+        }
+        
+        // Count henti layanan using Query Builder
+        return DB::table('health_forms')
+            ->whereIn('visiting_id', $latestVisitIds)
+            ->whereNotNull('henti_layanan')
+            ->count();
+    }
+
+    private function getKunjunganStatusCount($latestVisitIds, $status)
+    {
+        if (empty($latestVisitIds)) {
+            return 0;
+        }
+        
+        return DB::table('health_forms')
+            ->whereIn('visiting_id', $latestVisitIds)
+            ->where('kunjungan_lanjutan', $status)
+            ->count();
+    }
+
+    private function getCarikMetricsOptimized($pasienIds, $filters)
+    {
+        if (empty($pasienIds)) {
+            return [
+                'sudah_dijadwalkan' => 0,
+                'sudah_dikunjungi' => 0,
+                'henti_layanan' => 0
+            ];
+        }
+
+        $placeholders = str_repeat('?,', count($pasienIds) - 1) . '?';
+        $bindings = $pasienIds;
+        
+        // Build date filters
+        $dateFilter = '';
+        if (!empty($filters['start_date'])) {
+            $dateFilter .= " AND DATE(v.tanggal) >= ?";
+            $bindings[] = $filters['start_date'];
+        }
+        if (!empty($filters['end_date'])) {
+            $dateFilter .= " AND DATE(v.tanggal) <= ?";
+            $bindings[] = $filters['end_date'];
+        }
+
+        // Single optimized query to get all metrics
+        $sql = "
+            SELECT 
+                COUNT(DISTINCT v.pasien_id) as sudah_dijadwalkan,
+                COUNT(DISTINCT CASE WHEN t.temperature IS NOT NULL THEN v.pasien_id END) as sudah_dikunjungi,
+                COUNT(DISTINCT CASE WHEN hf.henti_layanan IS NOT NULL THEN v.pasien_id END) as henti_layanan
+            FROM visitings v
+            LEFT JOIN ttvs t ON v.id = t.kunjungan_id
+            LEFT JOIN health_forms hf ON v.id = hf.visiting_id
+            WHERE v.pasien_id IN ($placeholders)
+            $dateFilter
+        ";
+
+        $result = DB::selectOne($sql, $bindings);
+        
+        return [
+            'sudah_dijadwalkan' => $result->sudah_dijadwalkan ?? 0,
+            'sudah_dikunjungi' => $result->sudah_dikunjungi ?? 0,
+            'henti_layanan' => $result->henti_layanan ?? 0
+        ];
+    }
+
+    private function calculateCarikData($pasienQuery, $visitingQuery, $filters)
+    {
+        $user = $filters['user'];
+        
+        // Use cache key based on user and filters for better performance
+        $cacheKey = 'carik_data_' . $user->id . '_' . md5(serialize($filters));
+        
+        return \Cache::remember($cacheKey, 300, function() use ($user, $filters) { // Cache for 5 minutes
+            // Get patient IDs using optimized raw SQL
+            $carikPasienIds = $this->buildCarikQueryByRole($user, $filters);
+            $carikTotalPasien = count($carikPasienIds);
+            
+            if (empty($carikPasienIds)) {
+                return [
+                    'total_pasien' => 0,
+                    'sudah_dijadwalkan' => 0,
+                    'belum_dijadwalkan' => 0,
+                    'sudah_dikunjungi' => 0,
+                    'belum_dikunjungi' => 0,
+                    'henti_layanan' => 0
+                ];
+            }
+
+            // Extract IDs for IN clause
+            $pasienIds = array_column($carikPasienIds, 'id');
+            $placeholders = str_repeat('?,', count($pasienIds) - 1) . '?';
+            
+            // Calculate all metrics in single optimized query
+            $metrics = $this->getCarikMetricsOptimized($pasienIds, $filters);
+
+            return [
+                'total_pasien' => $carikTotalPasien,
+                'sudah_dijadwalkan' => $metrics['sudah_dijadwalkan'],
+                'belum_dijadwalkan' => $carikTotalPasien - $metrics['sudah_dijadwalkan'],
+                'sudah_dikunjungi' => $metrics['sudah_dikunjungi'],
+                'belum_dikunjungi' => $carikTotalPasien - $metrics['sudah_dikunjungi'],
+                'henti_layanan' => $metrics['henti_layanan']
+            ];
+        });
+    }
+
+    private function calculateManualData($pasienQuery, $visitingQuery, $filters)
+    {
+        $user = $filters['user'];
+        
+        // Build manual query based on user role, similar to getBaseQueries logic
+        $manualQuery = $this->buildManualQueryByRole($user, $filters);
+        $manualTotalPasien = $manualQuery->count();
+
+        // Get patient IDs for current filter with manual input flag
+        $manualPasienIds = $manualQuery->pluck('id');
+        
+        // Calculate scheduled patients for manual data
+        $manualScheduledQuery = Visiting::whereIn('pasien_id', $manualPasienIds);
+        if (!empty($filters['start_date'])) {
+            $manualScheduledQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $manualScheduledQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $manualSudahDijadwalkan = $manualScheduledQuery->distinct('pasien_id')->count();
+
+        // Calculate visited patients for manual data
+        $manualVisitedQuery = Visiting::whereIn('pasien_id', $manualPasienIds)
+            ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
+        if (!empty($filters['start_date'])) {
+            $manualVisitedQuery->whereDate('tanggal', '>=', $filters['start_date']);
+        }
+        if (!empty($filters['end_date'])) {
+            $manualVisitedQuery->whereDate('tanggal', '<=', $filters['end_date']);
+        }
+        $manualSudahDikunjungi = $manualVisitedQuery->distinct('pasien_id')->count();
+
+        return [
+            'total_pasien' => $manualTotalPasien,
+            'sudah_dijadwalkan' => $manualSudahDijadwalkan,
+            'belum_dijadwalkan' => $manualTotalPasien - $manualSudahDijadwalkan,
+            'sudah_dikunjungi' => $manualSudahDikunjungi,
+            'belum_dikunjungi' => $manualTotalPasien - $manualSudahDikunjungi,
+            'henti_layanan' => $this->getHentiLayananCount($manualPasienIds)
+        ];
+    }
+
+    private function buildCarikQueryByRole($user, $filters)
+    {
+        // Use optimized raw SQL for maximum performance
+        $sql = "
+            SELECT p.id 
+            FROM pasiens p
+            INNER JOIN villages v ON p.village_id = v.id
+            INNER JOIN districts d ON v.district_id = d.id
+            INNER JOIN regencies r ON d.regency_id = r.id
+            WHERE p.flag_sicarik = 1 
+            AND p.deleted_at IS NULL
+        ";
+        
+        $bindings = [];
+        
+        switch ($user->role) {
+            case 'superadmin':
+                // No additional filtering for superadmin
+                break;
+                
+            case 'perawat':
+                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                    $districtId = $user->pustu->district_id;
+                    $sql .= " AND d.id = ?";
+                    $bindings[] = $districtId;
+                } else {
+                    // For non-puskesmas perawat, find district from user's data
+                    $districtId = null;
+                    if ($user->pustu) {
+                        $districtId = $user->pustu->district_id;
+                    } elseif ($user->village_id) {
+                        $village = DB::selectOne("SELECT district_id FROM villages WHERE id = ?", [$user->village_id]);
+                        $districtId = $village ? $village->district_id : null;
+                    }
+                    
+                    if ($districtId) {
+                        $sql .= " AND d.id = ?";
+                        $bindings[] = $districtId;
+                    }
+                }
+                break;
+                
+            default: // regency role (sudinkes)
+                $regencyId = $user->regency_id;
+                $sql .= " AND r.id = ?";
+                $bindings[] = $regencyId;
+                break;
+        }
+
+        // Apply additional filters
+        if (!empty($filters['district_id'])) {
+            $sql .= " AND d.id = ?";
+            $bindings[] = $filters['district_id'];
+        }
+        if (!empty($filters['village_id'])) {
+            $sql .= " AND p.village_id = ?";
+            $bindings[] = $filters['village_id'];
+        }
+
+        return DB::select($sql, $bindings);
+    }
+
+    private function buildManualQueryByRole($user, $filters)
+    {
+        switch ($user->role) {
+            case 'superadmin':
+                $query = Pasien::where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+                
+            case 'perawat':
+                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                    $districtId = $user->pustu->district_id;
+                    $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))
+                        ->where(function($q) {
+                            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                        });
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                } else {
+                    $query = Pasien::where('user_id', $user->id)
+                        ->where(function($q) {
+                            $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                        });
+                    if (!empty($filters['village_id'])) {
+                        $query->where('village_id', $filters['village_id']);
+                    }
+                    return $query;
+                }
+                
+            default: // regency role (sudinkes)
+                $regencyId = $user->regency_id;
+                $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))
+                    ->where('user_id', '!=', '-') // Exclude SiCarik data
+                    ->where(function($q) {
+                        $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                    });
+                if (!empty($filters['district_id'])) {
+                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                }
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
+        }
+    }
+
+    /**
+     * Clear cache for dashboard data
+     * Call this method when data is updated
+     */
+    public function clearDashboardCache($userId = null)
+    {
+        if ($userId) {
+            // Clear cache for specific user
+            $pattern = 'carik_data_' . $userId . '_*';
+            $keys = \Cache::getRedis()->keys($pattern);
+            if (!empty($keys)) {
+                \Cache::getRedis()->del($keys);
+            }
+        } else {
+            // Clear all dashboard cache
+            $pattern = 'carik_data_*';
+            $keys = \Cache::getRedis()->keys($pattern);
+            if (!empty($keys)) {
+                \Cache::getRedis()->del($keys);
+            }
+        }
     }
 }

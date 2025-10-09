@@ -126,7 +126,7 @@ class HentiLayananExport implements FromCollection, WithHeadings, ShouldAutoSize
                 \DB::raw("CASE WHEN hf.henti_layanan = 'pindah_domisili' THEN DATE(hf.updated_at) ELSE NULL END as TANGGAL_HENTI_LAYANAN_PINDAH_DOMISILI")
             )
             // Add the auth filter here
-            ->when(\Auth::user()->role === 'perawat', function($query) {
+            ->when(\Auth::user()->role === 'perawat' || \Auth::user()->role === 'operator', function($query) {
                 return $query->where('v.user_id', \Auth::id());
             })
             // Add the same filtering conditions from your original method

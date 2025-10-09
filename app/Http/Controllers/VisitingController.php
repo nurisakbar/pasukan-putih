@@ -44,7 +44,7 @@ class VisitingController extends Controller
             );
     
         // Filter berdasarkan role
-        if ($user->role === 'perawat') {
+        if ($user->role === 'perawat' || $user->role === 'operator') {
             if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                 $districtId = $user->pustu->district_id;
 

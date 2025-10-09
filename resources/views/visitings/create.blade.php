@@ -171,7 +171,7 @@
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-6 mb-4 mt-2">
+                <div class="col-md-10 mb-4 mt-2">
                     <div class="card shadow-sm h-100">
                         <div class="card-header bg-white">
                             <div class="d-flex justify-content-between align-items-center">
@@ -236,60 +236,6 @@
                     </div>
                 </div>
                 
-                <div class="col-md-6 mb-4 mt-2">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">Tanggal Kunjungan yang tersedia</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <div id="calendar-header" class="text-center mb-4">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="prevMonth()">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <span id="monthYear" class="fw-bold h5 mb-0"></span>
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="nextMonth()">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="calendar-container">
-                                    <div class="calendar-header text-center">
-                                        <div class="weekday"><strong>Min</strong></div>
-                                        <div class="weekday"><strong>Sen</strong></div>
-                                        <div class="weekday"><strong>Sel</strong></div>
-                                        <div class="weekday"><strong>Rab</strong></div>
-                                        <div class="weekday"><strong>Kam</strong></div>
-                                        <div class="weekday"><strong>Jum</strong></div>
-                                        <div class="weekday"><strong>Sab</strong></div>
-                                    </div>
-                                    <div id="calendar" class="calendar mt-2 mb-2"></div>
-                                </div>
-                                
-                                <div class="calendar-legend mt-4">
-                                    <div class="d-flex justify-content-center gap-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box available"></div>
-                                            <span class="ms-2">Tersedia</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box selected"></div>
-                                            <span class="ms-2">Dipilih</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <div class="legend-box disabled"></div>
-                                            <span class="ms-2">Penuh</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

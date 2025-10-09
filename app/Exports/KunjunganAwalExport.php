@@ -86,7 +86,7 @@ class KunjunganAwalExport implements FromCollection, ShouldAutoSize, WithHeading
             \DB::raw('NULL as `KONVERSI DATA KE SASARAN KUNJUNGAN LANJUTAN`')
         )
         // Add the auth filter here
-        ->when(\Auth::user()->role === 'perawat', function($query) {
+            ->when(\Auth::user()->role === 'perawat' || \Auth::user()->role === 'operator', function($query) {
             return $query->where('vInit.user_id', \Auth::id());
         })
         // Add the same filtering conditions from your original method

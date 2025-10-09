@@ -93,11 +93,15 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-body">
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Tips:</strong> Double-click pada baris data untuk melihat detail pasien.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                             <div class="table-responsive">
                                 <table id="pasiens-table" class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="text-center" width="90">Aksi</th>
                                             <th>NAMA</th>
                                             <th>NIK</th>
                                             <th>JENIS KELAMIN</th>
@@ -238,13 +242,15 @@
             border-radius: 0.25rem;
         }
         
-        /* Remove ::before pseudo-element from action column */
-        .dataTables_wrapper .dataTable td:first-child::before {
-            display: none !important;
+        /* Table row hover effect */
+        #pasiens-table tbody tr:hover {
+            background-color: #f8f9fa !important;
+            cursor: pointer;
         }
         
-        .dataTables_wrapper .dataTable th:first-child::before {
-            display: none !important;
+        /* Double-click hint */
+        #pasiens-table tbody tr {
+            transition: background-color 0.2s ease;
         }
         
         /* DataTables responsive modal */
@@ -468,14 +474,6 @@
                 },
                 columns: [
                     { 
-                        data: 'action', 
-                        name: 'action', 
-                        orderable: false, 
-                        searchable: false,
-                        className: 'text-center',
-                        responsivePriority: 1
-                    },
-                    { 
                         data: 'name', 
                         name: 'name',
                         responsivePriority: 1
@@ -580,6 +578,17 @@
                 drawCallback: function() {
                     // Add tooltip to action buttons
                     $('[data-bs-toggle="tooltip"]').tooltip();
+                    
+                    // Add double-click handler to table rows
+                    $('#pasiens-table tbody tr').off('dblclick').on('dblclick', function() {
+                        const data = table.row(this).data();
+                        if (data && data.id) {
+                            window.location.href = `{{ url('pasiens') }}/${data.id}`;
+                        }
+                    });
+                    
+                    // Add hover effect for better UX
+                    $('#pasiens-table tbody tr').css('cursor', 'pointer');
                 }
             });
 
@@ -735,7 +744,7 @@
                                     // Start polling for progress
                                     let interval = setInterval(function () {
                                         $.ajax({
-                                            url: `{{ url('sync-progress/${syncId}') }}`,
+                                            url: `{{ url('sync-progress') }}/${syncId}`,
                                             method: 'GET',
                                             success: function (progressResponse) {
                                                 if (progressResponse.success) {
@@ -901,7 +910,7 @@
                                     // Start polling for progress
                                     let interval = setInterval(function () {
                                         $.ajax({
-                                            url: `{{ url('export-progress/${exportId}') }}`,
+                                            url: `{{ url('export-progress') }}/${exportId}`,
                                             method: 'GET',
                                             success: function (progressResponse) {
                                                 if (progressResponse.success) {
