@@ -343,7 +343,16 @@ class VisitingController extends Controller
             ["id" => "elderly", "label" => "Skrining Lansia Sederhana (SKILAS)"]
         ];
 
-        return view('visitings.dashboard', compact('visiting', 'screenings'));
+        // Build visit history for the same patient with ADL total scores
+        $visitHistory = Visiting::with(['skriningAdl'])
+            ->where('pasien_id', $visiting->pasien_id)
+            ->where('id', '!=', $visiting->id)
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('visitings.dashboard', compact('visiting', 'screenings', 'visitHistory'));
     }
 
     /**

@@ -116,7 +116,7 @@
                                     <th>NAMA PASIEN</th>
                                     <th>TANGGAL</th>
                                     <th>JENIS KUNJUNGAN</th>
-                                    <th>STATUS</th>
+                                    {{-- <th>STATUS</th> --}}
                                     <th>OPERATOR</th>
                                     <th>ALAMAT</th>
                                     <th>RT/ RW</th>
@@ -131,7 +131,7 @@
                                         <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
                                         <td class="align-middle">{{ $kunjungan->status }}</td>
-                                        <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td>
+                                        {{-- <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td> --}}
                                         <td class="align-middle">{{ $kunjungan->operator ? $kunjungan->operator->name : '-' }}</td>
                                         <td class="align-middle text-truncate" style="max-width: 150px;">
                                             {{ $kunjungan->pasien->alamat }}

@@ -92,13 +92,20 @@
                 <div class="row g-4">
                     @php
                         $sasaran_data = [
-                            ['title' => 'Pasien dari Si Carik', 'value' => $carik_data['total_pasien'], 'icon' => 'bi-cloud-download', 'bg' => 'bg-primary', 'text' => 'text-white'],
-                            ['title' => 'Pasien Input Manual', 'value' => $manual_data['total_pasien'], 'icon' => 'bi-pencil-square', 'bg' => 'bg-secondary', 'text' => 'text-white'],
-                            ['title' => 'Pasien Sudah Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
-                            ['title' => 'Pasien Belum Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
-                            ['title' => 'Pasien Sudah Dikunjungi', 'value' => $data_sasaran_sudah_dikunjungi, 'icon' => 'bi-house-check', 'bg' => 'bg-success', 'text' => 'text-white'],
-                            ['title' => 'Pasien Belum Dikunjungi', 'value' => $data_sasaran_belum_dikunjungi, 'icon' => 'bi-house-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
-                            ['title' => 'Pasien Henti Layanan', 'value' => $data_sasaran_henti_layanan, 'icon' => 'bi-person-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
+                            [
+                                'title' => 'Total Semua Data Sasaran',
+                                'value' => $carik_data['total_pasien'] + $manual_data['total_pasien'],
+                                'icon' => 'bi-people',
+                                'bg' => 'bg-info',
+                                'text' => 'text-white'
+                            ],
+                            ['title' => 'Sasaran dari Si Carik', 'value' => $carik_data['total_pasien'], 'icon' => 'bi-cloud-download', 'bg' => 'bg-primary', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Input Manual', 'value' => $manual_data['total_pasien'], 'icon' => 'bi-pencil-square', 'bg' => 'bg-secondary', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Sudah Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Belum Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
+                            ['title' => 'Sasaran Sudah Dikunjungi', 'value' => $data_sasaran_sudah_dikunjungi, 'icon' => 'bi-house-check', 'bg' => 'bg-success', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Belum Dikunjungi', 'value' => $data_sasaran_belum_dikunjungi, 'icon' => 'bi-house-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Henti Layanan', 'value' => $data_sasaran_henti_layanan, 'icon' => 'bi-person-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
                         ];
                     @endphp
                     @foreach($sasaran_data as $data)

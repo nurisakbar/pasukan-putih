@@ -141,7 +141,7 @@ class HomeController extends Controller
 
         return [
             // Basic counts
-            'jumlah_data_sasaran' => $currentPasienCount,
+            'jumlah_data_sasaran' => $carikData['total_pasien'] + $manualData['total_pasien'],
             'jumlah_kunjungan' => $visitingQuery->count(),
             
             // Visit completion status using Query Builder for better performance
@@ -149,12 +149,12 @@ class HomeController extends Controller
             'jumlah_kunjungan_selesai' => $this->getKunjunganStatusCount($latestVisitIds, 'tidak'),
             
             // Target data metrics
-            'data_sasaran_keseluruhan' => $totalPasien,
+            'data_sasaran_keseluruhan' => $carikData['total_pasien'] + $manualData['total_pasien'],
             'data_sasaran_saat_ini' => $currentPasienCount,
             'data_sasaran_sudah_dijadwalkan' => $sudahDijadwalkan,
-            'data_sasaran_belum_dijadwalkan' => $currentPasienCount - $sudahDijadwalkan,
+            'data_sasaran_belum_dijadwalkan' => $carikData['total_pasien'] + $manualData['total_pasien'] - $sudahDijadwalkan,
             'data_sasaran_sudah_dikunjungi' => $sudahDikunjungi,
-            'data_sasaran_belum_dikunjungi' => $currentPasienCount - $sudahDikunjungi,
+            'data_sasaran_belum_dikunjungi' => $carikData['total_pasien'] + $manualData['total_pasien'] - $sudahDikunjungi,
             'data_sasaran_henti_layanan' => $this->getHentiLayananCountQueryBuilder($pasienIds),
             
             // Visit type metrics

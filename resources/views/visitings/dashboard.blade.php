@@ -161,6 +161,25 @@
 
                                 <hr class="my-3">
 
+                                <!-- Riwayat Kunjungan (menampilkan total skor AKS) -->
+                                <div class="info-item mb-2">
+                                    <small class="text-muted d-block">Riwayat Kunjungan</small>
+                                    @if(isset($visitHistory) && $visitHistory->count())
+                                        <ul class="list-group list-group-flush">
+                                            @foreach($visitHistory as $vh)
+                                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                                    <a href="{{ route('visitings.dashboard', $vh->id) }}" class="text-decoration-none">
+                                                        {{ \Carbon\Carbon::parse($vh->tanggal)->format('d M Y') }}
+                                                    </a>
+                                                    <span class="badge bg-info">Skor AKS: {{ optional($vh->skriningAdl)->total_score ?? '-' }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <span class="text-muted">Belum ada riwayat kunjungan.</span>
+                                    @endif
+                                </div>
+
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
                                     <a href="{{ route('visitings.edit', $visiting->id) }}" 
