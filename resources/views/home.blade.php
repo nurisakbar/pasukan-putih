@@ -120,7 +120,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-light">
+                                {{-- <div class="card-footer bg-light">
                                     @if($data['title'] == 'Pasien dari Si Carik')
                                         <a href="{{ route('pasiens.index', ['flag_sicarik' => 1]) }}"
                                            class="text-primary text-decoration-none">
@@ -137,7 +137,7 @@
                                             More info <i class="bi bi-arrow-right-circle"></i>
                                         </a>
                                     @endif
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     @endforeach
@@ -174,12 +174,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer bg-light">
+                            {{-- <div class="card-footer bg-light">
                                 <a href="{{ route('visitings.index') }}"
                                    class="text-primary text-decoration-none">
                                     More info <i class="bi bi-arrow-right-circle"></i>
                                 </a>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endforeach
