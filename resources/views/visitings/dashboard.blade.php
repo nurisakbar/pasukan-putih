@@ -27,6 +27,15 @@
 
 <div class="app-content">
     <div class="container-fluid">
+        <!-- Back Button -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Kunjungan
+                </a>
+            </div>
+        </div>
+        
         <!-- Navigation Tabs -->
         <div class="row mb-4">
             <div class="col-12">
@@ -159,10 +168,10 @@
             <div class="tab-pane fade" id="health-form" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-notes-medical mr-2"></i>
+                        <h5 class="mb-0">
+                            <i class="fas fa-notes-medical me-2"></i>
                             Form Permasalahan Kesehatan
-                        </h3>
+                        </h5>
                         {{-- <div class="card-tools">
                             <span class="badge badge-primary" id="form-progress">0%</span>
                         </div> --}}
@@ -687,7 +696,7 @@
                                 </div>
                             </div>
                             
-                            <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div class="autosave-status" id="health-status">
                                     <small class="text-muted">
                                         <i class="fas fa-circle text-success mr-1"></i>
@@ -867,24 +876,6 @@
             </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between">
-                    <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Kunjungan
-                    </a>
-                    <div>
-                        <button type="button" class="btn btn-outline-primary" onclick="previousTab()">
-                            <i class="fas fa-chevron-left me-2"></i>Sebelumnya
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="nextTab()">
-                            Selanjutnya<i class="fas fa-chevron-right ms-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
@@ -965,7 +956,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tabs
-    const tabs = ['ttv', 'health-form', 'skrining-adl'];
     let currentTabIndex = 0;
 
     // Auto-save functionality
@@ -1423,33 +1413,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    function nextTab() {
-        if (currentTabIndex < tabs.length - 1) {
-            currentTabIndex++;
-            switchTab(tabs[currentTabIndex]);
-        }
-    }
-
-    function previousTab() {
-        if (currentTabIndex > 0) {
-            currentTabIndex--;
-            switchTab(tabs[currentTabIndex]);
-        }
-    }
-
-    function switchTab(tabName) {
-        // Remove active class from all tabs and content
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-            pane.classList.remove('show', 'active');
-        });
-
-        // Add active class to current tab and content
-        document.getElementById(`${tabName}-tab`).classList.add('active');
-        document.getElementById(tabName).classList.add('show', 'active');
-    }
 
     // Tab click handlers
+    const tabs = ['ttv', 'health-form', 'skrining-adl'];
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', function() {
             const tabName = this.id.replace('-tab', '');
