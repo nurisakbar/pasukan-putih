@@ -250,7 +250,7 @@
                                                 <label for="blood_pressure" class="form-label">Tekanan Darah</label>
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" id="blood_pressure"
-                                                        placeholder="120/80" name="blood_pressure"
+                                                        placeholder="Contoh: 120/80" name="blood_pressure"
                                                         value="{{ $visiting->ttvs->first()->blood_pressure ?? '' }}">
                                                     <span class="input-group-text">mmHg</span>
                                                 </div>
@@ -259,7 +259,7 @@
                                                 <label for="pulse" class="form-label">Nadi</label>
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="pulse"
-                                                        placeholder="80" name="pulse"
+                                                        placeholder="Contoh: 80" name="pulse"
                                                         value="{{ $visiting->ttvs->first()->pulse ?? '' }}">
                                                     <span class="input-group-text">bpm</span>
                                                 </div>
@@ -268,7 +268,7 @@
                                                 <label for="temperature" class="form-label">Suhu</label>
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
-                                                        id="temperature" placeholder="36.8" name="temperature"
+                                                        id="temperature" placeholder="Contoh: 36.8" name="temperature"
                                                         value="{{ $visiting->ttvs->first()->temperature ?? '' }}">
                                                     <span class="input-group-text">°C</span>
                                                 </div>
@@ -277,7 +277,7 @@
                                                 <label for="oxygen" class="form-label">Saturasi Oksigen</label>
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="oxygen"
-                                                        placeholder="98" name="oxygen_saturation"
+                                                        placeholder="Contoh: 98" name="oxygen_saturation"
                                                         value="{{ $visiting->ttvs->first()->oxygen_saturation ?? '' }}">
                                                     <span class="input-group-text">%</span>
                                                 </div>
@@ -293,7 +293,7 @@
                                                 <label for="weight" class="form-label">Berat Badan</label>
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
-                                                        id="weight" placeholder="65.5" name="weight"
+                                                        id="weight" placeholder="Contoh: 65.5" name="weight"
                                                         value="{{ $visiting->ttvs->first()->weight ?? '' }}">
                                                     <span class="input-group-text">kg</span>
                                                 </div>
@@ -302,7 +302,7 @@
                                                 <label for="height" class="form-label">Tinggi Badan</label>
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
-                                                        id="height" placeholder="170.0" name="height"
+                                                        id="height" placeholder="Contoh: 170.0" name="height"
                                                         value="{{ $visiting->ttvs->first()->height ?? '' }}">
                                                     <span class="input-group-text">cm</span>
                                                 </div>
