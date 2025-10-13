@@ -9,6 +9,7 @@ use App\Models\HealthForm;
 use App\Models\User;
 use App\Models\District;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
@@ -55,7 +56,7 @@ class HomeController extends Controller
 
     private function getFilters(Request $request, $user)
     {
-        return [
+        $filters = [
             'start_date' => $request->get('start_date'),
             'end_date' => $request->get('end_date'),
             'district_id' => $request->get('district_id'),
@@ -63,6 +64,16 @@ class HomeController extends Controller
             'data_source' => $request->get('data_source'),
             'user' => $user
         ];
+
+        // Auto-set district filter for perawat and operator roles
+        if (in_array($user->role, ['perawat', 'operator'])) {
+            $districtId = $this->getUserDistrictId($user);
+            if ($districtId) {
+                $filters['district_id'] = $districtId;
+            }
+        }
+
+        return $filters;
     }
 
     private function getBaseQueries($user, $filters)
@@ -78,25 +89,11 @@ class HomeController extends Controller
             case 'perawat':
             case 'operator':
                 // Gunakan buildPasienQuery() dan buildVisitingQuery() dengan filter district otomatis
-                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
-                    $districtId = $user->pustu->district_id;
-                    // Tambahkan filter district otomatis berdasarkan role
-                    $filters['district_id'] = $districtId;
-                    return [
-                        'pasien' => $this->buildPasienQuery($filters),
-                        'visiting' => $this->buildVisitingQuery($filters),
-                        'total_pasien' => Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId))->count()
-                    ];
-                } else {
-                    // Untuk perawat/operator tanpa pustu, tetap gunakan query user
-                    return [
-                        'pasien' => $this->buildPasienQueryWithUser($user->id, $filters),
-                        'visiting' => $this->buildVisitingQueryWithUser($user->id, $filters),
-                        'total_pasien' => Pasien::where(function($q) use ($user) {
-                            $q->where('user_id', $user->id)->orWhere('user_id', '-');
-                        })->count()
-                    ];
-                }
+                return [
+                    'pasien' => $this->buildPasienQuery($filters),
+                    'visiting' => $this->buildVisitingQuery($filters),
+                    'total_pasien' => $this->getTotalPasienForUser($user, $filters)
+                ];
                 
             case 'sudinkes':
                 $regencyId = $user->regency_id;
@@ -604,24 +601,11 @@ class HomeController extends Controller
                 break;
                 
             case 'perawat':
-                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
-                    $districtId = $user->pustu->district_id;
+            case 'operator':
+                $districtId = $this->getUserDistrictId($user);
+                if ($districtId) {
                     $sql .= " AND d.id = ?";
                     $bindings[] = $districtId;
-                } else {
-                    // For non-puskesmas perawat, find district from user's data
-                    $districtId = null;
-                    if ($user->pustu) {
-                        $districtId = $user->pustu->district_id;
-                    } elseif ($user->village_id) {
-                        $village = DB::selectOne("SELECT district_id FROM villages WHERE id = ?", [$user->village_id]);
-                        $districtId = $village ? $village->district_id : null;
-                    }
-                    
-                    if ($districtId) {
-                        $sql .= " AND d.id = ?";
-                        $bindings[] = $districtId;
-                    }
                 }
                 break;
                 
@@ -661,26 +645,25 @@ class HomeController extends Controller
                 return $query;
                 
             case 'perawat':
-                if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
-                    $districtId = $user->pustu->district_id;
-                    $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))
+            case 'operator':
+                $districtId = $this->getUserDistrictId($user);
+                if ($districtId) {
+                    $query = Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId))
                         ->where(function($q) {
                             $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
                         });
-                    if (!empty($filters['village_id'])) {
-                        $query->where('village_id', $filters['village_id']);
-                    }
-                    return $query;
                 } else {
+                    // Fallback to user-based query if no district found
                     $query = Pasien::where('user_id', $user->id)
                         ->where(function($q) {
                             $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
                         });
-                    if (!empty($filters['village_id'])) {
-                        $query->where('village_id', $filters['village_id']);
-                    }
-                    return $query;
                 }
+                
+                if (!empty($filters['village_id'])) {
+                    $query->where('village_id', $filters['village_id']);
+                }
+                return $query;
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
@@ -697,6 +680,41 @@ class HomeController extends Controller
                 }
                 return $query;
         }
+    }
+
+    /**
+     * Get district ID for user based on their role and pustu
+     */
+    private function getUserDistrictId($user)
+    {
+        if ($user->pustu) {
+            return $user->pustu->district_id;
+        }
+        
+        // If user has village_id, get district from village
+        if ($user->village_id) {
+            $village = DB::selectOne("SELECT district_id FROM villages WHERE id = ?", [$user->village_id]);
+            return $village ? $village->district_id : null;
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get total pasien count for user based on their role and district
+     */
+    private function getTotalPasienForUser($user, $filters)
+    {
+        $districtId = $this->getUserDistrictId($user);
+        
+        if ($districtId) {
+            return Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId))->count();
+        }
+        
+        // Fallback to user-based query if no district found
+        return Pasien::where(function($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('user_id', '-');
+        })->count();
     }
 
     /**
