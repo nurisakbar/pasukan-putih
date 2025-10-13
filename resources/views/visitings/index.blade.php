@@ -25,8 +25,17 @@
         <div class="container-fluid">
             <div class="card shadow-sm rounded-3">
                 <div class="card-header bg-white py-3">
+                    {{-- <div class="row mb-2">
+                        <div class="col-12">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Filter Pencarian:</strong> Gunakan rentang tanggal untuk memfilter data kunjungan berdasarkan periode tertentu
+                            </small>
+                        </div>
+                    </div> --}}
                     <form method="GET" action="{{ route('visitings.index') }}" class="row g-2 align-items-center">
                         <div class="col-md-3 col-12">
+                            <label class="form-label small text-muted mb-1"></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
                                 <input type="text" name="search" class="form-control" placeholder="Cari Nama/NIK"
@@ -34,24 +43,28 @@
                             </div>
                         </div>
                         <div class="col-md-3 col-12">
+                            <label class="form-label small text-muted mb-1">Rentang Tanggal (Dari)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" name="tanggal_awal" class="form-control" placeholder="Dari Tanggal"
-                                    value="{{ request('tanggal_awal', Carbon::today()->toDateString()) }}">
+                                <input type="date" name="tanggal_awal" class="form-control" placeholder="Tanggal Mulai"
+                                    value="{{ request('tanggal_awal', Carbon::today()->toDateString()) }}"
+                                    title="Pilih tanggal mulai untuk rentang pencarian data kunjungan (dari tanggal)">
                             </div>
                         </div>
                         <div class="col-md-3 col-12">
+                            <label class="form-label small text-muted mb-1">Rentang Tanggal (Sampai)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" name="tanggal_akhir" class="form-control" placeholder="Sampai Tanggal"
-                                    value="{{ request('tanggal_akhir', Carbon::today()->toDateString()) }}">
+                                <input type="date" name="tanggal_akhir" class="form-control" placeholder="Tanggal Akhir"
+                                    value="{{ request('tanggal_akhir', Carbon::today()->toDateString()) }}"
+                                    title="Pilih tanggal akhir untuk rentang pencarian data kunjungan (sampai tanggal)">
                             </div>
                         </div>
                         <div class="col-md-3 col-12 text-md-end text-start">
-                            <button type="submit" class="btn btn-sm btn-primary me-1">
+                            <button type="submit" class="btn btn-sm btn-primary me-1 mt-2">
                                 <i class="fas fa-search me-1"></i> Cari
                             </button>
-                            <a href="{{ route('visitings.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <a href="{{ route('visitings.index') }}" class="btn btn-sm btn-outline-secondary mt-2">
                                 <i class="fas fa-sync-alt me-1"></i> Reset
                             </a>
                         </div>
@@ -113,6 +126,7 @@
                         <table id="example2" class="table table-bordered table-striped dataTable-responsive">
                             <thead class="table-light">
                                 <tr>
+                                    <th style="width: 50px;">NO</th>
                                     <th>NAMA PASIEN</th>
                                     <th>TANGGAL</th>
                                     <th>JENIS KUNJUNGAN</th>
@@ -126,8 +140,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($visitings as $kunjungan)
+                                @forelse ($visitings as $index => $kunjungan)
                                     <tr class="clickable-row" data-url="{{ route('visitings.dashboard', $kunjungan->id) }}">
+                                        <td class="align-middle text-center">{{ $index + 1 }}</td>
                                         <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
                                         <td class="align-middle">{{ $kunjungan->status }}</td>
@@ -143,7 +158,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="text-center py-4">
+                                        <td colspan="11" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
                                                 <h5 class="text-muted">Tidak ada data kunjungan</h5>
@@ -213,6 +228,15 @@
                 autoWidth: false,
                 pageLength: 25, // Show 25 records per page instead of default 10
                 lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]], // Add length menu options
+                order: [[2, 'asc']], // Sort by date column (3rd column, 0-indexed) in descending order
+                columnDefs: [
+                    { orderable: false, targets: 0 }, // Disable sorting on the NO column
+                    { orderable: false, targets: 4 }, // Disable sorting on the ALAMAT column
+                    { orderable: false, targets: 5 }, // Disable sorting on the RT/RW column
+                    { orderable: false, targets: 6 }, // Disable sorting on the KABUPATEN column
+                    { orderable: false, targets: 7 }, // Disable sorting on the KECAMATAN column
+                    { orderable: false, targets: 8 }  // Disable sorting on the KELURAHAN column
+                ],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
                     emptyTable: "Belum ada data untuk ditampilkan"
