@@ -190,14 +190,16 @@
                                        class="btn btn-warning btn-sm text-white w-100">
                                         <i class="fas fa-edit me-1"></i><span class="d-none d-sm-inline">Edit Kunjungan</span><span class="d-sm-none">Edit</span>
                                     </a>
-                                    <button type="button" 
-                                            class="btn btn-danger btn-sm w-100" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deleteModal"
-                                            data-visiting-id="{{ $visiting->id }}"
-                                            data-pasien-name="{{ $visiting->pasien->name }}">
-                                        <i class="fas fa-trash me-1"></i><span class="d-none d-sm-inline">Hapus Kunjungan</span><span class="d-sm-none">Hapus</span>
-                                    </button>
+                                    <form method="POST" action="{{ route('visitings.destroy', $visiting->id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus kunjungan untuk {{ $visiting->pasien->name }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="btn btn-danger btn-sm w-100">
+                                            <i class="fas fa-trash me-1"></i><span class="d-none d-sm-inline">Hapus Kunjungan</span><span class="d-sm-none">Hapus</span>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -1481,35 +1483,6 @@
     </style>
 @endpush
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Konfirmasi Hapus Kunjungan
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus kunjungan untuk pasien <strong id="pasienName"></strong>?</p>
-                <p class="text-muted small">Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data kunjungan terkait.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Batal
-                </button>
-                <form id="deleteForm" method="POST" style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash me-1"></i>Hapus Kunjungan
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 @push('script')
     <script>
@@ -1986,22 +1959,6 @@
                 });
             });
 
-            // Delete modal handlers
-            const deleteModal = document.getElementById('deleteModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const visitingId = button.getAttribute('data-visiting-id');
-                    const pasienName = button.getAttribute('data-pasien-name');
-                    
-                    // Update modal content
-                    document.getElementById('pasienName').textContent = pasienName;
-                    
-                    // Update form action
-                    const deleteForm = document.getElementById('deleteForm');
-                    deleteForm.action = route('visitings.destroy', visitingId);
-                });
-            }
         });
     </script>
 @endpush
