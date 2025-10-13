@@ -27,11 +27,6 @@
             padding-left: 0 !important;
             margin-left: 0 !important;
         }
-
-        /* Sembunyikan form status indicator */
-        #form-status {
-            display: none !important;
-        }
     </style>
 @endpush
 
@@ -237,16 +232,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Form Status Indicator -->
-                                <div class="row mt-3" id="form-status" style="display: none !important;">
-                                    <div class="col-lg-2 col-md-4"></div>
-                                    <div class="col-lg-9 col-md-8">
-                                        <div class="alert alert-info d-flex align-items-center" role="alert" style="display: none !important;">
-                                            <i class="bi bi-info-circle me-2"></i>
-                                            <span id="form-status-text">Form belum lengkap</span>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <!-- Action Buttons -->
                                 <div class="row mt-4">
@@ -570,66 +555,9 @@
                     field.removeClass('is-invalid');
                     feedback.hide();
                 }
-                checkFormStatus();
             });
 
-            // Function to check overall form status
-            function checkFormStatus() {
-                const requiredFields = [
-                    { id: 'nik', name: 'NIK' },
-                    { id: 'name', name: 'Nama' },
-                    { id: 'jenis_ktp', name: 'Jenis KTP' },
-                    { id: 'tanggal_lahir', name: 'Tanggal Lahir' },
-                    { id: 'jenis_kelamin', name: 'Jenis Kelamin' },
-                    { id: 'alamat', name: 'Alamat' },
-                    { id: 'rt', name: 'RT' },
-                    { id: 'rw', name: 'RW' },
-                    { id: 'village_id', name: 'Kelurahan/Desa' }
-                ];
 
-                let filledFields = 0;
-                let totalFields = requiredFields.length;
-                let hasErrors = false;
-
-                requiredFields.forEach(field => {
-                    const value = $(`#${field.id}`).val();
-                    const isInvalid = $(`#${field.id}`).hasClass('is-invalid');
-                    
-                    if (value && value.trim() !== '') {
-                        filledFields++;
-                    }
-                    
-                    if (isInvalid) {
-                        hasErrors = true;
-                    }
-                });
-
-                const formStatus = $('#form-status');
-                const formStatusText = $('#form-status-text');
-                const submitBtn = $('#submit-btn');
-
-                if (hasErrors) {
-                    formStatus.show();
-                    formStatus.removeClass('alert-info').addClass('alert-danger');
-                    formStatusText.html('<i class="bi bi-exclamation-triangle me-1"></i>Ada error pada form, perbaiki terlebih dahulu');
-                    submitBtn.prop('disabled', true).addClass('disabled');
-                } else if (filledFields === totalFields) {
-                    formStatus.show();
-                    formStatus.removeClass('alert-danger').addClass('alert-success');
-                    formStatusText.html('<i class="bi bi-check-circle me-1"></i>Form sudah lengkap dan siap disimpan');
-                    submitBtn.prop('disabled', false).removeClass('disabled');
-                } else {
-                    formStatus.show();
-                    formStatus.removeClass('alert-danger alert-success').addClass('alert-info');
-                    formStatusText.html(`<i class="bi bi-info-circle me-1"></i>Form ${filledFields}/${totalFields} lengkap`);
-                    submitBtn.prop('disabled', true).addClass('disabled');
-                }
-            }
-
-            // Add event listeners for form status checking
-            $('#nik, #name, #jenis_ktp, #tanggal_lahir, #jenis_kelamin, #alamat, #rt, #rw, #village_search').on('input change', function() {
-                checkFormStatus();
-            });
 
             // Frontend validation function
             function validateForm() {
