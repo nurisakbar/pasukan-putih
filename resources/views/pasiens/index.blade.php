@@ -851,9 +851,6 @@
                 @endif
 
                 // Start export
-                console.log('Starting export with filters:', filters);
-                console.log('Export URL:', '{{ route("pasiens.export") }}');
-                
                 $.ajax({
                     url: '{{ route("pasiens.export") }}',
                     method: 'POST',
@@ -862,16 +859,9 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function (response) {
-                        console.log('Export Response:', response);
                         if (response.success) {
                             // Check if direct export completed immediately
                             if (response.file_url) {
-                                console.log('Direct export completed:', {
-                                    file_url: response.file_url,
-                                    file_name: response.file_name,
-                                    total_records: response.total_records
-                                });
-                                
                                 // Direct export completed - close loading and show success
                                 Swal.close();
                                 Swal.fire({
@@ -880,42 +870,14 @@
                                     html: `<div class="text-left">
                                         <p><strong>File:</strong> ${response.file_name}</p>
                                         <p><strong>Total Data:</strong> ${response.total_records} records</p>
-                                        <p><strong>URL:</strong> <a href="${response.file_url}" target="_blank" class="text-primary text-decoration-underline" style="word-break: break-all;">${response.file_url}</a></p>
                                     </div>`,
                                     showCancelButton: true,
                                     confirmButtonText: 'Download File',
                                     cancelButtonText: 'Tutup'
                                 }).then((result) => {
                                     if (result.isConfirmed && response.file_url) {
-                                        console.log('User clicked download button');
-                                        console.log('Download URL:', response.file_url);
-                                        console.log('Download filename:', response.file_name);
-                                        
-                                        // Force download by creating a temporary link
-                                        try {
-                                            const link = document.createElement('a');
-                                            link.href = response.file_url;
-                                            link.download = response.file_name;
-                                            link.target = '_blank';
-                                            link.style.display = 'none';
-                                            
-                                            console.log('Created download link:', {
-                                                href: link.href,
-                                                download: link.download,
-                                                target: link.target
-                                            });
-                                            
-                                            document.body.appendChild(link);
-                                            link.click();
-                                            document.body.removeChild(link);
-                                            
-                                            console.log('Download link clicked successfully');
-                                        } catch (error) {
-                                            // Fallback: open in new tab
-                                            console.log('Download fallback triggered:', error);
-                                            console.log('Opening URL in new tab:', response.file_url);
-                                            window.open(response.file_url, '_blank');
-                                        }
+                                        // Direct download
+                                        window.location.href = response.file_url;
                                     }
                                 });
                                 return;
@@ -965,15 +927,10 @@
                                                     
                                                     // Show additional details if available
                                                     if (progress.data && progress.data.total_records) {
-                                                        let fileUrlHtml = '';
-                                                        if (progress.data.file_url) {
-                                                            fileUrlHtml = `<br><strong>URL:</strong> <a href="${progress.data.file_url}" target="_blank" class="text-primary text-decoration-underline" style="word-break: break-all; font-size: 0.8em;">${progress.data.file_url}</a>`;
-                                                        }
-                                                        
                                                         $('#exportProgressDetails').html(
                                                             `<div class="alert alert-info mb-0">
                                                                 <strong>Total Data:</strong> ${progress.data.total_records} records<br>
-                                                                <strong>File:</strong> ${progress.data.file_name || 'Sedang diproses...'}${fileUrlHtml}
+                                                                <strong>File:</strong> ${progress.data.file_name || 'Sedang diproses...'}
                                                             </div>`
                                                         );
                                                     }
@@ -1021,38 +978,9 @@
                                                         
                                                         // Handle download button click
                                                         Swal.getConfirmButton().onclick = function() {
-                                                            console.log('Progress download button clicked');
-                                                            console.log('Progress data:', progress.data);
-                                                            
                                                             if (progress.data && progress.data.file_url) {
-                                                                console.log('Progress download URL:', progress.data.file_url);
-                                                                console.log('Progress download filename:', progress.data.file_name);
-                                                                
-                                                                // Force download by creating a temporary link
-                                                                try {
-                                                                    const link = document.createElement('a');
-                                                                    link.href = progress.data.file_url;
-                                                                    link.download = progress.data.file_name || 'export_pasien.xlsx';
-                                                                    link.target = '_blank';
-                                                                    link.style.display = 'none';
-                                                                    
-                                                                    console.log('Created progress download link:', {
-                                                                        href: link.href,
-                                                                        download: link.download,
-                                                                        target: link.target
-                                                                    });
-                                                                    
-                                                                    document.body.appendChild(link);
-                                                                    link.click();
-                                                                    document.body.removeChild(link);
-                                                                    
-                                                                    console.log('Progress download link clicked successfully');
-                                                                } catch (error) {
-                                                                    // Fallback: open in new tab
-                                                                    console.log('Progress download fallback triggered:', error);
-                                                                    console.log('Opening progress URL in new tab:', progress.data.file_url);
-                                                                    window.open(progress.data.file_url, '_blank');
-                                                                }
+                                                                // Direct download
+                                                                window.location.href = progress.data.file_url;
                                                             }
                                                             Swal.close();
                                                         };
@@ -1109,13 +1037,6 @@
                         }
                     },
                     error: function (xhr) {
-                        console.log('Export AJAX Error:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            responseJSON: xhr.responseJSON
-                        });
-                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
