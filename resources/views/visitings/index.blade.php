@@ -223,7 +223,7 @@
 @if ($visitings->count() > 0)
     <script>
         $(function () {
-            $('#example2').DataTable({
+            var table = $('#example2').DataTable({
                 responsive: true,
                 autoWidth: false,
                 pageLength: 25, // Show 25 records per page instead of default 10
@@ -240,6 +240,16 @@
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
                     emptyTable: "Belum ada data untuk ditampilkan"
+                },
+                drawCallback: function(settings) {
+                    // Reset nomor urut setiap kali tabel di-render ulang
+                    var api = this.api();
+                    var start = api.page.info().start;
+                    
+                    api.rows({page: 'current'}).every(function(rowIdx, tableLoop, rowLoop) {
+                        var cell = this.cell(rowIdx, 0).node();
+                        $(cell).html(start + rowLoop + 1);
+                    });
                 }
             });
             
