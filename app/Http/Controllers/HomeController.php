@@ -77,14 +77,18 @@ class HomeController extends Controller
                 
             case 'perawat':
             case 'operator':
+                // Gunakan buildPasienQuery() dan buildVisitingQuery() dengan filter district otomatis
                 if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                     $districtId = $user->pustu->district_id;
+                    // Tambahkan filter district otomatis berdasarkan role
+                    $filters['district_id'] = $districtId;
                     return [
-                        'pasien' => $this->buildPasienQueryWithDistrict($districtId, $filters),
-                        'visiting' => $this->buildVisitingQueryWithDistrict($districtId, $filters),
+                        'pasien' => $this->buildPasienQuery($filters),
+                        'visiting' => $this->buildVisitingQuery($filters),
                         'total_pasien' => Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId))->count()
                     ];
                 } else {
+                    // Untuk perawat/operator tanpa pustu, tetap gunakan query user
                     return [
                         'pasien' => $this->buildPasienQueryWithUser($user->id, $filters),
                         'visiting' => $this->buildVisitingQueryWithUser($user->id, $filters),
@@ -183,7 +187,7 @@ class HomeController extends Controller
         $query->whereNotNull('village_id');
         
         if (!empty($filters['district_id'])) {
-            $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+            $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -213,7 +217,7 @@ class HomeController extends Controller
             $query->whereDate('tanggal', '<=', $filters['end_date']);
         }
         if (!empty($filters['district_id'])) {
-            $query->whereHas('pasien.pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+            $query->whereHas('pasien.village.district', fn($q) => $q->where('id', $filters['district_id']));
         }
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
