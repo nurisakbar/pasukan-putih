@@ -94,7 +94,7 @@ class HomeController extends Controller
                     ];
                 }
                 
-            default: // regency role
+            case 'sudinkes':
                 $regencyId = $user->regency_id;
                 return [
                     'pasien' => $this->buildPasienQueryWithRegency($regencyId, $filters),
@@ -103,6 +103,13 @@ class HomeController extends Controller
                         $q->whereHas('pustu.districts.regency', fn($subQ) => $subQ->where('id', $regencyId))
                           ->orWhere('user_id', '-');
                     })->count()
+                ];
+                
+            default: // other roles
+                return [
+                    'pasien' => $this->buildPasienQuery($filters),
+                    'visiting' => $this->buildVisitingQuery($filters),
+                    'total_pasien' => Pasien::count()
                 ];
         }
     }
