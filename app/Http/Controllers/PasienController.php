@@ -637,8 +637,8 @@ class PasienController extends Controller
 
             $exportProgress->updateProgress(90, 'Menyimpan file...');
 
-            // Get file URL
-            $fileUrl = asset('storage/' . $filePath);
+            // Get file URL - ensure proper URL generation
+            $fileUrl = url('storage/' . $filePath);
 
             $exportProgress->markCompleted('Export selesai!', [
                 'file_url' => $fileUrl,
@@ -778,6 +778,35 @@ class PasienController extends Controller
         }
 
         return $query->orderBy('pasiens.created_at', 'desc');
+    }
+
+    /**
+     * Download exported file
+     */
+    public function downloadFile($filename)
+    {
+        try {
+            $filePath = storage_path('app/public/exports/' . $filename);
+            
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->download($filePath, $filename);
+        } catch (\Exception $e) {
+            Log::error('Download file failed: ' . $e->getMessage(), [
+                'filename' => $filename,
+                'user_id' => auth()->user()->id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengunduh file: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 }

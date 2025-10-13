@@ -876,8 +876,34 @@
                                     cancelButtonText: 'Tutup'
                                 }).then((result) => {
                                     if (result.isConfirmed && response.file_url) {
-                                        // Direct download
-                                        window.location.href = response.file_url;
+                                        // Try multiple download methods
+                                        try {
+                                            // Method 1: Use direct download route
+                                            const downloadUrl = `{{ url('pasiens/download') }}/${response.file_name}`;
+                                            const link = document.createElement('a');
+                                            link.href = downloadUrl;
+                                            link.download = response.file_name || 'export_pasien.xlsx';
+                                            link.target = '_blank';
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        } catch (e) {
+                                            // Method 2: Fallback to original URL
+                                            console.log('Download route failed, trying original URL:', e);
+                                            try {
+                                                const link = document.createElement('a');
+                                                link.href = response.file_url;
+                                                link.download = response.file_name || 'export_pasien.xlsx';
+                                                link.target = '_blank';
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            } catch (e2) {
+                                                // Method 3: Final fallback to window.open
+                                                console.log('All methods failed, using window.open:', e2);
+                                                window.open(response.file_url, '_blank');
+                                            }
+                                        }
                                     }
                                 });
                                 return;
@@ -979,8 +1005,34 @@
                                                         // Handle download button click
                                                         Swal.getConfirmButton().onclick = function() {
                                                             if (progress.data && progress.data.file_url) {
-                                                                // Direct download
-                                                                window.location.href = progress.data.file_url;
+                                                                // Try multiple download methods
+                                                                try {
+                                                                    // Method 1: Use direct download route
+                                                                    const downloadUrl = `{{ url('pasiens/download') }}/${progress.data.file_name}`;
+                                                                    const link = document.createElement('a');
+                                                                    link.href = downloadUrl;
+                                                                    link.download = progress.data.file_name || 'export_pasien.xlsx';
+                                                                    link.target = '_blank';
+                                                                    document.body.appendChild(link);
+                                                                    link.click();
+                                                                    document.body.removeChild(link);
+                                                                } catch (e) {
+                                                                    // Method 2: Fallback to original URL
+                                                                    console.log('Download route failed, trying original URL:', e);
+                                                                    try {
+                                                                        const link = document.createElement('a');
+                                                                        link.href = progress.data.file_url;
+                                                                        link.download = progress.data.file_name || 'export_pasien.xlsx';
+                                                                        link.target = '_blank';
+                                                                        document.body.appendChild(link);
+                                                                        link.click();
+                                                                        document.body.removeChild(link);
+                                                                    } catch (e2) {
+                                                                        // Method 3: Final fallback to window.open
+                                                                        console.log('All methods failed, using window.open:', e2);
+                                                                        window.open(progress.data.file_url, '_blank');
+                                                                    }
+                                                                }
                                                             }
                                                             Swal.close();
                                                         };

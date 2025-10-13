@@ -40,6 +40,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     // Export routes
     Route::post('/pasiens/export', [App\Http\Controllers\PasienController::class, 'exportPasien'])->name('pasiens.export');
     Route::get('/export-progress/{exportId}', [App\Http\Controllers\PasienController::class, 'checkExportProgress'])->name('export.progress');
+    Route::get('/pasiens/download/{filename}', [App\Http\Controllers\PasienController::class, 'downloadFile'])->name('pasiens.download');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');
