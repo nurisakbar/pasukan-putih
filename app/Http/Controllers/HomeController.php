@@ -100,7 +100,13 @@ class HomeController extends Controller
                 return [
                     'pasien' => $this->buildPasienQueryWithRegency($regencyId, $filters),
                     'visiting' => $this->buildVisitingQueryWithRegency($regencyId, $filters),
-                    'total_pasien' => Pasien::whereHas('village.district.regency', fn($q) => $q->where('id', $regencyId))->count()
+                    'total_pasien' => Pasien::whereHas('village', function($q) use ($regencyId) {
+                        $q->whereHas('district', function($districtQuery) use ($regencyId) {
+                            $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
+                                $regencyQuery->where('id', $regencyId);
+                            });
+                        });
+                    })->count()
                 ];
                 
             default: // other roles
@@ -184,7 +190,11 @@ class HomeController extends Controller
         $query->whereNotNull('village_id');
         
         if (!empty($filters['district_id'])) {
-            $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
+            $query->whereHas('village', function($q) use ($filters) {
+                $q->whereHas('district', function($districtQuery) use ($filters) {
+                    $districtQuery->where('id', $filters['district_id']);
+                });
+            });
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -214,7 +224,13 @@ class HomeController extends Controller
             $query->whereDate('tanggal', '<=', $filters['end_date']);
         }
         if (!empty($filters['district_id'])) {
-            $query->whereHas('pasien.village.district', fn($q) => $q->where('id', $filters['district_id']));
+            $query->whereHas('pasien', function($q) use ($filters) {
+                $q->whereHas('village', function($villageQuery) use ($filters) {
+                    $villageQuery->whereHas('district', function($districtQuery) use ($filters) {
+                        $districtQuery->where('id', $filters['district_id']);
+                    });
+                });
+            });
         }
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
@@ -258,7 +274,13 @@ class HomeController extends Controller
     private function buildVisitingQueryWithDistrict($districtId, $filters)
     {
         // Ambil semua kunjungan dari pasien di district ini, baik yang memiliki pustu maupun tidak
-        $query = Visiting::whereHas('pasien.village.district', fn($q) => $q->where('id', $districtId));
+        $query = Visiting::whereHas('pasien', function($q) use ($districtId) {
+            $q->whereHas('village', function($villageQuery) use ($districtId) {
+                $villageQuery->whereHas('district', function($districtQuery) use ($districtId) {
+                    $districtQuery->where('id', $districtId);
+                });
+            });
+        });
         $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
@@ -343,11 +365,21 @@ class HomeController extends Controller
     private function buildPasienQueryWithRegency($regencyId, $filters)
     {
         // Ambil semua pasien dari regency ini, baik yang memiliki pustu maupun tidak
-        $query = Pasien::whereHas('village.district.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Pasien::whereHas('village', function($q) use ($regencyId) {
+            $q->whereHas('district', function($districtQuery) use ($regencyId) {
+                $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
+                    $regencyQuery->where('id', $regencyId);
+                });
+            });
+        });
         $query->whereNotNull('village_id');
         
         if (!empty($filters['district_id'])) {
-            $query->whereHas('village.district', fn($q) => $q->where('id', $filters['district_id']));
+            $query->whereHas('village', function($q) use ($filters) {
+                $q->whereHas('district', function($districtQuery) use ($filters) {
+                    $districtQuery->where('id', $filters['district_id']);
+                });
+            });
         }
         if (!empty($filters['village_id'])) {
             $query->where('village_id', $filters['village_id']);
@@ -368,7 +400,15 @@ class HomeController extends Controller
     private function buildVisitingQueryWithRegency($regencyId, $filters)
     {
         // Ambil semua kunjungan dari pasien di regency ini, baik yang memiliki pustu maupun tidak
-        $query = Visiting::whereHas('pasien.village.district.regency', fn($q) => $q->where('id', $regencyId));
+        $query = Visiting::whereHas('pasien', function($q) use ($regencyId) {
+            $q->whereHas('village', function($villageQuery) use ($regencyId) {
+                $villageQuery->whereHas('district', function($districtQuery) use ($regencyId) {
+                    $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
+                        $regencyQuery->where('id', $regencyId);
+                    });
+                });
+            });
+        });
         $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
@@ -378,7 +418,13 @@ class HomeController extends Controller
             $query->whereDate('tanggal', '<=', $filters['end_date']);
         }
         if (!empty($filters['district_id'])) {
-            $query->whereHas('pasien.village.district', fn($q) => $q->where('id', $filters['district_id']));
+            $query->whereHas('pasien', function($q) use ($filters) {
+                $q->whereHas('village', function($villageQuery) use ($filters) {
+                    $villageQuery->whereHas('district', function($districtQuery) use ($filters) {
+                        $districtQuery->where('id', $filters['district_id']);
+                    });
+                });
+            });
         }
         if (!empty($filters['village_id'])) {
             $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
@@ -667,11 +713,15 @@ class HomeController extends Controller
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                $query = Pasien::whereHas('pustu.districts', fn($q) => $q->where('regency_id', $regencyId))
-                    ->where('user_id', '!=', '-') // Exclude SiCarik data
-                    ->where(function($q) {
-                        $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                $query = Pasien::whereHas('pustu', function($q) use ($regencyId) {
+                    $q->whereHas('districts', function($districtQuery) use ($regencyId) {
+                        $districtQuery->where('regency_id', $regencyId);
                     });
+                })
+                ->where('user_id', '!=', '-') // Exclude SiCarik data
+                ->where(function($q) {
+                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                });
                 if (!empty($filters['district_id'])) {
                     $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
                 }
