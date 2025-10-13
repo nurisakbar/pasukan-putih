@@ -158,6 +158,39 @@ class VisitingController extends Controller
             return redirect()->back()->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
         }
 
+        // Validasi untuk kunjungan awal
+        if ($request->status === 'Kunjungan Awal') {
+            // Cek apakah pasien sudah pernah melakukan kunjungan awal
+            $hasInitialVisit = Visiting::where('pasien_id', $pasien->id)
+                ->where('status', 'Kunjungan Awal')
+                ->exists();
+
+            if ($hasInitialVisit) {
+                return redirect()->back()->with('error', 'Pasien sudah pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan awal lagi. Gunakan kunjungan lanjutan.');
+            }
+        }
+
+        // Validasi untuk kunjungan lanjutan
+        if ($request->status === 'Kunjungan Lanjutan') {
+            // Cek apakah pasien sudah pernah melakukan kunjungan awal
+            $hasInitialVisit = Visiting::where('pasien_id', $pasien->id)
+                ->where('status', 'Kunjungan Awal')
+                ->exists();
+
+            if (!$hasInitialVisit) {
+                return redirect()->back()->with('error', 'Pasien belum pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan lanjutan.');
+            }
+
+            // Cek apakah pasien sudah henti layanan
+            $hasStoppedService = HealthForm::whereHas('visiting', function ($q) use ($pasien) {
+                $q->where('pasien_id', $pasien->id);
+            })->whereNotNull('henti_layanan')->exists();
+
+            if ($hasStoppedService) {
+                return redirect()->back()->with('error', 'Pasien sudah henti layanan. Tidak dapat melakukan kunjungan lanjutan.');
+            }
+        }
+
         $validator = Validator::make($request->all(), [
             'tanggal' => 'required|date',
             'status' => 'required|in:Kunjungan Awal,Kunjungan Lanjutan',

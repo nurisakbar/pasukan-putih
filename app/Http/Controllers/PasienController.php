@@ -293,6 +293,7 @@ class PasienController extends Controller
     {
         $search = $request->input('q');
         $currentUser = \Auth::user();
+        $visitType = $request->input('visit_type', 'awal'); // Default to 'awal' for backward compatibility
 
         $query = Pasien::with(['village', 'district', 'regency'])
             ->where(function ($query) use ($search) {
@@ -318,6 +319,22 @@ class PasienController extends Controller
             }
         } elseif ($currentUser->role !== 'superadmin') {
             $query->where('user_id', $currentUser->id);
+        }
+
+        // Filter untuk kunjungan awal: hanya pasien yang belum pernah kunjungan awal
+        if ($visitType === 'awal') {
+            $query->whereDoesntHave('visitings', function ($q) {
+                $q->where('status', 'Kunjungan Awal');
+            });
+        }
+        
+        // Filter untuk kunjungan lanjutan: hanya pasien yang sudah pernah kunjungan awal dan tidak henti layanan
+        if ($visitType === 'lanjutan') {
+            $query->whereHas('visitings', function ($q) {
+                $q->where('status', 'Kunjungan Awal');
+            })->whereDoesntHave('visitings.healthForms', function ($q) {
+                $q->whereNotNull('henti_layanan');
+            });
         }
 
         $pasiens = $query->limit(10)->get();

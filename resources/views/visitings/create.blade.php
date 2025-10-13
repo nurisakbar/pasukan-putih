@@ -255,6 +255,9 @@
                                 <div class="form-group mb-3">
                                     <label for="nik" class="form-label">Nama Pasien</label>
                                     <select id="nik_search" name="nik" class="form-control custom-select-height" style="width: 100%"></select>
+                                    <div id="patient-info" class="form-text text-muted mt-1" style="display: none;">
+                                        <small id="patient-info-text"></small>
+                                    </div>
                                     @error('nik')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -437,7 +440,10 @@
                 dataType: 'json',
                 delay: 300,
                 data: function (params) {
-                    return { q: params.term };
+                    return { 
+                        q: params.term,
+                        visit_type: $('#status').val() === 'Kunjungan Lanjutan' ? 'lanjutan' : 'awal'
+                    };
                 },
                 processResults: function (data) {
                     return { results: data };
@@ -445,9 +451,59 @@
                 cache: true
             }
         });
+        // Handle status change to refresh patient search
+        $('#status').on('change', function() {
+            // Clear current selection
+            $('#nik_search').val(null).trigger('change');
+            $('.id').val('');
+            
+            // Hide patient info
+            document.getElementById('patient-info').style.display = 'none';
+            
+            // Update placeholder based on visit type
+            const isLanjutan = $(this).val() === 'Kunjungan Lanjutan';
+            const isAwal = $(this).val() === 'Kunjungan Awal';
+            $('#nik_search').select2('destroy');
+            $('#nik_search').select2({
+                placeholder: isLanjutan ? 'Pilih pasien yang sudah pernah kunjungan awal' : 
+                           isAwal ? 'Pilih pasien yang belum pernah kunjungan awal' : 
+                           'Masukan NIK atau Nama Pasien',
+                minimumInputLength: 3,
+                ajax: {
+                    url: "{{ route('pasiens.nik') }}",
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return { 
+                            q: params.term,
+                            visit_type: isLanjutan ? 'lanjutan' : 'awal'
+                        };
+                    },
+                    processResults: function (data) {
+                        return { results: data };
+                    },
+                    cache: true
+                }
+            });
+        });
+
         $('#nik_search').on('select2:select', function (e) {
             const pasien = e.params.data.fullData;
             $('.id').val(pasien.id);
+            
+            // Show patient info
+            const visitType = $('#status').val();
+            const patientInfo = document.getElementById('patient-info');
+            const patientInfoText = document.getElementById('patient-info-text');
+            
+            if (visitType === 'Kunjungan Awal') {
+                patientInfoText.textContent = 'Pasien ini belum pernah melakukan kunjungan awal.';
+                patientInfo.style.display = 'block';
+            } else if (visitType === 'Kunjungan Lanjutan') {
+                patientInfoText.textContent = 'Pasien ini sudah pernah melakukan kunjungan awal dan belum henti layanan.';
+                patientInfo.style.display = 'block';
+            }
+            
             // Fetch scheduled dates for selected pasien
             if (pasien.id) {
                 toggleLoading(true);
