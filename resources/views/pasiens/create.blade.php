@@ -27,6 +27,11 @@
             padding-left: 0 !important;
             margin-left: 0 !important;
         }
+
+        /* Sembunyikan form status indicator */
+        #form-status {
+            display: none !important;
+        }
     </style>
 @endpush
 
@@ -233,10 +238,10 @@
                                 </div>
 
                                 <!-- Form Status Indicator -->
-                                <div class="row mt-3" id="form-status" style="display: none;">
+                                <div class="row mt-3" id="form-status" style="display: none !important;">
                                     <div class="col-lg-2 col-md-4"></div>
                                     <div class="col-lg-9 col-md-8">
-                                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                                        <div class="alert alert-info d-flex align-items-center" role="alert" style="display: none !important;">
                                             <i class="bi bi-info-circle me-2"></i>
                                             <span id="form-status-text">Form belum lengkap</span>
                                         </div>
