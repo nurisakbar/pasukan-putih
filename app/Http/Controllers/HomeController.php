@@ -667,7 +667,7 @@ class HomeController extends Controller
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                $query = Pasien::whereHas('pustu.districts.regency', fn($q) => $q->where('id', $regencyId))
+                $query = Pasien::whereHas('pustu.districts', fn($q) => $q->where('regency_id', $regencyId))
                     ->where('user_id', '!=', '-') // Exclude SiCarik data
                     ->where(function($q) {
                         $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
