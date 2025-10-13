@@ -880,7 +880,7 @@
                                     html: `<div class="text-left">
                                         <p><strong>File:</strong> ${response.file_name}</p>
                                         <p><strong>Total Data:</strong> ${response.total_records} records</p>
-                                        <p><strong>URL:</strong> <small>${response.file_url}</small></p>
+                                        <p><strong>URL:</strong> <a href="${response.file_url}" target="_blank" class="text-primary text-decoration-underline" style="word-break: break-all;">${response.file_url}</a></p>
                                     </div>`,
                                     showCancelButton: true,
                                     confirmButtonText: 'Download File',
@@ -965,10 +965,15 @@
                                                     
                                                     // Show additional details if available
                                                     if (progress.data && progress.data.total_records) {
+                                                        let fileUrlHtml = '';
+                                                        if (progress.data.file_url) {
+                                                            fileUrlHtml = `<br><strong>URL:</strong> <a href="${progress.data.file_url}" target="_blank" class="text-primary text-decoration-underline" style="word-break: break-all; font-size: 0.8em;">${progress.data.file_url}</a>`;
+                                                        }
+                                                        
                                                         $('#exportProgressDetails').html(
                                                             `<div class="alert alert-info mb-0">
                                                                 <strong>Total Data:</strong> ${progress.data.total_records} records<br>
-                                                                <strong>File:</strong> ${progress.data.file_name || 'Sedang diproses...'}
+                                                                <strong>File:</strong> ${progress.data.file_name || 'Sedang diproses...'}${fileUrlHtml}
                                                             </div>`
                                                         );
                                                     }
