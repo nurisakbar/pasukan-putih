@@ -862,7 +862,8 @@
                         if (response.success) {
                             // Check if direct export completed immediately
                             if (response.file_url) {
-                                // Direct export completed
+                                // Direct export completed - close loading and show success
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Export Berhasil!',
@@ -875,7 +876,21 @@
                                     cancelButtonText: 'Tutup'
                                 }).then((result) => {
                                     if (result.isConfirmed && response.file_url) {
-                                        window.open(response.file_url, '_blank');
+                                        // Force download by creating a temporary link
+                                        try {
+                                            const link = document.createElement('a');
+                                            link.href = response.file_url;
+                                            link.download = response.file_name;
+                                            link.target = '_blank';
+                                            link.style.display = 'none';
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        } catch (error) {
+                                            // Fallback: open in new tab
+                                            console.log('Download fallback:', error);
+                                            window.open(response.file_url, '_blank');
+                                        }
                                     }
                                 });
                                 return;
@@ -977,7 +992,21 @@
                                                         // Handle download button click
                                                         Swal.getConfirmButton().onclick = function() {
                                                             if (progress.data && progress.data.file_url) {
-                                                                window.open(progress.data.file_url, '_blank');
+                                                                // Force download by creating a temporary link
+                                                                try {
+                                                                    const link = document.createElement('a');
+                                                                    link.href = progress.data.file_url;
+                                                                    link.download = progress.data.file_name || 'export_pasien.xlsx';
+                                                                    link.target = '_blank';
+                                                                    link.style.display = 'none';
+                                                                    document.body.appendChild(link);
+                                                                    link.click();
+                                                                    document.body.removeChild(link);
+                                                                } catch (error) {
+                                                                    // Fallback: open in new tab
+                                                                    console.log('Download fallback:', error);
+                                                                    window.open(progress.data.file_url, '_blank');
+                                                                }
                                                             }
                                                             Swal.close();
                                                         };
