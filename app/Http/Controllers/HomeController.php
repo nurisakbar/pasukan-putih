@@ -76,6 +76,7 @@ class HomeController extends Controller
                 ];
                 
             case 'perawat':
+            case 'operator':
                 if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
                     $districtId = $user->pustu->district_id;
                     return [
