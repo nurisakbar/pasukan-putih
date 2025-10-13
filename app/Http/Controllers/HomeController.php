@@ -81,7 +81,7 @@ class HomeController extends Controller
                     return [
                         'pasien' => $this->buildPasienQueryWithDistrict($districtId, $filters),
                         'visiting' => $this->buildVisitingQueryWithDistrict($districtId, $filters),
-                        'total_pasien' => Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId))->count()
+                        'total_pasien' => Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId))->count()
                     ];
                 } else {
                     return [
@@ -229,7 +229,8 @@ class HomeController extends Controller
     // Role-specific query builders
     private function buildPasienQueryWithDistrict($districtId, $filters)
     {
-        $query = Pasien::whereHas('pustu', fn($q) => $q->where('district_id', $districtId));
+        // Ambil semua pasien dari district ini, baik yang memiliki pustu maupun tidak
+        $query = Pasien::whereHas('village.district', fn($q) => $q->where('id', $districtId));
         $query->whereNotNull('village_id');
         
         if (!empty($filters['village_id'])) {
@@ -250,7 +251,8 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithDistrict($districtId, $filters)
     {
-        $query = Visiting::whereHas('pasien.pustu', fn($q) => $q->where('district_id', $districtId));
+        // Ambil semua kunjungan dari pasien di district ini, baik yang memiliki pustu maupun tidak
+        $query = Visiting::whereHas('pasien.village.district', fn($q) => $q->where('id', $districtId));
         $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
         
         if (!empty($filters['start_date'])) {
