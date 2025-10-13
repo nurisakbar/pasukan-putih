@@ -146,7 +146,7 @@ class VisitingController extends Controller
         $pasien = Pasien::find($request->pasien_id);
 
         if (!$pasien) {
-            return redirect()->back()->with('error', 'Pasien tidak ditemukan.');
+            return redirect()->route('visitings.create')->with('error', 'Pasien tidak ditemukan.');
         }
 
         // Cek apakah pasien sudah memiliki kunjungan di tanggal yang sama
@@ -155,7 +155,7 @@ class VisitingController extends Controller
                         ->first();
 
         if ($existingVisit) {
-            return redirect()->back()->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
+            return redirect()->route('visitings.create')->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
         }
 
         // Validasi untuk kunjungan awal
@@ -166,7 +166,7 @@ class VisitingController extends Controller
                 ->exists();
 
             if ($hasInitialVisit) {
-                return redirect()->back()->with('error', 'Pasien sudah pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan awal lagi. Gunakan kunjungan lanjutan.');
+                return redirect()->route('visitings.create')->with('error', 'Pasien sudah pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan awal lagi. Gunakan kunjungan lanjutan.');
             }
         }
 
@@ -178,7 +178,7 @@ class VisitingController extends Controller
                 ->exists();
 
             if (!$hasInitialVisit) {
-                return redirect()->back()->with('error', 'Pasien belum pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan lanjutan.');
+                return redirect()->route('visitings.create')->with('error', 'Pasien belum pernah melakukan kunjungan awal. Tidak dapat melakukan kunjungan lanjutan.');
             }
 
             // Cek apakah pasien sudah henti layanan
@@ -187,7 +187,7 @@ class VisitingController extends Controller
             })->whereNotNull('henti_layanan')->exists();
 
             if ($hasStoppedService) {
-                return redirect()->back()->with('error', 'Pasien sudah henti layanan. Tidak dapat melakukan kunjungan lanjutan.');
+                return redirect()->route('visitings.create')->with('error', 'Pasien sudah henti layanan. Tidak dapat melakukan kunjungan lanjutan.');
             }
         }
 
@@ -199,7 +199,7 @@ class VisitingController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.create')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -273,7 +273,7 @@ class VisitingController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.edit', $visiting->id)
                 ->withErrors($validator)
                 ->withInput();
         }

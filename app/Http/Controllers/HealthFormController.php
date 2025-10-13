@@ -48,7 +48,7 @@ class HealthFormController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.index')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -207,7 +207,7 @@ class HealthFormController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.index')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -355,7 +355,7 @@ class HealthFormController extends Controller
             }
         }        
 
-        return redirect()->back()
+        return redirect()->route('visitings.index')
             ->with('success', 'Form berhasil diperbarui!');
     }
 

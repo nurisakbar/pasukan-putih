@@ -408,7 +408,7 @@ class PasienController extends Controller
         }
 
         // Jika file tidak ditemukan
-        return redirect()->back()->with('error', 'Template tidak ditemukan.');
+        return redirect()->route('pasiens.index')->with('error', 'Template tidak ditemukan.');
     }
 
     public function getDataPasienCarik(Request $request)
