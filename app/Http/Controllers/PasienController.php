@@ -91,11 +91,10 @@ class PasienController extends Controller
             if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
                 // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
-                $pasienIds = DB::table('pasiens')
-                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
-                    ->where('villages.district_id', $districtId)
-                    ->pluck('pasiens.id');
-                $query->whereIn('pasiens.id', $pasienIds);
+                // Termasuk pasien yang dibuat oleh operator lain di district yang sama
+                $query->whereHas('village.district', function ($q) use ($districtId) {
+                    $q->where('id', $districtId);
+                });
             } else {
                 // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('pasiens.user_id', $currentUser->id);
@@ -310,6 +309,7 @@ class PasienController extends Controller
             if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
                 // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
+                // Termasuk pasien yang dibuat oleh operator lain di district yang sama
                 $query->whereHas('village.district', function ($q) use ($districtId) {
                     $q->where('id', $districtId);
                 });
