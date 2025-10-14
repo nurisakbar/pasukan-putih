@@ -100,13 +100,7 @@ class HomeController extends Controller
                 return [
                     'pasien' => $this->buildPasienQueryWithRegency($regencyId, $filters),
                     'visiting' => $this->buildVisitingQueryWithRegency($regencyId, $filters),
-                    'total_pasien' => Pasien::whereHas('village', function($q) use ($regencyId) {
-                        $q->whereHas('district', function($districtQuery) use ($regencyId) {
-                            $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
-                                $regencyQuery->where('id', $regencyId);
-                            });
-                        });
-                    })->count()
+                    'total_pasien' => $this->getTotalPasienForRegency($regencyId)
                 ];
                 
             default: // other roles
@@ -125,24 +119,30 @@ class HomeController extends Controller
         $totalPasien = $queries['total_pasien'];
 
         // Get patient IDs for current filter
-        $pasienIds = $pasienQuery->pluck('id');
+        // Check if query uses JOIN (for sudinkes role) to determine if we need table prefix
+        $hasJoins = !empty($pasienQuery->getQuery()->joins);
+        $pasienIdColumn = $hasJoins ? 'pasiens.id' : 'id';
+        $visitingPasienIdColumn = !empty($visitingQuery->getQuery()->joins) ? 'visitings.pasien_id' : 'pasien_id';
+        
+        $pasienIds = $pasienQuery->pluck($pasienIdColumn);
         
         // Calculate scheduled patients - use the same visiting query that's already filtered
         $scheduledQuery = $visitingQuery->clone();
-        $sudahDijadwalkan = $scheduledQuery->distinct('pasien_id')->count();
+        $sudahDijadwalkan = $scheduledQuery->distinct($visitingPasienIdColumn)->count();
 
         // Calculate visited patients (those with temperature recorded) - use the same visiting query that's already filtered
         $visitedQuery = $visitingQuery->clone()
             ->whereHas('ttvs', fn($q) => $q->whereNotNull('temperature'));
-        $sudahDikunjungi = $visitedQuery->distinct('pasien_id')->count();
+        $sudahDikunjungi = $visitedQuery->distinct($visitingPasienIdColumn)->count();
 
         // Get latest visit IDs for completion status
         $latestVisitIds = $this->getLatestVisitIds($visitingQuery, $filters);
         
         // Calculate first visits
+        $visitingIdColumn = !empty($visitingQuery->getQuery()->joins) ? 'visitings.id' : 'id';
         $firstVisitIds = $visitingQuery->clone()
-            ->selectRaw('MIN(id) as id')
-            ->groupBy('pasien_id')
+            ->select(DB::raw("MIN($visitingIdColumn) as id"))
+            ->groupBy($visitingPasienIdColumn)
             ->pluck('id');
 
         $currentPasienCount = $pasienQuery->count();
@@ -170,8 +170,8 @@ class HomeController extends Controller
             'data_sasaran_henti_layanan' => $this->getHentiLayananCountQueryBuilder($pasienIds),
             
             // Visit type metrics
-            'jumlah_kunjungan_awal' => $visitingQuery->clone()->whereIn('id', $firstVisitIds)->count(),
-            'jumlah_kunjungan_lanjutan' => $visitingQuery->clone()->whereNotIn('id', $firstVisitIds)->count(),
+            'jumlah_kunjungan_awal' => $visitingQuery->clone()->whereIn($visitingIdColumn, $firstVisitIds)->count(),
+            'jumlah_kunjungan_lanjutan' => $visitingQuery->clone()->whereNotIn($visitingIdColumn, $firstVisitIds)->count(),
             'jumlah_henti_layanan' => $visitingQuery->clone()
                 ->whereHas('healthForms', fn($q) => $q->where('henti_layanan', 'ya'))->count(),
             
@@ -364,32 +364,27 @@ class HomeController extends Controller
 
     private function buildPasienQueryWithRegency($regencyId, $filters)
     {
-        // Ambil semua pasien dari regency ini, baik yang memiliki pustu maupun tidak
-        $query = Pasien::whereHas('village', function($q) use ($regencyId) {
-            $q->whereHas('district', function($districtQuery) use ($regencyId) {
-                $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
-                    $regencyQuery->where('id', $regencyId);
-                });
-            });
-        });
-        $query->whereNotNull('village_id');
+        // Optimized: Use JOIN instead of nested whereHas for better performance
+        $query = Pasien::query()
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->where('regencies.id', $regencyId)
+            ->whereNotNull('pasiens.village_id')
+            ->select('pasiens.*');
         
         if (!empty($filters['district_id'])) {
-            $query->whereHas('village', function($q) use ($filters) {
-                $q->whereHas('district', function($districtQuery) use ($filters) {
-                    $districtQuery->where('id', $filters['district_id']);
-                });
-            });
+            $query->where('districts.id', $filters['district_id']);
         }
         if (!empty($filters['village_id'])) {
-            $query->where('village_id', $filters['village_id']);
+            $query->where('pasiens.village_id', $filters['village_id']);
         }
         if (!empty($filters['data_source'])) {
             if ($filters['data_source'] === 'carik') {
-                $query->where('flag_sicarik', 1);
+                $query->where('pasiens.flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
                 $query->where(function($q) {
-                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                    $q->where('pasiens.flag_sicarik', 0)->orWhereNull('pasiens.flag_sicarik');
                 });
             }
         }
@@ -399,42 +394,34 @@ class HomeController extends Controller
 
     private function buildVisitingQueryWithRegency($regencyId, $filters)
     {
-        // Ambil semua kunjungan dari pasien di regency ini, baik yang memiliki pustu maupun tidak
-        $query = Visiting::whereHas('pasien', function($q) use ($regencyId) {
-            $q->whereHas('village', function($villageQuery) use ($regencyId) {
-                $villageQuery->whereHas('district', function($districtQuery) use ($regencyId) {
-                    $districtQuery->whereHas('regency', function($regencyQuery) use ($regencyId) {
-                        $regencyQuery->where('id', $regencyId);
-                    });
-                });
-            });
-        });
-        $query->whereHas('pasien', function($q) { $q->whereNotNull('village_id'); });
+        // Optimized: Use JOIN instead of nested whereHas for better performance
+        $query = Visiting::query()
+            ->join('pasiens', 'visitings.pasien_id', '=', 'pasiens.id')
+            ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+            ->join('districts', 'villages.district_id', '=', 'districts.id')
+            ->join('regencies', 'districts.regency_id', '=', 'regencies.id')
+            ->where('regencies.id', $regencyId)
+            ->whereNotNull('pasiens.village_id')
+            ->select('visitings.*');
         
         if (!empty($filters['start_date'])) {
-            $query->whereDate('tanggal', '>=', $filters['start_date']);
+            $query->whereDate('visitings.tanggal', '>=', $filters['start_date']);
         }
         if (!empty($filters['end_date'])) {
-            $query->whereDate('tanggal', '<=', $filters['end_date']);
+            $query->whereDate('visitings.tanggal', '<=', $filters['end_date']);
         }
         if (!empty($filters['district_id'])) {
-            $query->whereHas('pasien', function($q) use ($filters) {
-                $q->whereHas('village', function($villageQuery) use ($filters) {
-                    $villageQuery->whereHas('district', function($districtQuery) use ($filters) {
-                        $districtQuery->where('id', $filters['district_id']);
-                    });
-                });
-            });
+            $query->where('districts.id', $filters['district_id']);
         }
         if (!empty($filters['village_id'])) {
-            $query->whereHas('pasien', fn($q) => $q->where('village_id', $filters['village_id']));
+            $query->where('pasiens.village_id', $filters['village_id']);
         }
         if (!empty($filters['data_source'])) {
             if ($filters['data_source'] === 'carik') {
-                $query->whereHas('pasien', fn($q) => $q->where('flag_sicarik', 1));
+                $query->where('pasiens.flag_sicarik', 1);
             } elseif ($filters['data_source'] === 'manual') {
-                $query->whereHas('pasien', function($q) {
-                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
+                $query->where(function($q) {
+                    $q->where('pasiens.flag_sicarik', 0)->orWhereNull('pasiens.flag_sicarik');
                 });
             }
         }
@@ -445,9 +432,15 @@ class HomeController extends Controller
     // Helper methods
     private function getLatestVisitIds($visitingQuery, $filters)
     {
+        // Determine if query uses JOINs to set proper column names
+        $hasJoins = !empty($visitingQuery->getQuery()->joins);
+        $visitingIdColumn = $hasJoins ? 'visitings.id' : 'id';
+        $pasienIdColumn = $hasJoins ? 'visitings.pasien_id' : 'pasien_id';
+        
+        // Don't use select('visitings.*') with GROUP BY - only select what we need
         $query = $visitingQuery->clone()
-            ->selectRaw('MAX(id) as id')
-            ->groupBy('pasien_id');
+            ->select(DB::raw("MAX($visitingIdColumn) as id"))
+            ->groupBy($pasienIdColumn);
         
         return $query->pluck('id');
     }
@@ -713,20 +706,21 @@ class HomeController extends Controller
                 
             default: // regency role (sudinkes)
                 $regencyId = $user->regency_id;
-                $query = Pasien::whereHas('pustu', function($q) use ($regencyId) {
-                    $q->whereHas('districts', function($districtQuery) use ($regencyId) {
-                        $districtQuery->where('regency_id', $regencyId);
-                    });
-                })
-                ->where('user_id', '!=', '-') // Exclude SiCarik data
-                ->where(function($q) {
-                    $q->where('flag_sicarik', 0)->orWhereNull('flag_sicarik');
-                });
+                // Optimized: Use JOIN instead of nested whereHas for better performance
+                $query = Pasien::query()
+                    ->join('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->join('districts', 'villages.district_id', '=', 'districts.id')
+                    ->where('districts.regency_id', $regencyId)
+                    ->where(function($q) {
+                        $q->where('pasiens.flag_sicarik', 0)->orWhereNull('pasiens.flag_sicarik');
+                    })
+                    ->select('pasiens.*');
+                
                 if (!empty($filters['district_id'])) {
-                    $query->whereHas('pustu', fn($q) => $q->where('district_id', $filters['district_id']));
+                    $query->where('districts.id', $filters['district_id']);
                 }
                 if (!empty($filters['village_id'])) {
-                    $query->where('village_id', $filters['village_id']);
+                    $query->where('pasiens.village_id', $filters['village_id']);
                 }
                 return $query;
         }
@@ -765,6 +759,24 @@ class HomeController extends Controller
         return Pasien::where(function($q) use ($user) {
             $q->where('user_id', $user->id)->orWhere('user_id', '-');
         })->count();
+    }
+
+    /**
+     * Get total pasien count for regency - optimized with raw SQL
+     */
+    private function getTotalPasienForRegency($regencyId)
+    {
+        $result = DB::selectOne("
+            SELECT COUNT(DISTINCT p.id) as total
+            FROM pasiens p
+            INNER JOIN villages v ON p.village_id = v.id
+            INNER JOIN districts d ON v.district_id = d.id
+            INNER JOIN regencies r ON d.regency_id = r.id
+            WHERE r.id = ?
+            AND p.deleted_at IS NULL
+        ", [$regencyId]);
+        
+        return $result->total ?? 0;
     }
 
     /**
