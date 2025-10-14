@@ -1015,6 +1015,56 @@
 
                                             <div id="detail_kunjungan_lanjutan"
                                                 style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
+                                                
+                                                <!-- Checklist Dilakukan Oleh -->
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <div class="form-group">
+                                                            <label class="form-label fw-bold">Kunjungan Lanjutan Akan Dilakukan Oleh:</label>
+                                                            <div class="d-flex gap-4">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input dilakukan-oleh-checkbox" type="checkbox" 
+                                                                        name="dilakukan_oleh[]" 
+                                                                        id="dilakukan_perawat" 
+                                                                        value="perawat"
+                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                    <label class="form-check-label" for="dilakukan_perawat">
+                                                                        Perawat
+                                                                    </label>
+                                                                </div>
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input dilakukan-oleh-checkbox" type="checkbox" 
+                                                                        name="dilakukan_oleh[]" 
+                                                                        id="dilakukan_petugas" 
+                                                                        value="petugas_layanan_kesehatan"
+                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                    <label class="form-check-label" for="dilakukan_petugas">
+                                                                        Petugas Layanan Kesehatan Oleh Warga
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Dropdown Operator (muncul jika checkbox petugas dipilih) -->
+                                                <div class="row" id="operator_selection_div" style="display: {{ (is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh)) ? 'block' : 'none' }};">
+                                                    <div class="col-md-6 mb-3">
+                                                        <div class="form-group">
+                                                            <label class="form-label fw-bold">Pilih Petugas Layanan Kesehatan (Operator) <span class="text-danger">*</span></label>
+                                                            <select name="operator_id_lanjutan" id="operator_id_lanjutan" 
+                                                                class="form-select" 
+                                                                data-selected-operator="{{ $visiting->healthForms->operator_id_lanjutan ?? '' }}"
+                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                <option value="">-- Pilih Operator --</option>
+                                                            </select>
+                                                            <small class="text-muted">Wajib diisi jika Petugas Layanan Kesehatan dipilih</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <div class="row">
                                                     <div class="col-md-8 mb-3">
                                                         <div class="form-group">
@@ -1728,6 +1778,77 @@
                 checkbox.addEventListener('change', updateKemandirianLevel);
             });
 
+            // Dilakukan Oleh Checkbox Logic - Show/Hide Operator Dropdown
+            const dilakukanOlehCheckboxes = document.querySelectorAll('.dilakukan-oleh-checkbox');
+            const operatorDiv = document.getElementById('operator_selection_div');
+            const operatorSelect = document.getElementById('operator_id_lanjutan');
+            
+            function toggleOperatorDropdown() {
+                const perawatChecked = document.getElementById('dilakukan_perawat')?.checked || false;
+                const petugasChecked = document.getElementById('dilakukan_petugas')?.checked || false;
+                
+                // Show dropdown jika:
+                // 1. Hanya Petugas dipilih, ATAU
+                // 2. Kedua checkbox dipilih (Perawat + Petugas)
+                if (petugasChecked) {
+                    if (operatorDiv) operatorDiv.style.display = 'block';
+                    if (operatorSelect) operatorSelect.required = true;
+                    
+                    // Load operator list jika belum ada
+                    if (operatorSelect && operatorSelect.options.length <= 1) {
+                        loadOperatorList();
+                    }
+                } else {
+                    // Hide jika hanya Perawat atau tidak ada yang dipilih
+                    if (operatorDiv) operatorDiv.style.display = 'none';
+                    if (operatorSelect) {
+                        operatorSelect.required = false;
+                        operatorSelect.value = '';
+                    }
+                }
+            }
+            
+            function loadOperatorList() {
+                fetch('{{ route("users.operators") }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (operatorSelect) {
+                            // Clear existing options except first one
+                            operatorSelect.innerHTML = '<option value="">-- Pilih Operator --</option>';
+                            
+                            const selectedOperatorId = operatorSelect.dataset.selectedOperator;
+                            
+                            data.forEach(operator => {
+                                const option = document.createElement('option');
+                                option.value = operator.id;
+                                option.textContent = operator.text || operator.name;
+                                
+                                // Set selected jika ini operator yang tersimpan
+                                if (selectedOperatorId && operator.id === selectedOperatorId) {
+                                    option.selected = true;
+                                }
+                                
+                                operatorSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading operators:', error);
+                    });
+            }
+            
+            // Listen checkbox changes
+            dilakukanOlehCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', toggleOperatorDropdown);
+            });
+            
+            // Initial check on page load
+            const initialOperatorId = operatorSelect?.dataset.selectedOperator;
+            if (initialOperatorId && operatorDiv?.style.display === 'block') {
+                loadOperatorList();
+            }
+            toggleOperatorDropdown();
+
             // Kunjungan Lanjutan Logic
             const kunjunganLanjutanSelect = document.getElementById('kunjungan_lanjutan');
             if (kunjunganLanjutanSelect) {
@@ -1735,6 +1856,7 @@
                     const val = this.value;
                     const detailDiv = document.getElementById('detail_kunjungan_lanjutan');
                     const formHentiDiv = document.getElementById('form_henti_layanan');
+                    const dilakukanOlehCheckboxes = document.querySelectorAll('.dilakukan-oleh-checkbox');
                     const permasalahanTextarea = document.getElementById('permasalahan_lanjutan');
                     const tanggalInput = document.querySelector('input[name="tanggal_kunjungan"]');
                     const alasanSelect = document.getElementById('alasan_henti_layanan');
@@ -1742,8 +1864,11 @@
                     if (val === 'ya') {
                         if (detailDiv) detailDiv.style.display = 'block';
                         if (formHentiDiv) formHentiDiv.style.display = 'none';
+                        
+                        // Set required untuk field kunjungan lanjutan (minimal 1 checkbox)
                         if (permasalahanTextarea) permasalahanTextarea.required = true;
                         if (tanggalInput) tanggalInput.required = true;
+                        
                         if (alasanSelect) {
                             alasanSelect.required = false;
                             alasanSelect.value = '';
@@ -1751,6 +1876,11 @@
                     } else if (val === 'tidak') {
                         if (detailDiv) detailDiv.style.display = 'none';
                         if (formHentiDiv) formHentiDiv.style.display = 'block';
+                        
+                        // Remove required dan reset semua field
+                        dilakukanOlehCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
                         if (permasalahanTextarea) {
                             permasalahanTextarea.required = false;
                             permasalahanTextarea.value = '';
@@ -1763,6 +1893,11 @@
                     } else {
                         if (detailDiv) detailDiv.style.display = 'none';
                         if (formHentiDiv) formHentiDiv.style.display = 'none';
+                        
+                        // Remove required dan reset semua field
+                        dilakukanOlehCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
                         if (permasalahanTextarea) {
                             permasalahanTextarea.required = false;
                             permasalahanTextarea.value = '';

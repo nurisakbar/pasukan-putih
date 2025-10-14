@@ -92,6 +92,8 @@ class HealthForm extends Model
         'kemandirian',
         'tingkat_kemandirian',
         'kunjungan_lanjutan',
+        'dilakukan_oleh',
+        'operator_id_lanjutan',
         'permasalahan_lanjutan',
         'tanggal_kunjungan',
         'catatan_keperawatan',
@@ -151,6 +153,7 @@ class HealthForm extends Model
         // Other casts
         'keluaran' => 'integer',
         'kemandirian' => 'array',
+        'dilakukan_oleh' => 'array',
         'tanggal_kunjungan' => 'date',
     ];
 

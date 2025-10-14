@@ -608,6 +608,9 @@ class VisitingController extends Controller
             'kemandirian' => 'nullable|array',
             'catatan_keperawatan' => 'nullable|string|max:1000',
             'kunjungan_lanjutan' => 'nullable|string|in:ya,tidak',
+            'dilakukan_oleh' => 'nullable|array',
+            'dilakukan_oleh.*' => 'nullable|string|in:perawat,petugas_layanan_kesehatan',
+            'operator_id_lanjutan' => 'nullable|exists:users,id',
             'permasalahan_lanjutan' => 'nullable|string|max:1000',
             'tanggal_kunjungan' => 'nullable|date',
             'henti_layanan' => 'nullable|string|in:kenaikan_nilai_aks,meninggal,menolak,pindah_domisili',
@@ -635,6 +638,17 @@ class VisitingController extends Controller
             }
         } else {
             $data['kemandirian'] = json_encode([]);
+        }
+
+        // Handle dilakukan_oleh array
+        if ($request->has('dilakukan_oleh')) {
+            if (is_array($request->dilakukan_oleh)) {
+                $data['dilakukan_oleh'] = json_encode($request->dilakukan_oleh);
+            } else {
+                $data['dilakukan_oleh'] = json_encode([]);
+            }
+        } else {
+            $data['dilakukan_oleh'] = json_encode([]);
         }
 
         // Process screening status fields
@@ -718,10 +732,106 @@ class VisitingController extends Controller
                 'user_id' => auth()->id(),
                 ...$data
             ]);
+            $healthForm = $newHealthForm;
             \Log::info('Health Form Created:', ['id' => $newHealthForm->id, 'data' => $data]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Form Kesehatan berhasil disimpan']);
+        // Auto-create visiting jika kunjungan lanjutan = "ya"
+        $newVisitingCreated = false;
+        if ($request->kunjungan_lanjutan === 'ya' && $request->tanggal_kunjungan) {
+            $newVisitingCreated = $this->autoCreateFollowUpVisiting($visiting, $healthForm, $request);
+        }
+
+        $message = 'Form Kesehatan berhasil disimpan';
+        if ($newVisitingCreated) {
+            $message .= ' dan Kunjungan Lanjutan berhasil dibuat untuk tanggal ' . 
+                        \Carbon\Carbon::parse($request->tanggal_kunjungan)->format('d/m/Y');
+        }
+
+        return response()->json(['success' => true, 'message' => $message]);
+    }
+
+    /**
+     * Auto-create visiting untuk kunjungan lanjutan
+     */
+    private function autoCreateFollowUpVisiting($currentVisiting, $healthForm, $request)
+    {
+        try {
+            // Cek apakah sudah ada visiting dengan tanggal yang sama
+            $existingVisiting = Visiting::where('pasien_id', $currentVisiting->pasien_id)
+                ->whereDate('tanggal', $request->tanggal_kunjungan)
+                ->first();
+
+            if ($existingVisiting) {
+                \Log::info('Visiting sudah ada untuk tanggal ini:', [
+                    'pasien_id' => $currentVisiting->pasien_id,
+                    'tanggal' => $request->tanggal_kunjungan
+                ]);
+                return false;
+            }
+
+            // Tentukan user_id dan operator_id berdasarkan dilakukan_oleh
+            $userId = auth()->id();
+            $operatorId = null;
+            
+            $dilakukanOleh = $request->dilakukan_oleh ?? [];
+            
+            // Logic penentuan operator_id:
+            // 1. Jika hanya perawat → user_id = auth()->id(), operator_id = null (perawat handle sendiri)
+            // 2. Jika hanya petugas → user_id = auth()->id(), operator_id = dari dropdown (operator yang dipilih)
+            // 3. Jika kedua checkbox dipilih → user_id = auth()->id(), operator_id = dari dropdown (kolaborasi perawat & operator)
+            
+            if (is_array($dilakukanOleh)) {
+                $perawatDipilih = in_array('perawat', $dilakukanOleh);
+                $petugasDipilih = in_array('petugas_layanan_kesehatan', $dilakukanOleh);
+                
+                if ($petugasDipilih) {
+                    // Jika petugas dipilih (baik sendiri atau dengan perawat) → gunakan operator_id_lanjutan dari dropdown
+                    $operatorId = $request->operator_id_lanjutan ?? null;
+                }
+                // Jika hanya perawat dipilih, operator_id tetap null
+            }
+
+            // Create visiting baru
+            $newVisiting = Visiting::create([
+                'pasien_id' => $currentVisiting->pasien_id,
+                'user_id' => $userId,
+                'operator_id' => $operatorId,
+                'tanggal' => $request->tanggal_kunjungan,
+                'status' => 'Kunjungan Lanjutan',
+            ]);
+
+            // Create related records untuk visiting baru
+            Ttv::create([
+                'kunjungan_id' => $newVisiting->id,
+            ]);
+
+            HealthForm::create([
+                'visiting_id' => $newVisiting->id,
+                'user_id' => auth()->id(),
+            ]);
+
+            SkriningAdl::create([
+                'visiting_id' => $newVisiting->id,
+                'pasien_id' => $currentVisiting->pasien_id,
+                'pemeriksa_id' => auth()->id(),
+            ]);
+
+            \Log::info('Auto-created follow-up visiting:', [
+                'new_visiting_id' => $newVisiting->id,
+                'tanggal' => $newVisiting->tanggal,
+                'status' => $newVisiting->status
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error('Error auto-creating follow-up visiting:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
+        }
     }
 
     /**
