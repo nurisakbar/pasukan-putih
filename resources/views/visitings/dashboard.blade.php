@@ -991,8 +991,7 @@
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <div class="form-group">
-                                                        <label class="form-label fw-bold">Apakah akan dikunjungi kembali
-                                                            oleh perawat?</label>
+                                                        <label class="form-label fw-bold">apakah akan di lakukan kunjungan lanjutan?</label>
                                                         <select name="kunjungan_lanjutan" id="kunjungan_lanjutan"
                                                             class="form-select">
                                                             <option value="">Pilih...</option>
