@@ -344,7 +344,7 @@
                                         @csrf
 
                                         <!-- Riwayat Penyakit -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-primary mb-3">
                                                 Riwayat Penyakit
                                             </h4>
@@ -354,7 +354,7 @@
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox"
                                                                 id="no_disease" name="no_disease" value="1"
-                                                                {{ $visiting->healthForms->no_disease ? 'checked' : '' }}>
+                                                                {{ $visiting->healthForms->no_disease ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label" for="no_disease">
                                                                 Tidak Ada Riwayat Penyakit
                                                             </label>
@@ -385,7 +385,7 @@
                                                             <input class="form-check-input disease-checkbox"
                                                                 type="checkbox" id="{{ $key }}"
                                                                 name="diseases[]" value="{{ $key }}"
-                                                                {{ in_array($key, $selectedDiseases) ? 'checked' : '' }}>
+                                                                {{ in_array($key, $selectedDiseases) ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label"
                                                                 for="{{ $key }}">{{ $label }}</label>
                                                         </div>
@@ -397,11 +397,11 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input disease-checkbox" type="checkbox"
                                                             id="cancer" name="diseases[]" value="cancer"
-                                                            {{ in_array('cancer', $selectedDiseases) ? 'checked' : '' }}>
+                                                            {{ in_array('cancer', $selectedDiseases) ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <label class="form-check-label" for="cancer">Kanker</label>
                                                     </div>
                                                     <select class="form-control conditional-field cancer-type mt-2"
-                                                        name="cancer_type"
+                                                        name="cancer_type" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}
                                                         style="display: {{ in_array('cancer', $selectedDiseases) ? 'block' : 'none' }}">
                                                         <option value="">Pilih Jenis Kanker</option>
                                                         <option value="breast"
@@ -442,12 +442,12 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input disease-checkbox" type="checkbox"
                                                             id="lung_disease" name="diseases[]" value="lung_disease"
-                                                            {{ in_array('lung_disease', $selectedDiseases) ? 'checked' : '' }}>
+                                                            {{ in_array('lung_disease', $selectedDiseases) ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <label class="form-check-label" for="lung_disease">Penyakit
                                                             Paru</label>
                                                     </div>
                                                     <select class="form-control conditional-field lung-disease-type mt-2"
-                                                        name="lung_disease_type"
+                                                        name="lung_disease_type" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}
                                                         style="display: {{ in_array('lung_disease', $selectedDiseases) ? 'block' : 'none' }}">
                                                         <option value="">Pilih Penyakit Paru</option>
                                                         <option value="tbc"
@@ -463,25 +463,28 @@
                                             </div>
                                         </div>
 
-                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
-                                            <!-- Skrining ILP Perawat -->
+                                        @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin' || (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
+                                            <!-- Skrining ILP -->
                                             <div class="mb-4">
                                                 <h4 class="text-success mb-3">
                                                     Skrining ILP
                                                 </h4>
                                                 <div class="row">
+                                                    @php
+                                                        $isOperatorKunjunganAwal = auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal';
+                                                    @endphp
                                                     @foreach ($screenings as $screening)
                                                         <div class="col-md-6 col-lg-4 mb-3">
                                                             <div class="form-group">
-                                                                <label
-                                                                    class="form-label">{{ $screening['label'] }}</label>
+                                                                <label class="form-label">{{ $screening['label'] }}</label>
                                                                 <div class="mb-2">
                                                                     <div class="form-check form-check-inline">
                                                                         <input class="form-check-input" type="radio"
                                                                             name="screening_{{ $screening['id'] }}"
                                                                             id="{{ $screening['id'] }}_yes"
                                                                             value="1"
-                                                                            {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}>
+                                                                            {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                         <label class="form-check-label"
                                                                             for="{{ $screening['id'] }}_yes">Ya</label>
                                                                     </div>
@@ -489,7 +492,8 @@
                                                                         <input class="form-check-input" type="radio"
                                                                             name="screening_{{ $screening['id'] }}"
                                                                             id="{{ $screening['id'] }}_no" value="0"
-                                                                            {{ $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}>
+                                                                            {{ $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                         <label class="form-check-label"
                                                                             for="{{ $screening['id'] }}_no">Tidak</label>
                                                                     </div>
@@ -497,6 +501,7 @@
                                                                 <select
                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"
                                                                     name="{{ $screening['id'] }}_status"
+                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}
                                                                     style="display: {{ $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
                                                                     <option value="">Pilih Status</option>
                                                                     <option value="penderita"
@@ -568,7 +573,7 @@
                                         </div>
 
                                         <!-- Dukungan Keluarga/Pendamping -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-warning mb-3">
                                                 DUKUNGAN KELUARGA / PENDAMPING
                                             </h4>
@@ -578,7 +583,7 @@
                                                         <label for="caregiver_availability">Apakah ada keluarga/pendamping
                                                             yang membantu?</label>
                                                         <select name="caregiver_availability" id="caregiver_availability"
-                                                            class="form-control">
+                                                            class="form-control" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <option value="">Pilih...</option>
                                                             <option value="selalu"
                                                                 {{ $visiting->healthForms->caregiver_availability == 'selalu' ? 'selected' : '' }}>
@@ -596,7 +601,7 @@
                                         </div>
 
                                         <!-- Permasalahan di Luar Kesehatan -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-secondary mb-3">
                                                 PERMASALAHAN DI LUAR KESEHATAN
                                             </h4>
@@ -606,7 +611,7 @@
                                                         <label>Apakah ada permasalahan di luar kesehatan yang mempengaruhi
                                                             kondisi pasien?</label>
                                                         <select name="non_medical_issues_status"
-                                                            id="non_medical_issues_status" class="form-control">
+                                                            id="non_medical_issues_status" class="form-control" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <option value="">Pilih...</option>
                                                             <option value="1"
                                                                 {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'selected' : '' }}>
@@ -623,13 +628,13 @@
                                                 <div class="form-group">
                                                     <label for="non_medical_issues_text">Tuliskan permasalahan di luar
                                                         kesehatan</label>
-                                                    <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control" rows="3">{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
+                                                    <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control" rows="3" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Jenis Gangguan Fungsional -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-danger mb-3">
                                                 Jenis gangguan fungsional yang dialami
                                             </h4>
@@ -672,7 +677,7 @@
                                                                     <input class="form-check-input" type="radio"
                                                                         name="{{ $gangguan['id'] }}"
                                                                         id="{{ $gangguan['id'] }}_yes" value="1"
-                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }}>
+                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                                     <label class="form-check-label"
                                                                         for="{{ $gangguan['id'] }}_yes">Ya</label>
                                                                 </div>
@@ -680,7 +685,7 @@
                                                                     <input class="form-check-input" type="radio"
                                                                         name="{{ $gangguan['id'] }}"
                                                                         id="{{ $gangguan['id'] }}_no" value="0"
-                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }}>
+                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                                     <label class="form-check-label"
                                                                         for="{{ $gangguan['id'] }}_no">Tidak</label>
                                                                 </div>
@@ -852,7 +857,7 @@
                                         @endif
 
                                         <!-- Keluaran dari perawatan yang dilakukan -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif" >
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-info mb-3">
                                                 Keluaran dari perawatan yang dilakukan
                                             </h4>
@@ -863,21 +868,21 @@
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio"
                                                                 name="keluaran" id="keluaran_meningkat" value="1"
-                                                                {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}>
+                                                                {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label"
                                                                 for="keluaran_meningkat">Meningkat</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio"
                                                                 name="keluaran" id="keluaran_tetap" value="2"
-                                                                {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}>
+                                                                {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label"
                                                                 for="keluaran_tetap">Tetap</label>
                                                         </div>
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio"
                                                                 name="keluaran" id="keluaran_menurun" value="3"
-                                                                {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}>
+                                                                {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label"
                                                                 for="keluaran_menurun">Menurun</label>
                                                         </div>
@@ -888,7 +893,7 @@
                                                         <label for="keterangan"
                                                             class="form-label fw-bold">Keterangan</label>
                                                         <textarea class="form-control" id="keterangan" name="keterangan" rows="4"
-                                                            placeholder="Keterangan hasil perawatan">{{ $visiting->healthForms->keterangan ?? '' }}</textarea>
+                                                            placeholder="Keterangan hasil perawatan" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->keterangan ?? '' }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -919,7 +924,7 @@
                                         </div>
 
                                         <!-- Tingkat Kemandirian Keluarga -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator') d-none @endif">
+                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                             <h4 class="text-success mb-3">
                                                 Tingkat Kemandirian Keluarga
                                             </h4>
@@ -951,7 +956,7 @@
                                                             <input class="form-check-input kemandirian-checkbox"
                                                                 type="checkbox" id="{{ $key }}"
                                                                 name="kemandirian[]" value="{{ $key }}"
-                                                                {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}>
+                                                                {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }} {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                             <label class="form-check-label"
                                                                 for="{{ $key }}">{{ $label }}</label>
                                                         </div>
@@ -986,7 +991,7 @@
                                         @endif
 
                                         <!-- Kunjungan Lanjutan -->
-                                        <div class="mb-4 @if(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal') d-none @endif">
+                                        <div class="mb-4">
                                             <h4 class="text-primary mb-3">
                                                 KUNJUNGAN LANJUTAN
                                             </h4>
@@ -995,7 +1000,7 @@
                                                     <div class="form-group">
                                                         <label class="form-label fw-bold">apakah akan di lakukan kunjungan lanjutan?</label>
                                                         <select name="kunjungan_lanjutan" id="kunjungan_lanjutan"
-                                                            class="form-select">
+                                                            class="form-select" {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                             <option value="">Pilih...</option>
                                                             <option value="ya"
                                                                 {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>
@@ -1016,7 +1021,7 @@
                                                             <label class="form-label fw-bold">Permasalahan kesehatan yang
                                                                 perlu kunjungan lanjutan</label>
                                                             <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3"
-                                                                placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan">{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
+                                                                placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan" {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1027,7 +1032,7 @@
                                                                 lanjutan</label>
                                                             <input type="date" class="form-control"
                                                                 name="tanggal_kunjungan" placeholder="Tanggal"
-                                                                value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}">
+                                                                value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}" {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1040,7 +1045,7 @@
                                                         <div class="form-group">
                                                             <label class="form-label fw-bold">Alasan Henti Layanan</label>
                                                             <select name="henti_layanan" id="alasan_henti_layanan"
-                                                                class="form-select">
+                                                                class="form-select" {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                                 <option value="">Pilih...</option>
                                                                 <option value="kenaikan_nilai_aks"
                                                                     {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>
