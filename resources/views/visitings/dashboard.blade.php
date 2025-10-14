@@ -251,7 +251,7 @@
                                                 <div class="input-group">
                                                     <input type="text" class="form-control" id="blood_pressure"
                                                         placeholder="Contoh: 120/80" name="blood_pressure"
-                                                        value="{{ $visiting->ttvs->first()->blood_pressure ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->blood_pressure ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">mmHg</span>
                                                 </div>
                                             </div>
@@ -260,7 +260,7 @@
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="pulse"
                                                         placeholder="Contoh: 80" name="pulse"
-                                                        value="{{ $visiting->ttvs->first()->pulse ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->pulse ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">bpm</span>
                                                 </div>
                                             </div>
@@ -269,7 +269,7 @@
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
                                                         id="temperature" placeholder="Contoh: 36.8" name="temperature"
-                                                        value="{{ $visiting->ttvs->first()->temperature ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->temperature ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">°C</span>
                                                 </div>
                                             </div>
@@ -278,7 +278,7 @@
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="oxygen"
                                                         placeholder="Contoh: 98" name="oxygen_saturation"
-                                                        value="{{ $visiting->ttvs->first()->oxygen_saturation ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->oxygen_saturation ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">%</span>
                                                 </div>
                                             </div>
@@ -294,7 +294,7 @@
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
                                                         id="weight" placeholder="Contoh: 65.5" name="weight"
-                                                        value="{{ $visiting->ttvs->first()->weight ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->weight ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">kg</span>
                                                 </div>
                                             </div>
@@ -303,7 +303,7 @@
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" class="form-control"
                                                         id="height" placeholder="Contoh: 170.0" name="height"
-                                                        value="{{ $visiting->ttvs->first()->height ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->height ?? '' }}" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>
                                                     <span class="input-group-text">cm</span>
                                                 </div>
                                             </div>
@@ -327,9 +327,11 @@
                                                     <span>Auto-save aktif</span>
                                                 </small>
                                             </div>
+                                            @if(!(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
                                             <button type="submit" class="btn btn-success text-white">
                                                 <i class="fas fa-save me-2"></i>Simpan TTV
                                             </button>
+                                            @endif
                                         </div>
                                     </form>
                                 </div>
@@ -1083,7 +1085,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Mengendalikan rangsangan BAB</label>
-                                                    <select name="bab_control" class="form-select">
+                                                    <select name="bab_control" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 0 ? 'selected' : '' }}>
@@ -1100,7 +1102,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Mengendalikan rangsangan BAK</label>
-                                                    <select name="bak_control" class="form-select">
+                                                    <select name="bak_control" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 0 ? 'selected' : '' }}>
@@ -1119,7 +1121,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Makan minum</label>
-                                                    <select name="eating" class="form-select">
+                                                    <select name="eating" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 0 ? 'selected' : '' }}>
@@ -1136,7 +1138,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Naik turun tangga</label>
-                                                    <select name="stairs" class="form-select">
+                                                    <select name="stairs" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 0 ? 'selected' : '' }}>
@@ -1155,7 +1157,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Mandi</label>
-                                                    <select name="bathing" class="form-select">
+                                                    <select name="bathing" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 0 ? 'selected' : '' }}>
@@ -1173,7 +1175,7 @@
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Bergerak dari kursi roda ke tempat
                                                         tidur</label>
-                                                    <select name="transfer" class="form-select">
+                                                    <select name="transfer" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 0 ? 'selected' : '' }}>
@@ -1192,7 +1194,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Berjalan di tempat rata</label>
-                                                    <select name="walking" class="form-select">
+                                                    <select name="walking" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 0 ? 'selected' : '' }}>
@@ -1209,7 +1211,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Berpakaian</label>
-                                                    <select name="dressing" class="form-select">
+                                                    <select name="dressing" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 0 ? 'selected' : '' }}>
@@ -1228,7 +1230,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Membersihkan diri</label>
-                                                    <select name="grooming" class="form-select">
+                                                    <select name="grooming" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 0 ? 'selected' : '' }}>
@@ -1245,7 +1247,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
                                                     <label class="form-label fw-bold">Penggunaan WC</label>
-                                                    <select name="toilet_use" class="form-select">
+                                                    <select name="toilet_use" class="form-select" {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 0 ? 'selected' : '' }}>
@@ -1284,9 +1286,11 @@
                                                     <span>Auto-save aktif</span>
                                                 </small>
                                             </div>
+                                            @if(!(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
                                             <button type="submit" class="btn btn-success">
                                                 <i class="fas fa-save me-2"></i>Simpan Skrining AKS
                                             </button>
+                                            @endif
                                         </div>
                                     </form>
                                 </div>
