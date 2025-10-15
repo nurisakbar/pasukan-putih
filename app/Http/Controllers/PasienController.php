@@ -82,7 +82,8 @@ class PasienController extends Controller
             ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
             ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->whereNull('pasiens.deleted_at');
+            ->whereNull('pasiens.deleted_at')
+            ->whereNotNull('pasiens.village_id');
 
         // Apply user role restrictions
         if ($currentUser->role === 'sudinkes') {
@@ -736,7 +737,8 @@ class PasienController extends Controller
             ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
             ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->leftjoin('provinces', 'provinces.id', '=', 'regencies.province_id')
-            ->whereNull('pasiens.deleted_at');
+            ->whereNull('pasiens.deleted_at')
+            ->whereNotNull('pasiens.village_id');
 
         // Apply user role restrictions
         if ($user->role === 'sudinkes') {
