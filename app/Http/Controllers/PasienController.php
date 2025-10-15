@@ -75,13 +75,11 @@ class PasienController extends Controller
                 'pasiens.flag_sicarik',
                 'villages.name as village_name',
                 'districts.name as district_name',
-                'regencies.name as regency_name',
-                'pustus.jenis_faskes'
+                'regencies.name as regency_name'
             )
-            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
             ->whereNull('pasiens.deleted_at')
             ->whereNotNull('pasiens.village_id');
 
@@ -729,14 +727,12 @@ class PasienController extends Controller
                 'districts.name as district_name',
                 'regencies.name as regency_name',
                 'provinces.name as province_name',
-                'pustus.jenis_faskes',
                 'pasiens.created_at'
             )
-            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->leftjoin('provinces', 'provinces.id', '=', 'regencies.province_id')
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->join('provinces', 'provinces.id', '=', 'regencies.province_id')
             ->whereNull('pasiens.deleted_at')
             ->whereNotNull('pasiens.village_id');
 
