@@ -518,6 +518,365 @@
                                             </div>
                                         @endif
 
+                                        <!-- SKILAS Detail Section -->
+                                        @if ($visiting->healthForms && $visiting->healthForms->screening_elderly == 1)
+                                            <div class="mb-4" id="skilas-detail-section">
+                                                <div class="card border-info">
+                                                    <div class="card-header bg-info text-white">
+                                                        <h5 class="mb-0">
+                                                            <i class="fas fa-clipboard-check me-2"></i>
+                                                            SKRINING LANSIA SEDERHANA (SKILAS)
+                                                        </h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th style="width: 30%">Kondisi Prioritas Terkait<br>Penurunan Kapasitas Intrinsik</th>
+                                                                        <th style="width: 50%">Pertanyaan</th>
+                                                                        <th style="width: 20%">Hasil<br><small>(beri tanda centang sesuai hasil pemeriksaan)</small></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <!-- 1. Penurunan Kognitif -->
+                                                                    <tr>
+                                                                        <td><strong>Penurunan Kognitif</strong></td>
+                                                                        <td>
+                                                                            <ol class="mb-0">
+                                                                                <li>Mengingat tiga kata: bunga, pintu, nasi (sebagai contoh)</li>
+                                                                                <li>Orientasi terhadap waktu dan tempat:
+                                                                                    <ul>
+                                                                                        <li>Tanggal berapa sekarang?</li>
+                                                                                        <li>Dimana Anda berada sekarang (rumah, klinik, dsb.)?</li>
+                                                                                    </ul>
+                                                                                </li>
+                                                                                <li>Ulangi ketiga kata tadi</li>
+                                                                            </ol>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_kognitif" value="0" id="skilas_kognitif_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_kognitif == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_kognitif_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_kognitif" value="1" id="skilas_kognitif_ya"
+                                                                                    {{ $visiting->healthForms->skilas_kognitif == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_kognitif_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                            <small class="d-block text-muted mt-1">
+                                                                                Salah pada salah satu pertanyaan / Tidak dapat mengulang ketiga kata
+                                                                            </small>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <!-- 2. Keterbatasan Mobilisasi -->
+                                                                    <tr>
+                                                                        <td><strong>Keterbatasan Mobilisasi</strong></td>
+                                                                        <td>
+                                                                            <strong>Tes berdiri dari kursi:</strong> Berdiri dari kursi lima kali tanpa menggunakan tangan.<br>
+                                                                            Apakah orang lanjut usia dapat berdiri dari kursi sebanyak 5 kali dalam 14 detik?
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_mobilisasi" value="1" id="skilas_mobilisasi_ya"
+                                                                                    {{ $visiting->healthForms->skilas_mobilisasi == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_mobilisasi_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_mobilisasi" value="0" id="skilas_mobilisasi_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_mobilisasi == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_mobilisasi_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <!-- 3. Malnutrisi -->
+                                                                    <tr>
+                                                                        <td rowspan="3"><strong>Malnutrisi</strong></td>
+                                                                        <td>
+                                                                            1. Apakah berat badan Anda berkurang >3 kg dalam 3 bulan terakhir atau <strong>pakaian menjadi lebih longgar?</strong>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_berat_badan" value="0" id="skilas_malnutrisi_berat_badan_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_berat_badan == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_berat_badan_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_berat_badan" value="1" id="skilas_malnutrisi_berat_badan_ya"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_berat_badan == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_berat_badan_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            2. Apakah Anda hilang nafsu makan Atau mengalami kesulitan makan (misal batuk atau tersedak saat makan, menggunakan selang makan/sonde)?
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_nafsu_makan" value="0" id="skilas_malnutrisi_nafsu_makan_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_nafsu_makan == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_nafsu_makan_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_nafsu_makan" value="1" id="skilas_malnutrisi_nafsu_makan_ya"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_nafsu_makan == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_nafsu_makan_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            3. <strong>Apakah ukuran lingkar lengan atas (LILA) <21 cm?</strong>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_lila" value="0" id="skilas_malnutrisi_lila_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_lila == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_lila_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_malnutrisi_lila" value="1" id="skilas_malnutrisi_lila_ya"
+                                                                                    {{ $visiting->healthForms->skilas_malnutrisi_lila == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_malnutrisi_lila_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <!-- 4. Gangguan Penglihatan -->
+                                                                    <tr>
+                                                                        <td><strong>Gangguan Penglihatan</strong></td>
+                                                                        <td>
+                                                                            1. Apakah Anda mengalami masalah pada mata: kesulitan melihat jauh, membaca, penyakit mata, atau sedang dalam pengobatan medis (diabetes, tekanan darah tinggi)?<br>
+                                                                            Jika tidak, lakukan <strong>TES MELIHAT</strong><br>
+                                                                            2. <strong>TES MELIHAT</strong>: Apakah jawaban hitung jari benar dalam 3 kali berturut turut?
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input skilas-penglihatan-radio" type="radio" 
+                                                                                    name="skilas_penglihatan" value="1" id="skilas_penglihatan_ya"
+                                                                                    {{ $visiting->healthForms->skilas_penglihatan == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_penglihatan_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input skilas-penglihatan-radio" type="radio" 
+                                                                                    name="skilas_penglihatan" value="0" id="skilas_penglihatan_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_penglihatan == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_penglihatan_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div id="skilas_penglihatan_keterangan_div" class="mt-2" style="display: {{ $visiting->healthForms->skilas_penglihatan == 0 ? 'block' : 'none' }}">
+                                                                                <textarea class="form-control" name="skilas_penglihatan_keterangan" 
+                                                                                    rows="2" placeholder="Keterangan hasil tes melihat atau gangguan penglihatan..."
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_penglihatan_keterangan ?? '' }}</textarea>
+                                                                            </div>
+                                                                            <small class="d-block text-muted mt-1">
+                                                                                Ya = Ada masalah/perlu tes lebih lanjut<br>
+                                                                                Tidak = Tidak ada gangguan (hasil tes MELIHAT baik)
+                                                                            </small>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <!-- 5. Gangguan Pendengaran -->
+                                                                    <tr>
+                                                                        <td><strong>Gangguan Pendengaran</strong></td>
+                                                                        <td>
+                                                                            Mendengar bisikan saat <strong>TES BISIK</strong>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_pendengaran" value="1" id="skilas_pendengaran_ya"
+                                                                                    {{ $visiting->healthForms->skilas_pendengaran == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_pendengaran_ya">
+                                                                                    Ya (Dapat mendengar)
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_pendengaran" value="0" id="skilas_pendengaran_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_pendengaran == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_pendengaran_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <small class="d-block text-muted mt-1">
+                                                                                Jika tidak dapat dilakukan Tes Bisik, rujuk Puskesmas
+                                                                            </small>
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <!-- 6. Gejala Depresi -->
+                                                                    <tr>
+                                                                        <td rowspan="2"><strong>Gejala Depresi</strong></td>
+                                                                        <td>
+                                                                            Selama dua minggu terakhir, apakah Anda merasa terganggu oleh:<br>
+                                                                            • Perasaan sedih, tertekan, atau putus asa
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_depresi_sedih" value="0" id="skilas_depresi_sedih_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_depresi_sedih == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_depresi_sedih_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_depresi_sedih" value="1" id="skilas_depresi_sedih_ya"
+                                                                                    {{ $visiting->healthForms->skilas_depresi_sedih == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_depresi_sedih_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            • Sedikit minat atau kesenangan dalam melakukan sesuatu
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_depresi_minat" value="0" id="skilas_depresi_minat_tidak"
+                                                                                    {{ $visiting->healthForms->skilas_depresi_minat == 0 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_depresi_minat_tidak">
+                                                                                    Tidak
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="form-check form-check-inline">
+                                                                                <input class="form-check-input" type="radio" 
+                                                                                    name="skilas_depresi_minat" value="1" id="skilas_depresi_minat_ya"
+                                                                                    {{ $visiting->healthForms->skilas_depresi_minat == 1 ? 'checked' : '' }}
+                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                                <label class="form-check-label" for="skilas_depresi_minat_ya">
+                                                                                    Ya
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        
+                                                        <!-- Rujukan Section -->
+                                                        <div class="card border-warning mt-3">
+                                                            <div class="card-header bg-warning">
+                                                                <h6 class="mb-0"><i class="fas fa-hospital me-2"></i>Rujukan</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label fw-bold">Apakah Pasien Perlu Rujukan?</label>
+                                                                    <div>
+                                                                        <div class="form-check form-check-inline">
+                                                                            <input class="form-check-input skilas-rujukan-radio" type="radio" 
+                                                                                name="skilas_rujukan" value="0" id="skilas_rujukan_tidak"
+                                                                                {{ $visiting->healthForms->skilas_rujukan == 0 ? 'checked' : '' }}
+                                                                                {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label" for="skilas_rujukan_tidak">
+                                                                                Tidak
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="form-check form-check-inline">
+                                                                            <input class="form-check-input skilas-rujukan-radio" type="radio" 
+                                                                                name="skilas_rujukan" value="1" id="skilas_rujukan_ya"
+                                                                                {{ $visiting->healthForms->skilas_rujukan == 1 ? 'checked' : '' }}
+                                                                                {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label" for="skilas_rujukan_ya">
+                                                                                Ya
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div id="skilas_rujukan_keterangan_div" class="mt-3" style="display: {{ $visiting->healthForms->skilas_rujukan == 1 ? 'block' : 'none' }}">
+                                                                    <label class="form-label fw-bold">Keterangan Rujukan</label>
+                                                                    <textarea class="form-control" name="skilas_rujukan_keterangan" 
+                                                                        rows="3" placeholder="Masukkan keterangan rujukan (tujuan, alasan, dll)..."
+                                                                        {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_rujukan_keterangan ?? '' }}</textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Hasil Tindakan Keperawatan Section -->
+                                                        <div class="card border-success mt-3">
+                                                            <div class="card-header bg-success text-white">
+                                                                <h6 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Hasil Tindakan Keperawatan</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <textarea class="form-control" name="skilas_hasil_tindakan_keperawatan" 
+                                                                    rows="4" placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada pasien..."
+                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_hasil_tindakan_keperawatan ?? '' }}</textarea>
+                                                                <small class="text-muted d-block mt-2">
+                                                                    <i class="fas fa-info-circle me-1"></i>
+                                                                    Dokumentasikan semua tindakan keperawatan yang telah diberikan dan hasil yang dicapai.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="alert alert-info mt-3">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            <strong>Catatan:</strong> Centang checkbox yang sesuai dengan hasil pemeriksaan. Jika ada item yang tercentang, berarti pasien memerlukan perhatian lebih lanjut atau rujukan.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         <!-- Skor AKS -->
                                         <div class="mb-4" style="display: none">
                                             <h4 class="text-info mb-3">
@@ -1750,6 +2109,64 @@
                     if (statusSelect) {
                         statusSelect.style.display = this.value === '1' ? 'block' : 'none';
                         if (this.value !== '1') statusSelect.value = '';
+                    }
+                    
+                    // Toggle SKILAS detail section
+                    if (this.name === 'screening_elderly') {
+                        const skilasSection = document.getElementById('skilas-detail-section');
+                        if (skilasSection) {
+                            skilasSection.style.display = this.value === '1' ? 'block' : 'none';
+                            // Reset all SKILAS checkboxes if hiding
+                            if (this.value !== '1') {
+                                const skilasCheckboxes = skilasSection.querySelectorAll('input[type="checkbox"]');
+                                skilasCheckboxes.forEach(cb => cb.checked = false);
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Initialize SKILAS section visibility on page load
+            const elderlyScreeningChecked = document.querySelector('input[name="screening_elderly"]:checked');
+            if (elderlyScreeningChecked) {
+                const skilasSection = document.getElementById('skilas-detail-section');
+                if (skilasSection) {
+                    skilasSection.style.display = elderlyScreeningChecked.value === '1' ? 'block' : 'none';
+                }
+            }
+            
+            // SKILAS Gangguan Penglihatan - Toggle keterangan textarea
+            const skilaspenglihatan_radios = document.querySelectorAll('.skilas-penglihatan-radio');
+            const keteranganDiv = document.getElementById('skilas_penglihatan_keterangan_div');
+            
+            skilaspenglihatan_radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (keteranganDiv) {
+                        // Show textarea if "Tidak" is selected (value = 0)
+                        keteranganDiv.style.display = this.value === '0' ? 'block' : 'none';
+                        // Clear textarea if hiding
+                        if (this.value !== '0') {
+                            const textarea = keteranganDiv.querySelector('textarea');
+                            if (textarea) textarea.value = '';
+                        }
+                    }
+                });
+            });
+            
+            // SKILAS Rujukan - Toggle keterangan textarea
+            const skilasrujukan_radios = document.querySelectorAll('.skilas-rujukan-radio');
+            const rujukanKeteranganDiv = document.getElementById('skilas_rujukan_keterangan_div');
+            
+            skilasrujukan_radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (rujukanKeteranganDiv) {
+                        // Show textarea if "Ya" is selected (value = 1)
+                        rujukanKeteranganDiv.style.display = this.value === '1' ? 'block' : 'none';
+                        // Clear textarea if hiding
+                        if (this.value !== '1') {
+                            const textarea = rujukanKeteranganDiv.querySelector('textarea');
+                            if (textarea) textarea.value = '';
+                        }
                     }
                 });
             });

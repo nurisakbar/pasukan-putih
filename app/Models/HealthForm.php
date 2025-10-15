@@ -101,6 +101,20 @@ class HealthForm extends Model
         'non_medical_issues_status',
         'non_medical_issues_text',
         'caregiver_availability',
+        // SKILAS fields - Simple checkbox
+        'skilas_kognitif',
+        'skilas_mobilisasi',
+        'skilas_malnutrisi_berat_badan',
+        'skilas_malnutrisi_nafsu_makan',
+        'skilas_malnutrisi_lila',
+        'skilas_penglihatan',
+        'skilas_penglihatan_keterangan',
+        'skilas_pendengaran',
+        'skilas_depresi_sedih',
+        'skilas_depresi_minat',
+        'skilas_rujukan',
+        'skilas_rujukan_keterangan',
+        'skilas_hasil_tindakan_keperawatan',
     ];
 
     /**
@@ -155,6 +169,17 @@ class HealthForm extends Model
         'kemandirian' => 'array',
         'dilakukan_oleh' => 'array',
         'tanggal_kunjungan' => 'date',
+        // SKILAS casts - Simple checkbox
+        'skilas_kognitif' => 'boolean',
+        'skilas_mobilisasi' => 'boolean',
+        'skilas_malnutrisi_berat_badan' => 'boolean',
+        'skilas_malnutrisi_nafsu_makan' => 'boolean',
+        'skilas_malnutrisi_lila' => 'boolean',
+        'skilas_penglihatan' => 'boolean',
+        'skilas_pendengaran' => 'boolean',
+        'skilas_depresi_sedih' => 'boolean',
+        'skilas_depresi_minat' => 'boolean',
+        'skilas_rujukan' => 'boolean',
     ];
 
     /**

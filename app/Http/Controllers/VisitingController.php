@@ -577,6 +577,20 @@ class VisitingController extends Controller
             'screening_fitness' => 'nullable|integer|in:0,1',
             'screening_dental' => 'nullable|integer|in:0,1',
             'screening_elderly' => 'nullable|integer|in:0,1',
+            // SKILAS fields - Simple checkbox (Ya/Tidak)
+            'skilas_kognitif' => 'nullable|integer|in:0,1',
+            'skilas_mobilisasi' => 'nullable|integer|in:0,1',
+            'skilas_malnutrisi_berat_badan' => 'nullable|integer|in:0,1',
+            'skilas_malnutrisi_nafsu_makan' => 'nullable|integer|in:0,1',
+            'skilas_malnutrisi_lila' => 'nullable|integer|in:0,1',
+            'skilas_penglihatan' => 'nullable|integer|in:0,1',
+            'skilas_penglihatan_keterangan' => 'nullable|string|max:1000',
+            'skilas_pendengaran' => 'nullable|integer|in:0,1',
+            'skilas_depresi_sedih' => 'nullable|integer|in:0,1',
+            'skilas_depresi_minat' => 'nullable|integer|in:0,1',
+            'skilas_rujukan' => 'nullable|integer|in:0,1',
+            'skilas_rujukan_keterangan' => 'nullable|string|max:1000',
+            'skilas_hasil_tindakan_keperawatan' => 'nullable|string|max:2000',
             // Additional fields
             'caregiver_availability' => 'nullable|string|in:selalu,kadang,tidak',
             'non_medical_issues_status' => 'nullable|integer|in:0,1',
@@ -717,6 +731,54 @@ class VisitingController extends Controller
             } else {
                 $data[$field] = null;
             }
+        }
+
+        // Process SKILAS fields - Simple checkboxes
+        $skilasFields = [
+            'skilas_kognitif',
+            'skilas_mobilisasi',
+            'skilas_malnutrisi_berat_badan',
+            'skilas_malnutrisi_nafsu_makan',
+            'skilas_malnutrisi_lila',
+            'skilas_penglihatan',
+            'skilas_pendengaran',
+            'skilas_depresi_sedih',
+            'skilas_depresi_minat',
+        ];
+
+        foreach ($skilasFields as $field) {
+            if ($request->has($field)) {
+                $data[$field] = $request->input($field) == 1 ? 1 : 0;
+            } else {
+                $data[$field] = null;
+            }
+        }
+        
+        // Process SKILAS keterangan fields
+        if ($request->has('skilas_penglihatan_keterangan')) {
+            $data['skilas_penglihatan_keterangan'] = $request->input('skilas_penglihatan_keterangan');
+        } else {
+            $data['skilas_penglihatan_keterangan'] = null;
+        }
+        
+        // Process SKILAS rujukan
+        if ($request->has('skilas_rujukan')) {
+            $data['skilas_rujukan'] = $request->input('skilas_rujukan') == 1 ? 1 : 0;
+        } else {
+            $data['skilas_rujukan'] = null;
+        }
+        
+        if ($request->has('skilas_rujukan_keterangan')) {
+            $data['skilas_rujukan_keterangan'] = $request->input('skilas_rujukan_keterangan');
+        } else {
+            $data['skilas_rujukan_keterangan'] = null;
+        }
+        
+        // Process SKILAS hasil tindakan keperawatan
+        if ($request->has('skilas_hasil_tindakan_keperawatan')) {
+            $data['skilas_hasil_tindakan_keperawatan'] = $request->input('skilas_hasil_tindakan_keperawatan');
+        } else {
+            $data['skilas_hasil_tindakan_keperawatan'] = null;
         }
 
         // Log the data being processed
