@@ -521,15 +521,11 @@
                                         <!-- SKILAS Detail Section -->
                                         @if ($visiting->healthForms && $visiting->healthForms->screening_elderly == 1)
                                             <div class="mb-4" id="skilas-detail-section">
-                                                <div class="card border-info">
-                                                    <div class="card-header bg-info text-white">
-                                                        <h5 class="mb-0">
-                                                            <i class="fas fa-clipboard-check me-2"></i>
-                                                            SKRINING LANSIA SEDERHANA (SKILAS)
-                                                        </h5>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="table-responsive">
+                                                <h5 class="mb-3 text-info">
+                                                    <i class="fas fa-clipboard-check me-2"></i>
+                                                    SKRINING LANSIA SEDERHANA (SKILAS)
+                                                </h5>
+                                                <div class="table-responsive">
                                                             <table class="table table-bordered">
                                                                 <thead class="table-light">
                                                                     <tr>
@@ -814,66 +810,60 @@
                                                         </div>
                                                         
                                                         <!-- Rujukan Section -->
-                                                        <div class="card border-warning mt-3">
-                                                            <div class="card-header bg-warning">
-                                                                <h6 class="mb-0"><i class="fas fa-hospital me-2"></i>Rujukan</h6>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-bold">Apakah Pasien Perlu Rujukan?</label>
-                                                                    <div>
-                                                                        <div class="form-check form-check-inline">
-                                                                            <input class="form-check-input skilas-rujukan-radio" type="radio" 
-                                                                                name="skilas_rujukan" value="0" id="skilas_rujukan_tidak"
-                                                                                {{ $visiting->healthForms->skilas_rujukan == 0 ? 'checked' : '' }}
-                                                                                {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
-                                                                            <label class="form-check-label" for="skilas_rujukan_tidak">
-                                                                                Tidak
-                                                                            </label>
-                                                                        </div>
-                                                                        <div class="form-check form-check-inline">
-                                                                            <input class="form-check-input skilas-rujukan-radio" type="radio" 
-                                                                                name="skilas_rujukan" value="1" id="skilas_rujukan_ya"
-                                                                                {{ $visiting->healthForms->skilas_rujukan == 1 ? 'checked' : '' }}
-                                                                                {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
-                                                                            <label class="form-check-label" for="skilas_rujukan_ya">
-                                                                                Ya
-                                                                            </label>
-                                                                        </div>
+                                                        <div class="mt-4">
+                                                            <h6 class="mb-3 text-warning">
+                                                                <i class="fas fa-hospital me-2"></i>Rujukan
+                                                            </h6>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Apakah Pasien Perlu Rujukan?</label>
+                                                                <div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input skilas-rujukan-radio" type="radio" 
+                                                                            name="skilas_rujukan" value="0" id="skilas_rujukan_tidak"
+                                                                            {{ $visiting->healthForms->skilas_rujukan == 0 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                        <label class="form-check-label" for="skilas_rujukan_tidak">
+                                                                            Tidak
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input skilas-rujukan-radio" type="radio" 
+                                                                            name="skilas_rujukan" value="1" id="skilas_rujukan_ya"
+                                                                            {{ $visiting->healthForms->skilas_rujukan == 1 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                        <label class="form-check-label" for="skilas_rujukan_ya">
+                                                                            Ya
+                                                                        </label>
                                                                     </div>
                                                                 </div>
-                                                                
-                                                                <div id="skilas_rujukan_keterangan_div" class="mt-3" style="display: {{ $visiting->healthForms->skilas_rujukan == 1 ? 'block' : 'none' }}">
-                                                                    <label class="form-label fw-bold">Keterangan Rujukan</label>
-                                                                    <textarea class="form-control" name="skilas_rujukan_keterangan" 
-                                                                        rows="3" placeholder="Masukkan keterangan rujukan (tujuan, alasan, dll)..."
-                                                                        {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_rujukan_keterangan ?? '' }}</textarea>
-                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div id="skilas_rujukan_keterangan_div" class="mt-3" style="display: {{ $visiting->healthForms->skilas_rujukan == 1 ? 'block' : 'none' }}">
+                                                                <label class="form-label fw-bold">Keterangan Rujukan</label>
+                                                                <textarea class="form-control" name="skilas_rujukan_keterangan" 
+                                                                    rows="3" placeholder="Masukkan keterangan rujukan (tujuan, alasan, dll)..."
+                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_rujukan_keterangan ?? '' }}</textarea>
                                                             </div>
                                                         </div>
                                                         
                                                         <!-- Hasil Tindakan Keperawatan Section -->
-                                                        <div class="card border-success mt-3">
-                                                            <div class="card-header bg-success text-white">
-                                                                <h6 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Hasil Tindakan Keperawatan</h6>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <textarea class="form-control" name="skilas_hasil_tindakan_keperawatan" 
-                                                                    rows="4" placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada pasien..."
-                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_hasil_tindakan_keperawatan ?? '' }}</textarea>
-                                                                <small class="text-muted d-block mt-2">
-                                                                    <i class="fas fa-info-circle me-1"></i>
-                                                                    Dokumentasikan semua tindakan keperawatan yang telah diberikan dan hasil yang dicapai.
-                                                                </small>
-                                                            </div>
+                                                        <div class="mt-4">
+                                                            <h6 class="mb-3 text-success">
+                                                                <i class="fas fa-notes-medical me-2"></i>Hasil Tindakan Keperawatan
+                                                            </h6>
+                                                            <textarea class="form-control" name="skilas_hasil_tindakan_keperawatan" 
+                                                                rows="4" placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada pasien..."
+                                                                {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_hasil_tindakan_keperawatan ?? '' }}</textarea>
+                                                            <small class="text-muted d-block mt-2">
+                                                                <i class="fas fa-info-circle me-1"></i>
+                                                                Dokumentasikan semua tindakan keperawatan yang telah diberikan dan hasil yang dicapai.
+                                                            </small>
                                                         </div>
                                                         
                                                         <div class="alert alert-info mt-3">
                                                             <i class="fas fa-info-circle me-2"></i>
                                                             <strong>Catatan:</strong> Centang checkbox yang sesuai dengan hasil pemeriksaan. Jika ada item yang tercentang, berarti pasien memerlukan perhatian lebih lanjut atau rujukan.
                                                         </div>
-                                                    </div>
-                                                </div>
                                             </div>
                                         @endif
 
