@@ -71,7 +71,7 @@
                     <!-- Action Buttons -->
                     <div class="mt-4 pt-3 border-top">
                         <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                            @if (auth()->user()->role != 'sudinkes')
+                            @if (auth()->user()->role != 'sudinkes' && auth()->user()->role != 'operator')
                                 <a href="{{ route('pasiens.asuhanKeluarga', $pasien->id) }}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-plus-circle me-1"></i> Asuhan Keluarga
                                 </a>
