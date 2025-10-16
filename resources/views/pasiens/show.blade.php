@@ -112,7 +112,7 @@
                                 @forelse($kunjungan as $item)
                                 <tr>
                                     <td class="align-middle">
-                                        <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
+                                        <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm" @if(auth()->user()->role == 'operator') disabled aria-disabled="true" tabindex="-1" @endif>
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     </td>
