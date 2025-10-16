@@ -104,6 +104,7 @@
                                 <table id="pasiens-table" class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
+                                            <th>NO</th>
                                             <th>NAMA</th>
                                             <th>NIK</th>
                                             <th>JENIS KELAMIN</th>
@@ -172,6 +173,15 @@
         .table td {
             font-size: 0.875rem;
             vertical-align: middle;
+        }
+        
+        /* Number column styling */
+        #pasiens-table thead th:first-child,
+        #pasiens-table tbody td:first-child {
+            text-align: center;
+            width: 50px;
+            max-width: 50px;
+            min-width: 50px;
         }
         
         /* Responsive table styling */
@@ -476,45 +486,55 @@
                 },
                 columns: [
                     { 
+                        data: null,
+                        name: 'no',
+                        orderable: false,
+                        searchable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { 
                         data: 'name', 
                         name: 'name',
-                        responsivePriority: 1
+                        responsivePriority: 2
                     },
                     { 
                         data: 'nik', 
                         name: 'nik',
-                        responsivePriority: 1
+                        responsivePriority: 2
                     },
                     { 
                         data: 'jenis_kelamin', 
                         name: 'jenis_kelamin',
-                        responsivePriority: 2
+                        responsivePriority: 3
                     },
                     { 
                         data: 'alamat', 
                         name: 'alamat',
-                        responsivePriority: 3
+                        responsivePriority: 4
                     },
                     { 
                         data: 'rt_rw', 
                         name: 'rt_rw', 
                         orderable: false,
-                        responsivePriority: 4
+                        responsivePriority: 5
                     },
                     { 
                         data: 'regency_name', 
                         name: 'regencies.name',
-                        responsivePriority: 5
+                        responsivePriority: 6
                     },
                     { 
                         data: 'district_name', 
                         name: 'districts.name',
-                        responsivePriority: 6
+                        responsivePriority: 7
                     },
                     { 
                         data: 'village_name', 
                         name: 'villages.name',
-                        responsivePriority: 7
+                        responsivePriority: 8
                     }
                 ],
                 responsive: {
