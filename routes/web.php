@@ -102,6 +102,14 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
 
     //visiting
+    // API: get scheduled counts per date untuk kalender (harus sebelum resource)
+    Route::get('/visitings/scheduled-counts', [\App\Http\Controllers\VisitingController::class, 'getScheduledCounts'])
+        ->name('visitings.scheduledCounts');
+    
+    // API: get detailed scheduled patients for a specific date
+    Route::get('/visitings/scheduled-patients', [\App\Http\Controllers\VisitingController::class, 'getScheduledPatients'])
+        ->name('visitings.scheduledPatients');
+    
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
     Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
     Route::get('/visitings/{id}/dashboard', [\App\Http\Controllers\VisitingController::class, 'dashboard'])->name('visitings.dashboard');

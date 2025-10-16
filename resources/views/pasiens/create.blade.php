@@ -40,7 +40,7 @@
                         <div class="card-header bg-white">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasara</h5>
+                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasaran</h5>
                                 </div>
                             </div>
                         </div>

@@ -918,4 +918,119 @@ class VisitingController extends Controller
 
         return response()->json(['dates' => $dates]);
     }
+
+    /**
+     * Return count of scheduled patients per date (untuk kalender)
+     */
+    public function getScheduledCounts(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Ambil tanggal awal dan akhir (default 6 bulan ke depan)
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->addMonths(6)->endOfMonth()->format('Y-m-d'));
+
+        // Query untuk menghitung jumlah visiting per tanggal
+        $query = Visiting::whereBetween('tanggal', [$startDate, $endDate]);
+        
+        // Filter berdasarkan role user (sama seperti di index)
+        if ($user->role === 'perawat' || $user->role === 'operator') {
+            if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $user->pustu->district_id;
+                $pasienIds = DB::table('pasiens')
+                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->where('villages.district_id', $districtId)
+                    ->pluck('pasiens.id');
+                $query->whereIn('pasien_id', $pasienIds);
+            } else {
+                $query->where(function($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('operator_id', $user->id);
+                });
+            }
+        } elseif ($user->role === 'sudinkes') {
+            $pasienIds = DB::table('pasiens')
+                ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+                ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+                ->where('regencies.id', $user->regency_id)
+                ->pluck('pasiens.id');
+            $query->whereIn('pasien_id', $pasienIds);
+        }
+
+        // Group by tanggal dan hitung jumlahnya
+        $counts = $query->select(
+                DB::raw('DATE(tanggal) as date'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('date')
+            ->get()
+            ->pluck('count', 'date')
+            ->toArray();
+
+        return response()->json($counts);
+    }
+
+    /**
+     * Return detailed list of scheduled patients for a specific date
+     */
+    public function getScheduledPatients(Request $request)
+    {
+        $user = auth()->user();
+        $date = $request->input('date');
+        
+        if (!$date) {
+            return response()->json(['success' => false, 'message' => 'Tanggal tidak valid']);
+        }
+
+        // Query untuk mengambil detail pasien yang terjadwal di tanggal tertentu
+        $query = Visiting::with(['pasien', 'user'])
+            ->whereDate('tanggal', $date);
+        
+        // Filter berdasarkan role user (sama seperti di index)
+        if ($user->role === 'perawat' || $user->role === 'operator') {
+            if ($user->pustu && $user->pustu->jenis_faskes === 'puskesmas') {
+                $districtId = $user->pustu->district_id;
+                $pasienIds = DB::table('pasiens')
+                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                    ->where('villages.district_id', $districtId)
+                    ->pluck('pasiens.id');
+                $query->whereIn('pasien_id', $pasienIds);
+            } else {
+                $query->where(function($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('operator_id', $user->id);
+                });
+            }
+        } elseif ($user->role === 'sudinkes') {
+            $pasienIds = DB::table('pasiens')
+                ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
+                ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+                ->leftJoin('regencies', 'districts.regency_id', '=', 'regencies.id')
+                ->where('regencies.id', $user->regency_id)
+                ->pluck('pasiens.id');
+            $query->whereIn('pasien_id', $pasienIds);
+        }
+
+        $visitings = $query->orderBy('created_at', 'asc')->get();
+
+        // Format data untuk response
+        $patients = $visitings->map(function ($visiting) {
+            return [
+                'id' => $visiting->pasien->id,
+                'name' => $visiting->pasien->name,
+                'nik' => $visiting->pasien->nik,
+                'alamat' => $visiting->pasien->alamat,
+                'status' => $visiting->status,
+                'created_at' => $visiting->created_at->format('H:i'),
+                'diperiksa_oleh' => $visiting->user ? $visiting->user->name : 'Tidak diketahui',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'patients' => $patients,
+            'count' => $patients->count()
+        ]);
+    }
 }
