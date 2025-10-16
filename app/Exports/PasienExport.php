@@ -7,9 +7,12 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class PasienExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
+class PasienExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithEvents
 {
     protected $pasiens;
 
@@ -85,6 +88,19 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             'J' => 20,  // Kecamatan
             'K' => 20,  // Kelurahan
             'L' => 20,  // Tanggal Dibuat
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Format kolom NIK (kolom C) sebagai text agar tidak menjadi scientific notation
+                $highestRow = $event->sheet->getHighestRow();
+                $event->sheet->getStyle('C2:C' . $highestRow)
+                    ->getNumberFormat()
+                    ->setFormatCode(NumberFormat::FORMAT_TEXT);
+            },
         ];
     }
 }
