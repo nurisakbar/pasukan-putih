@@ -1304,8 +1304,7 @@
                                                                     data-bs-target="#perawatanYangDilakukanCollapse"
                                                                     aria-expanded="false"
                                                                     aria-controls="perawatanYangDilakukanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Perawatan
-                                                                    Yang Dilakukan
+                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindak Keperawatan
                                                                 </button>
                                                             </h4>
                                                         </div>
@@ -1314,8 +1313,8 @@
                                                                 <div class="row">
                                                                     <div class="col-md-8">
                                                                         <div class="form-group">
-                                                                            <label>Perawatan yang dilakukan</label>
-                                                                            <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
+                                                                            <label>hasil tindak keperawatan</label>
+                                                                            <textarea name="perawatan" class="form-control" placeholder="Masukkan hasil tindak keperawatan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
                                                                         </div>
                                                                     </div>
                                                                 </div>
