@@ -52,7 +52,7 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
         return [
             $counter,
             $pasien->name,
-            "\t" . $pasien->nik, // Prefix dengan tab agar Excel treat sebagai text
+            "'" . $pasien->nik, // Prefix dengan single quote agar Excel treat sebagai text
             $pasien->jenis_kelamin,
             $pasien->tanggal_lahir ? \Carbon\Carbon::parse($pasien->tanggal_lahir)->format('d/m/Y') : '',
             $pasien->alamat,
