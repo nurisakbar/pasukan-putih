@@ -112,9 +112,21 @@
                                 @forelse($kunjungan as $item)
                                 <tr>
                                     <td class="align-middle">
-                                        <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm" @if(auth()->user()->role == 'operator') disabled aria-disabled="true" tabindex="-1" @endif>
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        @if(auth()->user()->role == 'operator')
+                                            @if($item->status == 'Kunjungan Lanjutan')
+                                                <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            @else
+                                                <button class="btn btn-secondary btn-sm" disabled title="Operator hanya dapat mengedit Kunjungan Lanjutan">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            @endif
+                                        @else
+                                            <a href="{{ route('visitings.editKunjunganFromPasiens', $item->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @endif
                                     </td>
                                     <td class="align-middle">{{ $item->user->name ?? 'Belum ada' }}</td>
                                     <td class="align-middle">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') ?? 'Belum ada' }}</td>
