@@ -190,22 +190,29 @@
                                 </div>
 
                                 <!-- Action Buttons -->
+                                @php
+                                    $isDisabled = (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal');
+                                @endphp
                                 <div class="d-grid gap-2">
-                                    <a href="{{ route('visitings.edit', $visiting->id) }}"
-                                        class="btn btn-warning btn-sm text-white w-100">
-                                        <i class="fas fa-edit me-1"></i><span class="d-none d-sm-inline">Edit
-                                            Kunjungan</span><span class="d-sm-none">Edit</span>
-                                    </a>
-                                    <form method="POST" action="{{ route('visitings.destroy', $visiting->id) }}"
-                                        style="display: inline;"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus kunjungan untuk {{ $visiting->pasien->name }}?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm w-100">
-                                            <i class="fas fa-trash me-1"></i><span class="d-none d-sm-inline">Hapus
-                                                Kunjungan</span><span class="d-sm-none">Hapus</span>
-                                        </button>
-                                    </form>
+                                    @if(!$isDisabled)
+                                        <a href="{{ route('visitings.edit', $visiting->id) }}"
+                                            class="btn btn-warning btn-sm text-white w-100">
+                                            <i class="fas fa-edit me-1"></i>
+                                            <span class="d-none d-sm-inline">Edit Kunjungan</span>
+                                            <span class="d-sm-none">Edit</span>
+                                        </a>
+                                        <form method="POST" action="{{ route('visitings.destroy', $visiting->id) }}"
+                                            style="display: inline;"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus kunjungan untuk {{ $visiting->pasien->name }}?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                <i class="fas fa-trash me-1"></i>
+                                                <span class="d-none d-sm-inline">Hapus Kunjungan</span>
+                                                <span class="d-sm-none">Hapus</span>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -782,8 +789,8 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <td>
-                                                                            3. <strong>Apakah ukuran lingkar lengan atas
-                                                                                (LILA) <21 cm?</strong>
+                                                                            3. Apakah ukuran lingkar lengan atas
+                                                                                (LILA) < 21 cm? 
                                                                         </td>
                                                                         <td>
                                                                             <div class="form-check form-check-inline">
@@ -1018,83 +1025,83 @@
                                             </div>
                                         </div>
 
-                                        <!-- Skor AKS -->
-                                        <div class="mb-4">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h4 class="text-info mb-0">
-                                                        <button class="btn btn-link text-decoration-none text-info p-0"
-                                                            type="button" data-bs-toggle="collapse"
-                                                            data-bs-target="#skorAksCollapse" aria-expanded="false"
-                                                            aria-controls="skorAksCollapse">
-                                                            <i class="fas fa-chevron-down me-2"></i>Skor AKS (Activities of
-                                                            Daily Living)
-                                                        </button>
-                                                    </h4>
-                                                </div>
-                                                <div class="collapse" id="skorAksCollapse">
-                                                    <div class="card-body">
-                                                        <div class="row">
-                                                            <div class="col-md-6 col-lg-4 mb-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="skor_aks" id="skor_aks_mandiri"
-                                                                        value="mandiri"
-                                                                        {{ $visiting->healthForms->skor_aks == 'mandiri' ? 'checked' : '' }}>
-                                                                    <label class="form-check-label"
-                                                                        for="skor_aks_mandiri">20 :
-                                                                        Mandiri</label>
+                                            <!-- Skor AKS -->
+                                            <div class="mb-4" style="display: none">
+                                                <div class="card" >
+                                                    <div class="card-header">
+                                                        <h4 class="text-info mb-0">
+                                                            <button class="btn btn-link text-decoration-none text-info p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#skorAksCollapse" aria-expanded="false"
+                                                                aria-controls="skorAksCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Skor AKS (Activities of
+                                                                Daily Living)
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="skorAksCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="skor_aks" id="skor_aks_mandiri"
+                                                                            value="mandiri"
+                                                                            {{ $visiting->healthForms->skor_aks == 'mandiri' ? 'checked' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="skor_aks_mandiri">20 :
+                                                                            Mandiri</label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-6 col-lg-4 mb-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="skor_aks" id="skor_aks_ringan"
-                                                                        value="ketergantungan_ringan"
-                                                                        {{ $visiting->healthForms->skor_aks == 'ketergantungan_ringan' ? 'checked' : '' }}>
-                                                                    <label class="form-check-label"
-                                                                        for="skor_aks_ringan">12 - 19 :
-                                                                        Ketergantungan ringan</label>
+                                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="skor_aks" id="skor_aks_ringan"
+                                                                            value="ketergantungan_ringan"
+                                                                            {{ $visiting->healthForms->skor_aks == 'ketergantungan_ringan' ? 'checked' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="skor_aks_ringan">12 - 19 :
+                                                                            Ketergantungan ringan</label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-6 col-lg-4 mb-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="skor_aks" id="skor_aks_sedang"
-                                                                        value="ketergantungan_sedang"
-                                                                        {{ $visiting->healthForms->skor_aks == 'ketergantungan_sedang' ? 'checked' : '' }}>
-                                                                    <label class="form-check-label"
-                                                                        for="skor_aks_sedang">9 - 11 :
-                                                                        Ketergantungan sedang</label>
+                                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="skor_aks" id="skor_aks_sedang"
+                                                                            value="ketergantungan_sedang"
+                                                                            {{ $visiting->healthForms->skor_aks == 'ketergantungan_sedang' ? 'checked' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="skor_aks_sedang">9 - 11 :
+                                                                            Ketergantungan sedang</label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-6 col-lg-4 mb-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="skor_aks" id="skor_aks_berat"
-                                                                        value="ketergantungan_berat"
-                                                                        {{ $visiting->healthForms->skor_aks == 'ketergantungan_berat' ? 'checked' : '' }}>
-                                                                    <label class="form-check-label" for="skor_aks_berat">5
-                                                                        - 8 :
-                                                                        Ketergantungan berat</label>
+                                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="skor_aks" id="skor_aks_berat"
+                                                                            value="ketergantungan_berat"
+                                                                            {{ $visiting->healthForms->skor_aks == 'ketergantungan_berat' ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="skor_aks_berat">5
+                                                                            - 8 :
+                                                                            Ketergantungan berat</label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-md-6 col-lg-4 mb-2">
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="skor_aks" id="skor_aks_total"
-                                                                        value="ketergantungan_total"
-                                                                        {{ $visiting->healthForms->skor_aks == 'ketergantungan_total' ? 'checked' : '' }}>
-                                                                    <label class="form-check-label" for="skor_aks_total">0
-                                                                        - 4 :
-                                                                        Ketergantungan total</label>
+                                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="skor_aks" id="skor_aks_total"
+                                                                            value="ketergantungan_total"
+                                                                            {{ $visiting->healthForms->skor_aks == 'ketergantungan_total' ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="skor_aks_total">0
+                                                                            - 4 :
+                                                                            Ketergantungan total</label>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <!-- Dukungan Keluarga/Pendamping -->
                                             <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
                                                 <div class="card">
@@ -1140,140 +1147,278 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <!-- Permasalahan di Luar Kesehatan -->
+                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-secondary mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-secondary p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#permasalahanLuarKesehatanCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="permasalahanLuarKesehatanCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Permasalahan Di
+                                                                Luar Kesehatan
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="permasalahanLuarKesehatanCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-3">
+                                                                    <div class="form-group">
+                                                                        <label>Apakah ada permasalahan di luar kesehatan
+                                                                            yang mempengaruhi
+                                                                            kondisi pasien?</label>
+                                                                        <select name="non_medical_issues_status"
+                                                                            id="non_medical_issues_status"
+                                                                            class="form-control"
+                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                            <option value="">Pilih...</option>
+                                                                            <option value="1"
+                                                                                {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'selected' : '' }}>
+                                                                                Ya</option>
+                                                                            <option value="0"
+                                                                                {{ $visiting->healthForms->non_medical_issues_status == 0 ? 'selected' : '' }}>
+                                                                                Tidak</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div id="non_medical_issues_text_wrapper" class="mb-3"
+                                                                style="display: {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'block' : 'none' }};">
+                                                                <div class="form-group">
+                                                                    <label for="non_medical_issues_text">Tuliskan
+                                                                        permasalahan di luar
+                                                                        kesehatan</label>
+                                                                    <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control" rows="3"
+                                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                <!-- Permasalahan di Luar Kesehatan -->
-                                                <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <!-- Jenis Gangguan Fungsional -->
+                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-danger mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-danger p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#gangguanFungsionalCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="gangguanFungsionalCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Jenis gangguan
+                                                                fungsional yang dialami
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="gangguanFungsionalCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                @php
+                                                                    $gangguans = [
+                                                                        [
+                                                                            'id' => 'gangguan_komunikasi',
+                                                                            'label' => 'Gangguan komunikasi',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'kesulitan_makan',
+                                                                            'label' =>
+                                                                                'Kesulitan makan (feeding problem)',
+                                                                        ],
+                                                                        [
+                                                                            'id' =>
+                                                                                'gangguan_fungsi_kardiorespirasi',
+                                                                            'label' =>
+                                                                                'Gangguan fungsi kardiorespirasi',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'gangguan_fungsi_berkemih',
+                                                                            'label' => 'Gangguan fungsi berkemih',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'gangguan_mobilisasi',
+                                                                            'label' => 'Gangguan mobilisasi',
+                                                                        ],
+                                                                        [
+                                                                            'id' => 'gangguan_partisipasi',
+                                                                            'label' =>
+                                                                                'Gangguan aktifitas kehidupan sehari-hari/partisipasi',
+                                                                        ],
+                                                                    ];
+                                                                @endphp
+                                                                @foreach ($gangguans as $gangguan)
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label>{{ ucfirst($gangguan['label']) }}</label>
+                                                                            <div class="mb-2">
+                                                                                <div
+                                                                                    class="form-check form-check-inline">
+                                                                                    <input class="form-check-input"
+                                                                                        type="radio"
+                                                                                        name="{{ $gangguan['id'] }}"
+                                                                                        id="{{ $gangguan['id'] }}_yes"
+                                                                                        value="1"
+                                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }}
+                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                                    <label class="form-check-label"
+                                                                                        for="{{ $gangguan['id'] }}_yes">Ya</label>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="form-check form-check-inline">
+                                                                                    <input class="form-check-input"
+                                                                                        type="radio"
+                                                                                        name="{{ $gangguan['id'] }}"
+                                                                                        id="{{ $gangguan['id'] }}_no"
+                                                                                        value="0"
+                                                                                        {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }}
+                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                                    <label class="form-check-label"
+                                                                                        for="{{ $gangguan['id'] }}_no">Tidak</label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if (auth()->user()->role == 'superadmin' || auth()->user()->role == 'operator')
+                                                <!-- Perawatan Yang Dilakukan (Perawat) -->
+                                                <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h4 class="text-secondary mb-0">
+                                                            <h4 class="text-primary mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-secondary p-0"
+                                                                    class="btn btn-link text-decoration-none text-primary p-0"
                                                                     type="button" data-bs-toggle="collapse"
-                                                                    data-bs-target="#permasalahanLuarKesehatanCollapse"
+                                                                    data-bs-target="#perawatanYangDilakukanCollapse"
                                                                     aria-expanded="false"
-                                                                    aria-controls="permasalahanLuarKesehatanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Permasalahan Di
-                                                                    Luar Kesehatan
+                                                                    aria-controls="perawatanYangDilakukanCollapse">
+                                                                    <i class="fas fa-chevron-down me-2"></i>Perawatan
+                                                                    Yang Dilakukan
                                                                 </button>
                                                             </h4>
                                                         </div>
-                                                        <div class="collapse" id="permasalahanLuarKesehatanCollapse">
+                                                        <div class="collapse" id="perawatanYangDilakukanCollapse">
                                                             <div class="card-body">
                                                                 <div class="row">
-                                                                    <div class="col-md-6 mb-3">
+                                                                    <div class="col-md-8">
                                                                         <div class="form-group">
-                                                                            <label>Apakah ada permasalahan di luar kesehatan
-                                                                                yang mempengaruhi
-                                                                                kondisi pasien?</label>
-                                                                            <select name="non_medical_issues_status"
-                                                                                id="non_medical_issues_status"
-                                                                                class="form-control"
-                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                                                                <option value="">Pilih...</option>
-                                                                                <option value="1"
-                                                                                    {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'selected' : '' }}>
-                                                                                    Ya</option>
-                                                                                <option value="0"
-                                                                                    {{ $visiting->healthForms->non_medical_issues_status == 0 ? 'selected' : '' }}>
-                                                                                    Tidak</option>
-                                                                            </select>
+                                                                            <label>Perawatan yang dilakukan</label>
+                                                                            <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
                                                                         </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div id="non_medical_issues_text_wrapper" class="mb-3"
-                                                                    style="display: {{ $visiting->healthForms->non_medical_issues_status == 1 ? 'block' : 'none' }};">
-                                                                    <div class="form-group">
-                                                                        <label for="non_medical_issues_text">Tuliskan
-                                                                            permasalahan di luar
-                                                                            kesehatan</label>
-                                                                        <textarea name="non_medical_issues_text" id="non_medical_issues_text" class="form-control" rows="3"
-                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->non_medical_issues_text ?? '' }}</textarea>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                            @endif
 
-                                                <!-- Jenis Gangguan Fungsional -->
-                                                <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                                                <!-- Perawatan Umum Yang Dilakukan (Operator) -->
+                                                <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h4 class="text-danger mb-0">
+                                                            <h4 class="text-success mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-danger p-0"
+                                                                    class="btn btn-link text-decoration-none text-success p-0"
                                                                     type="button" data-bs-toggle="collapse"
-                                                                    data-bs-target="#gangguanFungsionalCollapse"
+                                                                    data-bs-target="#perawatanUmumCollapse"
                                                                     aria-expanded="false"
-                                                                    aria-controls="gangguanFungsionalCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Jenis gangguan
-                                                                    fungsional yang dialami
+                                                                    aria-controls="perawatanUmumCollapse">
+                                                                    <i class="fas fa-chevron-down me-2"></i>Perawatan
+                                                                    Umum Yang Dilakukan
                                                                 </button>
                                                             </h4>
                                                         </div>
-                                                        <div class="collapse" id="gangguanFungsionalCollapse">
+                                                        <div class="collapse" id="perawatanUmumCollapse">
                                                             <div class="card-body">
                                                                 <div class="row">
                                                                     @php
-                                                                        $gangguans = [
+                                                                        $perawatans = [
                                                                             [
-                                                                                'id' => 'gangguan_komunikasi',
-                                                                                'label' => 'Gangguan komunikasi',
-                                                                            ],
-                                                                            [
-                                                                                'id' => 'kesulitan_makan',
+                                                                                'id' => 'hygiene',
                                                                                 'label' =>
-                                                                                    'Kesulitan makan (feeding problem)',
+                                                                                    'Pemeliharaan kebersihan diri',
                                                                             ],
                                                                             [
-                                                                                'id' =>
-                                                                                    'gangguan_fungsi_kardiorespirasi',
+                                                                                'id' => 'skin_care',
                                                                                 'label' =>
-                                                                                    'Gangguan fungsi kardiorespirasi',
+                                                                                    'Pencegahan Masalah Kesehatan Kulit',
                                                                             ],
                                                                             [
-                                                                                'id' => 'gangguan_fungsi_berkemih',
-                                                                                'label' => 'Gangguan fungsi berkemih',
-                                                                            ],
-                                                                            [
-                                                                                'id' => 'gangguan_mobilisasi',
-                                                                                'label' => 'Gangguan mobilisasi',
-                                                                            ],
-                                                                            [
-                                                                                'id' => 'gangguan_partisipasi',
+                                                                                'id' => 'environment',
                                                                                 'label' =>
-                                                                                    'Gangguan aktifitas kehidupan sehari-hari/partisipasi',
+                                                                                    'Pemeliharaan Kebersihan dan Keamanan Lingkungan',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'welfare',
+                                                                                'label' =>
+                                                                                    'Mempertahankan Tingkat Kemandirian warga jakarta yang membutuhkan',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'sunlight',
+                                                                                'label' =>
+                                                                                    'Tercukupinya pajanan Sinar Matahari',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'communication',
+                                                                                'label' => 'Komunikasi dengan baik',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'recreation',
+                                                                                'label' =>
+                                                                                    'Motivasi untuk melaksanakan Kegiatan Rekreasi',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'penamtauan_obat',
+                                                                                'label' =>
+                                                                                    'Pemantauan Penggunaan Obat',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'ibadah',
+                                                                                'label' =>
+                                                                                    'Motivasi untuk Pelaksanaan Ibadah',
                                                                             ],
                                                                         ];
                                                                     @endphp
-                                                                    @foreach ($gangguans as $gangguan)
+                                                                    @foreach ($perawatans as $perawatan)
                                                                         <div class="col-md-6 mb-3">
                                                                             <div class="form-group">
-                                                                                <label>{{ ucfirst($gangguan['label']) }}</label>
+                                                                                <label>{{ $perawatan['label'] }}</label>
                                                                                 <div class="mb-2">
                                                                                     <div
                                                                                         class="form-check form-check-inline">
                                                                                         <input class="form-check-input"
                                                                                             type="radio"
-                                                                                            name="{{ $gangguan['id'] }}"
-                                                                                            id="{{ $gangguan['id'] }}_yes"
+                                                                                            name="perawatan_{{ $perawatan['id'] }}"
+                                                                                            id="{{ $perawatan['id'] }}_yes"
                                                                                             value="1"
-                                                                                            {{ $visiting->healthForms->{$gangguan['id']} == 1 ? 'checked' : '' }}
-                                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                                            {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
                                                                                         <label class="form-check-label"
-                                                                                            for="{{ $gangguan['id'] }}_yes">Ya</label>
+                                                                                            for="{{ $perawatan['id'] }}_yes">Ya</label>
                                                                                     </div>
                                                                                     <div
                                                                                         class="form-check form-check-inline">
                                                                                         <input class="form-check-input"
                                                                                             type="radio"
-                                                                                            name="{{ $gangguan['id'] }}"
-                                                                                            id="{{ $gangguan['id'] }}_no"
+                                                                                            name="perawatan_{{ $perawatan['id'] }}"
+                                                                                            id="{{ $perawatan['id'] }}_no"
                                                                                             value="0"
-                                                                                            {{ $visiting->healthForms->{$gangguan['id']} == 0 ? 'checked' : '' }}
-                                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                                            {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
                                                                                         <label class="form-check-label"
-                                                                                            for="{{ $gangguan['id'] }}_no">Tidak</label>
+                                                                                            for="{{ $perawatan['id'] }}_no">Tidak</label>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -1285,714 +1430,805 @@
                                                     </div>
                                                 </div>
 
-                                                @if (auth()->user()->role == 'superadmin' || auth()->user()->role == 'operator')
-                                                    <!-- Perawatan Yang Dilakukan (Perawat) -->
-                                                    <div class="mb-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="text-primary mb-0">
-                                                                    <button
-                                                                        class="btn btn-link text-decoration-none text-primary p-0"
-                                                                        type="button" data-bs-toggle="collapse"
-                                                                        data-bs-target="#perawatanYangDilakukanCollapse"
-                                                                        aria-expanded="false"
-                                                                        aria-controls="perawatanYangDilakukanCollapse">
-                                                                        <i class="fas fa-chevron-down me-2"></i>Perawatan
-                                                                        Yang Dilakukan
-                                                                    </button>
-                                                                </h4>
-                                                            </div>
-                                                            <div class="collapse" id="perawatanYangDilakukanCollapse">
-                                                                <div class="card-body">
-                                                                    <div class="row">
-                                                                        <div class="col-md-8">
-                                                                            <div class="form-group">
-                                                                                <label>Perawatan yang dilakukan</label>
-                                                                                <textarea name="perawatan" class="form-control" placeholder="Masukkan perawatan yang dilakukan" rows="3">{{ $visiting->healthForms->perawatan ?? '' }}</textarea>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
-                                                    <!-- Perawatan Umum Yang Dilakukan (Operator) -->
-                                                    <div class="mb-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="text-success mb-0">
-                                                                    <button
-                                                                        class="btn btn-link text-decoration-none text-success p-0"
-                                                                        type="button" data-bs-toggle="collapse"
-                                                                        data-bs-target="#perawatanUmumCollapse"
-                                                                        aria-expanded="false"
-                                                                        aria-controls="perawatanUmumCollapse">
-                                                                        <i class="fas fa-chevron-down me-2"></i>Perawatan
-                                                                        Umum Yang Dilakukan
-                                                                    </button>
-                                                                </h4>
-                                                            </div>
-                                                            <div class="collapse" id="perawatanUmumCollapse">
-                                                                <div class="card-body">
-                                                                    <div class="row">
-                                                                        @php
-                                                                            $perawatans = [
-                                                                                [
-                                                                                    'id' => 'hygiene',
-                                                                                    'label' =>
-                                                                                        'Pemeliharaan kebersihan diri',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'skin_care',
-                                                                                    'label' =>
-                                                                                        'Pencegahan Masalah Kesehatan Kulit',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'environment',
-                                                                                    'label' =>
-                                                                                        'Pemeliharaan Kebersihan dan Keamanan Lingkungan',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'welfare',
-                                                                                    'label' =>
-                                                                                        'Mempertahankan Tingkat Kemandirian warga jakarta yang membutuhkan',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'sunlight',
-                                                                                    'label' =>
-                                                                                        'Tercukupinya pajanan Sinar Matahari',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'communication',
-                                                                                    'label' => 'Komunikasi dengan baik',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'recreation',
-                                                                                    'label' =>
-                                                                                        'Motivasi untuk melaksanakan Kegiatan Rekreasi',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'penamtauan_obat',
-                                                                                    'label' =>
-                                                                                        'Pemantauan Penggunaan Obat',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'ibadah',
-                                                                                    'label' =>
-                                                                                        'Motivasi untuk Pelaksanaan Ibadah',
-                                                                                ],
-                                                                            ];
-                                                                        @endphp
-                                                                        @foreach ($perawatans as $perawatan)
-                                                                            <div class="col-md-6 mb-3">
-                                                                                <div class="form-group">
-                                                                                    <label>{{ $perawatan['label'] }}</label>
-                                                                                    <div class="mb-2">
-                                                                                        <div
-                                                                                            class="form-check form-check-inline">
-                                                                                            <input class="form-check-input"
-                                                                                                type="radio"
-                                                                                                name="perawatan_{{ $perawatan['id'] }}"
-                                                                                                id="{{ $perawatan['id'] }}_yes"
-                                                                                                value="1"
-                                                                                                {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
-                                                                                            <label class="form-check-label"
-                                                                                                for="{{ $perawatan['id'] }}_yes">Ya</label>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="form-check form-check-inline">
-                                                                                            <input class="form-check-input"
-                                                                                                type="radio"
-                                                                                                name="perawatan_{{ $perawatan['id'] }}"
-                                                                                                id="{{ $perawatan['id'] }}_no"
-                                                                                                value="0"
-                                                                                                {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
-                                                                                            <label class="form-check-label"
-                                                                                                for="{{ $perawatan['id'] }}_no">Tidak</label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        @endforeach
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Perawatan Khusus Yang Dilakukan (Operator) -->
-                                                    <div class="mb-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="text-warning mb-0">
-                                                                    <button
-                                                                        class="btn btn-link text-decoration-none text-warning p-0"
-                                                                        type="button" data-bs-toggle="collapse"
-                                                                        data-bs-target="#perawatanKhususCollapse"
-                                                                        aria-expanded="false"
-                                                                        aria-controls="perawatanKhususCollapse">
-                                                                        <i class="fas fa-chevron-down me-2"></i>Perawatan
-                                                                        Khusus Yang Dilakukan
-                                                                    </button>
-                                                                </h4>
-                                                            </div>
-                                                            <div class="collapse" id="perawatanKhususCollapse">
-                                                                <div class="card-body">
-                                                                    <div class="row">
-                                                                        @php
-                                                                            $perawatans = [
-                                                                                [
-                                                                                    'id' => 'membantu_warga',
-                                                                                    'label' =>
-                                                                                        'Membantu warga jakarta yang membutuhkan yang Mengalami Gangguan Gerak',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'monitoring_gizi',
-                                                                                    'label' =>
-                                                                                        'Monitoring dan Edukasi Pemenuhan Gizi yang baik',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'membantu_bak_bab',
-                                                                                    'label' =>
-                                                                                        'Membantu Buang Air Kecil (BAK) dan Buang Air Besar (BAB)',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'menangani_gangguan',
-                                                                                    'label' =>
-                                                                                        'Menangani Gangguan Perilaku dengan Pikun/Demensial',
-                                                                                ],
-                                                                                [
-                                                                                    'id' => 'pengelolaan_stres',
-                                                                                    'label' => 'Pengelolaan Stres',
-                                                                                ],
-                                                                            ];
-                                                                        @endphp
-                                                                        @foreach ($perawatans as $perawatan)
-                                                                            <div class="col-md-6 mb-3">
-                                                                                <div class="form-group">
-                                                                                    <label>{{ $perawatan['label'] }}</label>
-                                                                                    <div class="mb-2">
-                                                                                        <div
-                                                                                            class="form-check form-check-inline">
-                                                                                            <input class="form-check-input"
-                                                                                                type="radio"
-                                                                                                name="perawatan_{{ $perawatan['id'] }}"
-                                                                                                id="{{ $perawatan['id'] }}_yes"
-                                                                                                value="1"
-                                                                                                {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
-                                                                                            <label class="form-check-label"
-                                                                                                for="{{ $perawatan['id'] }}_yes">Ya</label>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="form-check form-check-inline">
-                                                                                            <input class="form-check-input"
-                                                                                                type="radio"
-                                                                                                name="perawatan_{{ $perawatan['id'] }}"
-                                                                                                id="{{ $perawatan['id'] }}_no"
-                                                                                                value="0"
-                                                                                                {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
-                                                                                            <label class="form-check-label"
-                                                                                                for="{{ $perawatan['id'] }}_no">Tidak</label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        @endforeach
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                <!-- Keluaran dari perawatan yang dilakukan -->
-                                                <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                                <!-- Perawatan Khusus Yang Dilakukan (Operator) -->
+                                                <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h4 class="text-info mb-0">
+                                                            <h4 class="text-warning mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-info p-0"
+                                                                    class="btn btn-link text-decoration-none text-warning p-0"
                                                                     type="button" data-bs-toggle="collapse"
-                                                                    data-bs-target="#keluaranPerawatanCollapse"
+                                                                    data-bs-target="#perawatanKhususCollapse"
                                                                     aria-expanded="false"
-                                                                    aria-controls="keluaranPerawatanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Keluaran dari
-                                                                    perawatan yang dilakukan
+                                                                    aria-controls="perawatanKhususCollapse">
+                                                                    <i class="fas fa-chevron-down me-2"></i>Perawatan
+                                                                    Khusus Yang Dilakukan
                                                                 </button>
                                                             </h4>
                                                         </div>
-                                                        <div class="collapse" id="keluaranPerawatanCollapse">
+                                                        <div class="collapse" id="perawatanKhususCollapse">
                                                             <div class="card-body">
                                                                 <div class="row">
-                                                                    <div class="col-md-6 mb-3">
-                                                                        <div class="form-group">
-                                                                            <label class="form-label fw-bold">Keluaran
-                                                                                Perawatan</label>
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input"
-                                                                                    type="radio" name="keluaran"
-                                                                                    id="keluaran_meningkat" value="1"
-                                                                                    {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}
-                                                                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                                                                <label class="form-check-label"
-                                                                                    for="keluaran_meningkat">Meningkat</label>
-                                                                            </div>
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input"
-                                                                                    type="radio" name="keluaran"
-                                                                                    id="keluaran_tetap" value="2"
-                                                                                    {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}
-                                                                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                                                                <label class="form-check-label"
-                                                                                    for="keluaran_tetap">Tetap</label>
-                                                                            </div>
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input"
-                                                                                    type="radio" name="keluaran"
-                                                                                    id="keluaran_menurun" value="3"
-                                                                                    {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}
-                                                                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                                                                <label class="form-check-label"
-                                                                                    for="keluaran_menurun">Menurun</label>
+                                                                    @php
+                                                                        $perawatans = [
+                                                                            [
+                                                                                'id' => 'membantu_warga',
+                                                                                'label' =>
+                                                                                    'Membantu warga jakarta yang membutuhkan yang Mengalami Gangguan Gerak',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'monitoring_gizi',
+                                                                                'label' =>
+                                                                                    'Monitoring dan Edukasi Pemenuhan Gizi yang baik',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'membantu_bak_bab',
+                                                                                'label' =>
+                                                                                    'Membantu Buang Air Kecil (BAK) dan Buang Air Besar (BAB)',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'menangani_gangguan',
+                                                                                'label' =>
+                                                                                    'Menangani Gangguan Perilaku dengan Pikun/Demensial',
+                                                                            ],
+                                                                            [
+                                                                                'id' => 'pengelolaan_stres',
+                                                                                'label' => 'Pengelolaan Stres',
+                                                                            ],
+                                                                        ];
+                                                                    @endphp
+                                                                    @foreach ($perawatans as $perawatan)
+                                                                        <div class="col-md-6 mb-3">
+                                                                            <div class="form-group">
+                                                                                <label>{{ $perawatan['label'] }}</label>
+                                                                                <div class="mb-2">
+                                                                                    <div
+                                                                                        class="form-check form-check-inline">
+                                                                                        <input class="form-check-input"
+                                                                                            type="radio"
+                                                                                            name="perawatan_{{ $perawatan['id'] }}"
+                                                                                            id="{{ $perawatan['id'] }}_yes"
+                                                                                            value="1"
+                                                                                            {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
+                                                                                        <label class="form-check-label"
+                                                                                            for="{{ $perawatan['id'] }}_yes">Ya</label>
+                                                                                    </div>
+                                                                                    <div
+                                                                                        class="form-check form-check-inline">
+                                                                                        <input class="form-check-input"
+                                                                                            type="radio"
+                                                                                            name="perawatan_{{ $perawatan['id'] }}"
+                                                                                            id="{{ $perawatan['id'] }}_no"
+                                                                                            value="0"
+                                                                                            {{ $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
+                                                                                        <label class="form-check-label"
+                                                                                            for="{{ $perawatan['id'] }}_no">Tidak</label>
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <!-- Keluaran dari perawatan yang dilakukan -->
+                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-info mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-info p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#keluaranPerawatanCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="keluaranPerawatanCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Keluaran dari
+                                                                perawatan yang dilakukan
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="keluaranPerawatanCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-3">
+                                                                    <div class="form-group">
+                                                                        <label class="form-label fw-bold">Keluaran
+                                                                            Perawatan</label>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input"
+                                                                                type="radio" name="keluaran"
+                                                                                id="keluaran_meningkat" value="1"
+                                                                                {{ $visiting->healthForms->keluaran == 1 ? 'checked' : '' }}
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label"
+                                                                                for="keluaran_meningkat">Meningkat</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input"
+                                                                                type="radio" name="keluaran"
+                                                                                id="keluaran_tetap" value="2"
+                                                                                {{ $visiting->healthForms->keluaran == 2 ? 'checked' : '' }}
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label"
+                                                                                for="keluaran_tetap">Tetap</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input"
+                                                                                type="radio" name="keluaran"
+                                                                                id="keluaran_menurun" value="3"
+                                                                                {{ $visiting->healthForms->keluaran == 3 ? 'checked' : '' }}
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label"
+                                                                                for="keluaran_menurun">Menurun</label>
+                                                                        </div>
                                                                     </div>
+                                                                </div>
+                                                                <div class="col-md-6 mb-3">
+                                                                    <div class="form-group">
+                                                                        <label for="keterangan"
+                                                                            class="form-label fw-bold">Keterangan</label>
+                                                                        <textarea class="form-control" id="keterangan" name="keterangan" rows="4"
+                                                                            placeholder="Keterangan hasil perawatan"
+                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->keterangan ?? '' }}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Pembinaan keluarga -->
+                                            <div class="mb-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-primary mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#pembinaanKeluargaCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="pembinaanKeluargaCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Dilakukan
+                                                                pembinaan keluarga
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="pembinaanKeluargaCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label for="pembinaan"
+                                                                            class="form-label fw-bold">Pembinaan
+                                                                            Keluarga</label>
+                                                                        <select name="pembinaan" id="pembinaan"
+                                                                            class="form-select">
+                                                                            <option value="">Pilih...
+                                                                            </option>
+                                                                            <option value="ya"
+                                                                                {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>
+                                                                                Ya</option>
+                                                                            <option value="tidak"
+                                                                                {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>
+                                                                                Tidak</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Tingkat Kemandirian Keluarga -->
+                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-success mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-success p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#tingkatKemandirianCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="tingkatKemandirianCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Tingkat
+                                                                Kemandirian Keluarga
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="tingkatKemandirianCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row kemandirian-checkboxes">
+                                                                @php
+                                                                    $tingkat_kemandirian = [
+                                                                        'menerima_petugas' =>
+                                                                            'Menerima petugas Perawatan Kesehatan Masyarakat',
+                                                                        'menerima_pelayanan' =>
+                                                                            'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
+                                                                        'mengenal_masalah' =>
+                                                                            'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
+                                                                        'manfaatkan_fasilitas' =>
+                                                                            'Memanfaatkan fasilitas pelayanan sesuai anjuran',
+                                                                        'melakukan_perawatan' =>
+                                                                            'Melakukan perawatan sederhana sesuai yang dianjurkan',
+                                                                        'melakukan_pencegahan' =>
+                                                                            'Melaksanakan tindakan pencegahan secara aktif',
+                                                                        'melakukan_promotif' =>
+                                                                            'Melaksanakan tindakan promotif secara aktif',
+                                                                    ];
+                                                                    $selectedKemandirian = getArrayFromJsonOrArray(
+                                                                        $visiting->healthForms
+                                                                            ->kemandirian ?? [],
+                                                                    );
+                                                                @endphp
+                                                                @foreach ($tingkat_kemandirian as $key => $label)
                                                                     <div class="col-md-6 mb-3">
+                                                                        <div class="form-check">
+                                                                            <input
+                                                                                class="form-check-input kemandirian-checkbox"
+                                                                                type="checkbox"
+                                                                                id="{{ $key }}"
+                                                                                name="kemandirian[]"
+                                                                                value="{{ $key }}"
+                                                                                {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                                            <label class="form-check-label"
+                                                                                for="{{ $key }}">{{ $label }}</label>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+
+                                                                <div class="col-12 mt-3">
+                                                                    <div class="alert alert-info">
+                                                                        <strong>Tingkat Kemandirian:</strong>
+                                                                        <span id="tingkatKemandirianLabel"
+                                                                            class="fw-bold ms-2">Belum
+                                                                            Ditentukan</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                                                <!-- Catatan Keperawatan (Operator) -->
+                                                <div class="mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <h6 class="text-success mb-0">
+                                                                <button
+                                                                    class="btn btn-link text-decoration-none text-success p-0"
+                                                                    type="button"
+                                                                    data-bs-toggle="collapse"
+                                                                    data-bs-target="#catatanKeperawatanCollapse"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="catatanKeperawatanCollapse">
+                                                                    <i
+                                                                        class="fas fa-chevron-down me-2"></i>Hasil
+                                                                    Tindakan Keperawatan
+                                                                </button>
+                                                            </h6>
+                                                        </div>
+                                                        <div class="collapse"
+                                                            id="catatanKeperawatanCollapse">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-8">
                                                                         <div class="form-group">
-                                                                            <label for="keterangan"
-                                                                                class="form-label fw-bold">Keterangan</label>
-                                                                            <textarea class="form-control" id="keterangan" name="keterangan" rows="4"
-                                                                                placeholder="Keterangan hasil perawatan"
-                                                                                {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'readonly' : '' }}>{{ $visiting->healthForms->keterangan ?? '' }}</textarea>
+                                                                            <textarea name="catatan_keperawatan" class="form-control"
+                                                                                placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada sasaran..." rows="3">{{ $visiting->healthForms->catatan_keperawatan ?? '' }}</textarea>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <!-- Pembinaan keluarga -->
-                                                    <div class="mb-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="text-primary mb-0">
-                                                                    <button
-                                                                        class="btn btn-link text-decoration-none text-primary p-0"
-                                                                        type="button" data-bs-toggle="collapse"
-                                                                        data-bs-target="#pembinaanKeluargaCollapse"
-                                                                        aria-expanded="false"
-                                                                        aria-controls="pembinaanKeluargaCollapse">
-                                                                        <i class="fas fa-chevron-down me-2"></i>Dilakukan
-                                                                        pembinaan keluarga
-                                                                    </button>
-                                                                </h4>
+                                                </div>
+                                            @endif
+                                            <!-- Rujukan Section -->
+                                            <div class="mt-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h6 class="text-warning mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-warning p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#rujukanCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="rujukanCollapse">
+                                                                <i
+                                                                    class="fas fa-chevron-down me-2"></i>Rujukan
+                                                            </button>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="collapse" id="rujukanCollapse">
+                                                        <div class="card-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Apakah
+                                                                    Pasien Perlu Rujukan?</label>
+                                                                <div>
+                                                                    <div
+                                                                        class="form-check form-check-inline">
+                                                                        <input
+                                                                            class="form-check-input skilas-rujukan-radio"
+                                                                            type="radio"
+                                                                            name="skilas_rujukan"
+                                                                            value="0"
+                                                                            id="skilas_rujukan_tidak"
+                                                                            {{ $visiting->healthForms->skilas_rujukan == 0 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="skilas_rujukan_tidak">
+                                                                            Tidak
+                                                                        </label>
+                                                                    </div>
+                                                                    <div
+                                                                        class="form-check form-check-inline">
+                                                                        <input
+                                                                            class="form-check-input skilas-rujukan-radio"
+                                                                            type="radio"
+                                                                            name="skilas_rujukan"
+                                                                            value="1"
+                                                                            id="skilas_rujukan_ya"
+                                                                            {{ $visiting->healthForms->skilas_rujukan == 1 ? 'checked' : '' }}
+                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
+                                                                        <label class="form-check-label"
+                                                                            for="skilas_rujukan_ya">
+                                                                            Ya
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="collapse" id="pembinaanKeluargaCollapse">
-                                                                <div class="card-body">
-                                                                    <div class="row">
-                                                                        <div class="col-md-6">
-                                                                            <div class="form-group">
-                                                                                <label for="pembinaan"
-                                                                                    class="form-label fw-bold">Pembinaan
-                                                                                    Keluarga</label>
-                                                                                <select name="pembinaan" id="pembinaan"
-                                                                                    class="form-select">
-                                                                                    <option value="">Pilih...
-                                                                                    </option>
-                                                                                    <option value="ya"
-                                                                                        {{ $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>
-                                                                                        Ya</option>
-                                                                                    <option value="tidak"
-                                                                                        {{ $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>
-                                                                                        Tidak</option>
-                                                                                </select>
+
+                                                            <div id="skilas_rujukan_keterangan_div"
+                                                                class="mt-3"
+                                                                style="display: {{ $visiting->healthForms->skilas_rujukan == 1 ? 'block' : 'none' }}">
+                                                                <label
+                                                                    class="form-label fw-bold">Keterangan
+                                                                    Rujukan</label>
+                                                                <textarea class="form-control" name="skilas_rujukan_keterangan" rows="3"
+                                                                    placeholder="Masukkan keterangan rujukan (tujuan, alasan, dll)..."
+                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_rujukan_keterangan ?? '' }}</textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Kunjungan Lanjutan -->
+                                            <div class="mb-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-primary mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#kunjunganLanjutanCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="kunjunganLanjutanCollapse">
+                                                                <i
+                                                                    class="fas fa-chevron-down me-2"></i>Kunjungan
+                                                                Lanjutan
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="kunjunganLanjutanCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-3">
+                                                                    <div class="form-group">
+                                                                        <label
+                                                                            class="form-label fw-bold">apakah
+                                                                            akan di lakukan kunjungan
+                                                                            lanjutan?</label>
+                                                                        <select name="kunjungan_lanjutan"
+                                                                            id="kunjungan_lanjutan"
+                                                                            class="form-select"
+                                                                            {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                            <option value="">Pilih...
+                                                                            </option>
+                                                                            <option value="ya"
+                                                                                {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>
+                                                                                Ya</option>
+                                                                            <option value="tidak"
+                                                                                {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>
+                                                                                Tidak</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div id="detail_kunjungan_lanjutan"
+                                                                style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
+
+                                                                <!-- Checklist Dilakukan Oleh -->
+                                                                <div class="row">
+                                                                    <div class="col-md-12 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                class="form-label fw-bold">Kunjungan
+                                                                                Lanjutan Akan Dilakukan
+                                                                                Oleh:</label>
+                                                                            <div class="d-flex gap-4">
+                                                                                <div class="form-check">
+                                                                                    <input
+                                                                                        class="form-check-input dilakukan-oleh-checkbox"
+                                                                                        type="checkbox"
+                                                                                        name="dilakukan_oleh[]"
+                                                                                        id="dilakukan_perawat"
+                                                                                        value="perawat"
+                                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                    <label
+                                                                                        class="form-check-label"
+                                                                                        for="dilakukan_perawat">
+                                                                                        Perawat
+                                                                                    </label>
+                                                                                </div>
+                                                                                <div class="form-check">
+                                                                                    <input
+                                                                                        class="form-check-input dilakukan-oleh-checkbox"
+                                                                                        type="checkbox"
+                                                                                        name="dilakukan_oleh[]"
+                                                                                        id="dilakukan_petugas"
+                                                                                        value="petugas_layanan_kesehatan"
+                                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                    <label
+                                                                                        class="form-check-label"
+                                                                                        for="dilakukan_petugas">
+                                                                                        Petugas Layanan
+                                                                                        Kesehatan Oleh Warga
+                                                                                    </label>
+                                                                                </div>
                                                                             </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Dropdown Operator (muncul jika checkbox petugas dipilih) -->
+                                                                <div class="row"
+                                                                    id="operator_selection_div"
+                                                                    style="display: {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'block' : 'none' }};">
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                class="form-label fw-bold">Pilih
+                                                                                Petugas Layanan Kesehatan
+                                                                                (Operator) <span
+                                                                                    class="text-danger">*</span></label>
+                                                                            <select
+                                                                                name="operator_id_lanjutan"
+                                                                                id="operator_id_lanjutan"
+                                                                                class="form-select"
+                                                                                data-selected-operator="{{ $visiting->healthForms->operator_id_lanjutan ?? '' }}"
+                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                <option value="">--
+                                                                                    Pilih Operator --
+                                                                                </option>
+                                                                            </select>
+                                                                            <small class="text-muted">Wajib
+                                                                                diisi jika Petugas Layanan
+                                                                                Kesehatan dipilih</small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row">
+                                                                    <div class="col-md-8 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                class="form-label fw-bold">Permasalahan
+                                                                                kesehatan yang
+                                                                                perlu kunjungan
+                                                                                lanjutan</label>
+                                                                            <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3"
+                                                                                placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan"
+                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                class="form-label fw-bold">Tanggal
+                                                                                kunjungan
+                                                                                lanjutan</label>
+                                                                            <input type="date"
+                                                                                class="form-control"
+                                                                                name="tanggal_kunjungan"
+                                                                                placeholder="Tanggal"
+                                                                                value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
+                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div id="form_henti_layanan"
+                                                                style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
+                                                                <div class="row">
+                                                                    <div class="col-md-6 mb-3">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                class="form-label fw-bold">Alasan
+                                                                                Henti Layanan</label>
+                                                                            <select name="henti_layanan"
+                                                                                id="alasan_henti_layanan"
+                                                                                class="form-select"
+                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                <option value="">
+                                                                                    Pilih...</option>
+                                                                                <option
+                                                                                    value="kenaikan_nilai_aks"
+                                                                                    {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>
+                                                                                    KENAIKAN NILAI AKS
+                                                                                </option>
+                                                                                <option value="meninggal"
+                                                                                    {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>
+                                                                                    MENINGGAL</option>
+                                                                                <option value="menolak"
+                                                                                    {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>
+                                                                                    MENOLAK</option>
+                                                                                <option
+                                                                                    value="pindah_domisili"
+                                                                                    {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>
+                                                                                    PINDAH DOMISILI</option>
+                                                                            </select>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                        <!-- Tingkat Kemandirian Keluarga -->
-                                                        <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
-                                                            <div class="card">
-                                                                <div class="card-header">
-                                                                    <h4 class="text-success mb-0">
-                                                                        <button
-                                                                            class="btn btn-link text-decoration-none text-success p-0"
-                                                                            type="button" data-bs-toggle="collapse"
-                                                                            data-bs-target="#tingkatKemandirianCollapse"
-                                                                            aria-expanded="false"
-                                                                            aria-controls="tingkatKemandirianCollapse">
-                                                                            <i class="fas fa-chevron-down me-2"></i>Tingkat
-                                                                            Kemandirian Keluarga
-                                                                        </button>
-                                                                    </h4>
-                                                                </div>
-                                                                <div class="collapse" id="tingkatKemandirianCollapse">
-                                                                    <div class="card-body">
-                                                                        <div class="row kemandirian-checkboxes">
-                                                                            @php
-                                                                                $tingkat_kemandirian = [
-                                                                                    'menerima_petugas' =>
-                                                                                        'Menerima petugas Perawatan Kesehatan Masyarakat',
-                                                                                    'menerima_pelayanan' =>
-                                                                                        'Menerima pelayanan keperawatan yang diberikan sesuai dengan rencana keperawatan',
-                                                                                    'mengenal_masalah' =>
-                                                                                        'Tahu dan dapat mengungkapkan masalah kesehatannya secara benar',
-                                                                                    'manfaatkan_fasilitas' =>
-                                                                                        'Memanfaatkan fasilitas pelayanan sesuai anjuran',
-                                                                                    'melakukan_perawatan' =>
-                                                                                        'Melakukan perawatan sederhana sesuai yang dianjurkan',
-                                                                                    'melakukan_pencegahan' =>
-                                                                                        'Melaksanakan tindakan pencegahan secara aktif',
-                                                                                    'melakukan_promotif' =>
-                                                                                        'Melaksanakan tindakan promotif secara aktif',
-                                                                                ];
-                                                                                $selectedKemandirian = getArrayFromJsonOrArray(
-                                                                                    $visiting->healthForms
-                                                                                        ->kemandirian ?? [],
-                                                                                );
-                                                                            @endphp
-                                                                            @foreach ($tingkat_kemandirian as $key => $label)
-                                                                                <div class="col-md-6 mb-3">
-                                                                                    <div class="form-check">
-                                                                                        <input
-                                                                                            class="form-check-input kemandirian-checkbox"
-                                                                                            type="checkbox"
-                                                                                            id="{{ $key }}"
-                                                                                            name="kemandirian[]"
-                                                                                            value="{{ $key }}"
-                                                                                            {{ in_array($key, $selectedKemandirian) ? 'checked' : '' }}
-                                                                                            {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                                                                        <label class="form-check-label"
-                                                                                            for="{{ $key }}">{{ $label }}</label>
-                                                                                    </div>
-                                                                                </div>
-                                                                            @endforeach
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="autosave-status" id="health-status">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-circle text-success mr-1"></i>
+                                                        <span>Auto-save aktif</span>
+                                                    </small>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    Simpan Form Kesehatan
+                                                </button>
+                                            </div>
+                                    </form>
+                                </div>
+                            </div>
 
-                                                                            <div class="col-12 mt-3">
-                                                                                <div class="alert alert-info">
-                                                                                    <strong>Tingkat Kemandirian:</strong>
-                                                                                    <span id="tingkatKemandirianLabel"
-                                                                                        class="fw-bold ms-2">Belum
-                                                                                        Ditentukan</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
-                                                                <!-- Catatan Keperawatan (Operator) -->
-                                                                <div class="mb-4">
-                                                                    <div class="card">
-                                                                        <div class="card-header">
-                                                                            <h6 class="text-success mb-0">
-                                                                                <button
-                                                                                    class="btn btn-link text-decoration-none text-success p-0"
-                                                                                    type="button"
-                                                                                    data-bs-toggle="collapse"
-                                                                                    data-bs-target="#catatanKeperawatanCollapse"
-                                                                                    aria-expanded="false"
-                                                                                    aria-controls="catatanKeperawatanCollapse">
-                                                                                    <i
-                                                                                        class="fas fa-chevron-down me-2"></i>Hasil
-                                                                                    Tindakan Keperawatan
-                                                                                </button>
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="collapse"
-                                                                            id="catatanKeperawatanCollapse">
-                                                                            <div class="card-body">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-8">
-                                                                                        <div class="form-group">
-                                                                                            <textarea name="catatan_keperawatan" class="form-control"
-                                                                                                placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada sasaran..." rows="3">{{ $visiting->healthForms->catatan_keperawatan ?? '' }}</textarea>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                            <!-- Rujukan Section -->
-                                                            <div class="mt-4">
-                                                                <div class="card">
-                                                                    <div class="card-header">
-                                                                        <h6 class="text-warning mb-0">
-                                                                            <button
-                                                                                class="btn btn-link text-decoration-none text-warning p-0"
-                                                                                type="button" data-bs-toggle="collapse"
-                                                                                data-bs-target="#rujukanCollapse"
-                                                                                aria-expanded="false"
-                                                                                aria-controls="rujukanCollapse">
-                                                                                <i
-                                                                                    class="fas fa-chevron-down me-2"></i>Rujukan
-                                                                            </button>
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="collapse" id="rujukanCollapse">
-                                                                        <div class="card-body">
-                                                                            <div class="mb-3">
-                                                                                <label class="form-label fw-bold">Apakah
-                                                                                    Pasien Perlu Rujukan?</label>
-                                                                                <div>
-                                                                                    <div
-                                                                                        class="form-check form-check-inline">
-                                                                                        <input
-                                                                                            class="form-check-input skilas-rujukan-radio"
-                                                                                            type="radio"
-                                                                                            name="skilas_rujukan"
-                                                                                            value="0"
-                                                                                            id="skilas_rujukan_tidak"
-                                                                                            {{ $visiting->healthForms->skilas_rujukan == 0 ? 'checked' : '' }}
-                                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
-                                                                                        <label class="form-check-label"
-                                                                                            for="skilas_rujukan_tidak">
-                                                                                            Tidak
-                                                                                        </label>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        class="form-check form-check-inline">
-                                                                                        <input
-                                                                                            class="form-check-input skilas-rujukan-radio"
-                                                                                            type="radio"
-                                                                                            name="skilas_rujukan"
-                                                                                            value="1"
-                                                                                            id="skilas_rujukan_ya"
-                                                                                            {{ $visiting->healthForms->skilas_rujukan == 1 ? 'checked' : '' }}
-                                                                                            {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
-                                                                                        <label class="form-check-label"
-                                                                                            for="skilas_rujukan_ya">
-                                                                                            Ya
-                                                                                        </label>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div id="skilas_rujukan_keterangan_div"
-                                                                                class="mt-3"
-                                                                                style="display: {{ $visiting->healthForms->skilas_rujukan == 1 ? 'block' : 'none' }}">
-                                                                                <label
-                                                                                    class="form-label fw-bold">Keterangan
-                                                                                    Rujukan</label>
-                                                                                <textarea class="form-control" name="skilas_rujukan_keterangan" rows="3"
-                                                                                    placeholder="Masukkan keterangan rujukan (tujuan, alasan, dll)..."
-                                                                                    {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>{{ $visiting->healthForms->skilas_rujukan_keterangan ?? '' }}</textarea>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <!-- Kunjungan Lanjutan -->
-                                                            <div class="mb-4">
-                                                                <div class="card">
-                                                                    <div class="card-header">
-                                                                        <h4 class="text-primary mb-0">
-                                                                            <button
-                                                                                class="btn btn-link text-decoration-none text-primary p-0"
-                                                                                type="button" data-bs-toggle="collapse"
-                                                                                data-bs-target="#kunjunganLanjutanCollapse"
-                                                                                aria-expanded="false"
-                                                                                aria-controls="kunjunganLanjutanCollapse">
-                                                                                <i
-                                                                                    class="fas fa-chevron-down me-2"></i>Kunjungan
-                                                                                Lanjutan
-                                                                            </button>
-                                                                        </h4>
-                                                                    </div>
-                                                                    <div class="collapse" id="kunjunganLanjutanCollapse">
-                                                                        <div class="card-body">
-                                                                            <div class="row">
-                                                                                <div class="col-md-6 mb-3">
-                                                                                    <div class="form-group">
-                                                                                        <label
-                                                                                            class="form-label fw-bold">apakah
-                                                                                            akan di lakukan kunjungan
-                                                                                            lanjutan?</label>
-                                                                                        <select name="kunjungan_lanjutan"
-                                                                                            id="kunjungan_lanjutan"
-                                                                                            class="form-select"
-                                                                                            {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
-                                                                                            <option value="">Pilih...
-                                                                                            </option>
-                                                                                            <option value="ya"
-                                                                                                {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'selected' : '' }}>
-                                                                                                Ya</option>
-                                                                                            <option value="tidak"
-                                                                                                {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'selected' : '' }}>
-                                                                                                Tidak</option>
-                                                                                        </select>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div id="detail_kunjungan_lanjutan"
-                                                                                style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'ya' ? 'block' : 'none' }}">
-
-                                                                                <!-- Checklist Dilakukan Oleh -->
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12 mb-3">
-                                                                                        <div class="form-group">
-                                                                                            <label
-                                                                                                class="form-label fw-bold">Kunjungan
-                                                                                                Lanjutan Akan Dilakukan
-                                                                                                Oleh:</label>
-                                                                                            <div class="d-flex gap-4">
-                                                                                                <div class="form-check">
-                                                                                                    <input
-                                                                                                        class="form-check-input dilakukan-oleh-checkbox"
-                                                                                                        type="checkbox"
-                                                                                                        name="dilakukan_oleh[]"
-                                                                                                        id="dilakukan_perawat"
-                                                                                                        value="perawat"
-                                                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
-                                                                                                    <label
-                                                                                                        class="form-check-label"
-                                                                                                        for="dilakukan_perawat">
-                                                                                                        Perawat
-                                                                                                    </label>
-                                                                                                </div>
-                                                                                                <div class="form-check">
-                                                                                                    <input
-                                                                                                        class="form-check-input dilakukan-oleh-checkbox"
-                                                                                                        type="checkbox"
-                                                                                                        name="dilakukan_oleh[]"
-                                                                                                        id="dilakukan_petugas"
-                                                                                                        value="petugas_layanan_kesehatan"
-                                                                                                        {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
-                                                                                                    <label
-                                                                                                        class="form-check-label"
-                                                                                                        for="dilakukan_petugas">
-                                                                                                        Petugas Layanan
-                                                                                                        Kesehatan Oleh Warga
-                                                                                                    </label>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <!-- Dropdown Operator (muncul jika checkbox petugas dipilih) -->
-                                                                                <div class="row"
-                                                                                    id="operator_selection_div"
-                                                                                    style="display: {{ is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'block' : 'none' }};">
-                                                                                    <div class="col-md-6 mb-3">
-                                                                                        <div class="form-group">
-                                                                                            <label
-                                                                                                class="form-label fw-bold">Pilih
-                                                                                                Petugas Layanan Kesehatan
-                                                                                                (Operator) <span
-                                                                                                    class="text-danger">*</span></label>
-                                                                                            <select
-                                                                                                name="operator_id_lanjutan"
-                                                                                                id="operator_id_lanjutan"
-                                                                                                class="form-select"
-                                                                                                data-selected-operator="{{ $visiting->healthForms->operator_id_lanjutan ?? '' }}"
-                                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
-                                                                                                <option value="">--
-                                                                                                    Pilih Operator --
-                                                                                                </option>
-                                                                                            </select>
-                                                                                            <small class="text-muted">Wajib
-                                                                                                diisi jika Petugas Layanan
-                                                                                                Kesehatan dipilih</small>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div class="row">
-                                                                                    <div class="col-md-8 mb-3">
-                                                                                        <div class="form-group">
-                                                                                            <label
-                                                                                                class="form-label fw-bold">Permasalahan
-                                                                                                kesehatan yang
-                                                                                                perlu kunjungan
-                                                                                                lanjutan</label>
-                                                                                            <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3"
-                                                                                                placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan"
-                                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>{{ $visiting->healthForms->permasalahan_lanjutan ?? '' }}</textarea>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6 mb-3">
-                                                                                        <div class="form-group">
-                                                                                            <label
-                                                                                                class="form-label fw-bold">Tanggal
-                                                                                                kunjungan
-                                                                                                lanjutan</label>
-                                                                                            <input type="date"
-                                                                                                class="form-control"
-                                                                                                name="tanggal_kunjungan"
-                                                                                                placeholder="Tanggal"
-                                                                                                value="{{ $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
-                                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div id="form_henti_layanan"
-                                                                                style="display: {{ $visiting->healthForms->kunjungan_lanjutan == 'tidak' ? 'block' : 'none' }}">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-6 mb-3">
-                                                                                        <div class="form-group">
-                                                                                            <label
-                                                                                                class="form-label fw-bold">Alasan
-                                                                                                Henti Layanan</label>
-                                                                                            <select name="henti_layanan"
-                                                                                                id="alasan_henti_layanan"
-                                                                                                class="form-select"
-                                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
-                                                                                                <option value="">
-                                                                                                    Pilih...</option>
-                                                                                                <option
-                                                                                                    value="kenaikan_nilai_aks"
-                                                                                                    {{ $visiting->healthForms->henti_layanan == 'kenaikan_nilai_aks' ? 'selected' : '' }}>
-                                                                                                    KENAIKAN NILAI AKS
-                                                                                                </option>
-                                                                                                <option value="meninggal"
-                                                                                                    {{ $visiting->healthForms->henti_layanan == 'meninggal' ? 'selected' : '' }}>
-                                                                                                    MENINGGAL</option>
-                                                                                                <option value="menolak"
-                                                                                                    {{ $visiting->healthForms->henti_layanan == 'menolak' ? 'selected' : '' }}>
-                                                                                                    MENOLAK</option>
-                                                                                                <option
-                                                                                                    value="pindah_domisili"
-                                                                                                    {{ $visiting->healthForms->henti_layanan == 'pindah_domisili' ? 'selected' : '' }}>
-                                                                                                    PINDAH DOMISILI</option>
-                                                                                            </select>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div
-                                                                class="d-flex justify-content-between align-items-center">
-                                                                <div class="autosave-status" id="health-status">
-                                                                    <small class="text-muted">
-                                                                        <i class="fas fa-circle text-success mr-1"></i>
-                                                                        <span>Auto-save aktif</span>
-                                                                    </small>
-                                                                </div>
-                                                                <button type="submit" class="btn btn-primary">
-                                                                    Simpan Form Kesehatan
-                                                                </button>
-                                                            </div>
+                            <!-- Skrining ADL Tab -->
+                            <div class="tab-pane fade" id="skrining-adl" role="tabpanel">
+                                <div class="card-body">
+                                    <form id="skriningAdlForm" data-visiting-id="{{ $visiting->id }}">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Mengendalikan rangsangan BAB</label>
+                                                    <select name="bab_control" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 1 ? 'selected' : '' }}>
+                                                            1 - Kadang-kadang tidak mampu</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Mengendalikan rangsangan BAK</label>
+                                                    <select name="bak_control" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 1 ? 'selected' : '' }}>
+                                                            1 - Kadang-kadang tidak mampu</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Makan minum</label>
+                                                    <select name="eating" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Naik turun tangga</label>
+                                                    <select name="stairs" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Mandi</label>
+                                                    <select name="bathing" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Bergerak dari kursi roda ke tempat
+                                                        tidur</label>
+                                                    <select name="transfer" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Berjalan di tempat rata</label>
+                                                    <select name="walking" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Berpakaian</label>
+                                                    <select name="dressing" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Membersihkan diri</label>
+                                                    <select name="grooming" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label fw-bold">Penggunaan WC</label>
+                                                    <select name="toilet_use" class="form-select"
+                                                        {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
+                                                        <option value="">Pilih Skor</option>
+                                                        <option value="0"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 0 ? 'selected' : '' }}>
+                                                            0 - Tidak mampu</option>
+                                                        <option value="1"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 1 ? 'selected' : '' }}>
+                                                            1 - Perlu bantuan</option>
+                                                        <option value="2"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 2 ? 'selected' : '' }}>
+                                                            2 - Mampu</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="alert alert-info">
+                                                    <h6 class="fw-bold">Total Skor: <span
+                                                            id="totalScore">{{ $visiting->skriningAdl ? $visiting->skriningAdl->total_score : 0 }}</span>
+                                                    </h6>
+                                                    <small>
+                                                        <strong>Interpretasi:</strong><br>
+                                                        • 20: Mandiri<br>
+                                                        • 12-19: Ketergantungan ringan<br>
+                                                        • 9-11: Ketergantungan sedang<br>
+                                                        • 5-8: Ketergantungan berat<br>
+                                                        • 0-4: Ketergantungan total
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="autosave-status" id="skriningAdl-status">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-circle text-success me-1"></i>
+                                                    <span>Auto-save aktif</span>
+                                                </small>
+                                            </div>
+                                            @if (!(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-save me-2"></i>Simpan Skrining AKS
+                                                </button>
+                                            @endif
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -2001,237 +2237,6 @@
                 </div>
             </div>
         </div>
-        <!-- Skrining ADL Tab -->
-        <div class="tab-pane fade" id="skrining-adl" role="tabpanel">
-            <div class="card-body">
-                <form id="skriningAdlForm" data-visiting-id="{{ $visiting->id }}">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Mengendalikan rangsangan BAB</label>
-                                <select name="bab_control" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 1 ? 'selected' : '' }}>
-                                        1 - Kadang-kadang tidak mampu</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Mengendalikan rangsangan BAK</label>
-                                <select name="bak_control" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 1 ? 'selected' : '' }}>
-                                        1 - Kadang-kadang tidak mampu</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Makan minum</label>
-                                <select name="eating" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Naik turun tangga</label>
-                                <select name="stairs" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Mandi</label>
-                                <select name="bathing" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Bergerak dari kursi roda ke tempat
-                                    tidur</label>
-                                <select name="transfer" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Berjalan di tempat rata</label>
-                                <select name="walking" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Berpakaian</label>
-                                <select name="dressing" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Membersihkan diri</label>
-                                <select name="grooming" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label fw-bold">Penggunaan WC</label>
-                                <select name="toilet_use" class="form-select"
-                                    {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
-                                    <option value="">Pilih Skor</option>
-                                    <option value="0"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 0 ? 'selected' : '' }}>
-                                        0 - Tidak mampu</option>
-                                    <option value="1"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 1 ? 'selected' : '' }}>
-                                        1 - Perlu bantuan</option>
-                                    <option value="2"
-                                        {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 2 ? 'selected' : '' }}>
-                                        2 - Mampu</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="alert alert-info">
-                                <h6 class="fw-bold">Total Skor: <span
-                                        id="totalScore">{{ $visiting->skriningAdl ? $visiting->skriningAdl->total_score : 0 }}</span>
-                                </h6>
-                                <small>
-                                    <strong>Interpretasi:</strong><br>
-                                    • 20: Mandiri<br>
-                                    • 12-19: Ketergantungan ringan<br>
-                                    • 9-11: Ketergantungan sedang<br>
-                                    • 5-8: Ketergantungan berat<br>
-                                    • 0-4: Ketergantungan total
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="autosave-status" id="skriningAdl-status">
-                            <small class="text-muted">
-                                <i class="fas fa-circle text-success me-1"></i>
-                                <span>Auto-save aktif</span>
-                            </small>
-                        </div>
-                        @if (!(auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Simpan Skrining AKS
-                            </button>
-                        @endif
-                    </div>
-                </form>
-            </div>
-        </div>
-
-    </div>
     </div>
     <div class="row mb-3">
         <div class="col-12" style="text-align: right">
@@ -2239,10 +2244,6 @@
                 <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Kunjungan
             </a>
         </div>
-    </div>
-    </div>
-    </div>
-    </div>
     </div>
 @endsection
 
