@@ -103,7 +103,6 @@
                                     <th>Perawat</th>
                                     <th>Tanggal</th>
                                     <th>Jenis Kunjungan</th>
-                                    <th>Status</th>
                                     <th>Skor Aks</th>
                                     {{-- <th>Skor Aks Setelah Kunjungan</th> --}}
                                 </tr>
@@ -131,17 +130,11 @@
                                     <td class="align-middle">{{ $item->user->name ?? 'Belum ada' }}</td>
                                     <td class="align-middle">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') ?? 'Belum ada' }}</td>
                                     <td class="align-middle">{{ $item->status ?? 'Belum ada' }}</td>
-                                    <td class="align-middle">
-                                        @php
-                                            $kunjungan = $item->healthForms->kunjungan_lanjutan ?? null;
-                                        @endphp
-                                        <span class="badge 
-                                            {{ $kunjungan === 'ya' ? 'bg-success' : 
-                                            ($kunjungan === 'tidak' ? 'bg-warning' : 'bg-secondary') }}">
-                                            {{ $kunjungan ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="align-middle">{{ $item->healthForms->skor_aks ?? 'Belum ada' }}</td>
+                                    @php
+                                        $skor_aks = \App\Models\SkriningAdl::where('visiting_id', $item->id)->first();
+                                        $skor_aks = $skor_aks->total_score ?? 'Belum ada';
+                                    @endphp
+                                    <td class="align-middle">{{ $skor_aks }}</td>
                                     {{-- <td class="align-middle">{{ $item->skriningAdl->total_score ?? 'Belum ada' }}</td> --}}
                                 </tr>
                                 @empty
