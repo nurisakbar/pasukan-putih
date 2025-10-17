@@ -2239,9 +2239,9 @@
     </div>
     <div class="row mb-3">
         <div class="col-12" style="text-align: right">
-            <button id="backToVisitingList" class="btn btn-outline-secondary" data-url="{{ route('visitings.index') }}">
+            <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Kunjungan
-            </button>
+            </a>
         </div>
     </div>
 @endsection
@@ -2448,111 +2448,6 @@
             // Initialize tabs
             let currentTabIndex = 0;
 
-            // Enhanced AJAX utility functions
-            const AjaxUtils = {
-                // Standardized AJAX request handler
-                async request(url, options = {}) {
-                    const defaultOptions = {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        }
-                    };
-
-                    const mergedOptions = { ...defaultOptions, ...options };
-                    
-                    console.log('Fetch Request:', {
-                        url: url,
-                        options: mergedOptions
-                    });
-                    
-                    try {
-                        const response = await fetch(url, mergedOptions);
-                        
-                        console.log('Fetch Response:', {
-                            status: response.status,
-                            statusText: response.statusText,
-                            headers: Object.fromEntries(response.headers.entries()),
-                            url: response.url
-                        });
-                        
-                        if (!response.ok) {
-                            const responseText = await response.text();
-                            console.error('Response Error:', {
-                                status: response.status,
-                                statusText: response.statusText,
-                                body: responseText
-                            });
-                            throw new Error(`HTTP error! status: ${response.status} - ${responseText}`);
-                        }
-                        
-                        const responseText = await response.text();
-                        console.log('Response Text:', responseText);
-                        
-                        try {
-                            return JSON.parse(responseText);
-                        } catch (parseError) {
-                            console.error('JSON Parse Error:', {
-                                parseError: parseError,
-                                responseText: responseText
-                            });
-                            throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
-                        }
-                    } catch (error) {
-                        console.error('AJAX request failed:', error);
-                        throw error;
-                    }
-                },
-
-                // Navigation handler
-                async navigateTo(url) {
-                    try {
-                        showNotification('Memuat halaman...', 'info');
-                        window.location.href = url;
-                    } catch (error) {
-                        showNotification('Gagal memuat halaman: ' + error.message, 'error');
-                    }
-                },
-
-                // Form data handler
-                async submitForm(form, endpoint) {
-                    const formData = new FormData(form);
-                    const visitingId = form.dataset.visitingId;
-                    const url = endpoint; // URL sudah lengkap dari caller
-                    
-                    console.log('AJAX Request Details:', {
-                        url: url,
-                        method: 'POST',
-                        formData: Object.fromEntries(formData.entries()),
-                        visitingId: visitingId
-                    });
-                    
-                    try {
-                        const response = await this.request(url, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            }
-                        });
-                        
-                        console.log('AJAX Response:', response);
-                        return response;
-                    } catch (error) {
-                        console.error('AJAX Request Failed:', {
-                            url: url,
-                            error: error,
-                            message: error.message,
-                            response: error.response
-                        });
-                        throw error;
-                    }
-                }
-            };
-
             // Auto-save functionality
             function initializeAutosave() {
                 console.log('Initializing autosave...');
@@ -2601,9 +2496,8 @@
                 });
             }
 
-            // Enhanced auto-save on input change with debouncing and retry logic
+            // Auto-save on input change with debouncing
             let saveTimeouts = {};
-            let retryAttempts = {};
 
             function debouncedSave(form) {
                 const formId = form.id;
@@ -2613,70 +2507,14 @@
                     clearTimeout(saveTimeouts[formId]);
                 }
 
-                saveTimeouts[formId] = setTimeout(async () => {
+                saveTimeouts[formId] = setTimeout(() => {
                     console.log('Executing save for form:', formId);
-                    try {
-                        await saveFormData(form);
-                        // Reset retry attempts on successful save
-                        retryAttempts[formId] = 0;
-                    } catch (error) {
-                        // Implement retry logic for failed saves
-                        retryAttempts[formId] = (retryAttempts[formId] || 0) + 1;
-                        
-                        if (retryAttempts[formId] < 3) {
-                            console.log(`Retrying save for form ${formId}, attempt ${retryAttempts[formId]}`);
-                            showNotification(`Mencoba menyimpan ulang... (${retryAttempts[formId]}/3)`, 'warning');
-                            
-                            // Retry after a delay
-                            setTimeout(() => {
-                                debouncedSave(form);
-                            }, 2000);
-                        } else {
-                            showNotification('Gagal menyimpan setelah 3 percobaan. Silakan coba lagi.', 'error');
-                            retryAttempts[formId] = 0;
-                        }
-                    }
+                    saveFormData(form);
                 }, 1000); // 1 second delay
             }
 
             // Initialize autosave
             initializeAutosave();
-
-            // Global error handler for AJAX requests
-            window.addEventListener('unhandledrejection', function(event) {
-                console.error('Unhandled promise rejection:', event.reason);
-                showNotification('Terjadi kesalahan yang tidak terduga. Silakan refresh halaman.', 'error');
-            });
-
-            // Connection status monitoring
-            let isOnline = navigator.onLine;
-            let connectionStatus = document.createElement('div');
-            connectionStatus.id = 'connection-status';
-            connectionStatus.className = 'position-fixed';
-            connectionStatus.style.cssText = 'bottom: 20px; left: 20px; z-index: 9999; display: none;';
-            
-            function updateConnectionStatus() {
-                const wasOnline = isOnline;
-                isOnline = navigator.onLine;
-                
-                if (!isOnline && wasOnline) {
-                    showNotification('Koneksi internet terputus. Data akan disimpan saat koneksi kembali.', 'warning');
-                    connectionStatus.innerHTML = '<div class="alert alert-warning"><i class="fas fa-wifi me-2"></i>Offline</div>';
-                    connectionStatus.style.display = 'block';
-                } else if (isOnline && !wasOnline) {
-                    showNotification('Koneksi internet kembali. Menyimpan data yang tertunda...', 'success');
-                    connectionStatus.style.display = 'none';
-                    
-                    // Trigger save for all forms when connection is restored
-                    document.querySelectorAll('form[id$="Form"]').forEach(form => {
-                        debouncedSave(form);
-                    });
-                }
-            }
-
-            window.addEventListener('online', updateConnectionStatus);
-            window.addEventListener('offline', updateConnectionStatus);
-            document.body.appendChild(connectionStatus);
 
             // Progress indicator functionality
             function updateFormProgress() {
@@ -3109,19 +2947,28 @@
                 }
             }
 
-            async function saveFormData(form) {
+            function saveFormData(form) {
+                console.log('saveFormData called for form:', form.id);
+
                 const formData = new FormData(form);
                 const visitingId = form.dataset.visitingId;
                 let formType = form.id.replace('Form', '');
 
-                // Map form IDs to correct endpoints (ultra short URLs)
+                console.log('Form data:', formData);
+                console.log('Visiting ID:', visitingId);
+                console.log('Form type before mapping:', formType);
+
+                // Map form IDs to correct endpoints
                 if (formType === 'ttv') {
-                    formType = 't';
+                    formType = 'ttv';
                 } else if (formType === 'health') {
-                    formType = 'h';
+                    formType = 'health-form';
                 } else if (formType === 'skriningAdl') {
-                    formType = 'a';
+                    formType = 'skrining-adl-ajax';
                 }
+
+                console.log('Saving form:', formType, 'for visiting:', visitingId);
+                console.log('Endpoint URL:', `/visitings/${visitingId}/${formType}`);
 
                 // Update status to saving
                 updateAutosaveStatus(formType, 'saving', 'Menyimpan...');
@@ -3134,46 +2981,57 @@
                     submitButton.disabled = true;
                 }
 
-                try {
-                    // Use ultra short URLs to avoid diskominfo blocking
-                    const data = await AjaxUtils.submitForm(form, `{{ url('/s') }}/${visitingId}/${formType}`);
-                    
-                    if (data.success) {
-                        updateAutosaveStatus(formType, 'success', 'Tersimpan');
-                        showNotification('Data berhasil disimpan', 'success');
+                console.log('Making fetch request to:', `/visitings/${visitingId}/${formType}`);
 
-                        // Reset to active status after 2 seconds
-                        setTimeout(() => {
-                            updateAutosaveStatus(formType, 'active');
-                        }, 2000);
-                    } else {
-                        updateAutosaveStatus(formType, 'error', 'Gagal menyimpan');
-                        showNotification(data.message || 'Gagal menyimpan data', 'error');
-                    }
-                } catch (error) {
-                    console.error('AJAX Error Details:', {
-                        error: error,
-                        message: error.message,
-                        stack: error.stack,
-                        formType: formType,
-                        formId: form.id
+                fetch("{{ url('/visitings') }}/" + visitingId + "/" + formType, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content'),
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response received:', response.status, response.statusText);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            updateAutosaveStatus(formType, 'success', 'Tersimpan');
+                            showNotification('Data berhasil disimpan', 'success');
+
+                            // Reset to active status after 2 seconds
+                            setTimeout(() => {
+                                updateAutosaveStatus(formType, 'active');
+                            }, 2000);
+                        } else {
+                            updateAutosaveStatus(formType, 'error', 'Gagal menyimpan');
+                            showNotification(data.message || 'Gagal menyimpan data', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
+                        showNotification('Terjadi kesalahan: ' + error.message, 'error');
+                    })
+                    .finally(() => {
+                        // Restore button state
+                        if (submitButton) {
+                            submitButton.innerHTML = originalText;
+                            submitButton.disabled = false;
+                        }
                     });
-                    
-                    updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
-                    showNotification('Terjadi kesalahan: ' + error.message, 'error');
-                } finally {
-                    // Restore button state
-                    if (submitButton) {
-                        submitButton.innerHTML = originalText;
-                        submitButton.disabled = false;
-                    }
-                }
             }
 
             let lastNotification = null;
             let notificationTimeout = null;
 
-            function showNotification(message, type = 'info') {
+            function showNotification(message, type) {
                 // Remove existing notification
                 if (lastNotification) {
                     lastNotification.remove();
@@ -3182,86 +3040,51 @@
                     clearTimeout(notificationTimeout);
                 }
 
-                // Enhanced notification types
-                const alertClasses = {
-                    'success': 'alert-success',
-                    'error': 'alert-danger',
-                    'warning': 'alert-warning',
-                    'info': 'alert-info'
-                };
-
-                const iconClasses = {
-                    'success': 'fa-check-circle',
-                    'error': 'fa-exclamation-circle',
-                    'warning': 'fa-exclamation-triangle',
-                    'info': 'fa-info-circle'
-                };
-
-                const alertClass = alertClasses[type] || 'alert-info';
-                const iconClass = iconClasses[type] || 'fa-info-circle';
-
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
                 const notification = document.createElement('div');
                 notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
                 notification.style.cssText =
                     'top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);';
                 notification.innerHTML = `
-                    <i class="fas ${iconClass} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
                 document.body.appendChild(notification);
 
                 lastNotification = notification;
 
-                // Auto remove after 3 seconds (except for info notifications which stay longer)
-                const timeout = type === 'info' ? 5000 : 3000;
+                // Auto remove after 3 seconds
                 notificationTimeout = setTimeout(() => {
                     if (notification && notification.parentNode) {
                         notification.remove();
                         lastNotification = null;
                     }
-                }, timeout);
+                }, 3000);
             }
 
 
-            // Navigation handler
-            const backButton = document.getElementById('backToVisitingList');
-            if (backButton) {
-                backButton.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
-                    AjaxUtils.navigateTo(url);
-                });
-            }
-
-            // Enhanced tab click handlers with AJAX loading states
+            // Tab click handlers
             const tabs = ['ttv', 'health-form', 'skrining-adl'];
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function() {
                     const tabName = this.id.replace('-tab', '');
                     currentTabIndex = tabs.indexOf(tabName);
-                    
-                    // Show loading state for tab switching
-                    showNotification(`Memuat tab ${tabName}...`, 'info');
+                    console.log('Tab clicked:', tabName, 'Index:', currentTabIndex);
                 });
             });
 
-            // Add explicit tab show event listeners with enhanced functionality
+            // Add explicit tab show event listeners
             document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tabElement => {
                 tabElement.addEventListener('shown.bs.tab', function(event) {
                     const targetTab = event.target.getAttribute('data-bs-target');
+                    console.log('Tab shown:', targetTab);
 
                     // Ensure the tab content is visible
                     const tabPane = document.querySelector(targetTab);
                     if (tabPane) {
                         tabPane.classList.add('show', 'active');
-                        
-                        // Trigger form validation and progress update for the active tab
-                        const form = tabPane.querySelector('form');
-                        if (form) {
-                            // Update progress for the active form
-                            if (form.id === 'healthForm') {
-                                updateFormProgress();
-                            }
-                        }
+                        console.log('Tab pane activated:', targetTab);
                     }
                 });
             });
