@@ -75,7 +75,37 @@ class PasienController extends Controller
                 'pasiens.flag_sicarik',
                 'villages.name as village_name',
                 'districts.name as district_name',
-                'regencies.name as regency_name'
+                'regencies.name as regency_name',
+                DB::raw('(
+                    CASE 
+                        WHEN NOT EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) THEN "Belum Dijadwalkan Kunjungan Awal"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM visitings v2 
+                            WHERE v2.pasien_id = pasiens.id 
+                            AND v2.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v3 
+                            WHERE v3.pasien_id = pasiens.id 
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Sudah Kunjungan Lanjutan"
+                        ELSE "Sudah Kunjungan Awal"
+                    END
+                ) as status')
             )
             ->join('villages', 'villages.id', '=', 'pasiens.village_id')
             ->join('districts', 'districts.id', '=', 'villages.district_id')
@@ -125,6 +155,64 @@ class PasienController extends Controller
                 $query->where('pasiens.flag_sicarik', 1);
             } elseif ($flagSicarik == '0') {
                 $query->where('pasiens.flag_sicarik', 0);
+            }
+        }
+
+        // Apply status filter if provided
+        if ($request->filled('status_filter')) {
+            $statusFilter = $request->status_filter;
+            switch ($statusFilter) {
+                case 'belum_awal':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    });
+                    break;
+                case 'belum_lanjutan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'sudah_awal':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'sudah_lanjutan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'henti_layanan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    break;
             }
         }
 
@@ -582,7 +670,8 @@ class PasienController extends Controller
             $currentUser = auth()->user();
             $filters = [
                 'district_filter' => $request->input('district_filter'),
-                'search_input' => $request->input('search_input')
+                'search_input' => $request->input('search_input'),
+                'status_filter' => $request->input('status_filter')
             ];
 
             // Generate export ID
@@ -727,7 +816,37 @@ class PasienController extends Controller
                 'districts.name as district_name',
                 'regencies.name as regency_name',
                 'provinces.name as province_name',
-                'pasiens.created_at'
+                'pasiens.created_at',
+                DB::raw('(
+                    CASE 
+                        WHEN NOT EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) THEN "Belum Dijadwalkan Kunjungan Awal"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM visitings v2 
+                            WHERE v2.pasien_id = pasiens.id 
+                            AND v2.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v3 
+                            WHERE v3.pasien_id = pasiens.id 
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Sudah Kunjungan Lanjutan"
+                        ELSE "Sudah Kunjungan Awal"
+                    END
+                ) as status')
             )
             ->join('villages', 'villages.id', '=', 'pasiens.village_id')
             ->join('districts', 'districts.id', '=', 'villages.district_id')
@@ -768,6 +887,64 @@ class PasienController extends Controller
                   ->orWhere('districts.name', 'like', "%{$searchTerm}%")
                   ->orWhere('regencies.name', 'like', "%{$searchTerm}%");
             });
+        }
+
+        // Apply status filter if provided
+        if (isset($filters['status_filter']) && !empty($filters['status_filter'])) {
+            $statusFilter = $filters['status_filter'];
+            switch ($statusFilter) {
+                case 'belum_awal':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    });
+                    break;
+                case 'belum_lanjutan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'sudah_awal':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'sudah_lanjutan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'henti_layanan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    break;
+            }
         }
 
         return $query->orderBy('pasiens.created_at', 'desc');

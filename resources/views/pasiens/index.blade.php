@@ -45,6 +45,17 @@
                                 <label for="search_input" class="form-label">Pencarian:</label>
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
                             </div>
+                            <div class="col-md-3">
+                                <label for="status_filter" class="form-label">Filter Status:</label>
+                                <select id="status_filter" class="form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
+                                    <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="sudah_awal">Sudah Kunjungan Awal</option>
+                                    <option value="sudah_lanjutan">Sudah Kunjungan Lanjutan</option>
+                                    <option value="henti_layanan">Henti Layanan</option>
+                                </select>
+                            </div>
                             <div class="col d-flex align-items-end gap-2 mt-4">
                                 <button type="button" id="exportPasien" class="btn btn-success">
                                     <i class="fas fa-file-excel me-1"></i> Export Excel
@@ -66,9 +77,20 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="row align-items-center">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="search_input" class="form-label">Pencarian:</label>
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="status_filter" class="form-label">Filter Status:</label>
+                                <select id="status_filter" class="form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
+                                    <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="sudah_awal">Sudah Kunjungan Awal</option>
+                                    <option value="sudah_lanjutan">Sudah Kunjungan Lanjutan</option>
+                                    <option value="henti_layanan">Henti Layanan</option>
+                                </select>
                             </div>
                             <div class="col-md-3">
                                 <button type="button" id="apply_filter" class="btn btn-primary mt-4">
@@ -108,6 +130,7 @@
                                             <th>NAMA</th>
                                             <th>NIK</th>
                                             <th>JENIS KELAMIN</th>
+                                            <th>STATUS</th>
                                             <th>NAMA JALAN</th>
                                             <th>RT/ RW</th>
                                             <th>KABUPATEN</th>
@@ -481,6 +504,7 @@
                         d.district_filter = $('#district_filter').val();
                         @endif
                         d.search_input = $('#search_input').val();
+                        d.status_filter = $('#status_filter').val();
                         d._token = '{{ csrf_token() }}';
                     }
                 },
@@ -511,30 +535,49 @@
                         responsivePriority: 3
                     },
                     { 
+                        data: 'status', 
+                        name: 'status',
+                        responsivePriority: 4,
+                        render: function (data, type, row) {
+                            if (data === 'Belum Dijadwalkan Kunjungan Awal') {
+                                return '<span class="badge bg-warning">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Lanjutan Pertama') {
+                                return '<span class="badge bg-info">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Awal') {
+                                return '<span class="badge bg-success">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Lanjutan') {
+                                return '<span class="badge bg-primary">' + data + '</span>';
+                            } else if (data === 'Henti Layanan') {
+                                return '<span class="badge bg-danger">' + data + '</span>';
+                            }
+                            return '<span class="badge bg-secondary">' + data + '</span>';
+                        }
+                    },
+                    { 
                         data: 'alamat', 
                         name: 'alamat',
-                        responsivePriority: 4
+                        responsivePriority: 5
                     },
                     { 
                         data: 'rt_rw', 
                         name: 'rt_rw', 
                         orderable: false,
-                        responsivePriority: 5
+                        responsivePriority: 6
                     },
                     { 
                         data: 'regency_name', 
                         name: 'regencies.name',
-                        responsivePriority: 6
+                        responsivePriority: 7
                     },
                     { 
                         data: 'district_name', 
                         name: 'districts.name',
-                        responsivePriority: 7
+                        responsivePriority: 8
                     },
                     { 
                         data: 'village_name', 
                         name: 'villages.name',
-                        responsivePriority: 8
+                        responsivePriority: 9
                     }
                 ],
                 responsive: {
@@ -625,6 +668,7 @@
                 $('#district_filter').val('');
                 @endif
                 $('#search_input').val('');
+                $('#status_filter').val('');
                 table.ajax.reload();
             });
 
@@ -634,6 +678,11 @@
                 table.ajax.reload();
             });
             @endif
+
+            // Auto-reload when status filter changes
+            $('#status_filter').change(function() {
+                table.ajax.reload();
+            });
 
             // Search functionality with debounce
             let searchTimeout;
@@ -863,7 +912,8 @@
 
                 // Get current filters
                 let filters = {
-                    search_input: $('#search_input').val()
+                    search_input: $('#search_input').val(),
+                    status_filter: $('#status_filter').val()
                 };
 
                 @if(auth()->user()->role === 'superadmin')

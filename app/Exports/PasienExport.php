@@ -33,6 +33,7 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             'Nama',
             'NIK',
             'Jenis Kelamin',
+            'Status',
             'Tanggal Lahir',
             'Alamat',
             'RT/RW',
@@ -54,6 +55,7 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             $pasien->name,
             "'" . $pasien->nik, // Prefix dengan single quote agar Excel treat sebagai text
             $pasien->jenis_kelamin,
+            $pasien->status ?? 'Belum Dijadwalkan Kunjungan Awal',
             $pasien->tanggal_lahir ? \Carbon\Carbon::parse($pasien->tanggal_lahir)->format('d/m/Y') : '',
             $pasien->alamat,
             $pasien->rt . '/' . $pasien->rw,
@@ -80,14 +82,15 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             'B' => 25,  // Nama
             'C' => 20,  // NIK
             'D' => 15,  // Jenis Kelamin
-            'E' => 15,  // Tanggal Lahir
-            'F' => 30,  // Alamat
-            'G' => 10,  // RT/RW
-            'H' => 20,  // Provinsi
-            'I' => 20,  // Kabupaten/Kota
-            'J' => 20,  // Kecamatan
-            'K' => 20,  // Kelurahan
-            'L' => 20,  // Tanggal Dibuat
+            'E' => 35,  // Status
+            'F' => 15,  // Tanggal Lahir
+            'G' => 30,  // Alamat
+            'H' => 10,  // RT/RW
+            'I' => 20,  // Provinsi
+            'J' => 20,  // Kabupaten/Kota
+            'K' => 20,  // Kecamatan
+            'L' => 20,  // Kelurahan
+            'M' => 20,  // Tanggal Dibuat
         ];
     }
 
