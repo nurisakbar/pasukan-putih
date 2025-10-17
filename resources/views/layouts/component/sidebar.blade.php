@@ -1,6 +1,6 @@
 <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
     <div class="sidebar-brand">
-        <a href="/" class="brand-link">
+        <a href="{{ url('/')}}" class="brand-link">
             <img src="{{ asset('assets/dist/assets/img/jaksehat.png') }}" alt="DInkes Jakarta"
                 class="brand-image opacity-75 shadow" />
             <span class="brand-text fw-light">DINKES JAKARTA</span>
