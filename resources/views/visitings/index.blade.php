@@ -9,12 +9,12 @@
     <div class="app-content-header py-3">
         <div class="container-fluid">
             <div class="row align-items-center">
-                <div class="col-md-6 col-12 mb-2 mb-md-0">
+                <div class="col-md-10 col-12 mb-2 mb-md-0">
                     <h3 class="mb-0">Kunjungan</h3>
                 </div>
-                <div class="col-md-6 col-12 text-md-end text-start">
-                    <a href="{{ route('visitings.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
-                        <i class="fas fa-plus-circle me-1"></i> Tambah Kunjungan
+                <div class="col-md-2 col-12 text-md-end text-start">
+                    <a href="{{ route('visitings.create') }}" class="btn btn-primary btn-sm shadow-sm w-100 w-md-auto">
+                        <i class="fas fa-plus-circle me-1"></i> <span class="d-none d-sm-inline">Tambah </span>Kunjungan
                     </a>
                 </div>
             </div>
@@ -33,17 +33,17 @@
                             </small>
                         </div>
                     </div> --}}
-                    <form method="GET" action="{{ route('visitings.index') }}" class="row g-2 align-items-center">
-                        <div class="col-md-3 col-12">
-                            <label class="form-label small text-muted mb-1"></label>
+                    <form method="GET" action="{{ route('visitings.index') }}" class="row g-2 align-items-end">
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <label class="form-label small text-muted mb-1">Cari Nama/NIK</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
                                 <input type="text" name="search" class="form-control" placeholder="Cari Nama/NIK"
                                     value="{{ request('search') }}">
                             </div>
                         </div>
-                        <div class="col-md-3 col-12">
-                            <label class="form-label small text-muted mb-1">Rentang Tanggal (Dari)</label>
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <label class="form-label small text-muted mb-1">Tanggal Mulai</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
                                 <input type="date" name="tanggal_awal" class="form-control" placeholder="Tanggal Mulai"
@@ -51,8 +51,8 @@
                                     title="Pilih tanggal mulai untuk rentang pencarian data kunjungan (dari tanggal)">
                             </div>
                         </div>
-                        <div class="col-md-3 col-12">
-                            <label class="form-label small text-muted mb-1">Rentang Tanggal (Sampai)</label>
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <label class="form-label small text-muted mb-1">Tanggal Akhir</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
                                 <input type="date" name="tanggal_akhir" class="form-control" placeholder="Tanggal Akhir"
@@ -60,49 +60,51 @@
                                     title="Pilih tanggal akhir untuk rentang pencarian data kunjungan (sampai tanggal)">
                             </div>
                         </div>
-                        <div class="col-md-3 col-12 text-md-end text-start">
-                            <button type="submit" class="btn btn-sm btn-primary me-1 mt-2">
-                                <i class="fas fa-search me-1"></i> Cari
-                            </button>
-                            <a href="{{ route('visitings.index') }}" class="btn btn-sm btn-outline-secondary mt-2">
-                                <i class="fas fa-sync-alt me-1"></i> Reset
-                            </a>
+                        <div class="col-lg-3 col-md-6 col-12">
+                            <div class="d-flex flex-column flex-md-row gap-2">
+                                <button type="submit" class="btn btn-sm btn-primary flex-fill">
+                                    <i class="fas fa-search me-1"></i> <span class="d-none d-sm-inline">Cari</span>
+                                </button>
+                                <a href="{{ route('visitings.index') }}" class="btn btn-sm btn-outline-secondary flex-fill">
+                                    <i class="fas fa-sync-alt me-1"></i> <span class="d-none d-sm-inline">Reset</span>
+                                </a>
+                            </div>
                         </div>
                     </form>
 
                     <!-- Baris baru untuk tombol export -->
                     <div class="row mt-3">
                         <div class="col-12">
-                            <div class="btn-group d-flex flex-wrap gap-2">
-                                <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Kunjungan
+                            <div class="d-flex flex-wrap gap-1 gap-md-2">
+                                <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Kunjungan</span><span class="d-md-none">Kunj</span>
                                 </a>
-                                <a href="{{ route('export.kohort-hs', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> KOHORT HS
+                                <a href="{{ route('export.kohort-hs', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">KOHORT HS</span><span class="d-md-none">KHS</span>
                                 </a>
-                                <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Sasaran Bulanan
+                                <a href="{{ route('export.sasaran-bulanan', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Sasaran Bulanan</span><span class="d-md-none">Sasaran</span>
                                 </a>
-                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Jumlah Sasaran
+                                <a href="{{ route('export.jumlah-sasaran') }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Jumlah Sasaran</span><span class="d-md-none">Jumlah</span>
                                 </a>
-                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Kunjungan Awal
+                                <a href="{{ route('export.kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Kunjungan Awal</span><span class="d-md-none">Awal</span>
                                 </a>
-                                <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Summary Awal
+                                <a href="{{ route('export.summary-kunjungan-awal', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Summary Awal</span><span class="d-md-none">Sum Awal</span>
                                 </a>
-                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Kunjungan Lanjutan
+                                <a href="{{ route('export.kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Kunjungan Lanjutan</span><span class="d-md-none">Lanjutan</span>
                                 </a>
-                                <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Summary Lanjutan
+                                <a href="{{ route('export.summary-kunjungan-lanjutan', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Summary Lanjutan</span><span class="d-md-none">Sum Lanj</span>
                                 </a>
-                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Henti Layanan
+                                <a href="{{ route('export.henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Henti Layanan</span><span class="d-md-none">Henti</span>
                                 </a>
-                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-file-export me-1"></i> Summary Henti
+                                <a href="{{ route('export.summary-henti-layanan', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                    <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Summary Henti</span><span class="d-md-none">Sum Henti</span>
                                 </a>
                             </div>
                         </div>
@@ -122,39 +124,49 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     
-                    <div class="table-responsive-sm">
+                    <div class="table-responsive">
                         <table id="example2" class="table table-bordered table-striped dataTable-responsive">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 50px;">NO</th>
-                                    <th>NAMA PASIEN</th>
-                                    <th>TANGGAL</th>
-                                    <th>JENIS KUNJUNGAN</th>
+                                    <th style="width: 50px;" class="text-center">NO</th>
+                                    <th class="d-none d-md-table-cell">NAMA PASIEN</th>
+                                    <th class="d-none d-md-table-cell">TANGGAL</th>
+                                    <th class="d-none d-md-table-cell">JENIS KUNJUNGAN</th>
                                     {{-- <th>STATUS</th> --}}
                                     {{-- <th>OPERATOR</th> --}}
-                                    <th>ALAMAT</th>
-                                    <th>RT/ RW</th>
-                                    <th>KABUPATEN</th>
-                                    <th>KECAMATAN</th>
-                                    <th>KELURAHAN</th>
+                                    <th class="d-none d-lg-table-cell">ALAMAT</th>
+                                    <th class="d-none d-lg-table-cell">RT/ RW</th>
+                                    <th class="d-none d-xl-table-cell">KABUPATEN</th>
+                                    <th class="d-none d-xl-table-cell">KECAMATAN</th>
+                                    <th class="d-none d-xl-table-cell">KELURAHAN</th>
+                                    <!-- Mobile view columns -->
+                                    <th class="d-md-none">INFO</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($visitings as $index => $kunjungan)
                                     <tr class="clickable-row" data-url="{{ route('visitings.dashboard', $kunjungan->id) }}">
                                         <td class="align-middle text-center">{{ $index + 1 }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->name }}</td>
-                                        <td class="align-middle">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
-                                        <td class="align-middle">{{ $kunjungan->status }}</td>
+                                        <td class="align-middle d-none d-md-table-cell">{{ $kunjungan->pasien->name }}</td>
+                                        <td class="align-middle d-none d-md-table-cell">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</td>
+                                        <td class="align-middle d-none d-md-table-cell">{{ $kunjungan->status }}</td>
                                         {{-- <td class="align-middle">{{ $kunjungan->selesai==1?'SELESAI':'BELUM' }}</td> --}}
                                         {{-- <td class="align-middle">{{ $kunjungan->operator ? $kunjungan->operator->name : '-' }}</td> --}}
-                                        <td class="align-middle text-truncate" style="max-width: 150px;">
+                                        <td class="align-middle text-truncate d-none d-lg-table-cell" style="max-width: 150px;">
                                             {{ $kunjungan->pasien->alamat }}
                                         </td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->rt }} / {{ $kunjungan->pasien->rw }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->regency->name; }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->village->district->name }}</td>
-                                        <td class="align-middle">{{ $kunjungan->pasien->village->name }}</td>
+                                        <td class="align-middle d-none d-lg-table-cell">{{ $kunjungan->pasien->rt }} / {{ $kunjungan->pasien->rw }}</td>
+                                        <td class="align-middle d-none d-xl-table-cell">{{ $kunjungan->pasien->village->district->regency->name; }}</td>
+                                        <td class="align-middle d-none d-xl-table-cell">{{ $kunjungan->pasien->village->district->name }}</td>
+                                        <td class="align-middle d-none d-xl-table-cell">{{ $kunjungan->pasien->village->name }}</td>
+                                        <!-- Mobile view cell -->
+                                        <td class="align-middle d-md-none">
+                                            <div class="d-flex flex-column">
+                                                <div class="fw-bold text-primary">{{ $kunjungan->pasien->name }}</div>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($kunjungan->tanggal)->format('d M Y') }}</small>
+                                                <span class="badge bg-info text-dark">{{ $kunjungan->status }}</span>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -173,8 +185,10 @@
                 </div>
                 @if(isset($kunjungans) && method_exists($kunjungans, 'links'))
                 <div class="card-footer bg-white">
-                    <div class="float-end">
-                        {{ $kunjungans->links() }}
+                    <div class="d-flex justify-content-center justify-content-md-end">
+                        <div class="pagination-wrapper">
+                            {{ $kunjungans->links() }}
+                        </div>
                     </div>
                 </div>
                 @endif
@@ -208,6 +222,60 @@
         .clickable-row:active {
             background-color: #cce7ff !important;
             transform: scale(0.98);
+        }
+        
+        /* Mobile table improvements */
+        .table-responsive {
+            border: none;
+        }
+        
+        .table td, .table th {
+            padding: 0.5rem 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Mobile pagination */
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination .page-link {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Mobile button improvements */
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Mobile card improvements */
+        .card-header {
+            padding: 0.75rem;
+        }
+        
+        .card-body {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Extra small devices */
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .btn-group .btn {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+        }
+        
+        .table td, .table th {
+            padding: 0.25rem 0.125rem;
+            font-size: 0.8rem;
         }
     }
 </style>
