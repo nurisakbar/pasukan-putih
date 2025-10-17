@@ -541,7 +541,7 @@
                 <i class="fas fa-user-md"></i>
             </div>
         </div>
-        <h2>SIPASPUTIH</h2>
+        {{-- <h2>SIPASPUTIH</h2> --}}
         <h4>Sistem Pelaporan Pasukan Putih</h4>
         
         @if(session('error'))
