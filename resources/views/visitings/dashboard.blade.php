@@ -1846,10 +1846,7 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12 mb-3">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="form-label fw-bold">Kunjungan
-                                                                                Lanjutan Akan Dilakukan
-                                                                                Oleh:</label>
+                                                                            <label class="form-label fw-bold">Kunjungan Lanjutan Akan Dilakukan Oleh:</label>
                                                                             <div class="d-flex gap-4">
                                                                                 <div class="form-check">
                                                                                     <input
@@ -1859,7 +1856,7 @@
                                                                                         id="dilakukan_perawat"
                                                                                         value="perawat"
                                                                                         {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
+                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
                                                                                         for="dilakukan_perawat">
@@ -1874,7 +1871,7 @@
                                                                                         id="dilakukan_petugas"
                                                                                         value="petugas_layanan_kesehatan"
                                                                                         {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
+                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
                                                                                         for="dilakukan_petugas">
@@ -1931,16 +1928,13 @@
                                                                 <div class="row">
                                                                     <div class="col-md-6 mb-3">
                                                                         <div class="form-group">
-                                                                            <label
-                                                                                class="form-label fw-bold">Tanggal
-                                                                                kunjungan
-                                                                                lanjutan</label>
+                                                                            <label class="form-label fw-bold">Tanggal kunjungan lanjutan</label>
                                                                             <input type="date"
                                                                                 class="form-control"
                                                                                 name="tanggal_kunjungan"
                                                                                 placeholder="Tanggal"
                                                                                 value="{{ $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
-                                                                                {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'readonly' : '' }}>
+                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
                                                                         </div>
                                                                     </div>
                                                                 </div>
