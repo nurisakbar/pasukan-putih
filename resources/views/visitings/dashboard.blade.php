@@ -3114,13 +3114,13 @@
                 const visitingId = form.dataset.visitingId;
                 let formType = form.id.replace('Form', '');
 
-                // Map form IDs to correct endpoints (short URLs)
+                // Map form IDs to correct endpoints (ultra short URLs)
                 if (formType === 'ttv') {
-                    formType = 'ttv';
+                    formType = 't';
                 } else if (formType === 'health') {
-                    formType = 'health';
+                    formType = 'h';
                 } else if (formType === 'skriningAdl') {
-                    formType = 'adl';
+                    formType = 'a';
                 }
 
                 // Update status to saving
@@ -3135,8 +3135,8 @@
                 }
 
                 try {
-                    // Use short URLs to avoid diskominfo blocking
-                    const data = await AjaxUtils.submitForm(form, `{{ url('/v') }}/${visitingId}/${formType}`);
+                    // Use ultra short URLs to avoid diskominfo blocking
+                    const data = await AjaxUtils.submitForm(form, `{{ url('/s') }}/${visitingId}/${formType}`);
                     
                     if (data.success) {
                         updateAutosaveStatus(formType, 'success', 'Tersimpan');
