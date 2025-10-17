@@ -46,6 +46,7 @@
                                     <option value="">Semua Status</option>
                                     <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
                                     <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="belum_berkelanjutan">Belum Dijadwalkan Kunjungan Berkelanjutan</option>
                                     <option value="henti_layanan">Henti Layanan</option>
                                 </select>
                             </div>
@@ -80,6 +81,7 @@
                                     <option value="">Semua Status</option>
                                     <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
                                     <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="belum_berkelanjutan">Belum Dijadwalkan Kunjungan Berkelanjutan</option>
                                     <option value="henti_layanan">Henti Layanan</option>
                                 </select>
                             </div>
@@ -669,6 +671,8 @@
                                 return '<span class="badge bg-warning">' + data + '</span>';
                             } else if (data === 'Belum Dijadwalkan Kunjungan Lanjutan Pertama') {
                                 return '<span class="badge bg-info">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Berkelanjutan') {
+                                return '<span class="badge bg-secondary">' + data + '</span>';
                             } else if (data === 'Sudah Kunjungan Awal') {
                                 return '<span class="badge bg-success">' + data + '</span>';
                             } else if (data === 'Sudah Kunjungan Lanjutan') {
@@ -826,6 +830,8 @@
                                 return '<span class="badge bg-warning status-badge">' + data + '</span>';
                             } else if (data === 'Belum Dijadwalkan Kunjungan Lanjutan Pertama') {
                                 return '<span class="badge bg-info status-badge">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Berkelanjutan') {
+                                return '<span class="badge bg-secondary status-badge">' + data + '</span>';
                             } else if (data === 'Sudah Kunjungan Awal') {
                                 return '<span class="badge bg-success status-badge">' + data + '</span>';
                             } else if (data === 'Sudah Kunjungan Lanjutan') {
@@ -887,8 +893,12 @@
 
             // Apply filter button
             $('#apply_filter').click(function() {
-                table.ajax.reload();
-                mobileTable.ajax.reload();
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
             });
 
             // Clear filter button
@@ -905,15 +915,23 @@
             // Auto-reload when district filter changes (only for administrators)
             @if(auth()->user()->role === 'superadmin')
             $('#district_filter').change(function() {
-                table.ajax.reload();
-                mobileTable.ajax.reload();
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
             });
             @endif
 
             // Auto-reload when status filter changes
             $('#status_filter').change(function() {
-                table.ajax.reload();
-                mobileTable.ajax.reload();
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
             });
 
             // Search functionality with debounce
@@ -921,8 +939,12 @@
             $('#search_input').on('keyup', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(function() {
-                    table.ajax.reload();
-                    mobileTable.ajax.reload();
+                    table.ajax.reload(function(){
+                        table.columns.adjust();
+                    }, false);
+                    mobileTable.ajax.reload(function(){
+                        mobileTable.columns.adjust();
+                    }, false);
                 }, 500); // Wait 500ms after user stops typing
             });
         });

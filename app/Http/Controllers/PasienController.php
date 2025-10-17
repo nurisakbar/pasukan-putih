@@ -85,6 +85,11 @@ class PasienController extends Controller
                             AND hf.henti_layanan IS NOT NULL
                         ) THEN "Henti Layanan"
                         WHEN EXISTS (
+                            SELECT 1 FROM visitings v3
+                            WHERE v3.pasien_id = pasiens.id
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Berkelanjutan"
+                        WHEN EXISTS (
                             SELECT 1 FROM visitings v1 
                             WHERE v1.pasien_id = pasiens.id 
                             AND v1.status = "Kunjungan Awal"
@@ -153,6 +158,14 @@ class PasienController extends Controller
             $statusFilter = $request->status_filter;
             switch ($statusFilter) {
                 case 'belum_awal':
+                    // Exclude Henti Layanan always
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
                     $query->whereNotExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
@@ -161,12 +174,35 @@ class PasienController extends Controller
                     });
                     break;
                 case 'belum_lanjutan':
+                    // Exclude Henti Layanan always
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
                     $query->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
                           ->where('visitings.status', 'Kunjungan Awal');
                     })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'belum_berkelanjutan':
+                    // Those who already had at least one lanjutan and not henti layanan
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    })->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
@@ -795,6 +831,11 @@ class PasienController extends Controller
                             AND hf.henti_layanan IS NOT NULL
                         ) THEN "Henti Layanan"
                         WHEN EXISTS (
+                            SELECT 1 FROM visitings v3
+                            WHERE v3.pasien_id = pasiens.id
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Berkelanjutan"
+                        WHEN EXISTS (
                             SELECT 1 FROM visitings v1 
                             WHERE v1.pasien_id = pasiens.id 
                             AND v1.status = "Kunjungan Awal"
@@ -855,18 +896,46 @@ class PasienController extends Controller
                 case 'belum_awal':
                     $query->whereNotExists(function ($q) {
                         $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
                           ->where('visitings.status', 'Kunjungan Awal');
                     });
                     break;
                 case 'belum_lanjutan':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
                     $query->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
                           ->where('visitings.status', 'Kunjungan Awal');
                     })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'belum_berkelanjutan':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    })->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')

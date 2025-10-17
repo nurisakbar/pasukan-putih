@@ -1878,8 +1878,7 @@
                                                                                     <label
                                                                                         class="form-check-label"
                                                                                         for="dilakukan_petugas">
-                                                                                        Petugas Layanan
-                                                                                        Kesehatan Oleh Warga
+                                                                                        Petugas Layanan Kesehatan Warga
                                                                                     </label>
                                                                                 </div>
                                                                             </div>
