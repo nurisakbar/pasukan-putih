@@ -537,10 +537,10 @@ class VisitingController extends Controller
         if ($ttv) {
             $ttv->update($request->all());
         } else {
-            Ttv::create([
-                'kunjungan_id' => $visiting->id,
-                ...$request->all()
-            ]);
+            Ttv::create(array_merge(
+                ['kunjungan_id' => $visiting->id],
+                $request->all()
+            ));
         }
 
         return response()->json(['success' => true, 'message' => 'TTV berhasil disimpan']);

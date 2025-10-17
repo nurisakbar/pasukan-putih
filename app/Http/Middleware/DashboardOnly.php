@@ -19,14 +19,13 @@ class DashboardOnly
         $user = Auth::user();
 
         if ($user && $user->id === '9f87571e-545c-4204-9d59-bc139d243c48') {
-        
-        if ($request->is('/') || $request->is('logout')) {
-            return $next($request);
+            if ($request->is('/') || $request->is('logout')) {
+                return $next($request);
+            }
+
+            return redirect()->to('/');
         }
 
-        return redirect()->to('/');
-    }
-
-    return $next($request);
+        return $next($request);
     }
 }

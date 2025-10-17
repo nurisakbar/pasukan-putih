@@ -2948,15 +2948,10 @@
             }
 
             function saveFormData(form) {
-                console.log('saveFormData called for form:', form.id);
 
                 const formData = new FormData(form);
                 const visitingId = form.dataset.visitingId;
                 let formType = form.id.replace('Form', '');
-
-                console.log('Form data:', formData);
-                console.log('Visiting ID:', visitingId);
-                console.log('Form type before mapping:', formType);
 
                 // Map form IDs to correct endpoints
                 if (formType === 'ttv') {
@@ -2967,8 +2962,6 @@
                     formType = 'skrining-adl-ajax';
                 }
 
-                console.log('Saving form:', formType, 'for visiting:', visitingId);
-                console.log('Endpoint URL:', `/visitings/${visitingId}/${formType}`);
 
                 // Update status to saving
                 updateAutosaveStatus(formType, 'saving', 'Menyimpan...');
@@ -2981,8 +2974,6 @@
                     submitButton.disabled = true;
                 }
 
-                console.log('Making fetch request to:', `/visitings/${visitingId}/${formType}`);
-
                 fetch("{{ url('/visitings') }}/" + visitingId + "/" + formType, {
                         method: 'POST',
                         body: formData,
@@ -2993,14 +2984,12 @@
                         }
                     })
                     .then(response => {
-                        console.log('Response received:', response.status, response.statusText);
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Response data:', data);
                         if (data.success) {
                             updateAutosaveStatus(formType, 'success', 'Tersimpan');
                             showNotification('Data berhasil disimpan', 'success');
@@ -3015,7 +3004,6 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Fetch error:', error);
                         updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
                         showNotification('Terjadi kesalahan: ' + error.message, 'error');
                     })
@@ -3045,11 +3033,10 @@
                 notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
                 notification.style.cssText =
                     'top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);';
-                notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+                        notification.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
                 document.body.appendChild(notification);
 
                 lastNotification = notification;
@@ -3070,7 +3057,6 @@
                 link.addEventListener('click', function() {
                     const tabName = this.id.replace('-tab', '');
                     currentTabIndex = tabs.indexOf(tabName);
-                    console.log('Tab clicked:', tabName, 'Index:', currentTabIndex);
                 });
             });
 
@@ -3078,13 +3064,11 @@
             document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tabElement => {
                 tabElement.addEventListener('shown.bs.tab', function(event) {
                     const targetTab = event.target.getAttribute('data-bs-target');
-                    console.log('Tab shown:', targetTab);
 
                     // Ensure the tab content is visible
                     const tabPane = document.querySelector(targetTab);
                     if (tabPane) {
                         tabPane.classList.add('show', 'active');
-                        console.log('Tab pane activated:', targetTab);
                     }
                 });
             });
