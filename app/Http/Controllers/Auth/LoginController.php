@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class LoginController extends Controller
@@ -35,10 +36,21 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
             'password' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            return redirect('/login')->withErrors($validator)->withInput();
+        }
 
         $credentials = $request->only('email', 'password');
 
@@ -58,7 +70,7 @@ class LoginController extends Controller
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah']);
+        return redirect('/login')->withErrors(['email' => 'Email atau password salah'])->withInput();
     }
 
     /**
