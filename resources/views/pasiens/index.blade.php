@@ -13,7 +13,7 @@
                         <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
                     </a>
                 @endif --}}
-                @if (auth()->user()->role != 'sudinkes')
+                @if (auth()->user()->role !== 'sudinkes' && auth()->user()->role !== 'operator')
                     <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
                         <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
                     </a>
