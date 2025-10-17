@@ -2239,9 +2239,9 @@
     </div>
     <div class="row mb-3">
         <div class="col-12" style="text-align: right">
-            <a href="{{ route('visitings.index') }}" class="btn btn-outline-secondary">
+            <button id="backToVisitingList" class="btn btn-outline-secondary" data-url="{{ route('visitings.index') }}">
                 <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Kunjungan
-            </a>
+            </button>
         </div>
     </div>
 @endsection
@@ -2448,6 +2448,61 @@
             // Initialize tabs
             let currentTabIndex = 0;
 
+            // Enhanced AJAX utility functions
+            const AjaxUtils = {
+                // Standardized AJAX request handler
+                async request(url, options = {}) {
+                    const defaultOptions = {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    };
+
+                    const mergedOptions = { ...defaultOptions, ...options };
+                    
+                    try {
+                        const response = await fetch(url, mergedOptions);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        return await response.json();
+                    } catch (error) {
+                        console.error('AJAX request failed:', error);
+                        throw error;
+                    }
+                },
+
+                // Navigation handler
+                async navigateTo(url) {
+                    try {
+                        showNotification('Memuat halaman...', 'info');
+                        window.location.href = url;
+                    } catch (error) {
+                        showNotification('Gagal memuat halaman: ' + error.message, 'error');
+                    }
+                },
+
+                // Form data handler
+                async submitForm(form, endpoint) {
+                    const formData = new FormData(form);
+                    const visitingId = form.dataset.visitingId;
+                    
+                    return await this.request(`${endpoint}/${visitingId}`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                }
+            };
+
             // Auto-save functionality
             function initializeAutosave() {
                 console.log('Initializing autosave...');
@@ -2496,8 +2551,9 @@
                 });
             }
 
-            // Auto-save on input change with debouncing
+            // Enhanced auto-save on input change with debouncing and retry logic
             let saveTimeouts = {};
+            let retryAttempts = {};
 
             function debouncedSave(form) {
                 const formId = form.id;
@@ -2507,14 +2563,70 @@
                     clearTimeout(saveTimeouts[formId]);
                 }
 
-                saveTimeouts[formId] = setTimeout(() => {
+                saveTimeouts[formId] = setTimeout(async () => {
                     console.log('Executing save for form:', formId);
-                    saveFormData(form);
+                    try {
+                        await saveFormData(form);
+                        // Reset retry attempts on successful save
+                        retryAttempts[formId] = 0;
+                    } catch (error) {
+                        // Implement retry logic for failed saves
+                        retryAttempts[formId] = (retryAttempts[formId] || 0) + 1;
+                        
+                        if (retryAttempts[formId] < 3) {
+                            console.log(`Retrying save for form ${formId}, attempt ${retryAttempts[formId]}`);
+                            showNotification(`Mencoba menyimpan ulang... (${retryAttempts[formId]}/3)`, 'warning');
+                            
+                            // Retry after a delay
+                            setTimeout(() => {
+                                debouncedSave(form);
+                            }, 2000);
+                        } else {
+                            showNotification('Gagal menyimpan setelah 3 percobaan. Silakan coba lagi.', 'error');
+                            retryAttempts[formId] = 0;
+                        }
+                    }
                 }, 1000); // 1 second delay
             }
 
             // Initialize autosave
             initializeAutosave();
+
+            // Global error handler for AJAX requests
+            window.addEventListener('unhandledrejection', function(event) {
+                console.error('Unhandled promise rejection:', event.reason);
+                showNotification('Terjadi kesalahan yang tidak terduga. Silakan refresh halaman.', 'error');
+            });
+
+            // Connection status monitoring
+            let isOnline = navigator.onLine;
+            let connectionStatus = document.createElement('div');
+            connectionStatus.id = 'connection-status';
+            connectionStatus.className = 'position-fixed';
+            connectionStatus.style.cssText = 'bottom: 20px; left: 20px; z-index: 9999; display: none;';
+            
+            function updateConnectionStatus() {
+                const wasOnline = isOnline;
+                isOnline = navigator.onLine;
+                
+                if (!isOnline && wasOnline) {
+                    showNotification('Koneksi internet terputus. Data akan disimpan saat koneksi kembali.', 'warning');
+                    connectionStatus.innerHTML = '<div class="alert alert-warning"><i class="fas fa-wifi me-2"></i>Offline</div>';
+                    connectionStatus.style.display = 'block';
+                } else if (isOnline && !wasOnline) {
+                    showNotification('Koneksi internet kembali. Menyimpan data yang tertunda...', 'success');
+                    connectionStatus.style.display = 'none';
+                    
+                    // Trigger save for all forms when connection is restored
+                    document.querySelectorAll('form[id$="Form"]').forEach(form => {
+                        debouncedSave(form);
+                    });
+                }
+            }
+
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            document.body.appendChild(connectionStatus);
 
             // Progress indicator functionality
             function updateFormProgress() {
@@ -2947,8 +3059,7 @@
                 }
             }
 
-            function saveFormData(form) {
-
+            async function saveFormData(form) {
                 const formData = new FormData(form);
                 const visitingId = form.dataset.visitingId;
                 let formType = form.id.replace('Form', '');
@@ -2962,7 +3073,6 @@
                     formType = 'skrining-adl-ajax';
                 }
 
-
                 // Update status to saving
                 updateAutosaveStatus(formType, 'saving', 'Menyimpan...');
 
@@ -2974,52 +3084,37 @@
                     submitButton.disabled = true;
                 }
 
-                fetch("{{ url('/visitings') }}/" + visitingId + "/" + formType, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                'content'),
-                            'Accept': 'application/json',
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            updateAutosaveStatus(formType, 'success', 'Tersimpan');
-                            showNotification('Data berhasil disimpan', 'success');
+                try {
+                    const data = await AjaxUtils.submitForm(form, `{{ url('/visitings') }}/${formType}`);
+                    
+                    if (data.success) {
+                        updateAutosaveStatus(formType, 'success', 'Tersimpan');
+                        showNotification('Data berhasil disimpan', 'success');
 
-                            // Reset to active status after 2 seconds
-                            setTimeout(() => {
-                                updateAutosaveStatus(formType, 'active');
-                            }, 2000);
-                        } else {
-                            updateAutosaveStatus(formType, 'error', 'Gagal menyimpan');
-                            showNotification(data.message || 'Gagal menyimpan data', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
-                        showNotification('Terjadi kesalahan: ' + error.message, 'error');
-                    })
-                    .finally(() => {
-                        // Restore button state
-                        if (submitButton) {
-                            submitButton.innerHTML = originalText;
-                            submitButton.disabled = false;
-                        }
-                    });
+                        // Reset to active status after 2 seconds
+                        setTimeout(() => {
+                            updateAutosaveStatus(formType, 'active');
+                        }, 2000);
+                    } else {
+                        updateAutosaveStatus(formType, 'error', 'Gagal menyimpan');
+                        showNotification(data.message || 'Gagal menyimpan data', 'error');
+                    }
+                } catch (error) {
+                    updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
+                    showNotification('Terjadi kesalahan: ' + error.message, 'error');
+                } finally {
+                    // Restore button state
+                    if (submitButton) {
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                    }
+                }
             }
 
             let lastNotification = null;
             let notificationTimeout = null;
 
-            function showNotification(message, type) {
+            function showNotification(message, type = 'info') {
                 // Remove existing notification
                 if (lastNotification) {
                     lastNotification.remove();
@@ -3028,39 +3123,69 @@
                     clearTimeout(notificationTimeout);
                 }
 
-                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                // Enhanced notification types
+                const alertClasses = {
+                    'success': 'alert-success',
+                    'error': 'alert-danger',
+                    'warning': 'alert-warning',
+                    'info': 'alert-info'
+                };
+
+                const iconClasses = {
+                    'success': 'fa-check-circle',
+                    'error': 'fa-exclamation-circle',
+                    'warning': 'fa-exclamation-triangle',
+                    'info': 'fa-info-circle'
+                };
+
+                const alertClass = alertClasses[type] || 'alert-info';
+                const iconClass = iconClasses[type] || 'fa-info-circle';
+
                 const notification = document.createElement('div');
                 notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
                 notification.style.cssText =
                     'top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);';
-                        notification.innerHTML = `
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                notification.innerHTML = `
+                    <i class="fas ${iconClass} me-2"></i>
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
                 document.body.appendChild(notification);
 
                 lastNotification = notification;
 
-                // Auto remove after 3 seconds
+                // Auto remove after 3 seconds (except for info notifications which stay longer)
+                const timeout = type === 'info' ? 5000 : 3000;
                 notificationTimeout = setTimeout(() => {
                     if (notification && notification.parentNode) {
                         notification.remove();
                         lastNotification = null;
                     }
-                }, 3000);
+                }, timeout);
             }
 
 
-            // Tab click handlers
+            // Navigation handler
+            const backButton = document.getElementById('backToVisitingList');
+            if (backButton) {
+                backButton.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    AjaxUtils.navigateTo(url);
+                });
+            }
+
+            // Enhanced tab click handlers with AJAX loading states
             const tabs = ['ttv', 'health-form', 'skrining-adl'];
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function() {
                     const tabName = this.id.replace('-tab', '');
                     currentTabIndex = tabs.indexOf(tabName);
+                    
+                    // Show loading state for tab switching
+                    showNotification(`Memuat tab ${tabName}...`, 'info');
                 });
             });
 
-            // Add explicit tab show event listeners
+            // Add explicit tab show event listeners with enhanced functionality
             document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tabElement => {
                 tabElement.addEventListener('shown.bs.tab', function(event) {
                     const targetTab = event.target.getAttribute('data-bs-target');
@@ -3069,6 +3194,15 @@
                     const tabPane = document.querySelector(targetTab);
                     if (tabPane) {
                         tabPane.classList.add('show', 'active');
+                        
+                        // Trigger form validation and progress update for the active tab
+                        const form = tabPane.querySelector('form');
+                        if (form) {
+                            // Update progress for the active form
+                            if (form.id === 'healthForm') {
+                                updateFormProgress();
+                            }
+                        }
                     }
                 });
             });
