@@ -329,9 +329,9 @@
                                             <div class="col-md-6 col-lg-4 mb-3">
                                                 <label for="bmi" class="form-label">IMT</label>
                                                 <div class="input-group">
-                                                    <input type="number" step="0.1" class="form-control"
+                                                    <input type="number" step="0.01" class="form-control"
                                                         id="bmi" name="bmi" readonly
-                                                        value="{{ $visiting->ttvs->first()->bmi ?? '' }}">
+                                                        value="{{ $visiting->ttvs->first()->bmi ? number_format($visiting->ttvs->first()->bmi, 2) : '' }}">
                                                     <span class="input-group-text">kg/m²</span>
                                                 </div>
                                                 <div id="bmi-category" class="form-text"></div>
@@ -2276,6 +2276,25 @@
             font-weight: 500;
         }
 
+        /* Validation error styling */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
+        
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
         /* Button loading state */
         .btn:disabled {
             opacity: 0.7;
@@ -2470,6 +2489,10 @@
                 inputs.forEach(input => {
                     input.addEventListener('change', function() {
                         console.log('Input changed:', this.name, this.value);
+                        
+                        // Validate field on change
+                        validateField(this);
+                        
                         const form = this.closest('form');
                         if (form) {
                             console.log('Found parent form:', form.id);
@@ -2477,6 +2500,24 @@
                         } else {
                             console.log('No parent form found for input:', this.name);
                         }
+                    });
+                    
+                    // Real-time validation on input
+                    input.addEventListener('input', function() {
+                        // Clear previous errors first
+                        if (this.classList.contains('is-invalid')) {
+                            this.classList.remove('is-invalid');
+                            const errorMessage = this.parentNode.querySelector('.invalid-feedback');
+                            if (errorMessage) {
+                                errorMessage.remove();
+                            }
+                        }
+                        
+                        // Validate after a short delay to avoid too frequent validation
+                        clearTimeout(this.validationTimeout);
+                        this.validationTimeout = setTimeout(() => {
+                            validateField(this);
+                        }, 500);
                     });
 
                     // Also save on input for text fields
@@ -2578,6 +2619,162 @@
             const bmiResult = document.getElementById('bmi');
             const bmiCategory = document.getElementById('bmi-category');
             const bmiCategoryValue = document.getElementById('bmi-category-value');
+
+            // Validation rules
+            const validationRules = {
+                blood_pressure: {
+                    pattern: /^\d{2,3}\/\d{2,3}$/,
+                    message: 'Format: 120/80 (sistolik/diastolik)',
+                    maxLength: 20,
+                    validate: function(value) {
+                        if (!value) return { isValid: true };
+                        
+                        const parts = value.split('/');
+                        if (parts.length !== 2) {
+                            return { isValid: false, message: 'Format: 120/80 (sistolik/diastolik)' };
+                        }
+                        
+                        const sistolik = parseInt(parts[0]);
+                        const diastolik = parseInt(parts[1]);
+                        
+                        if (isNaN(sistolik) || isNaN(diastolik)) {
+                            return { isValid: false, message: 'Harus berupa angka' };
+                        }
+                        
+                        if (sistolik < 70 || sistolik > 250) {
+                            return { isValid: false, message: 'Sistolik harus 70-250 mmHg' };
+                        }
+                        
+                        if (diastolik < 40 || diastolik > 150) {
+                            return { isValid: false, message: 'Diastolik harus 40-150 mmHg' };
+                        }
+                        
+                        if (sistolik <= diastolik) {
+                            return { isValid: false, message: 'Sistolik harus lebih besar dari diastolik' };
+                        }
+                        
+                        return { isValid: true };
+                    }
+                },
+                pulse: {
+                    min: 30,
+                    max: 200,
+                    message: 'Nadi harus antara 30-200 bpm'
+                },
+                temperature: {
+                    min: 30,
+                    max: 45,
+                    message: 'Suhu harus antara 30-45°C'
+                },
+                oxygen_saturation: {
+                    min: 70,
+                    max: 100,
+                    message: 'Saturasi oksigen harus antara 70-100%'
+                },
+                weight: {
+                    min: 10,
+                    max: 300,
+                    message: 'Berat badan harus antara 10-300 kg'
+                },
+                height: {
+                    min: 50,
+                    max: 250,
+                    message: 'Tinggi badan harus antara 50-250 cm'
+                }
+            };
+
+            // Client-side validation function
+            function validateField(field) {
+                const fieldName = field.name;
+                const value = field.value.trim();
+                const rules = validationRules[fieldName];
+                
+                if (!rules || !value) {
+                    clearFieldError(field);
+                    return true;
+                }
+
+                let isValid = true;
+                let errorMessage = '';
+
+                // Use custom validation function if available
+                if (rules.validate && typeof rules.validate === 'function') {
+                    const result = rules.validate(value);
+                    isValid = result.isValid;
+                    errorMessage = result.message || rules.message;
+                }
+                // Check max length
+                else if (rules.maxLength && value.length > rules.maxLength) {
+                    isValid = false;
+                    errorMessage = `Maksimal ${rules.maxLength} karakter`;
+                }
+                // Check pattern
+                else if (rules.pattern && !rules.pattern.test(value)) {
+                    isValid = false;
+                    errorMessage = rules.message;
+                }
+                // Check numeric ranges
+                else if (rules.min !== undefined || rules.max !== undefined) {
+                    const numValue = parseFloat(value);
+                    if (isNaN(numValue)) {
+                        isValid = false;
+                        errorMessage = 'Harus berupa angka';
+                    } else {
+                        if (rules.min !== undefined && numValue < rules.min) {
+                            isValid = false;
+                            errorMessage = rules.message;
+                        } else if (rules.max !== undefined && numValue > rules.max) {
+                            isValid = false;
+                            errorMessage = rules.message;
+                        }
+                    }
+                }
+
+                if (isValid) {
+                    clearFieldError(field);
+                } else {
+                    showFieldError(field, errorMessage);
+                }
+
+                return isValid;
+            }
+
+            function showFieldError(field, message) {
+                field.classList.add('is-invalid');
+                
+                // Remove existing error message
+                const existingError = field.parentNode.querySelector('.invalid-feedback');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Add new error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                errorDiv.textContent = message;
+                field.parentNode.appendChild(errorDiv);
+            }
+
+            function clearFieldError(field) {
+                field.classList.remove('is-invalid');
+                const errorMessage = field.parentNode.querySelector('.invalid-feedback');
+                if (errorMessage) {
+                    errorMessage.remove();
+                }
+            }
+
+            function validateForm(form) {
+                const fields = form.querySelectorAll('input[name], select[name], textarea[name]');
+                let isFormValid = true;
+                
+                fields.forEach(field => {
+                    if (!validateField(field)) {
+                        isFormValid = false;
+                    }
+                });
+                
+                return isFormValid;
+            }
 
             function calculateBMI() {
                 if (weightInput && heightInput && weightInput.value && heightInput.value) {
@@ -2949,6 +3146,13 @@
             function saveFormData(form) {
                 console.log('saveFormData called for form:', form.id);
 
+                // Validate form before sending
+                if (!validateForm(form)) {
+                    console.log('Form validation failed, not sending data');
+                    showNotification('Terdapat kesalahan validasi. Periksa form Anda.', 'error');
+                    return;
+                }
+
                 const formData = new FormData(form);
                 const visitingId = form.dataset.visitingId;
                 let formType = form.id.replace('Form', '');
@@ -3003,6 +3207,9 @@
                         if (data.success) {
                             updateAutosaveStatus(formType, 'success', 'Tersimpan');
                             showNotification('Data berhasil disimpan', 'success');
+                            
+                            // Clear any existing validation errors
+                            clearValidationErrors(form);
 
                             // Reset to active status after 2 seconds
                             setTimeout(() => {
@@ -3010,7 +3217,14 @@
                             }, 2000);
                         } else {
                             updateAutosaveStatus(formType, 'error', 'Gagal menyimpan');
-                            showNotification(data.message || 'Gagal menyimpan data', 'error');
+                            
+                            // Handle validation errors
+                            if (data.errors) {
+                                showValidationErrors(form, data.errors);
+                                showNotification('Terdapat kesalahan validasi. Periksa form Anda.', 'error');
+                            } else {
+                                showNotification(data.message || 'Gagal menyimpan data', 'error');
+                            }
                         }
                     })
                     .catch(error => {
@@ -3029,6 +3243,42 @@
 
             let lastNotification = null;
             let notificationTimeout = null;
+
+            function showValidationErrors(form, errors) {
+                // Clear existing validation errors first
+                clearValidationErrors(form);
+                
+                // Add error styling and messages to each field
+                Object.keys(errors).forEach(fieldName => {
+                    const field = form.querySelector(`[name="${fieldName}"]`);
+                    if (field) {
+                        // Add error class
+                        field.classList.add('is-invalid');
+                        
+                        // Create error message element
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = errors[fieldName][0]; // Show first error message
+                        
+                        // Insert error message after the field
+                        field.parentNode.appendChild(errorDiv);
+                    }
+                });
+            }
+
+            function clearValidationErrors(form) {
+                // Remove error styling
+                const errorFields = form.querySelectorAll('.is-invalid');
+                errorFields.forEach(field => {
+                    field.classList.remove('is-invalid');
+                });
+                
+                // Remove error messages
+                const errorMessages = form.querySelectorAll('.invalid-feedback');
+                errorMessages.forEach(message => {
+                    message.remove();
+                });
+            }
 
             function showNotification(message, type) {
                 // Remove existing notification

@@ -522,28 +522,41 @@ class VisitingController extends Controller
     {
         $visiting = Visiting::findOrFail($id);
         
-        $request->validate([
-            'blood_pressure' => 'nullable|string|max:20',
-            'pulse' => 'nullable|integer|min:30|max:200',
-            'temperature' => 'nullable|numeric|min:30|max:45',
-            'oxygen_saturation' => 'nullable|integer|min:70|max:100',
-            'weight' => 'nullable|numeric|min:10|max:300',
-            'height' => 'nullable|numeric|min:50|max:250',
-            'bmi' => 'nullable|numeric|min:10|max:100',
-            'bmi_category' => 'nullable|string|max:50',
-        ]);
+        try {
+            $request->validate([
+                'blood_pressure' => 'nullable|string|max:20',
+                'pulse' => 'nullable|integer|min:30|max:200',
+                'temperature' => 'nullable|numeric|min:30|max:45',
+                'oxygen_saturation' => 'nullable|integer|min:70|max:100',
+                'weight' => 'nullable|numeric|min:10|max:300',
+                'height' => 'nullable|numeric|min:50|max:250',
+                'bmi' => 'nullable|numeric|min:10|max:100',
+                'bmi_category' => 'nullable|string|max:50',
+            ]);
 
-        $ttv = $visiting->ttvs->first();
-        if ($ttv) {
-            $ttv->update($request->all());
-        } else {
-            Ttv::create(array_merge(
-                ['kunjungan_id' => $visiting->id],
-                $request->all()
-            ));
+            $ttv = $visiting->ttvs->first();
+            if ($ttv) {
+                $ttv->update($request->all());
+            } else {
+                Ttv::create(array_merge(
+                    ['kunjungan_id' => $visiting->id],
+                    $request->all()
+                ));
+            }
+
+            return response()->json(['success' => true, 'message' => 'TTV berhasil disimpan']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'TTV berhasil disimpan']);
     }
 
     /**
