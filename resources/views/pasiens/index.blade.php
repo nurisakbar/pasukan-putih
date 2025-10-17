@@ -4,15 +4,10 @@
 <div class="app-content-header py-3">
     <div class="container-fluid">
         <div class="row align-items-center">
-            <div class="col-md-6 col-12 mb-2 mb-md-0">
+            <div class="col-md-10 col-12 mb-2 mb-md-0">
                 <h3 class="mb-0">Data Sasaran</h3>
             </div>
-            <div class="col-md-6 col-12 text-md-end text-start">
-                {{-- @if (auth()->user()->role === 'superadmin')
-                    <a href="javascript:void(0)" id="startSync" class="btn btn-primary btn-md btn-sm shadow-sm">
-                        <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
-                    </a>
-                @endif --}}
+            <div class="col-md-2 col-12 text-md-end text-start">
                 @if (auth()->user()->role !== 'sudinkes' && auth()->user()->role !== 'operator')
                     <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm d-block d-md-inline-block w-100 w-md-auto">
                         <i class="fas fa-plus-circle me-1"></i> <span class="d-none d-sm-inline">Tambah Data Sasaran</span><span class="d-sm-none">Tambah</span>

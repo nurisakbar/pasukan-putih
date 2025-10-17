@@ -13,7 +13,7 @@
                     <h3 class="mb-0">Kunjungan</h3>
                 </div>
                 <div class="col-md-2 col-12 text-md-end text-start">
-                    <a href="{{ route('visitings.create') }}" class="btn btn-primary btn-sm shadow-sm w-100 w-md-auto">
+                    <a href="{{ route('visitings.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm d-block d-md-inline-block w-100 w-md-auto">
                         <i class="fas fa-plus-circle me-1"></i> <span class="d-none d-sm-inline">Tambah </span>Kunjungan
                     </a>
                 </div>
