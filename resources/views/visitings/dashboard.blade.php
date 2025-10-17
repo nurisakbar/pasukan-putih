@@ -1858,7 +1858,7 @@
                                                                                         name="dilakukan_oleh[]"
                                                                                         id="dilakukan_perawat"
                                                                                         value="perawat"
-                                                                                        {{ is_array($visiting->healthForms && $visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms && $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
                                                                                         {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
@@ -1873,7 +1873,7 @@
                                                                                         name="dilakukan_oleh[]"
                                                                                         id="dilakukan_petugas"
                                                                                         value="petugas_layanan_kesehatan"
-                                                                                        {{ is_array($visiting->healthForms && $visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms && $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
                                                                                         {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
@@ -1890,7 +1890,7 @@
                                                                 <!-- Dropdown Operator (muncul jika checkbox petugas dipilih) -->
                                                                 <div class="row"
                                                                     id="operator_selection_div"
-                                                                    style="display: {{ is_array($visiting->healthForms && $visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms && $visiting->healthForms->dilakukan_oleh) ? 'block' : 'none' }};">
+                                                                    style="display: {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'block' : 'none' }};">
                                                                     <div class="col-md-6 mb-3">
                                                                         <div class="form-group">
                                                                             <label
@@ -1940,7 +1940,7 @@
                                                                                 class="form-control"
                                                                                 name="tanggal_kunjungan"
                                                                                 placeholder="Tanggal"
-                                                                                value="{{ $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
+                                                                                value="{{ $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
                                                                                 {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
                                                                         </div>
                                                                     </div>

@@ -657,12 +657,12 @@ class VisitingController extends Controller
         // Handle dilakukan_oleh array
         if ($request->has('dilakukan_oleh')) {
             if (is_array($request->dilakukan_oleh)) {
-                $data['dilakukan_oleh'] = json_encode($request->dilakukan_oleh);
+                $data['dilakukan_oleh'] = $request->dilakukan_oleh;
             } else {
-                $data['dilakukan_oleh'] = json_encode([]);
+                $data['dilakukan_oleh'] = [];
             }
         } else {
-            $data['dilakukan_oleh'] = json_encode([]);
+            $data['dilakukan_oleh'] = [];
         }
 
         // Process screening status fields
