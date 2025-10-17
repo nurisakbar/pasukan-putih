@@ -662,6 +662,7 @@
                     { 
                         data: 'status', 
                         name: 'status',
+                        searchable: false,
                         responsivePriority: 4,
                         render: function (data, type, row) {
                             if (data === 'Belum Dijadwalkan Kunjungan Awal') {
@@ -818,6 +819,7 @@
                     { 
                         data: 'status', 
                         name: 'status',
+                        searchable: false,
                         responsivePriority: 3,
                         render: function (data, type, row) {
                             if (data === 'Belum Dijadwalkan Kunjungan Awal') {
