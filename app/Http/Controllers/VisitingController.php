@@ -520,30 +520,64 @@ class VisitingController extends Controller
      */
     public function storeTtv(Request $request, $id)
     {
-        $visiting = Visiting::findOrFail($id);
-        
-        $request->validate([
-            'blood_pressure' => 'nullable|string|max:20',
-            'pulse' => 'nullable|integer|min:30|max:200',
-            'temperature' => 'nullable|numeric|min:30|max:45',
-            'oxygen_saturation' => 'nullable|integer|min:70|max:100',
-            'weight' => 'nullable|numeric|min:10|max:300',
-            'height' => 'nullable|numeric|min:50|max:250',
-            'bmi' => 'nullable|numeric|min:10|max:100',
-            'bmi_category' => 'nullable|string|max:50',
-        ]);
+        try {
+            \Log::info('TTV Store Request:', [
+                'visiting_id' => $id,
+                'request_data' => $request->all(),
+                'user_id' => auth()->id(),
+                'headers' => $request->headers->all()
+            ]);
+            
+            $visiting = Visiting::findOrFail($id);
+            
+            $request->validate([
+                'blood_pressure' => 'nullable|string|max:20',
+                'pulse' => 'nullable|integer|min:30|max:200',
+                'temperature' => 'nullable|numeric|min:30|max:45',
+                'oxygen_saturation' => 'nullable|integer|min:70|max:100',
+                'weight' => 'nullable|numeric|min:10|max:300',
+                'height' => 'nullable|numeric|min:50|max:250',
+                'bmi' => 'nullable|numeric|min:10|max:100',
+                'bmi_category' => 'nullable|string|max:50',
+            ]);
 
-        $ttv = $visiting->ttvs->first();
-        if ($ttv) {
-            $ttv->update($request->all());
-        } else {
-            Ttv::create(array_merge(
-                ['kunjungan_id' => $visiting->id],
-                $request->all()
-            ));
+            $ttv = $visiting->ttvs->first();
+            if ($ttv) {
+                $ttv->update($request->all());
+                \Log::info('TTV Updated:', ['ttv_id' => $ttv->id, 'data' => $request->all()]);
+            } else {
+                $newTtv = Ttv::create(array_merge(
+                    ['kunjungan_id' => $visiting->id],
+                    $request->all()
+                ));
+                \Log::info('TTV Created:', ['ttv_id' => $newTtv->id, 'data' => $request->all()]);
+            }
+
+            return response()->json(['success' => true, 'message' => 'TTV berhasil disimpan']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('TTV Validation Error:', [
+                'visiting_id' => $id,
+                'errors' => $e->errors(),
+                'request_data' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error storing TTV: ' . $e->getMessage(), [
+                'visiting_id' => $id,
+                'request_data' => $request->all(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Terjadi kesalahan saat menyimpan TTV: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'TTV berhasil disimpan']);
     }
 
     /**

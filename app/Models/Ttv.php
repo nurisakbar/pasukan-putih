@@ -85,8 +85,8 @@ class Ttv extends Model
         });
     }
 
-    public function kunjungan()
+    public function visiting()
     {
-        return $this->belongsTo(Kunjungan::class, 'kunjungan_id');
+        return $this->belongsTo(Visiting::class, 'kunjungan_id');
     }
 }

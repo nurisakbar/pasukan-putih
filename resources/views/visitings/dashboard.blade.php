@@ -2463,14 +2463,43 @@
 
                     const mergedOptions = { ...defaultOptions, ...options };
                     
+                    console.log('Fetch Request:', {
+                        url: url,
+                        options: mergedOptions
+                    });
+                    
                     try {
                         const response = await fetch(url, mergedOptions);
                         
+                        console.log('Fetch Response:', {
+                            status: response.status,
+                            statusText: response.statusText,
+                            headers: Object.fromEntries(response.headers.entries()),
+                            url: response.url
+                        });
+                        
                         if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                            const responseText = await response.text();
+                            console.error('Response Error:', {
+                                status: response.status,
+                                statusText: response.statusText,
+                                body: responseText
+                            });
+                            throw new Error(`HTTP error! status: ${response.status} - ${responseText}`);
                         }
                         
-                        return await response.json();
+                        const responseText = await response.text();
+                        console.log('Response Text:', responseText);
+                        
+                        try {
+                            return JSON.parse(responseText);
+                        } catch (parseError) {
+                            console.error('JSON Parse Error:', {
+                                parseError: parseError,
+                                responseText: responseText
+                            });
+                            throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+                        }
                     } catch (error) {
                         console.error('AJAX request failed:', error);
                         throw error;
@@ -2491,15 +2520,36 @@
                 async submitForm(form, endpoint) {
                     const formData = new FormData(form);
                     const visitingId = form.dataset.visitingId;
+                    const url = endpoint; // URL sudah lengkap dari caller
                     
-                    return await this.request(`${endpoint}/${visitingId}`, {
+                    console.log('AJAX Request Details:', {
+                        url: url,
                         method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
+                        formData: Object.fromEntries(formData.entries()),
+                        visitingId: visitingId
                     });
+                    
+                    try {
+                        const response = await this.request(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        console.log('AJAX Response:', response);
+                        return response;
+                    } catch (error) {
+                        console.error('AJAX Request Failed:', {
+                            url: url,
+                            error: error,
+                            message: error.message,
+                            response: error.response
+                        });
+                        throw error;
+                    }
                 }
             };
 
@@ -3085,7 +3135,7 @@
                 }
 
                 try {
-                    const data = await AjaxUtils.submitForm(form, `{{ url('/visitings') }}/${formType}`);
+                    const data = await AjaxUtils.submitForm(form, `{{ url('/visitings') }}/${visitingId}/${formType}`);
                     
                     if (data.success) {
                         updateAutosaveStatus(formType, 'success', 'Tersimpan');
@@ -3100,6 +3150,14 @@
                         showNotification(data.message || 'Gagal menyimpan data', 'error');
                     }
                 } catch (error) {
+                    console.error('AJAX Error Details:', {
+                        error: error,
+                        message: error.message,
+                        stack: error.stack,
+                        formType: formType,
+                        formId: form.id
+                    });
+                    
                     updateAutosaveStatus(formType, 'error', 'Terjadi kesalahan');
                     showNotification('Terjadi kesalahan: ' + error.message, 'error');
                 } finally {
