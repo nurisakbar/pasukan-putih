@@ -363,7 +363,7 @@
                                         @csrf
 
                                         <!-- Riwayat Penyakit -->
-                                        <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                        <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                             <div class="card">
                                                 <div class="card-header">
                                                     <h4 class="text-primary mb-0">
@@ -521,7 +521,7 @@
                                             </div>
                                         </div>
 
-                                        @if (auth()->user()->role == 'perawat' ||
+                                        @if ((auth()->user()->role == 'perawat' && $visiting->status != 'Kunjungan Lanjutan') ||
                                                 auth()->user()->role == 'superadmin' ||
                                                 (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal'))
                                             <!-- Skrining ILP -->
@@ -598,7 +598,7 @@
                                         @endif
 
                                         <!-- SKILAS Detail Section -->
-                                        <div class="mb-4" id="skilas-detail-section"
+                                        <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif" id="skilas-detail-section"
                                             style="display: {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->screening_elderly == 1 ? 'block' : 'none' }};">
                                             <div class="card">
                                                 <div class="card-header">
@@ -1103,7 +1103,7 @@
                                                 </div>
                                             </div>
                                             <!-- Dukungan Keluarga/Pendamping -->
-                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
                                                         <h4 class="text-warning mb-0">
@@ -1149,7 +1149,7 @@
                                                 </div>
                                             </div>
                                             <!-- Permasalahan di Luar Kesehatan -->
-                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
                                                         <h4 class="text-secondary mb-0">
@@ -1203,7 +1203,7 @@
                                             </div>
 
                                             <!-- Jenis Gangguan Fungsional -->
-                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
                                                         <h4 class="text-danger mb-0">
@@ -1324,7 +1324,7 @@
                                                 </div>
                                             @endif
 
-                                            @if (auth()->user()->role == 'perawat' || auth()->user()->role == 'superadmin')
+                                            @if ((auth()->user()->role == 'perawat' && $visiting->status != 'Kunjungan Lanjutan') || auth()->user()->role == 'superadmin')
                                                 <!-- Perawatan Umum Yang Dilakukan (Operator) -->
                                                 <div class="mb-4">
                                                     <div class="card">
@@ -1515,7 +1515,7 @@
                                             @endif
 
                                             <!-- Keluaran dari perawatan yang dilakukan -->
-                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
                                                         <h4 class="text-info mb-0">
@@ -1623,7 +1623,7 @@
                                                 </div>
                                             </div>
                                             <!-- Tingkat Kemandirian Keluarga -->
-                                            <div class="mb-4 @if (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') d-none @endif">
+                                            <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
                                                         <h4 class="text-success mb-0">
@@ -1825,7 +1825,7 @@
                                                                         <select name="kunjungan_lanjutan"
                                                                             id="kunjungan_lanjutan"
                                                                             class="form-select"
-                                                                            {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                            {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
                                                                             <option value="">Pilih...
                                                                             </option>
                                                                             <option value="ya"
@@ -1859,7 +1859,7 @@
                                                                                         id="dilakukan_perawat"
                                                                                         value="perawat"
                                                                                         {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('perawat', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
                                                                                         for="dilakukan_perawat">
@@ -1874,7 +1874,7 @@
                                                                                         id="dilakukan_petugas"
                                                                                         value="petugas_layanan_kesehatan"
                                                                                         {{ $visiting->healthForms && is_array($visiting->healthForms->dilakukan_oleh) && in_array('petugas_layanan_kesehatan', $visiting->healthForms->dilakukan_oleh) ? 'checked' : '' }}
-                                                                                        {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                        {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
                                                                                     <label
                                                                                         class="form-check-label"
                                                                                         for="dilakukan_petugas">
@@ -1903,7 +1903,7 @@
                                                                                 id="operator_id_lanjutan"
                                                                                 class="form-select"
                                                                                 data-selected-operator="{{ $visiting->healthForms ? $visiting->healthForms->operator_id_lanjutan : '' }}"
-                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
                                                                                 <option value="">--
                                                                                     Pilih Operator --
                                                                                 </option>
@@ -1925,7 +1925,7 @@
                                                                                 lanjutan</label>
                                                                             <textarea class="form-control" id="permasalahan_lanjutan" name="permasalahan_lanjutan" rows="3"
                                                                                 placeholder="Tuliskan permasalahan kesehatan yang memerlukan kunjungan lanjutan"
-                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>{{ $visiting->healthForms ? $visiting->healthForms->permasalahan_lanjutan : '' }}</textarea>
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'readonly' : '' }}>{{ $visiting->healthForms ? $visiting->healthForms->permasalahan_lanjutan : '' }}</textarea>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1941,7 +1941,7 @@
                                                                                 name="tanggal_kunjungan"
                                                                                 placeholder="Tanggal"
                                                                                 value="{{ $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
-                                                                                {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'readonly' : '' }}>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1958,7 +1958,7 @@
                                                                             <select name="henti_layanan"
                                                                                 id="alasan_henti_layanan"
                                                                                 class="form-select"
-                                                                                {{ auth()->user()->role == 'operator' ? 'disabled' : '' }}>
+                                                                                {{ auth()->user()->role == 'operator' && $visiting->status != 'Kunjungan Lanjutan' ? 'disabled' : '' }}>
                                                                                 <option value="">
                                                                                     Pilih...</option>
                                                                                 <option
