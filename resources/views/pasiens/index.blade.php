@@ -51,8 +51,6 @@
                                     <option value="">Semua Status</option>
                                     <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
                                     <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
-                                    <option value="sudah_awal">Sudah Kunjungan Awal</option>
-                                    <option value="sudah_lanjutan">Sudah Kunjungan Lanjutan</option>
                                     <option value="henti_layanan">Henti Layanan</option>
                                 </select>
                             </div>
@@ -87,8 +85,6 @@
                                     <option value="">Semua Status</option>
                                     <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
                                     <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
-                                    <option value="sudah_awal">Sudah Kunjungan Awal</option>
-                                    <option value="sudah_lanjutan">Sudah Kunjungan Lanjutan</option>
                                     <option value="henti_layanan">Henti Layanan</option>
                                 </select>
                             </div>

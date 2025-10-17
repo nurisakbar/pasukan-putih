@@ -78,11 +78,12 @@ class PasienController extends Controller
                 'regencies.name as regency_name',
                 DB::raw('(
                     CASE 
-                        WHEN NOT EXISTS (
-                            SELECT 1 FROM visitings v1 
-                            WHERE v1.pasien_id = pasiens.id 
-                            AND v1.status = "Kunjungan Awal"
-                        ) THEN "Belum Dijadwalkan Kunjungan Awal"
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
                         WHEN EXISTS (
                             SELECT 1 FROM visitings v1 
                             WHERE v1.pasien_id = pasiens.id 
@@ -92,18 +93,7 @@ class PasienController extends Controller
                             WHERE v2.pasien_id = pasiens.id 
                             AND v2.status = "Kunjungan Lanjutan"
                         ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
-                        WHEN EXISTS (
-                            SELECT 1 FROM health_forms hf 
-                            JOIN visitings v ON hf.visiting_id = v.id 
-                            WHERE v.pasien_id = pasiens.id 
-                            AND hf.henti_layanan IS NOT NULL
-                        ) THEN "Henti Layanan"
-                        WHEN EXISTS (
-                            SELECT 1 FROM visitings v3 
-                            WHERE v3.pasien_id = pasiens.id 
-                            AND v3.status = "Kunjungan Lanjutan"
-                        ) THEN "Sudah Kunjungan Lanjutan"
-                        ELSE "Sudah Kunjungan Awal"
+                        ELSE "Belum Dijadwalkan Kunjungan Awal"
                     END
                 ) as status')
             )
@@ -177,27 +167,6 @@ class PasienController extends Controller
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
                           ->where('visitings.status', 'Kunjungan Awal');
                     })->whereNotExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Lanjutan');
-                    });
-                    break;
-                case 'sudah_awal':
-                    $query->whereExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Awal');
-                    })->whereNotExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Lanjutan');
-                    });
-                    break;
-                case 'sudah_lanjutan':
-                    $query->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
@@ -819,11 +788,12 @@ class PasienController extends Controller
                 'pasiens.created_at',
                 DB::raw('(
                     CASE 
-                        WHEN NOT EXISTS (
-                            SELECT 1 FROM visitings v1 
-                            WHERE v1.pasien_id = pasiens.id 
-                            AND v1.status = "Kunjungan Awal"
-                        ) THEN "Belum Dijadwalkan Kunjungan Awal"
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
                         WHEN EXISTS (
                             SELECT 1 FROM visitings v1 
                             WHERE v1.pasien_id = pasiens.id 
@@ -833,18 +803,7 @@ class PasienController extends Controller
                             WHERE v2.pasien_id = pasiens.id 
                             AND v2.status = "Kunjungan Lanjutan"
                         ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
-                        WHEN EXISTS (
-                            SELECT 1 FROM health_forms hf 
-                            JOIN visitings v ON hf.visiting_id = v.id 
-                            WHERE v.pasien_id = pasiens.id 
-                            AND hf.henti_layanan IS NOT NULL
-                        ) THEN "Henti Layanan"
-                        WHEN EXISTS (
-                            SELECT 1 FROM visitings v3 
-                            WHERE v3.pasien_id = pasiens.id 
-                            AND v3.status = "Kunjungan Lanjutan"
-                        ) THEN "Sudah Kunjungan Lanjutan"
-                        ELSE "Sudah Kunjungan Awal"
+                        ELSE "Belum Dijadwalkan Kunjungan Awal"
                     END
                 ) as status')
             )
@@ -908,27 +867,6 @@ class PasienController extends Controller
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
                           ->where('visitings.status', 'Kunjungan Awal');
                     })->whereNotExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Lanjutan');
-                    });
-                    break;
-                case 'sudah_awal':
-                    $query->whereExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Awal');
-                    })->whereNotExists(function ($q) {
-                        $q->select(DB::raw(1))
-                          ->from('visitings')
-                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
-                          ->where('visitings.status', 'Kunjungan Lanjutan');
-                    });
-                    break;
-                case 'sudah_lanjutan':
-                    $query->whereExists(function ($q) {
                         $q->select(DB::raw(1))
                           ->from('visitings')
                           ->whereColumn('visitings.pasien_id', 'pasiens.id')
