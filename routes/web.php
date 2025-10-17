@@ -120,6 +120,11 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::put('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'updateSkriningAdl'])->name('visitings.updateSkriningAdl');
     Route::post('/visitings/{id}/skrining-adl-ajax', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdlAjax'])->name('visitings.storeSkriningAdlAjax');
 
+    // Short routes untuk menghindari blokir diskominfo
+    Route::post('/v/{id}/ttv', [\App\Http\Controllers\VisitingController::class, 'storeTtv'])->name('v.storeTtv');
+    Route::post('/v/{id}/health', [\App\Http\Controllers\VisitingController::class, 'storeHealthForm'])->name('v.storeHealth');
+    Route::post('/v/{id}/adl', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdlAjax'])->name('v.storeAdl');
+
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
     Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
