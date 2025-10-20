@@ -1666,9 +1666,9 @@
                                                 <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h6 class="text-success mb-0">
+                                                            <h6 class="text-primary mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-success p-0"
+                                                                    class="btn btn-link text-decoration-none text-primary p-0"
                                                                     type="button"
                                                                     data-bs-toggle="collapse"
                                                                     data-bs-target="#catatanKeperawatanCollapse"
