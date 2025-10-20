@@ -226,6 +226,31 @@
             min-width: 50px;
         }
         
+        /* Hide arrow on responsive table */
+        #pasiens-table tbody td.dtr-control::before,
+        #pasiens-table tbody td.dtr-toggle::before {
+            display: none !important;
+        }
+        
+        /* Ensure number column is clean without arrow */
+        #pasiens-table tbody td:first-child {
+            position: relative;
+        }
+        
+        #pasiens-table tbody td:first-child::before {
+            display: none !important;
+        }
+        
+        /* Hide arrow on mobile table as well */
+        #pasiens-table-mobile tbody td.dtr-control::before,
+        #pasiens-table-mobile tbody td.dtr-toggle::before {
+            display: none !important;
+        }
+        
+        #pasiens-table-mobile tbody td:first-child::before {
+            display: none !important;
+        }
+        
         /* Mobile Card View Styling */
         .mobile-card {
             border: 1px solid #dee2e6;
@@ -360,22 +385,6 @@
             transition: background-color 0.2s ease;
         }
         
-        /* DataTables responsive modal */
-        .dtr-details {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            padding: 1rem;
-        }
-        
-        .dtr-details table {
-            margin-bottom: 0;
-        }
-        
-        .dtr-details td:first-child {
-            font-weight: 600;
-            width: 40%;
-        }
         
         /* DataTables Pagination Styling - Compact */
         .dataTables_wrapper .dataTables_paginate {
