@@ -540,9 +540,24 @@
                                                     </div>
                                                     <div class="collapse" id="skriningIlpCollapse">
                                                         <div class="card-body">
+                                                            @php
+                                                                // Debug logging untuk Skrining ILP
+                                                                \Log::info('=== SKRINING ILP DEBUG ===');
+                                                                \Log::info('Visiting ID: ' . $visiting->id);
+                                                                \Log::info('HealthForms exists: ' . ($visiting->healthForms ? 'YES' : 'NO'));
+                                                                if ($visiting->healthForms) {
+                                                                    \Log::info('HealthForms data: ', $visiting->healthForms->toArray());
+                                                                }
+                                                            @endphp
                                                             <div class="row">
 
                                                                 @foreach ($screenings as $screening)
+                                                                    @php
+                                                                        // Debug logging untuk setiap screening
+                                                                        $screeningValue = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id']} : null;
+                                                                        $screeningStatus = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} : null;
+                                                                        \Log::info("Screening {$screening['id']}: value={$screeningValue} (type: " . gettype($screeningValue) . "), status={$screeningStatus}");
+                                                                    @endphp
                                                                     <div class="col-md-6 col-lg-4 mb-3">
                                                                         <div class="form-group">
                                                                             <label
@@ -573,13 +588,15 @@
                                                                             </div>
                                                                             @if ($screening['id'] !== 'elderly')
                                                                                 @php
+                                                                                    // Debug logging untuk status dropdown
                                                                                     $isSelected = $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 1 || $visiting->healthForms->{'screening_' . $screening['id']} === true);
                                                                                     
-                                                                                    // Akses field status dengan multiple methods
+                                                                                    // Coba pendekatan yang berbeda untuk mengakses status
+                                                                                    $statusField = 'screening_' . $screening['id'] . '_status';
+                                                                                    
+                                                                                    // Coba beberapa cara untuk mengakses field
                                                                                     $statusValue = null;
                                                                                     if ($visiting->healthForms) {
-                                                                                        $statusField = 'screening_' . $screening['id'] . '_status';
-                                                                                        
                                                                                         // Cara 1: Direct property access
                                                                                         $statusValue = $visiting->healthForms->$statusField ?? null;
                                                                                         
@@ -612,48 +629,22 @@
                                                                                                 case 'heart_disease':
                                                                                                     $statusValue = $visiting->healthForms->heart_disease_status ?? null;
                                                                                                     break;
-                                                                                                case 'breast_cancer':
-                                                                                                    $statusValue = $visiting->healthForms->breast_cancer_status ?? null;
-                                                                                                    break;
-                                                                                                case 'cervical_cancer':
-                                                                                                    $statusValue = $visiting->healthForms->cervical_cancer_status ?? null;
-                                                                                                    break;
-                                                                                                case 'lung_cancer':
-                                                                                                    $statusValue = $visiting->healthForms->lung_cancer_status ?? null;
-                                                                                                    break;
-                                                                                                case 'colorectal_cancer':
-                                                                                                    $statusValue = $visiting->healthForms->colorectal_cancer_status ?? null;
-                                                                                                    break;
-                                                                                                case 'mental_health':
-                                                                                                    $statusValue = $visiting->healthForms->mental_health_status ?? null;
-                                                                                                    break;
-                                                                                                case 'ppok':
-                                                                                                    $statusValue = $visiting->healthForms->ppok_status ?? null;
-                                                                                                    break;
-                                                                                                case 'tbc':
-                                                                                                    $statusValue = $visiting->healthForms->tbc_status ?? null;
-                                                                                                    break;
-                                                                                                case 'vision':
-                                                                                                    $statusValue = $visiting->healthForms->vision_status ?? null;
-                                                                                                    break;
-                                                                                                case 'hearing':
-                                                                                                    $statusValue = $visiting->healthForms->hearing_status ?? null;
-                                                                                                    break;
-                                                                                                case 'fitness':
-                                                                                                    $statusValue = $visiting->healthForms->fitness_status ?? null;
-                                                                                                    break;
-                                                                                                case 'dental':
-                                                                                                    $statusValue = $visiting->healthForms->dental_status ?? null;
-                                                                                                    break;
-                                                                                                case 'elderly':
-                                                                                                    $statusValue = $visiting->healthForms->elderly_status ?? null;
-                                                                                                    break;
                                                                                             }
                                                                                         }
                                                                                     }
                                                                                     
+                                                                                    // Debug: cek apakah field ada di healthForms
+                                                                                    \Log::info("Debug field access for {$screening['id']}: field={$statusField}, exists=" . (isset($visiting->healthForms->$statusField) ? 'YES' : 'NO'));
+                                                                                    if ($visiting->healthForms) {
+                                                                                        \Log::info("Available fields: " . implode(', ', array_keys($visiting->healthForms->toArray())));
+                                                                                        \Log::info("Final statusValue for {$screening['id']}: '{$statusValue}'");
+                                                                                    }
+                                                                                    
                                                                                     $penderitaSelected = $statusValue === 'penderita';
                                                                                     $bukanPenderitaSelected = $statusValue === 'bukan_penderita';
+                                                                                    
+                                                                                    \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, statusField={$statusField}, statusValue='{$statusValue}', penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
+                                                                                    \Log::info("Raw comparison: '{$statusValue}' === 'penderita' = " . ($statusValue === 'penderita' ? 'true' : 'false'));
                                                                                 @endphp
                                                                                 <select
                                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"
@@ -1089,8 +1080,7 @@
                                                         <!-- Hasil Tindakan Keperawatan Section -->
                                                         <div class="mt-4" style="display: none">
                                                             <h6 class="mb-3 text-success">
-                                                                <i class="fas fa-notes-medical me-2"></i>Hasil Tindakan
-                                                                Keperawatan
+                                                                <i class="fas fa-notes-medical me-2"></i>Hasil Tindakan Keperawatan
                                                             </h6>
                                                             <textarea class="form-control" name="skilas_hasil_tindakan_keperawatan" rows="4"
                                                                 placeholder="Masukkan hasil tindakan keperawatan yang telah dilakukan pada pasien..."
@@ -1663,48 +1653,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- Pembinaan keluarga -->
-                                            <div class="mb-4">
-                                                <div class="card">
-                                                    <div class="card-header">
-                                                        <h4 class="text-primary mb-0">
-                                                            <button
-                                                                class="btn btn-link text-decoration-none text-primary p-0"
-                                                                type="button" data-bs-toggle="collapse"
-                                                                data-bs-target="#pembinaanKeluargaCollapse"
-                                                                aria-expanded="false"
-                                                                aria-controls="pembinaanKeluargaCollapse">
-                                                                <i class="fas fa-chevron-down me-2"></i>Dilakukan
-                                                                pembinaan keluarga
-                                                            </button>
-                                                        </h4>
-                                                    </div>
-                                                    <div class="collapse" id="pembinaanKeluargaCollapse">
-                                                        <div class="card-body">
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <div class="form-group">
-                                                                        <label for="pembinaan"
-                                                                            class="form-label fw-bold">Pembinaan
-                                                                            Keluarga</label>
-                                                                        <select name="pembinaan" id="pembinaan"
-                                                                            class="form-select">
-                                                                            <option value="">Pilih...
-                                                                            </option>
-                                                                            <option value="ya"
-                                                                                {{ $visiting->healthForms && $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>
-                                                                                Ya</option>
-                                                                            <option value="tidak"
-                                                                                {{ $visiting->healthForms && $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>
-                                                                                Tidak</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                             <!-- Tingkat Kemandirian Keluarga -->
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
@@ -1788,9 +1736,7 @@
                                                                     data-bs-target="#catatanKeperawatanCollapse"
                                                                     aria-expanded="false"
                                                                     aria-controls="catatanKeperawatanCollapse">
-                                                                    <i
-                                                                        class="fas fa-chevron-down me-2"></i>Hasil
-                                                                    Tindakan Keperawatan
+                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan
                                                                 </button>
                                                             </h6>
                                                         </div>
@@ -1810,6 +1756,47 @@
                                                     </div>
                                                 </div>
                                             @endif
+                                            
+                                            <!-- Pembinaan keluarga -->
+                                            <div class="mb-4">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <h4 class="text-primary mb-0">
+                                                            <button
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#pembinaanKeluargaCollapse"
+                                                                aria-expanded="false"
+                                                                aria-controls="pembinaanKeluargaCollapse">
+                                                                <i class="fas fa-chevron-down me-2"></i>Dilakukan pembinaan keluarga
+                                                            </button>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="collapse" id="pembinaanKeluargaCollapse">
+                                                        <div class="card-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label for="pembinaan" class="form-label fw-bold">Pembinaan Keluarga</label>
+                                                                        <select name="pembinaan" id="pembinaan"
+                                                                            class="form-select">
+                                                                            <option value="">Pilih...
+                                                                            </option>
+                                                                            <option value="ya"
+                                                                                {{ $visiting->healthForms && $visiting->healthForms->pembinaan == 'ya' ? 'selected' : '' }}>
+                                                                                Ya</option>
+                                                                            <option value="tidak"
+                                                                                {{ $visiting->healthForms && $visiting->healthForms->pembinaan == 'tidak' ? 'selected' : '' }}>
+                                                                                Tidak</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
                                             <!-- Rujukan Section -->
                                             <div class="mt-4">
                                                 <div class="card">
