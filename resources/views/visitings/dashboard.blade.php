@@ -528,9 +528,9 @@
                                             <div class="mb-4">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-success mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-success p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#skriningIlpCollapse"
                                                                 aria-expanded="false" aria-controls="skriningIlpCollapse">
@@ -614,8 +614,8 @@
                                             style="display: {{ $visiting->healthForms && $visiting->healthForms->screening_elderly == 1 ? 'block' : 'none' }};">
                                             <div class="card">
                                                 <div class="card-header">
-                                                    <h5 class="text-info mb-0">
-                                                        <button class="btn btn-link text-decoration-none text-info p-0"
+                                                    <h5 class="text-primary mb-0">
+                                                        <button class="btn btn-link text-decoration-none text-primary p-0"
                                                             type="button" data-bs-toggle="collapse"
                                                             data-bs-target="#skilasCollapse" aria-expanded="false"
                                                             aria-controls="skilasCollapse">
@@ -1040,8 +1040,8 @@
                                             <div class="mb-4" style="display: none">
                                                 <div class="card" >
                                                     <div class="card-header">
-                                                        <h4 class="text-info mb-0">
-                                                            <button class="btn btn-link text-decoration-none text-info p-0"
+                                                        <h4 class="text-primary mb-0">
+                                                            <button class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#skorAksCollapse" aria-expanded="false"
                                                                 aria-controls="skorAksCollapse">
@@ -1117,9 +1117,9 @@
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-warning mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-warning p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#dukunganKeluargaCollapse"
                                                                 aria-expanded="false"
@@ -1163,9 +1163,9 @@
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-secondary mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-secondary p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#permasalahanLuarKesehatanCollapse"
                                                                 aria-expanded="false"
@@ -1217,9 +1217,9 @@
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-danger mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-danger p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#gangguanFungsionalCollapse"
                                                                 aria-expanded="false"
@@ -1303,37 +1303,7 @@
                                                 </div>
                                             </div>
 
-                                            @if (auth()->user()->role == 'superadmin' || auth()->user()->role == 'operator')
-                                                <!-- Perawatan Yang Dilakukan (Perawat) -->
-                                                <div class="mb-4">
-                                                    <div class="card">
-                                                        <div class="card-header">
-                                                            <h4 class="text-primary mb-0">
-                                                                <button
-                                                                    class="btn btn-link text-decoration-none text-primary p-0"
-                                                                    type="button" data-bs-toggle="collapse"
-                                                                    data-bs-target="#perawatanYangDilakukanCollapse"
-                                                                    aria-expanded="false"
-                                                                    aria-controls="perawatanYangDilakukanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan
-                                                                </button>
-                                                            </h4>
-                                                        </div>
-                                                        <div class="collapse" id="perawatanYangDilakukanCollapse">
-                                                            <div class="card-body">
-                                                                <div class="row">
-                                                                    <div class="col-md-8">
-                                                                        <div class="form-group">
-                                                                            <label>hasil tindak keperawatan</label>
-                                                                            <textarea name="perawatan" class="form-control" placeholder="Masukkan hasil tindak keperawatan" rows="3">{{ $visiting->healthForms ? $visiting->healthForms->perawatan : '' }}</textarea>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
+                                            
 
                                             @if (
                                                 (auth()->user()->role == 'perawat' && $visiting->status != 'Kunjungan Lanjutan') ||
@@ -1344,9 +1314,9 @@
                                                 <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h4 class="text-success mb-0">
+                                                            <h4 class="text-primary mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-success p-0"
+                                                                    class="btn btn-link text-decoration-none text-primary p-0"
                                                                     type="button" data-bs-toggle="collapse"
                                                                     data-bs-target="#perawatanUmumCollapse"
                                                                     aria-expanded="false"
@@ -1451,9 +1421,9 @@
                                                 <div class="mb-4">
                                                     <div class="card">
                                                         <div class="card-header">
-                                                            <h4 class="text-warning mb-0">
+                                                            <h4 class="text-primary mb-0">
                                                                 <button
-                                                                    class="btn btn-link text-decoration-none text-warning p-0"
+                                                                    class="btn btn-link text-decoration-none text-primary p-0"
                                                                     type="button" data-bs-toggle="collapse"
                                                                     data-bs-target="#perawatanKhususCollapse"
                                                                     aria-expanded="false"
@@ -1539,9 +1509,9 @@
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-info mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-info p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#keluaranPerawatanCollapse"
                                                                 aria-expanded="false"
@@ -1605,9 +1575,9 @@
                                             <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif">
                                                 <div class="card">
                                                     <div class="card-header">
-                                                        <h4 class="text-success mb-0">
+                                                        <h4 class="text-primary mb-0">
                                                             <button
-                                                                class="btn btn-link text-decoration-none text-success p-0"
+                                                                class="btn btn-link text-decoration-none text-primary p-0"
                                                                 type="button" data-bs-toggle="collapse"
                                                                 data-bs-target="#tingkatKemandirianCollapse"
                                                                 aria-expanded="false"
@@ -1684,7 +1654,7 @@
                                                                     data-bs-target="#catatanKeperawatanCollapse"
                                                                     aria-expanded="false"
                                                                     aria-controls="catatanKeperawatanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan
+                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan 
                                                                 </button>
                                                             </h6>
                                                         </div>
@@ -1704,7 +1674,37 @@
                                                     </div>
                                                 </div>
                                             @endif
-                                            
+                                            @if (auth()->user()->role == 'superadmin' || auth()->user()->role == 'operator')
+                                                <!-- Perawatan Yang Dilakukan (Perawat) -->
+                                                <div class="mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <h4 class="text-primary mb-0">
+                                                                <button
+                                                                    class="btn btn-link text-decoration-none text-primary p-0"
+                                                                    type="button" data-bs-toggle="collapse"
+                                                                    data-bs-target="#perawatanYangDilakukanCollapse"
+                                                                    aria-expanded="false"
+                                                                    aria-controls="perawatanYangDilakukanCollapse">
+                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan 
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                        <div class="collapse" id="perawatanYangDilakukanCollapse">
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-8">
+                                                                        <div class="form-group">
+                                                                            <label>hasil tindak keperawatan</label>
+                                                                            <textarea name="perawatan" class="form-control" placeholder="Masukkan hasil tindak keperawatan" rows="3">{{ $visiting->healthForms ? $visiting->healthForms->perawatan : '' }}</textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                             <!-- Pembinaan keluarga -->
                                             <div class="mb-4">
                                                 <div class="card">
