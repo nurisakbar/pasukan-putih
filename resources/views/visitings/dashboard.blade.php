@@ -593,7 +593,52 @@
                                                                                     
                                                                                     // Coba pendekatan yang berbeda untuk mengakses status
                                                                                     $statusField = 'screening_' . $screening['id'] . '_status';
-                                                                                    $statusValue = $visiting->healthForms ? $visiting->healthForms->$statusField : null;
+                                                                                    
+                                                                                    // Coba beberapa cara untuk mengakses field
+                                                                                    $statusValue = null;
+                                                                                    if ($visiting->healthForms) {
+                                                                                        // Cara 1: Direct property access
+                                                                                        $statusValue = $visiting->healthForms->$statusField ?? null;
+                                                                                        
+                                                                                        // Cara 2: getAttribute method
+                                                                                        if (empty($statusValue)) {
+                                                                                            $statusValue = $visiting->healthForms->getAttribute($statusField);
+                                                                                        }
+                                                                                        
+                                                                                        // Cara 3: Array access
+                                                                                        if (empty($statusValue)) {
+                                                                                            $healthFormsArray = $visiting->healthForms->toArray();
+                                                                                            $statusValue = $healthFormsArray[$statusField] ?? null;
+                                                                                        }
+                                                                                        
+                                                                                        // Cara 4: Manual switch untuk field yang diketahui
+                                                                                        if (empty($statusValue)) {
+                                                                                            switch ($screening['id']) {
+                                                                                                case 'obesity':
+                                                                                                    $statusValue = $visiting->healthForms->obesity_status ?? null;
+                                                                                                    break;
+                                                                                                case 'hypertension':
+                                                                                                    $statusValue = $visiting->healthForms->hypertension_status ?? null;
+                                                                                                    break;
+                                                                                                case 'diabetes':
+                                                                                                    $statusValue = $visiting->healthForms->diabetes_status ?? null;
+                                                                                                    break;
+                                                                                                case 'stroke':
+                                                                                                    $statusValue = $visiting->healthForms->stroke_status ?? null;
+                                                                                                    break;
+                                                                                                case 'heart_disease':
+                                                                                                    $statusValue = $visiting->healthForms->heart_disease_status ?? null;
+                                                                                                    break;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                    
+                                                                                    // Debug: cek apakah field ada di healthForms
+                                                                                    \Log::info("Debug field access for {$screening['id']}: field={$statusField}, exists=" . (isset($visiting->healthForms->$statusField) ? 'YES' : 'NO'));
+                                                                                    if ($visiting->healthForms) {
+                                                                                        \Log::info("Available fields: " . implode(', ', array_keys($visiting->healthForms->toArray())));
+                                                                                        \Log::info("Final statusValue for {$screening['id']}: '{$statusValue}'");
+                                                                                    }
                                                                                     
                                                                                     $penderitaSelected = $statusValue === 'penderita';
                                                                                     $bukanPenderitaSelected = $statusValue === 'bukan_penderita';
