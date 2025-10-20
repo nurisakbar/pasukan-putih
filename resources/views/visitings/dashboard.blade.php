@@ -1377,7 +1377,7 @@
                                                                     data-bs-target="#perawatanYangDilakukanCollapse"
                                                                     aria-expanded="false"
                                                                     aria-controls="perawatanYangDilakukanCollapse">
-                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindak Keperawatan
+                                                                    <i class="fas fa-chevron-down me-2"></i>Hasil Tindakan Keperawatan
                                                                 </button>
                                                             </h4>
                                                         </div>
