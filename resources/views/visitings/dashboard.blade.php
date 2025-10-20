@@ -556,7 +556,7 @@
                                                                         // Debug logging untuk setiap screening
                                                                         $screeningValue = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id']} : null;
                                                                         $screeningStatus = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} : null;
-                                                                        \Log::info("Screening {$screening['id']}: value={$screeningValue}, status={$screeningStatus}");
+                                                                        \Log::info("Screening {$screening['id']}: value={$screeningValue} (type: " . gettype($screeningValue) . "), status={$screeningStatus}");
                                                                     @endphp
                                                                     <div class="col-md-6 col-lg-4 mb-3">
                                                                         <div class="form-group">
@@ -569,7 +569,7 @@
                                                                                         name="screening_{{ $screening['id'] }}"
                                                                                         id="{{ $screening['id'] }}_yes"
                                                                                         value="1"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 1 || $visiting->healthForms->{'screening_' . $screening['id']} === true) ? 'checked' : '' }}
                                                                                         {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                                     <label class="form-check-label"
                                                                                         for="{{ $screening['id'] }}_yes">Ya</label>
@@ -580,7 +580,7 @@
                                                                                         name="screening_{{ $screening['id'] }}"
                                                                                         id="{{ $screening['id'] }}_no"
                                                                                         value="0"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 0 || $visiting->healthForms->{'screening_' . $screening['id']} === false) ? 'checked' : '' }}
                                                                                         {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                                     <label class="form-check-label"
                                                                                         for="{{ $screening['id'] }}_no">Tidak</label>
@@ -589,7 +589,7 @@
                                                                             @if ($screening['id'] !== 'elderly')
                                                                                 @php
                                                                                     // Debug logging untuk status dropdown
-                                                                                    $isSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1;
+                                                                                    $isSelected = $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 1 || $visiting->healthForms->{'screening_' . $screening['id']} === true);
                                                                                     $penderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita';
                                                                                     $bukanPenderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita';
                                                                                     \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
