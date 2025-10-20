@@ -384,7 +384,7 @@
                                                                         <input class="form-check-input" type="checkbox"
                                                                             id="no_disease" name="no_disease"
                                                                             value="1"
-                                                                            {{ $visiting->healthForms && $visiting->healthForms->no_disease ? 'checked' : '' }}
+                                                                            {{ $visiting->healthForms && $visiting->healthForms->no_disease && empty($selectedDiseases) ? 'checked' : '' }}
                                                                             {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                                         <label class="form-check-label" for="no_disease">
                                                                             Tidak Ada Riwayat Penyakit
@@ -2817,6 +2817,32 @@
                     });
                 });
             }
+
+            // Ketika ada penyakit yang dicentang, uncheck "Tidak Ada Riwayat Penyakit"
+            diseaseCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked && noDiseaseCheckbox) {
+                        noDiseaseCheckbox.checked = false;
+                    }
+                });
+            });
+
+            // Cek kondisi awal saat halaman dimuat - jika ada penyakit yang terselected, uncheck "Tidak Ada Riwayat Penyakit"
+            function checkInitialDiseaseState() {
+                let hasSelectedDisease = false;
+                diseaseCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        hasSelectedDisease = true;
+                    }
+                });
+                
+                if (hasSelectedDisease && noDiseaseCheckbox) {
+                    noDiseaseCheckbox.checked = false;
+                }
+            }
+
+            // Jalankan pengecekan kondisi awal saat halaman dimuat
+            checkInitialDiseaseState();
 
             // Conditional fields for cancer and lung disease
             const cancerCheckbox = document.getElementById('cancer');
