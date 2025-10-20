@@ -2938,6 +2938,9 @@
                 checkbox.addEventListener('change', updateKemandirianLevel);
             });
 
+            // Initialize kemandirian level on page load
+            updateKemandirianLevel();
+
             // Dilakukan Oleh Checkbox Logic - Show/Hide Operator Dropdown
             const dilakukanOlehCheckboxes = document.querySelectorAll('.dilakukan-oleh-checkbox');
             const operatorDiv = document.getElementById('operator_selection_div');
