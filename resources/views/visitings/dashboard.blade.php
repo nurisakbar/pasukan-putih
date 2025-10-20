@@ -1335,7 +1335,11 @@
                                                 </div>
                                             @endif
 
-                                            @if ((auth()->user()->role == 'perawat' && $visiting->status != 'Kunjungan Lanjutan') || auth()->user()->role == 'superadmin')
+                                            @if (
+                                                (auth()->user()->role == 'perawat' && $visiting->status != 'Kunjungan Lanjutan') ||
+                                                auth()->user()->role == 'superadmin' ||
+                                                (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal')
+                                            )
                                                 <!-- Perawatan Umum Yang Dilakukan (Operator) -->
                                                 <div class="mb-4">
                                                     <div class="card">
@@ -1355,6 +1359,9 @@
                                                         <div class="collapse" id="perawatanUmumCollapse">
                                                             <div class="card-body">
                                                                 <div class="row">
+                                                                    @php
+                                                                        $readonlyOperator = auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal';
+                                                                    @endphp
                                                                     @php
                                                                         $perawatans = [
                                                                             [
@@ -1415,7 +1422,7 @@
                                                                                             name="perawatan_{{ $perawatan['id'] }}"
                                                                                             id="{{ $perawatan['id'] }}_yes"
                                                                                             value="1"
-                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
+                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }} @if($readonlyOperator) disabled @endif>
                                                                                         <label class="form-check-label"
                                                                                             for="{{ $perawatan['id'] }}_yes">Ya</label>
                                                                                     </div>
@@ -1426,7 +1433,7 @@
                                                                                             name="perawatan_{{ $perawatan['id'] }}"
                                                                                             id="{{ $perawatan['id'] }}_no"
                                                                                             value="0"
-                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
+                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }} @if($readonlyOperator) disabled @endif>
                                                                                         <label class="form-check-label"
                                                                                             for="{{ $perawatan['id'] }}_no">Tidak</label>
                                                                                     </div>
@@ -1459,6 +1466,9 @@
                                                         <div class="collapse" id="perawatanKhususCollapse">
                                                             <div class="card-body">
                                                                 <div class="row">
+                                                                    @php
+                                                                        $readonlyOperator = $readonlyOperator ?? (auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal');
+                                                                    @endphp
                                                                     @php
                                                                         $perawatans = [
                                                                             [
@@ -1499,7 +1509,7 @@
                                                                                             name="perawatan_{{ $perawatan['id'] }}"
                                                                                             id="{{ $perawatan['id'] }}_yes"
                                                                                             value="1"
-                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }}>
+                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 1 ? 'checked' : '' }} @if($readonlyOperator) disabled @endif>
                                                                                         <label class="form-check-label"
                                                                                             for="{{ $perawatan['id'] }}_yes">Ya</label>
                                                                                     </div>
@@ -1510,7 +1520,7 @@
                                                                                             name="perawatan_{{ $perawatan['id'] }}"
                                                                                             id="{{ $perawatan['id'] }}_no"
                                                                                             value="0"
-                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }}>
+                                                                                            {{ $visiting->healthForms && $visiting->healthForms->{'perawatan_' . $perawatan['id']} == 0 ? 'checked' : '' }} @if($readonlyOperator) disabled @endif>
                                                                                         <label class="form-check-label"
                                                                                             for="{{ $perawatan['id'] }}_no">Tidak</label>
                                                                                     </div>
