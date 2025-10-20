@@ -629,6 +629,42 @@
                                                                                                 case 'heart_disease':
                                                                                                     $statusValue = $visiting->healthForms->heart_disease_status ?? null;
                                                                                                     break;
+                                                                                                case 'breast_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->breast_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'cervical_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->cervical_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'lung_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->lung_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'colorectal_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->colorectal_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'mental_health':
+                                                                                                    $statusValue = $visiting->healthForms->mental_health_status ?? null;
+                                                                                                    break;
+                                                                                                case 'ppok':
+                                                                                                    $statusValue = $visiting->healthForms->ppok_status ?? null;
+                                                                                                    break;
+                                                                                                case 'tbc':
+                                                                                                    $statusValue = $visiting->healthForms->tbc_status ?? null;
+                                                                                                    break;
+                                                                                                case 'vision':
+                                                                                                    $statusValue = $visiting->healthForms->vision_status ?? null;
+                                                                                                    break;
+                                                                                                case 'hearing':
+                                                                                                    $statusValue = $visiting->healthForms->hearing_status ?? null;
+                                                                                                    break;
+                                                                                                case 'fitness':
+                                                                                                    $statusValue = $visiting->healthForms->fitness_status ?? null;
+                                                                                                    break;
+                                                                                                case 'dental':
+                                                                                                    $statusValue = $visiting->healthForms->dental_status ?? null;
+                                                                                                    break;
+                                                                                                case 'elderly':
+                                                                                                    $statusValue = $visiting->healthForms->elderly_status ?? null;
+                                                                                                    break;
                                                                                             }
                                                                                         }
                                                                                     }
