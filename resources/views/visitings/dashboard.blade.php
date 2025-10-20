@@ -404,11 +404,11 @@
                                                                     'stroke' => 'Stroke',
                                                                 ];
                                                                 $selectedDiseases = getArrayFromJsonOrArray(
-                                                                    $visiting->healthForms ? $visiting->healthForms && $visiting->healthForms->diseases : [],
+                                                                    $visiting->healthForms ? $visiting->healthForms->diseases : [],
                                                                 );
-                                                                $cancerType = $visiting->healthForms ? $visiting->healthForms && $visiting->healthForms->cancer_type : '';
+                                                                $cancerType = $visiting->healthForms ? $visiting->healthForms->cancer_type : '';
                                                                 $lungDiseaseType =
-                                                                    $visiting->healthForms ? $visiting->healthForms && $visiting->healthForms->lung_disease_type : '';
+                                                                    $visiting->healthForms ? $visiting->healthForms->lung_disease_type : '';
                                                             @endphp
 
                                                             @foreach ($diseases as $key => $label)
@@ -554,7 +554,7 @@
                                                                                         name="screening_{{ $screening['id'] }}"
                                                                                         id="{{ $screening['id'] }}_yes"
                                                                                         value="1"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'checked' : '' }}
                                                                                         {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                                     <label class="form-check-label"
                                                                                         for="{{ $screening['id'] }}_yes">Ya</label>
@@ -565,7 +565,7 @@
                                                                                         name="screening_{{ $screening['id'] }}"
                                                                                         id="{{ $screening['id'] }}_no"
                                                                                         value="0"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}
+                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 0 ? 'checked' : '' }}
                                                                                         {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                                     <label class="form-check-label"
                                                                                         for="{{ $screening['id'] }}_no">Tidak</label>
@@ -576,14 +576,14 @@
                                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"
                                                                                     name="{{ $screening['id'] }}_status"
                                                                                     {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}
-                                                                                    style="display: {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
+                                                                                    style="display: {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
                                                                                     <option value="">Pilih Status
                                                                                     </option>
                                                                                     <option value="penderita"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>
+                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>
                                                                                         Penderita</option>
                                                                                     <option value="bukan_penderita"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>
+                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>
                                                                                         Bukan Penderita</option>
                                                                                 </select>
                                                                             @endif
@@ -599,7 +599,7 @@
 
                                         <!-- SKILAS Detail Section -->
                                         <div class="mb-4 @if ((auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Lanjutan') || (auth()->user()->role == 'perawat' && $visiting->status == 'Kunjungan Lanjutan')) d-none @endif" id="skilas-detail-section"
-                                            style="display: {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->screening_elderly == 1 ? 'block' : 'none' }};">
+                                            style="display: {{ $visiting->healthForms && $visiting->healthForms->screening_elderly == 1 ? 'block' : 'none' }};">
                                             <div class="card">
                                                 <div class="card-header">
                                                     <h5 class="text-info mb-0">
@@ -650,7 +650,7 @@
                                                                                     type="radio" name="skilas_kognitif"
                                                                                     value="0"
                                                                                     id="skilas_kognitif_tidak"
-                                                                                    {{ $visiting->healthForms && $visiting->healthForms && $visiting->healthForms->skilas_kognitif == 0 ? 'checked' : '' }}
+                                                                                    {{ $visiting->healthForms && $visiting->healthForms->skilas_kognitif == 0 ? 'checked' : '' }}
                                                                                     {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}>
                                                                                 <label class="form-check-label"
                                                                                     for="skilas_kognitif_tidak">
