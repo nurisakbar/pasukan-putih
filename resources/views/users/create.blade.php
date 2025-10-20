@@ -89,13 +89,15 @@
                                         @enderror
                                     </div>
                                     <div class="col-lg-6 col-md-6">
-                                        <select class="form-control" name="pustu_id" id="pustus">
+                                        <select class="form-control" name="pustu_id" id="pustus" style="display: none;">
+                                            <option value="">-- Pilih Pustu/Puskesmas --</option>
                                             @foreach($pustus as $pustu)
                                             <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
                                             @endforeach
                                         </select>
 
-                                        <select class="form-control" name="regency_id" id="kabupaten">
+                                        <select class="form-control" name="regency_id" id="kabupaten" style="display: none;">
+                                            <option value="">-- Pilih Kabupaten --</option>
                                             @foreach(\App\Models\Regency::where('province_id',31)->get() as $regency)
                                             <option value="{{$regency->id}}">{{$regency->name}}</option>
                                             @endforeach
@@ -140,7 +142,7 @@
                                         </div>
                                         <div class="col-lg-10 col-md-8">
                                             <select class="form-control @error('pustu_id') is-invalid @enderror"
-                                                    name="pustu_id">
+                                                    name="pustu_id" id="superadmin-pustu">
                                                     <option value="">-- Pilih Parent --</option>
                                                     @foreach ($parents as $parent)
                                                         <option value="{{ $parent->id }}">{{ $parent->name }}
@@ -261,19 +263,23 @@
             }, 4000); // 4 seconds
         }
         $(document).ready(function() {
-            $('#pustu').select2();
+            $('#pustus').select2();
+            $('#superadmin-pustu').select2();
 
             $('select[name="role"]').on('change', function() {
                 var selectedRole = $(this).val(); // Ambil nilai yang dipilih
                 if (selectedRole === 'pustu' || selectedRole === 'perawat' || selectedRole === 'operator') {
                     $("#kabupaten").hide();
                     $("#pustus").show();
+                    $("#puskesmas-field").hide();
                 } else if (selectedRole === 'sudinkes') {
                     $("#pustus").hide();
                     $("#kabupaten").show();
+                    $("#puskesmas-field").hide();
                 } else {
                     $("#pustus").hide();
                     $("#kabupaten").hide();
+                    $("#puskesmas-field").hide();
                 }
             });
 
@@ -285,11 +291,13 @@
                 $('select[name="role"]').on('change', function() {
                     var selectedRole = $(this).val();
                     if (selectedRole == 'pustu' || selectedRole == 'dokter' ||
-                        selectedRole == 'perawat' || selectedRole == 'farmasi' ||
+                        selectedRole == 'perawat' || selectedRole == 'operator' || selectedRole == 'farmasi' ||
                         selectedRole == 'pendaftaran') {
-                        $('#parent-field').show();
+                        $('#puskesmas-field').show();
+                        $("#pustus").hide();
+                        $("#kabupaten").hide();
                     } else {
-                        $('#parent-field').hide();
+                        $('#puskesmas-field').hide();
                     }
                 });
             @endif

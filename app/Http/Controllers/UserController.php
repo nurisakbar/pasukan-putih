@@ -105,6 +105,16 @@ class UserController extends Controller
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
 
+        // Add conditional validation for pustu_id
+        if ($request->role == 'perawat' || $request->role == 'operator') {
+            $rules['pustu_id'] = ['required', 'exists:pustus,id'];
+        }
+        
+        // Add conditional validation for regency_id
+        if ($request->role == 'sudinkes') {
+            $rules['regency_id'] = ['required', 'exists:regencies,id'];
+        }
+
 
 
         $validator = Validator::make($request->all(), $rules);
@@ -116,16 +126,19 @@ class UserController extends Controller
                 ->withInput();
         }
 
-        // Determine pustu_id
-        $parentId = null;
+        // Determine pustu_id based on role and user type
+        $pustuId = null;
+        $regencyId = null;
 
-        // If superadmin and pustu_id provided, use it
-        if ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
-            $parentId = $request->pustu_id;
-        }
-        // If not superadmin, use current user as parent
-        elseif ($currentUser->role != 'superadmin') {
-            $parentId = $currentUser->id;
+        if ($request->role == 'perawat' || $request->role == 'operator') {
+            // For perawat and operator, use pustu_id from request
+            $pustuId = $request->pustu_id;
+        } elseif ($request->role == 'sudinkes') {
+            // For sudinkes, use regency_id
+            $regencyId = $request->regency_id;
+        } elseif ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
+            // For superadmin creating other roles, use provided pustu_id
+            $pustuId = $request->pustu_id;
         }
 
         // Role access validation
@@ -138,9 +151,9 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => ($request->role=='perawat' || $request->role=='operator')?$request->pustu_id:null,
+            'pustu_id' => $pustuId,
             'no_wa' => $request->no_wa,
-            'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
+            'regency_id' => $regencyId,
             'keterangan' => $request->keterangan,
             'status_pegawai' => $request->status_pegawai
         ]);
