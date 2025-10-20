@@ -590,9 +590,16 @@
                                                                                 @php
                                                                                     // Debug logging untuk status dropdown
                                                                                     $isSelected = $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 1 || $visiting->healthForms->{'screening_' . $screening['id']} === true);
-                                                                                    $penderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita';
-                                                                                    $bukanPenderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita';
-                                                                                    \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
+                                                                                    
+                                                                                    // Coba pendekatan yang berbeda untuk mengakses status
+                                                                                    $statusField = 'screening_' . $screening['id'] . '_status';
+                                                                                    $statusValue = $visiting->healthForms ? $visiting->healthForms->$statusField : null;
+                                                                                    
+                                                                                    $penderitaSelected = $statusValue === 'penderita';
+                                                                                    $bukanPenderitaSelected = $statusValue === 'bukan_penderita';
+                                                                                    
+                                                                                    \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, statusField={$statusField}, statusValue='{$statusValue}', penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
+                                                                                    \Log::info("Raw comparison: '{$statusValue}' === 'penderita' = " . ($statusValue === 'penderita' ? 'true' : 'false'));
                                                                                 @endphp
                                                                                 <select
                                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"
