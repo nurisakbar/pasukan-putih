@@ -540,24 +540,9 @@
                                                     </div>
                                                     <div class="collapse" id="skriningIlpCollapse">
                                                         <div class="card-body">
-                                                            @php
-                                                                // Debug logging untuk Skrining ILP
-                                                                \Log::info('=== SKRINING ILP DEBUG ===');
-                                                                \Log::info('Visiting ID: ' . $visiting->id);
-                                                                \Log::info('HealthForms exists: ' . ($visiting->healthForms ? 'YES' : 'NO'));
-                                                                if ($visiting->healthForms) {
-                                                                    \Log::info('HealthForms data: ', $visiting->healthForms->toArray());
-                                                                }
-                                                            @endphp
                                                             <div class="row">
 
                                                                 @foreach ($screenings as $screening)
-                                                                    @php
-                                                                        // Debug logging untuk setiap screening
-                                                                        $screeningValue = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id']} : null;
-                                                                        $screeningStatus = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} : null;
-                                                                        \Log::info("Screening {$screening['id']}: value={$screeningValue} (type: " . gettype($screeningValue) . "), status={$screeningStatus}");
-                                                                    @endphp
                                                                     <div class="col-md-6 col-lg-4 mb-3">
                                                                         <div class="form-group">
                                                                             <label
@@ -588,15 +573,13 @@
                                                                             </div>
                                                                             @if ($screening['id'] !== 'elderly')
                                                                                 @php
-                                                                                    // Debug logging untuk status dropdown
                                                                                     $isSelected = $visiting->healthForms && ($visiting->healthForms->{'screening_' . $screening['id']} == 1 || $visiting->healthForms->{'screening_' . $screening['id']} === true);
                                                                                     
-                                                                                    // Coba pendekatan yang berbeda untuk mengakses status
-                                                                                    $statusField = 'screening_' . $screening['id'] . '_status';
-                                                                                    
-                                                                                    // Coba beberapa cara untuk mengakses field
+                                                                                    // Akses field status dengan multiple methods
                                                                                     $statusValue = null;
                                                                                     if ($visiting->healthForms) {
+                                                                                        $statusField = 'screening_' . $screening['id'] . '_status';
+                                                                                        
                                                                                         // Cara 1: Direct property access
                                                                                         $statusValue = $visiting->healthForms->$statusField ?? null;
                                                                                         
@@ -629,22 +612,48 @@
                                                                                                 case 'heart_disease':
                                                                                                     $statusValue = $visiting->healthForms->heart_disease_status ?? null;
                                                                                                     break;
+                                                                                                case 'breast_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->breast_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'cervical_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->cervical_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'lung_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->lung_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'colorectal_cancer':
+                                                                                                    $statusValue = $visiting->healthForms->colorectal_cancer_status ?? null;
+                                                                                                    break;
+                                                                                                case 'mental_health':
+                                                                                                    $statusValue = $visiting->healthForms->mental_health_status ?? null;
+                                                                                                    break;
+                                                                                                case 'ppok':
+                                                                                                    $statusValue = $visiting->healthForms->ppok_status ?? null;
+                                                                                                    break;
+                                                                                                case 'tbc':
+                                                                                                    $statusValue = $visiting->healthForms->tbc_status ?? null;
+                                                                                                    break;
+                                                                                                case 'vision':
+                                                                                                    $statusValue = $visiting->healthForms->vision_status ?? null;
+                                                                                                    break;
+                                                                                                case 'hearing':
+                                                                                                    $statusValue = $visiting->healthForms->hearing_status ?? null;
+                                                                                                    break;
+                                                                                                case 'fitness':
+                                                                                                    $statusValue = $visiting->healthForms->fitness_status ?? null;
+                                                                                                    break;
+                                                                                                case 'dental':
+                                                                                                    $statusValue = $visiting->healthForms->dental_status ?? null;
+                                                                                                    break;
+                                                                                                case 'elderly':
+                                                                                                    $statusValue = $visiting->healthForms->elderly_status ?? null;
+                                                                                                    break;
                                                                                             }
                                                                                         }
                                                                                     }
                                                                                     
-                                                                                    // Debug: cek apakah field ada di healthForms
-                                                                                    \Log::info("Debug field access for {$screening['id']}: field={$statusField}, exists=" . (isset($visiting->healthForms->$statusField) ? 'YES' : 'NO'));
-                                                                                    if ($visiting->healthForms) {
-                                                                                        \Log::info("Available fields: " . implode(', ', array_keys($visiting->healthForms->toArray())));
-                                                                                        \Log::info("Final statusValue for {$screening['id']}: '{$statusValue}'");
-                                                                                    }
-                                                                                    
                                                                                     $penderitaSelected = $statusValue === 'penderita';
                                                                                     $bukanPenderitaSelected = $statusValue === 'bukan_penderita';
-                                                                                    
-                                                                                    \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, statusField={$statusField}, statusValue='{$statusValue}', penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
-                                                                                    \Log::info("Raw comparison: '{$statusValue}' === 'penderita' = " . ($statusValue === 'penderita' ? 'true' : 'false'));
                                                                                 @endphp
                                                                                 <select
                                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"

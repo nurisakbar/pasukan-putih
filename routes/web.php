@@ -150,11 +150,6 @@ Route::get('/get-villages/{district_id}', function ($district_id) {
 
 Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
-// Debug route untuk Skrining ILP
-Route::get('/debug/skrining-log', function () {
-    return view('debug.skrining-log');
-})->name('debug.skrining-log');
-
 Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test']);
 
 Route::get('/test-carik', function () {
