@@ -278,13 +278,42 @@
         }
 
         .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             font-size: 14px;
-            animation: slideIn 0.3s ease-out;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-left: 4px solid #ff4757;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .error-message i {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         /* Responsif untuk Tablet */
@@ -401,7 +430,12 @@
 
             .error-message {
                 font-size: 13px;
-                padding: 10px;
+                padding: 12px 15px;
+                margin-bottom: 20px;
+            }
+
+            .error-message i {
+                font-size: 14px;
             }
         }
 
@@ -546,7 +580,17 @@
         
         @if(session('error'))
         <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
             {{ session('error') }}
+        </div>
+        @endif
+
+        @if($errors->any())
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            @foreach($errors->all() as $error)
+                {{ $error }}
+            @endforeach
         </div>
         @endif
 

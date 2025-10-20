@@ -37,7 +37,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 
@@ -49,7 +49,17 @@ class LoginController extends Controller
                 ], 422);
             }
 
-            return redirect('/login')->withErrors($validator)->withInput();
+            return redirect(url('/login'))->withErrors($validator)->withInput();
+        }
+
+        // Cek apakah email terdaftar
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Akun tidak terdaftar'], 401);
+            }
+            return redirect(url('/login'))->with('error', 'Akun tidak terdaftar')->withInput();
         }
 
         $credentials = $request->only('email', 'password');
@@ -70,7 +80,7 @@ class LoginController extends Controller
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        return redirect('/login')->withErrors(['email' => 'Email atau password salah'])->withInput();
+        return redirect(url('/login'))->with('error', 'Email atau password salah')->withInput();
     }
 
     /**
