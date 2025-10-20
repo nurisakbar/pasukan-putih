@@ -540,9 +540,24 @@
                                                     </div>
                                                     <div class="collapse" id="skriningIlpCollapse">
                                                         <div class="card-body">
+                                                            @php
+                                                                // Debug logging untuk Skrining ILP
+                                                                \Log::info('=== SKRINING ILP DEBUG ===');
+                                                                \Log::info('Visiting ID: ' . $visiting->id);
+                                                                \Log::info('HealthForms exists: ' . ($visiting->healthForms ? 'YES' : 'NO'));
+                                                                if ($visiting->healthForms) {
+                                                                    \Log::info('HealthForms data: ', $visiting->healthForms->toArray());
+                                                                }
+                                                            @endphp
                                                             <div class="row">
 
                                                                 @foreach ($screenings as $screening)
+                                                                    @php
+                                                                        // Debug logging untuk setiap screening
+                                                                        $screeningValue = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id']} : null;
+                                                                        $screeningStatus = $visiting->healthForms ? $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} : null;
+                                                                        \Log::info("Screening {$screening['id']}: value={$screeningValue}, status={$screeningStatus}");
+                                                                    @endphp
                                                                     <div class="col-md-6 col-lg-4 mb-3">
                                                                         <div class="form-group">
                                                                             <label
@@ -572,18 +587,25 @@
                                                                                 </div>
                                                                             </div>
                                                                             @if ($screening['id'] !== 'elderly')
+                                                                                @php
+                                                                                    // Debug logging untuk status dropdown
+                                                                                    $isSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1;
+                                                                                    $penderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita';
+                                                                                    $bukanPenderitaSelected = $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita';
+                                                                                    \Log::info("Status dropdown {$screening['id']}: isSelected={$isSelected}, penderitaSelected={$penderitaSelected}, bukanPenderitaSelected={$bukanPenderitaSelected}");
+                                                                                @endphp
                                                                                 <select
                                                                                     class="form-control conditional-field {{ $screening['id'] }}-status"
                                                                                     name="{{ $screening['id'] }}_status"
                                                                                     {{ $isOperatorKunjunganAwal ? 'disabled' : '' }}
-                                                                                    style="display: {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id']} == 1 ? 'block' : 'none' }}">
+                                                                                    style="display: {{ $isSelected ? 'block' : 'none' }}">
                                                                                     <option value="">Pilih Status
                                                                                     </option>
                                                                                     <option value="penderita"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'penderita' ? 'selected' : '' }}>
+                                                                                        {{ $penderitaSelected ? 'selected' : '' }}>
                                                                                         Penderita</option>
                                                                                     <option value="bukan_penderita"
-                                                                                        {{ $visiting->healthForms && $visiting->healthForms->{'screening_' . $screening['id'] . '_status'} == 'bukan_penderita' ? 'selected' : '' }}>
+                                                                                        {{ $bukanPenderitaSelected ? 'selected' : '' }}>
                                                                                         Bukan Penderita</option>
                                                                                 </select>
                                                                             @endif
