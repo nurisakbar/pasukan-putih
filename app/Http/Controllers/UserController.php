@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UserImport;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class UserController extends Controller
 {
@@ -383,6 +385,69 @@ class UserController extends Controller
         Excel::import(new UserImport, $request->file('file'));
 
         return back()->with('success', 'Data pengguna berhasil diimport!');
+    }
+
+    /**
+     * Download template Excel for user import
+     */
+    public function downloadTemplate()
+    {
+        // Generate Excel file using Laravel Excel
+        $templateData = [
+            ['email', 'pustu', 'user', 'phone', 'role', 'status_pegawai', 'keterangan', 'wilayah_2'],
+            ['operator1@example.com', 'PUSTU Klinik ABC', 'John Doe', '08123456789', 'operator', 'PNS', 'Operator Klinik ABC', 'Kecamatan XYZ'],
+            ['operator2@example.com', 'PUSTU Klinik DEF', 'Jane Smith', '08123456790', 'operator', 'Honorer', 'Operator Klinik DEF', 'Kecamatan ABC'],
+            ['perawat1@example.com', 'PUSTU Klinik GHI', 'Bob Wilson', '08123456791', 'perawat', 'PNS', 'Perawat Klinik GHI', 'Kecamatan DEF'],
+            ['dokter1@example.com', 'PUSTU Klinik JKL', 'Dr. Alice Brown', '08123456792', 'dokter', 'PNS', 'Dokter Klinik JKL', 'Kecamatan GHI'],
+            ['farmasi1@example.com', 'PUSTU Klinik MNO', 'Carol Davis', '08123456793', 'farmasi', 'PNS', 'Petugas Farmasi Klinik MNO', 'Kecamatan JKL'],
+        ];
+
+        $filename = 'template_import_user_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        // Create Excel file
+        $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $excel->getActiveSheet();
+        
+        // Set headers
+        $headers = ['Email', 'PUSTU', 'User', 'Phone', 'Role', 'Status Pegawai', 'Keterangan', 'Wilayah 2'];
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $sheet->getStyle($col . '1')->getFont()->setBold(true);
+            $col++;
+        }
+        
+        // Set data
+        $row = 2;
+        foreach ($templateData as $index => $data) {
+            if ($index == 0) continue; // Skip header row
+            $col = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($col . $row, $value);
+                $col++;
+            }
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Create writer
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+        
+        // Set headers
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+        ];
+        
+        // Return response
+        return response()->stream(function() use ($writer) {
+            $writer->save('php://output');
+        }, 200, $headers);
     }
 
     /**

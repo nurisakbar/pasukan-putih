@@ -208,13 +208,33 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Petunjuk Import:</strong> Untuk memastikan proses impor berjalan lancar, silakan download template Excel terlebih dahulu.
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Download Template Excel</label>
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('users.download-template') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-download me-2"></i>Download Template Import User
+                                </a>
+                            </div>
+                            <small class="text-muted">Template ini berisi format yang benar untuk import data pengguna dengan berbagai role (operator, perawat, dll.)</small>
+                        </div>
+
+                        <hr class="my-4">
+
                         <form id="importForm" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="file" class="form-label">Pilih File Excel</label>
-                                <input type="file" name="file" id="file" class="form-control">
+                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                                <div class="form-text">Hanya file Excel (.xlsx, .xls) atau CSV yang diperbolehkan.</div>
                             </div>
-                            <button type="submit" class="btn btn-success">Import</button>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-upload me-2"></i>Import Data
+                            </button>
                         </form>
                         <div id="loadingIndicator" class="mt-3"></div>
                         <div id="importResult" class="mt-3"></div>

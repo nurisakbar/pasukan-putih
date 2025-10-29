@@ -67,6 +67,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::put('/profile', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('users.updateProfile');
 
     Route::post('/import-users', [App\Http\Controllers\UserController::class, 'importUsers'])->name('import.users');
+    Route::get('/users/download-template', [App\Http\Controllers\UserController::class, 'downloadTemplate'])->name('users.download-template');
 
     // Login by email routes
     Route::get('/login-by-email', [App\Http\Controllers\Auth\LoginController::class, 'showLoginByEmailForm'])->name('login.email.form');

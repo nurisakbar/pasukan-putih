@@ -1,0 +1,5 @@
+email,pustu,user,phone,role,status_pegawai,keterangan,wilayah_2
+operator1@example.com,PUSTU Klinik ABC,John Doe,08123456789,operator,PNS,Operator Klinik ABC,Kecamatan XYZ
+operator2@example.com,PUSTU Klinik DEF,Jane Smith,08123456790,operator,Honorer,Operator Klinik DEF,Kecamatan ABC
+perawat1@example.com,PUSTU Klinik GHI,Bob Wilson,08123456791,perawat,PNS,Perawat Klinik GHI,Kecamatan DEF
+
