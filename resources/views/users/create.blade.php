@@ -91,9 +91,13 @@
                                     <div class="col-lg-6 col-md-6">
                                         <select class="form-control" name="pustu_id" id="pustus" style="display: none;">
                                             <option value="">-- Pilih Pustu/Puskesmas --</option>
-                                            @foreach($pustus as $pustu)
-                                            <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
-                                            @endforeach
+                                            @if($pustus && count($pustus) > 0)
+                                                @foreach($pustus as $pustu)
+                                                <option value="{{$pustu->id}}">{{$pustu->nama_pustu}}</option>
+                                                @endforeach
+                                            @else
+                                                <option value="" disabled>-- Tidak ada data pustu --</option>
+                                            @endif
                                         </select>
 
                                         <select class="form-control" name="regency_id" id="kabupaten" style="display: none;">
@@ -141,8 +145,8 @@
                                                     class="text-danger">*</span></label>
                                         </div>
                                         <div class="col-lg-10 col-md-8">
-                                            <select class="form-control @error('pustu_id') is-invalid @enderror"
-                                                    name="pustu_id" id="superadmin-pustu">
+                                            <select class="form-control @error('parent_id') is-invalid @enderror"
+                                                    name="parent_id" id="superadmin-pustu">
                                                     <option value="">-- Pilih Parent --</option>
                                                     @foreach ($parents as $parent)
                                                         <option value="{{ $parent->id }}">{{ $parent->name }}
@@ -150,7 +154,7 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                @error('pustu_id')
+                                                @error('parent_id')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
                                                     </span>
@@ -263,44 +267,57 @@
             }, 4000); // 4 seconds
         }
         $(document).ready(function() {
-            $('#pustus').select2();
-            $('#superadmin-pustu').select2();
+            // Initialize Select2 for dropdowns
+            $('#pustus').select2({
+                placeholder: 'Pilih Pustu/Puskesmas',
+                allowClear: true
+            });
+            $('#superadmin-pustu').select2({
+                placeholder: 'Pilih Parent',
+                allowClear: true
+            });
 
+            // Single event handler for role change
             $('select[name="role"]').on('change', function() {
-                var selectedRole = $(this).val(); // Ambil nilai yang dipilih
+                var selectedRole = $(this).val();
+                
+                // Hide all dropdowns first
+                $("#kabupaten").hide();
+                $("#pustus").hide();
+                $("#puskesmas-field").hide();
+                
+                // Show appropriate dropdown based on role
                 if (selectedRole === 'pustu' || selectedRole === 'perawat' || selectedRole === 'operator') {
-                    $("#kabupaten").hide();
                     $("#pustus").show();
-                    $("#puskesmas-field").hide();
+                    // Destroy existing Select2 instance and reinitialize
+                    if ($('#pustus').hasClass('select2-hidden-accessible')) {
+                        $('#pustus').select2('destroy');
+                    }
+                    $('#pustus').select2({
+                        placeholder: 'Pilih Pustu/Puskesmas',
+                        allowClear: true,
+                        width: '100%'
+                    });
                 } else if (selectedRole === 'sudinkes') {
-                    $("#pustus").hide();
                     $("#kabupaten").show();
-                    $("#puskesmas-field").hide();
-                } else {
-                    $("#pustus").hide();
-                    $("#kabupaten").hide();
-                    $("#puskesmas-field").hide();
+                } else if (selectedRole === 'puskesmas' || selectedRole === 'dokter' || selectedRole === 'farmasi' || selectedRole === 'pendaftaran') {
+                    @if (Auth::user()->role == 'superadmin')
+                        $("#puskesmas-field").show();
+                        // Destroy existing Select2 instance and reinitialize
+                        if ($('#superadmin-pustu').hasClass('select2-hidden-accessible')) {
+                            $('#superadmin-pustu').select2('destroy');
+                        }
+                        $('#superadmin-pustu').select2({
+                            placeholder: 'Pilih Parent',
+                            allowClear: true,
+                            width: '100%'
+                        });
+                    @endif
                 }
             });
 
             // Trigger event change saat halaman pertama kali dimuat
             $('select[name="role"]').trigger('change');
-
-            // Show/hide parent field based on role selection (for superadmin only)
-            @if (Auth::user()->role == 'superadmin')
-                $('select[name="role"]').on('change', function() {
-                    var selectedRole = $(this).val();
-                    if (selectedRole == 'pustu' || selectedRole == 'dokter' ||
-                        selectedRole == 'perawat' || selectedRole == 'operator' || selectedRole == 'farmasi' ||
-                        selectedRole == 'pendaftaran') {
-                        $('#puskesmas-field').show();
-                        $("#pustus").hide();
-                        $("#kabupaten").hide();
-                    } else {
-                        $('#puskesmas-field').hide();
-                    }
-                });
-            @endif
         });
 
         $('#village_search').select2({

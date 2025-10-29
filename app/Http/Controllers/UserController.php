@@ -67,15 +67,25 @@ class UserController extends Controller
     {
         $currentUser = Auth::user();
 
-        if(Auth::user()->role=='sudinkes'){
-            $pustus = \App\Models\Pustu::select('pustus.nama_pustu','pustus.id')->join('villages','villages.id','pustus.village_id')
-            ->join('districts','districts.id','villages.district_id')
-            ->join('regencies','regencies.id','districts.regency_id')
-            ->where('regencies.id',Auth::user()->regency_id)
-            ->get();
-        }else{
-            $pustus = \App\Models\Pustu::all();
+        // Get pustus data based on user role
+        if($currentUser->role == 'sudinkes'){
+            // For sudinkes, get pustus only from their regency
+            if($currentUser->regency_id) {
+                $pustus = \App\Models\Pustu::select('pustus.nama_pustu','pustus.id')
+                    ->join('villages','villages.id','pustus.village_id')
+                    ->join('districts','districts.id','villages.district_id')
+                    ->join('regencies','regencies.id','districts.regency_id')
+                    ->where('regencies.id', $currentUser->regency_id)
+                    ->get();
+            } else {
+                // If no regency_id, get all pustus
+                $pustus = \App\Models\Pustu::select('nama_pustu','id')->get();
+            }
+        } else {
+            // For other roles, get all pustus
+            $pustus = \App\Models\Pustu::select('nama_pustu','id')->get();
         }
+        
         $parents = collect();
 
         // If user is superadmin, get potential parents for dropdown
@@ -114,6 +124,11 @@ class UserController extends Controller
         if ($request->role == 'sudinkes') {
             $rules['regency_id'] = ['required', 'exists:regencies,id'];
         }
+        
+        // Add conditional validation for parent_id (for superadmin only when creating certain roles)
+        if ($currentUser->role == 'superadmin' && in_array($request->role, ['puskesmas', 'pustu', 'dokter', 'farmasi', 'pendaftaran'])) {
+            $rules['parent_id'] = ['required', 'exists:users,id'];
+        }
 
 
 
@@ -136,8 +151,11 @@ class UserController extends Controller
         } elseif ($request->role == 'sudinkes') {
             // For sudinkes, use regency_id
             $regencyId = $request->regency_id;
-        } elseif ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
-            // For superadmin creating other roles, use provided pustu_id
+        } elseif ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
+            // For superadmin creating other roles, use provided parent_id as pustu_id
+            $pustuId = $request->parent_id;
+        } elseif ($currentUser->role == 'superadmin' && in_array($request->role, ['perawat', 'operator']) && $request->has('pustu_id') && !empty($request->pustu_id)) {
+            // For superadmin creating perawat/operator, use provided pustu_id
             $pustuId = $request->pustu_id;
         }
 
