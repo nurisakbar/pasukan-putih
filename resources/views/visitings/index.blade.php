@@ -78,7 +78,7 @@
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="d-flex flex-wrap gap-1 gap-md-2">
-                                <a href="{{ route('visitings.export', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
+                                <a href="{{ route('visitings.export', request()->query()) }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0" style="display: none;">
                                     <i class="fas fa-file-export me-1"></i> <span class="d-none d-md-inline">Export Kunjungan</span><span class="d-md-none">Export</span>
                                 </a>
                                 <a href="{{ route('kunjungan.export') }}" class="btn btn-outline-success btn-sm flex-fill flex-md-grow-0">
