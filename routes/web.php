@@ -111,6 +111,9 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('/visitings/scheduled-patients', [\App\Http\Controllers\VisitingController::class, 'getScheduledPatients'])
         ->name('visitings.scheduledPatients');
     
+    // Export route (harus sebelum resource)
+    Route::get('/visitings/export', [\App\Http\Controllers\VisitingController::class, 'export'])->name('visitings.export');
+    
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
     Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
     Route::get('/visitings/{id}/dashboard', [\App\Http\Controllers\VisitingController::class, 'dashboard'])->name('visitings.dashboard');

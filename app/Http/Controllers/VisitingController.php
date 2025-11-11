@@ -12,6 +12,7 @@ use App\Models\SkriningAdl;
 use App\Models\HealthForm;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\KunjunganExport;
+use App\Exports\VisitingExport;
 use App\Models\Province;
 use Carbon\Carbon;
 use DB;
@@ -1045,5 +1046,21 @@ class VisitingController extends Controller
             'patients' => $patients,
             'count' => $patients->count()
         ]);
+    }
+
+    /**
+     * Export visiting data to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+            'tanggal_awal' => $request->input('tanggal_awal'),
+            'tanggal_akhir' => $request->input('tanggal_akhir'),
+        ];
+
+        $filename = 'kunjungan_' . date('Y-m-d_His') . '.xlsx';
+        
+        return Excel::download(new VisitingExport($filters), $filename);
     }
 }
