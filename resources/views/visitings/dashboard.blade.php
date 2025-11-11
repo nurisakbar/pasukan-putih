@@ -2026,13 +2026,13 @@
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tidak terkendali/tidak teratur</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 1 ? 'selected' : '' }}>
-                                                            1 - Kadang-kadang tidak mampu</option>
+                                                            1 - Kadang tidak terkendali (1x/minggu)</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bab_control == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Terkendali teratur</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2044,13 +2044,13 @@
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tidak terkendali pakai kateter</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 1 ? 'selected' : '' }}>
-                                                            1 - Kadang-kadang tidak mampu</option>
+                                                            1 - Kadang tidak terkendali (1x24jam)</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bak_control == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Terkendali teratur</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2067,10 +2067,10 @@
                                                             0 - Tidak mampu</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Butuh bantuan sebagian </option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->eating == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2085,10 +2085,10 @@
                                                             0 - Tidak mampu</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Butuh Pertolongan</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->stairs == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2102,32 +2102,31 @@
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tergantung orang lain</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
-                                                        <option value="2"
-                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->bathing == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            1 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label fw-bold">Bergerak dari kursi roda ke tempat
-                                                        tidur</label>
+                                                    <label class="form-label fw-bold">Bergerak (transfer) dari tempat tidur ke kursi & sebaliknya</label>
                                                     <select name="transfer" class="form-select"
                                                         {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tidak mampu </option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Perlu bantuan sedang (2 orang)</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Perlu bantuan minimal (1 orang) </option>
+                                                        <option value="3"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->transfer == 3 ? 'selected' : '' }}>
+                                                            3 - Mandiri </option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2144,10 +2143,13 @@
                                                             0 - Tidak mampu</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Bisa dengan kursi roda/alat bantu</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Berjalan dengan bantuan 1 orang </option>
+                                                        <option value="3"
+                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->walking == 3 ? 'selected' : '' }}>
+                                                            3 - Mandiri </option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2159,13 +2161,13 @@
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tergantung orang lain</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Sebagian dibantu</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->dressing == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -2173,37 +2175,34 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label fw-bold">Membersihkan diri</label>
+                                                    <label class="form-label fw-bold">Perawatan diri (toileting, cuci muka, sisir, gosok gigi)</label>
                                                     <select name="grooming" class="form-select"
                                                         {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Butuh bantuan</option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
-                                                        <option value="2"
-                                                            {{ $visiting->skriningAdl && $visiting->skriningAdl->grooming == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            1 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group mb-3">
-                                                    <label class="form-label fw-bold">Penggunaan WC</label>
+                                                    <label class="form-label fw-bold">Menggunakan toilet</label>
                                                     <select name="toilet_use" class="form-select"
                                                         {{ auth()->user()->role == 'operator' && $visiting->status == 'Kunjungan Awal' ? 'disabled' : '' }}>
                                                         <option value="">Pilih Skor</option>
                                                         <option value="0"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 0 ? 'selected' : '' }}>
-                                                            0 - Tidak mampu</option>
+                                                            0 - Tidak mampu </option>
                                                         <option value="1"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 1 ? 'selected' : '' }}>
-                                                            1 - Perlu bantuan</option>
+                                                            1 - Butuh pertolongan pada beberapa kegiatan</option>
                                                         <option value="2"
                                                             {{ $visiting->skriningAdl && $visiting->skriningAdl->toilet_use == 2 ? 'selected' : '' }}>
-                                                            2 - Mampu</option>
+                                                            2 - Mandiri</option>
                                                     </select>
                                                 </div>
                                             </div>
