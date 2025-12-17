@@ -135,6 +135,11 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     //pustu
     Route::resource('pustu', \App\Http\Controllers\PustuController::class);
 
+    // Report Pasien by Wilayah
+    Route::get('/reports/pasien-wilayah', [App\Http\Controllers\PasienWilayahReportController::class, 'index'])->name('reports.pasien-wilayah');
+    Route::get('/reports/pasien-wilayah/wilayah-options', [App\Http\Controllers\PasienWilayahReportController::class, 'getWilayahOptions'])->name('reports.pasien-wilayah.wilayah-options');
+    Route::post('/reports/pasien-wilayah/export', [App\Http\Controllers\PasienWilayahReportController::class, 'export'])->name('reports.pasien-wilayah.export');
+    Route::get('/reports/pasien-wilayah/export-progress/{exportId}', [App\Http\Controllers\PasienWilayahReportController::class, 'checkExportProgress'])->name('reports.pasien-wilayah.export-progress');
     
 });
 
