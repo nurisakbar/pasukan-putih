@@ -165,16 +165,18 @@ class ExportPasienWilayahJob implements ShouldQueue
     }
 
     /**
-     * Get latest visit untuk setiap pasien (replicate from controller)
+     * Get latest visit untuk setiap pasien (hanya DKI Jakarta - province_id = 31)
      */
     private function getLatestVisits($user, $wilayahId = null, $groupBy = 'district')
     {
+        $provinceIdDKI = 31; // DKI Jakarta
+        
         // Subquery untuk mendapatkan visiting terakhir per pasien
         $latestVisitingSubquery = DB::table('visitings')
             ->select('pasien_id', DB::raw('MAX(id) as latest_id'))
             ->groupBy('pasien_id');
 
-        // Main query
+        // Main query - hanya ambil data dari DKI Jakarta
         $query = DB::table('visitings as v')
             ->joinSub($latestVisitingSubquery, 'latest', function($join) {
                 $join->on('v.id', '=', 'latest.latest_id');
@@ -184,6 +186,7 @@ class ExportPasienWilayahJob implements ShouldQueue
             ->join('districts as d', 'd.id', '=', 'vil.district_id')
             ->join('regencies as r', 'r.id', '=', 'd.regency_id')
             ->join('provinces as pr', 'pr.id', '=', 'r.province_id')
+            ->where('pr.id', $provinceIdDKI) // Hanya DKI Jakarta
             ->whereNull('p.deleted_at')
             ->select(
                 'v.id as visiting_id',

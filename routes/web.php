@@ -137,6 +137,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
 
     // Report Pasien by Wilayah
     Route::get('/reports/pasien-wilayah', [App\Http\Controllers\PasienWilayahReportController::class, 'index'])->name('reports.pasien-wilayah');
+    Route::post('/reports/pasien-wilayah/data', [App\Http\Controllers\PasienWilayahReportController::class, 'getData'])->name('reports.pasien-wilayah.data');
     Route::get('/reports/pasien-wilayah/wilayah-options', [App\Http\Controllers\PasienWilayahReportController::class, 'getWilayahOptions'])->name('reports.pasien-wilayah.wilayah-options');
     Route::post('/reports/pasien-wilayah/export', [App\Http\Controllers\PasienWilayahReportController::class, 'export'])->name('reports.pasien-wilayah.export');
     Route::get('/reports/pasien-wilayah/export-progress/{exportId}', [App\Http\Controllers\PasienWilayahReportController::class, 'checkExportProgress'])->name('reports.pasien-wilayah.export-progress');

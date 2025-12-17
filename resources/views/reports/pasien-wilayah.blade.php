@@ -4,6 +4,11 @@
     use Carbon\Carbon;
 @endphp
 
+@push('style')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+@endpush
+
 @section('content')
 <div class="app-content-header py-3">
     <div class="container-fluid">
@@ -54,7 +59,7 @@
                             </select>
                         </div>
                         <div class="col-lg-4 col-md-12 col-12 d-flex align-items-end gap-2">
-                            <button type="submit" class="btn btn-primary flex-fill">
+                            <button type="button" id="btnFilter" class="btn btn-primary flex-fill">
                                 <i class="fas fa-search me-1"></i> Filter
                             </button>
                             <a href="{{ route('reports.pasien-wilayah') }}" class="btn btn-outline-secondary flex-fill">
@@ -66,199 +71,31 @@
             </div>
         </div>
 
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="text-center py-5" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Memuat data...</p>
-        </div>
-
         <!-- Data Section -->
         <div id="dataSection">
-            @if(isset($groupedData) && count($groupedData) > 0)
-                @php
-                    $currentGroupBy = request('group_by', 'district');
-                    $groupLabels = [
-                        'village' => 'Kelurahan/Desa',
-                        'district' => 'Kecamatan',
-                        'regency' => 'Kabupaten/Kota',
-                        'province' => 'Provinsi'
-                    ];
-                @endphp
-
-                @foreach($groupedData as $wilayahKey => $wilayahData)
-                    <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-map-marker-alt me-2"></i>
-                                {{ $groupLabels[$currentGroupBy] }}: {{ $wilayahData['wilayah_name'] }}
-                                <span class="badge bg-light text-primary ms-2">{{ count($wilayahData['pasien']) }} Pasien</span>
-                            </h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th width="5%">No</th>
-                                            <th width="15%">NIK</th>
-                                            <th width="20%">Nama Pasien</th>
-                                            <th width="15%">Alamat</th>
-                                            <th width="10%">RT/RW</th>
-                                            <th width="12%">Tanggal Kunjungan Terakhir</th>
-                                            <th width="23%">Pemeriksaan Terakhir</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($wilayahData['pasien'] as $index => $pasien)
-                                            <tr>
-                                                <td>{{ $index + 1 }}</td>
-                                                <td>{{ $pasien['nik'] ?? '-' }}</td>
-                                                <td>
-                                                    <strong>{{ $pasien['nama_pasien'] }}</strong>
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        @if($currentGroupBy != 'village')
-                                                            {{ $pasien['village_name'] ?? '-' }}
-                                                        @endif
-                                                        @if($currentGroupBy == 'province')
-                                                            <br>{{ $pasien['regency_name'] ?? '-' }} > {{ $pasien['district_name'] ?? '-' }}
-                                                        @endif
-                                                    </small>
-                                                </td>
-                                                <td>{{ $pasien['alamat'] ?? '-' }}</td>
-                                                <td>
-                                                    @if($pasien['rt'] || $pasien['rw'])
-                                                        RT {{ $pasien['rt'] ?? '-' }}/RW {{ $pasien['rw'] ?? '-' }}
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($pasien['kunjungan']['tanggal'])
-                                                        <span class="badge bg-info">
-                                                            {{ Carbon::parse($pasien['kunjungan']['tanggal'])->format('d/m/Y') }}
-                                                        </span>
-                                                        <br>
-                                                        <small class="text-muted">
-                                                            Status: {{ $pasien['kunjungan']['status'] ?? '-' }}
-                                                        </small>
-                                                    @else
-                                                        <span class="text-muted">-</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="pemeriksaan-detail">
-                                                        @if($pasien['pemeriksaan']['ttv'])
-                                                            <div class="mb-1">
-                                                                <small class="text-primary">
-                                                                    <i class="fas fa-heartbeat me-1"></i><strong>TTV:</strong>
-                                                                    @if($pasien['pemeriksaan']['ttv']['blood_pressure'])
-                                                                        TD: {{ $pasien['pemeriksaan']['ttv']['blood_pressure'] }}
-                                                                    @endif
-                                                                    @if($pasien['pemeriksaan']['ttv']['pulse'])
-                                                                        | Nadi: {{ $pasien['pemeriksaan']['ttv']['pulse'] }}
-                                                                    @endif
-                                                                    @if($pasien['pemeriksaan']['ttv']['temperature'])
-                                                                        | Suhu: {{ $pasien['pemeriksaan']['ttv']['temperature'] }}°C
-                                                                    @endif
-                                                                    @if($pasien['pemeriksaan']['ttv']['bmi'])
-                                                                        | BMI: {{ number_format($pasien['pemeriksaan']['ttv']['bmi'], 1) }}
-                                                                        ({{ $pasien['pemeriksaan']['ttv']['bmi_category'] ?? '-' }})
-                                                                    @endif
-                                                                </small>
-                                                            </div>
-                                                        @endif
-
-                                                        @if($pasien['pemeriksaan']['skrining_adl'])
-                                                            <div class="mb-1">
-                                                                <small class="text-success">
-                                                                    <i class="fas fa-check-circle me-1"></i><strong>ADL:</strong>
-                                                                    Skor: {{ $pasien['pemeriksaan']['skrining_adl']['total_score'] ?? '-' }}/100
-                                                                    @if($pasien['pemeriksaan']['skrining_adl']['butuh_orang'])
-                                                                        | Butuh Orang
-                                                                    @endif
-                                                                </small>
-                                                            </div>
-                                                        @endif
-
-                                                        @if($pasien['pemeriksaan']['health_form'])
-                                                            <div class="mb-1">
-                                                                <small class="text-warning">
-                                                                    <i class="fas fa-file-medical me-1"></i><strong>Health Form:</strong>
-                                                                    @if($pasien['pemeriksaan']['health_form']['skor_aks'])
-                                                                        Skor AKS: {{ $pasien['pemeriksaan']['health_form']['skor_aks'] }}
-                                                                    @endif
-                                                                    @if($pasien['pemeriksaan']['health_form']['tingkat_kemandirian'])
-                                                                        | {{ $pasien['pemeriksaan']['health_form']['tingkat_kemandirian'] }}
-                                                                    @endif
-                                                                </small>
-                                                            </div>
-                                                        @endif
-
-                                                        @if(!$pasien['pemeriksaan']['ttv'] && !$pasien['pemeriksaan']['skrining_adl'] && !$pasien['pemeriksaan']['health_form'])
-                                                            <span class="text-muted">Tidak ada data pemeriksaan</span>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-
-                <!-- Summary Card -->
-                <div class="card shadow-sm rounded-3">
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-md-4">
-                                <h4 class="text-primary">{{ count($groupedData) }}</h4>
-                                <p class="text-muted mb-0">{{ $groupLabels[$currentGroupBy] }}</p>
-                            </div>
-                            <div class="col-md-4">
-                                <h4 class="text-success">
-                                    @php
-                                        $totalPasien = 0;
-                                        foreach($groupedData as $data) {
-                                            $totalPasien += count($data['pasien']);
-                                        }
-                                        echo $totalPasien;
-                                    @endphp
-                                </h4>
-                                <p class="text-muted mb-0">Total Pasien</p>
-                            </div>
-                            <div class="col-md-4">
-                                <h4 class="text-info">
-                                    @php
-                                        $totalKunjungan = 0;
-                                        foreach($groupedData as $data) {
-                                            foreach($data['pasien'] as $pasien) {
-                                                if($pasien['kunjungan']['tanggal']) {
-                                                    $totalKunjungan++;
-                                                }
-                                            }
-                                        }
-                                        echo $totalKunjungan;
-                                    @endphp
-                                </h4>
-                                <p class="text-muted mb-0">Total Kunjungan Terakhir</p>
-                            </div>
-                        </div>
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="pasien-wilayah-table" class="table table-bordered table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="3%">No</th>
+                                    <th width="12%">{{ request('group_by') == 'village' ? 'Kelurahan' : (request('group_by') == 'district' ? 'Kecamatan' : (request('group_by') == 'regency' ? 'Kabupaten/Kota' : 'Provinsi')) }}</th>
+                                    <th width="15%">NIK</th>
+                                    <th width="18%">Nama Pasien</th>
+                                    <th width="15%">Alamat</th>
+                                    <th width="8%">RT/RW</th>
+                                    <th width="12%">Tanggal Kunjungan</th>
+                                    <th width="17%">Pemeriksaan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded via DataTable AJAX -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            @else
-                <div class="card shadow-sm rounded-3">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Tidak ada data ditemukan</h5>
-                        <p class="text-muted">Coba ubah filter atau pilih wilayah lainnya.</p>
-                    </div>
-                </div>
-            @endif
+            </div>
         </div>
     </div>
 </div>
@@ -299,6 +136,10 @@
 @endsection
 
 @push('script')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 <script>
     $(document).ready(function() {
         // Update label berdasarkan group_by yang dipilih
@@ -549,10 +390,153 @@
             }
         }
 
-        // Loading indicator saat form submit
-        $('#filterForm').on('submit', function() {
-            $('#loadingIndicator').show();
-            $('#dataSection').hide();
+        // Initialize DataTable
+        var table = $('#pasien-wilayah-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route("reports.pasien-wilayah.data") }}',
+                type: 'POST',
+                data: function(d) {
+                    d.group_by = $('#group_by').val();
+                    d.wilayah_id = $('#wilayah_id').val();
+                    d._token = '{{ csrf_token() }}';
+                }
+            },
+            columns: [
+                { 
+                    data: null,
+                    name: 'no',
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { data: 'wilayah_name', name: 'wilayah_name' },
+                { 
+                    data: 'nik', 
+                    name: 'nik',
+                    render: function(data) {
+                        return data || '-';
+                    }
+                },
+                { 
+                    data: 'nama_pasien', 
+                    name: 'nama_pasien',
+                    render: function(data, type, row) {
+                        let html = '<strong>' + (data || '-') + '</strong>';
+                        const groupBy = $('#group_by').val();
+                        if (groupBy !== 'village' && row.village_name) {
+                            html += '<br><small class="text-muted">' + row.village_name + '</small>';
+                        }
+                        if (groupBy === 'province') {
+                            if (row.regency_name || row.district_name) {
+                                html += '<br><small class="text-muted">' + 
+                                    (row.regency_name || '') + 
+                                    (row.regency_name && row.district_name ? ' > ' : '') +
+                                    (row.district_name || '') + 
+                                    '</small>';
+                            }
+                        }
+                        return html;
+                    }
+                },
+                { 
+                    data: 'alamat', 
+                    name: 'alamat',
+                    render: function(data) {
+                        return data || '-';
+                    }
+                },
+                { 
+                    data: 'rt_rw', 
+                    name: 'rt_rw',
+                    render: function(data) {
+                        return data && data !== '-/-' ? 'RT ' + data : '-';
+                    }
+                },
+                { 
+                    data: 'tanggal_kunjungan_formatted', 
+                    name: 'tanggal_kunjungan',
+                    render: function(data, type, row) {
+                        if (!data || data === '-') return '<span class="text-muted">-</span>';
+                        let html = '<span class="badge bg-info">' + data + '</span>';
+                        if (row.status_kunjungan && row.status_kunjungan !== '-') {
+                            html += '<br><small class="text-muted">Status: ' + row.status_kunjungan + '</small>';
+                        }
+                        return html;
+                    }
+                },
+                { 
+                    data: null,
+                    name: 'pemeriksaan',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        let html = '<div class="pemeriksaan-detail">';
+                        
+                        // TTV
+                        if (row.pemeriksaan_ttv && row.pemeriksaan_ttv !== '-') {
+                            html += '<div class="mb-1"><small class="text-primary">' +
+                                '<i class="fas fa-heartbeat me-1"></i><strong>TTV:</strong> ' +
+                                row.pemeriksaan_ttv + '</small></div>';
+                        }
+                        
+                        // ADL
+                        if (row.pemeriksaan_adl && row.pemeriksaan_adl !== '-') {
+                            html += '<div class="mb-1"><small class="text-success">' +
+                                '<i class="fas fa-check-circle me-1"></i><strong>AKS:</strong> ' +
+                                row.pemeriksaan_adl + '</small></div>';
+                        }
+                        
+                        // Health Form
+                        if (row.pemeriksaan_health_form && row.pemeriksaan_health_form !== '-') {
+                            html += '<div class="mb-1"><small class="text-warning">' +
+                                '<i class="fas fa-file-medical me-1"></i><strong>Health Form:</strong> ' +
+                                row.pemeriksaan_health_form + '</small></div>';
+                        }
+                        
+                        if (row.pemeriksaan_ttv === '-' && row.pemeriksaan_adl === '-' && row.pemeriksaan_health_form === '-') {
+                            html += '<span class="text-muted">Tidak ada data pemeriksaan</span>';
+                        }
+                        
+                        html += '</div>';
+                        return html;
+                    }
+                }
+            ],
+            order: [[3, 'asc']], // Order by nama pasien
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                emptyTable: "Tidak ada data ditemukan",
+                processing: "Memproses data...",
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ data per halaman",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                infoFiltered: "(disaring dari _MAX_ total data)",
+                zeroRecords: "Tidak ada data yang cocok ditemukan"
+            },
+            dom: '<"row mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            drawCallback: function() {
+                // Adjust column width after draw
+                table.columns.adjust();
+            }
+        });
+
+        // Reload table when filter button clicked
+        $('#btnFilter').on('click', function() {
+            table.ajax.reload();
+        });
+
+        // Auto reload when group_by or wilayah_id changes
+        $('#group_by, #wilayah_id').on('change', function() {
+            table.ajax.reload();
         });
 
         // Hide close button on export modal when processing

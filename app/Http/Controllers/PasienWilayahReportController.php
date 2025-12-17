@@ -15,6 +15,7 @@ use App\Models\Province;
 use App\Models\User;
 use App\Models\ExportProgress;
 use App\Jobs\ExportPasienWilayahJob;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -65,16 +66,110 @@ class PasienWilayahReportController extends Controller
     }
 
     /**
-     * Get latest visit untuk setiap pasien
+     * Get data for DataTable (AJAX)
+     */
+    public function getData(Request $request)
+    {
+        $user = auth()->user();
+        $groupBy = $request->get('group_by', 'district');
+        $wilayahId = $request->get('wilayah_id');
+
+        // Get latest visits
+        $latestVisits = $this->getLatestVisits($user, $wilayahId, $groupBy);
+        
+        // Get pemeriksaan terakhir
+        $pemeriksaanTerakhir = $this->getPemeriksaanTerakhir($latestVisits);
+        
+        // Group by wilayah
+        $groupedData = $this->groupByWilayah($latestVisits, $pemeriksaanTerakhir, $groupBy, $wilayahId);
+
+        // Flatten grouped data untuk DataTable
+        $flatData = collect();
+        foreach ($groupedData as $wilayahKey => $wilayahData) {
+            foreach ($wilayahData['pasien'] as $pasien) {
+                $flatData->push([
+                    'wilayah_name' => $wilayahData['wilayah_name'],
+                    'pasien_id' => $pasien['pasien_id'],
+                    'nama_pasien' => $pasien['nama_pasien'],
+                    'nik' => $pasien['nik'],
+                    'alamat' => $pasien['alamat'] ?? '-',
+                    'rt' => $pasien['rt'] ?? '-',
+                    'rw' => $pasien['rw'] ?? '-',
+                    'village_name' => $pasien['village_name'] ?? '-',
+                    'district_name' => $pasien['district_name'] ?? '-',
+                    'regency_name' => $pasien['regency_name'] ?? '-',
+                    'province_name' => $pasien['province_name'] ?? '-',
+                    'tanggal_kunjungan' => $pasien['kunjungan']['tanggal'] ?? null,
+                    'status_kunjungan' => $pasien['kunjungan']['status'] ?? '-',
+                    'ttv' => $pasien['pemeriksaan']['ttv'],
+                    'skrining_adl' => $pasien['pemeriksaan']['skrining_adl'],
+                    'health_form' => $pasien['pemeriksaan']['health_form'],
+                ]);
+            }
+        }
+
+        return DataTables::of($flatData)
+            ->addIndexColumn()
+            ->addColumn('rt_rw', function ($row) {
+                return ($row['rt'] ?? '-') . '/' . ($row['rw'] ?? '-');
+            })
+            ->addColumn('tanggal_kunjungan_formatted', function ($row) {
+                return $row['tanggal_kunjungan'] 
+                    ? Carbon::parse($row['tanggal_kunjungan'])->format('d/m/Y')
+                    : '-';
+            })
+            ->addColumn('pemeriksaan_ttv', function ($row) {
+                $ttv = $row['ttv'];
+                if (!$ttv) return '-';
+                
+                $parts = [];
+                if (isset($ttv['blood_pressure'])) $parts[] = 'TD: ' . $ttv['blood_pressure'];
+                if (isset($ttv['pulse'])) $parts[] = 'Nadi: ' . $ttv['pulse'];
+                if (isset($ttv['temperature'])) $parts[] = 'Suhu: ' . $ttv['temperature'] . '°C';
+                if (isset($ttv['bmi'])) {
+                    $bmi = number_format($ttv['bmi'], 1);
+                    $category = $ttv['bmi_category'] ?? '';
+                    $parts[] = 'BMI: ' . $bmi . ($category ? ' (' . $category . ')' : '');
+                }
+                return implode(' | ', $parts);
+            })
+            ->addColumn('pemeriksaan_adl', function ($row) {
+                $adl = $row['skrining_adl'];
+                if (!$adl) return '-';
+                
+                $score = $adl['total_score'] ?? '-';
+                $parts = ['Skor: ' . $score];
+                if (isset($adl['butuh_orang']) && $adl['butuh_orang']) {
+                    $parts[] = 'Butuh Orang';
+                }
+                return implode(' | ', $parts);
+            })
+            ->addColumn('pemeriksaan_health_form', function ($row) {
+                $hf = $row['health_form'];
+                if (!$hf) return '-';
+                
+                $parts = [];
+                if (isset($hf['tingkat_kemandirian'])) {
+                    $parts[] = $hf['tingkat_kemandirian'];
+                }
+                return implode(' | ', $parts);
+            })
+            ->make(true);
+    }
+
+    /**
+     * Get latest visit untuk setiap pasien (hanya DKI Jakarta - province_id = 31)
      */
     private function getLatestVisits($user, $wilayahId = null, $groupBy = 'district')
     {
+        $provinceIdDKI = 31; // DKI Jakarta
+        
         // Subquery untuk mendapatkan visiting terakhir per pasien
         $latestVisitingSubquery = DB::table('visitings')
             ->select('pasien_id', DB::raw('MAX(id) as latest_id'))
             ->groupBy('pasien_id');
 
-        // Main query
+        // Main query - hanya ambil data dari DKI Jakarta
         $query = DB::table('visitings as v')
             ->joinSub($latestVisitingSubquery, 'latest', function($join) {
                 $join->on('v.id', '=', 'latest.latest_id');
@@ -84,6 +179,7 @@ class PasienWilayahReportController extends Controller
             ->join('districts as d', 'd.id', '=', 'vil.district_id')
             ->join('regencies as r', 'r.id', '=', 'd.regency_id')
             ->join('provinces as pr', 'pr.id', '=', 'r.province_id')
+            ->where('pr.id', $provinceIdDKI) // Hanya DKI Jakarta
             ->whereNull('p.deleted_at')
             ->select(
                 'v.id as visiting_id',
@@ -293,13 +389,19 @@ class PasienWilayahReportController extends Controller
     }
 
     /**
-     * Get wilayah options untuk filter dropdown
+     * Get wilayah options untuk filter dropdown (hanya DKI Jakarta - province_id = 31)
      */
     private function fetchWilayahOptions($user, $groupBy)
     {
+        $provinceIdDKI = 31; // DKI Jakarta
+        
         switch ($groupBy) {
             case 'village':
-                $query = Village::query();
+                $query = Village::query()
+                    ->whereHas('district.regency.province', function($q) use ($provinceIdDKI) {
+                        $q->where('id', $provinceIdDKI);
+                    });
+                    
                 if ($user->role !== 'superadmin' && $user->regency_id) {
                     $query->whereHas('district.regency', function($q) use ($user) {
                         $q->where('id', $user->regency_id);
@@ -310,7 +412,11 @@ class PasienWilayahReportController extends Controller
                 });
                 
             case 'district':
-                $query = District::query();
+                $query = District::query()
+                    ->whereHas('regency.province', function($q) use ($provinceIdDKI) {
+                        $q->where('id', $provinceIdDKI);
+                    });
+                    
                 if ($user->role !== 'superadmin' && $user->regency_id) {
                     $query->where('regency_id', $user->regency_id);
                 }
@@ -319,7 +425,9 @@ class PasienWilayahReportController extends Controller
                 });
                 
             case 'regency':
-                $query = Regency::query();
+                $query = Regency::query()
+                    ->where('province_id', $provinceIdDKI);
+                    
                 if ($user->role !== 'superadmin' && $user->regency_id) {
                     $query->where('id', $user->regency_id);
                 }
@@ -328,9 +436,14 @@ class PasienWilayahReportController extends Controller
                 });
                 
             case 'province':
-                return Province::query()->orderBy('name')->get()->map(function($p) {
-                    return ['id' => $p->id, 'name' => $p->name];
-                });
+                // Hanya return DKI Jakarta
+                return Province::query()
+                    ->where('id', $provinceIdDKI)
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function($p) {
+                        return ['id' => $p->id, 'name' => $p->name];
+                    });
                 
             default:
                 return collect();
