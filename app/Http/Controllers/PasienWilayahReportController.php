@@ -108,7 +108,25 @@ class PasienWilayahReportController extends Controller
             }
         }
 
-        return DataTables::of($flatData)
+        // Sort data: by wilayah_name, then nama_pasien, then alamat
+        $sortedData = $flatData->sort(function ($a, $b) {
+            // First sort by wilayah_name
+            $wilayahCompare = strcmp($a['wilayah_name'] ?? '', $b['wilayah_name'] ?? '');
+            if ($wilayahCompare !== 0) {
+                return $wilayahCompare;
+            }
+            
+            // Then sort by nama_pasien
+            $namaCompare = strcmp($a['nama_pasien'] ?? '', $b['nama_pasien'] ?? '');
+            if ($namaCompare !== 0) {
+                return $namaCompare;
+            }
+            
+            // Finally sort by alamat
+            return strcmp($a['alamat'] ?? '', $b['alamat'] ?? '');
+        })->values();
+
+        return DataTables::of($sortedData)
             ->addIndexColumn()
             ->addColumn('rt_rw', function ($row) {
                 return ($row['rt'] ?? '-') . '/' . ($row['rw'] ?? '-');

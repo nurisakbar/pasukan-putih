@@ -390,6 +390,19 @@ class ExportPasienWilayahJob implements ShouldQueue
             return strcmp($a['wilayah_name'], $b['wilayah_name']);
         });
 
+        // Sort pasien within each wilayah: by nama_pasien, then alamat
+        foreach ($grouped as &$wilayahData) {
+            usort($wilayahData['pasien'], function($a, $b) {
+                // First sort by nama_pasien
+                $namaCompare = strcmp($a['nama_pasien'], $b['nama_pasien']);
+                if ($namaCompare !== 0) {
+                    return $namaCompare;
+                }
+                // If nama_pasien is the same, sort by alamat
+                return strcmp($a['alamat'] ?? '', $b['alamat'] ?? '');
+            });
+        }
+
         return $grouped;
     }
 

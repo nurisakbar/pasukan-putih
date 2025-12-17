@@ -506,7 +506,9 @@
                     }
                 }
             ],
-            order: [[3, 'asc']], // Order by nama pasien
+            order: [[1, 'asc'], [3, 'asc'], [4, 'asc']], // Order by: wilayah_name (col 1), nama_pasien (col 3), alamat (col 4)
+            orderFixed: [[1, 'asc']], // Lock wilayah as primary sort - DataTable will keep this order
+            // Note: Data is already sorted on server side, but we set this for user's ability to sort further
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
             language: {
