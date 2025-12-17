@@ -796,12 +796,10 @@ class VisitingController extends Controller
         }
 
         // Log the data being processed
-        \Log::info('Health Form Data:', $data);
         
         $healthForm = $visiting->healthForms;
         if ($healthForm) {
             $healthForm->update($data);
-            \Log::info('Health Form Updated:', ['id' => $healthForm->id, 'data' => $data]);
         } else {
             $newHealthForm = HealthForm::create([
                 'visiting_id' => $visiting->id,
@@ -809,7 +807,6 @@ class VisitingController extends Controller
                 ...$data
             ]);
             $healthForm = $newHealthForm;
-            \Log::info('Health Form Created:', ['id' => $newHealthForm->id, 'data' => $data]);
         }
 
         // Auto-create visiting jika kunjungan lanjutan = "ya"
