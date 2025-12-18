@@ -186,6 +186,8 @@ class ExportPasienWilayahJob implements ShouldQueue
             ->join('districts as d', 'd.id', '=', 'vil.district_id')
             ->join('regencies as r', 'r.id', '=', 'd.regency_id')
             ->join('provinces as pr', 'pr.id', '=', 'r.province_id')
+            ->leftJoin('users as u', 'u.id', '=', 'v.user_id')
+            ->leftJoin('users as op', 'op.id', '=', 'v.operator_id')
             ->where('pr.id', $provinceIdDKI) // Hanya DKI Jakarta
             ->whereNull('p.deleted_at')
             ->select(
@@ -194,6 +196,8 @@ class ExportPasienWilayahJob implements ShouldQueue
                 'v.tanggal as tanggal_kunjungan',
                 'v.status',
                 'v.selesai',
+                'v.user_id',
+                'v.operator_id',
                 'p.name as nama_pasien',
                 'p.nik',
                 'p.alamat',
@@ -206,7 +210,9 @@ class ExportPasienWilayahJob implements ShouldQueue
                 'r.id as regency_id',
                 'r.name as regency_name',
                 'pr.id as province_id',
-                'pr.name as province_name'
+                'pr.name as province_name',
+                'u.name as user_name',
+                'op.name as operator_name'
             );
 
         // Filter berdasarkan role user
@@ -340,6 +346,74 @@ class ExportPasienWilayahJob implements ShouldQueue
             $skriningAdl = $pemeriksaan['skrining_adls'][$visit->visiting_id] ?? null;
             $healthForm = $pemeriksaan['health_forms'][$visit->visiting_id] ?? null;
 
+            // Format diagnosis penyakit
+            $diagnosis = null;
+            if ($healthForm) {
+                $diseases = [];
+                
+                // Jika no_disease true, tidak ada penyakit
+                if ($healthForm->no_disease) {
+                    $diseases[] = 'Tidak ada penyakit';
+                } else {
+                    // Ambil dari kolom diseases (JSON)
+                    if ($healthForm->diseases) {
+                        $diseasesArray = is_string($healthForm->diseases) 
+                            ? json_decode($healthForm->diseases, true) 
+                            : $healthForm->diseases;
+                        if (is_array($diseasesArray)) {
+                            $diseases = array_merge($diseases, $diseasesArray);
+                        }
+                    }
+                    
+                    // Ambil dari status penyakit yang ada
+                    $statusFields = [
+                        'hypertension_status' => 'Hipertensi',
+                        'diabetes_status' => 'Diabetes',
+                        'stroke_status' => 'Stroke',
+                        'heart_disease_status' => 'Penyakit Jantung',
+                        'obesity_status' => 'Obesitas',
+                        'breast_cancer_status' => 'Kanker Payudara',
+                        'cervical_cancer_status' => 'Kanker Serviks',
+                        'lung_cancer_status' => 'Kanker Paru',
+                        'colorectal_cancer_status' => 'Kanker Kolorektal',
+                        'mental_health_status' => 'Kesehatan Mental',
+                        'ppok_status' => 'PPOK',
+                        'tbc_status' => 'TBC',
+                        'vision_status' => 'Gangguan Penglihatan',
+                        'hearing_status' => 'Gangguan Pendengaran',
+                        'fitness_status' => 'Kebugaran',
+                        'dental_status' => 'Kesehatan Gigi',
+                        'elderly_status' => 'Lansia',
+                    ];
+                    
+                    foreach ($statusFields as $field => $label) {
+                        if (!empty($healthForm->$field)) {
+                            $diseases[] = $label . ': ' . $healthForm->$field;
+                        }
+                    }
+                    
+                    // Tambahkan cancer_type dan lung_disease_type jika ada
+                    if (!empty($healthForm->cancer_type)) {
+                        $diseases[] = 'Jenis Kanker: ' . $healthForm->cancer_type;
+                    }
+                    if (!empty($healthForm->lung_disease_type)) {
+                        $diseases[] = 'Jenis Penyakit Paru: ' . $healthForm->lung_disease_type;
+                    }
+                }
+                
+                $diagnosis = !empty($diseases) ? implode('; ', $diseases) : null;
+            }
+
+            // Format nama penginput
+            $penginput = [];
+            if (!empty($visit->user_name)) {
+                $penginput[] = $visit->user_name;
+            }
+            if (!empty($visit->operator_name)) {
+                $penginput[] = $visit->operator_name;
+            }
+            $nama_penginput = !empty($penginput) ? implode(' / ', $penginput) : '-';
+
             $grouped[$key]['pasien'][] = [
                 'pasien_id' => $visit->pasien_id,
                 'nama_pasien' => $visit->nama_pasien,
@@ -381,7 +455,9 @@ class ExportPasienWilayahJob implements ShouldQueue
                         'henti_layanan' => $healthForm->henti_layanan,
                         'kunjungan_lanjutan' => $healthForm->kunjungan_lanjutan,
                     ] : null,
-                ]
+                ],
+                'diagnosis_penyakit' => $diagnosis,
+                'nama_penginput' => $nama_penginput,
             ];
         }
 

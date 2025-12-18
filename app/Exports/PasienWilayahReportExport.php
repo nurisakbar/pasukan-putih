@@ -77,7 +77,9 @@ class PasienWilayahReportExport implements FromCollection, WithHeadings, WithMap
             'Skor AKS',
             'Tingkat Kemandirian',
             'Henti Layanan',
-            'Kunjungan Lanjutan'
+            'Kunjungan Lanjutan',
+            'Diagnosis Penyakit',
+            'Nama Penginput'
         ];
     }
 
@@ -119,6 +121,10 @@ class PasienWilayahReportExport implements FromCollection, WithHeadings, WithMap
             : '-';
         $statusKunjungan = isset($kunjungan['status']) ? $kunjungan['status'] : '-';
 
+        // Diagnosis dan Nama Penginput
+        $diagnosisPenyakit = $data['diagnosis_penyakit'] ?? '-';
+        $namaPenginput = $data['nama_penginput'] ?? '-';
+
         return [
             $counter,
             $data['wilayah_name'] ?? '-',
@@ -145,7 +151,9 @@ class PasienWilayahReportExport implements FromCollection, WithHeadings, WithMap
             $skorAks,
             $tingkatKemandirian,
             $hentiLayanan,
-            $kunjunganLanjutan
+            $kunjunganLanjutan,
+            $diagnosisPenyakit,
+            $namaPenginput
         ];
     }
 
@@ -189,6 +197,8 @@ class PasienWilayahReportExport implements FromCollection, WithHeadings, WithMap
             'X' => 20,  // Tingkat Kemandirian
             'Y' => 15,  // Henti Layanan
             'Z' => 20,  // Kunjungan Lanjutan
+            'AA' => 40, // Diagnosis Penyakit
+            'AB' => 25, // Nama Penginput
         ];
     }
 
