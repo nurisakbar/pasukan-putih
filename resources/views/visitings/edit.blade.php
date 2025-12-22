@@ -86,7 +86,7 @@
                                 <div class="form-group mb-3">
                                     <label for="name" class="form-label">Nama</label>
                                     <input type="text" class="form-control name" id="name" name="name" 
-                                        placeholder="Nama" value="{{ old('name', $visiting->pasien->name) }}" disabled>
+                                        placeholder="Nama" value="{{ old('name', $visiting->pasien ? $visiting->pasien->name : '') }}" disabled>
                                     @error('name')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -870,7 +870,7 @@
         });
 
         // Set selected operator if exists
-        @if($visiting->operator_id)
+        @if($visiting->operator_id && $visiting->operator)
             $('#operator_search').append(new Option('{{ $visiting->operator->name }} ({{ ucfirst($visiting->operator->role) }})', '{{ $visiting->operator_id }}', true, true));
         @endif
     </script>
