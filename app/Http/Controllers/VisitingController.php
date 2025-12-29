@@ -640,7 +640,7 @@ class VisitingController extends Controller
             'dilakukan_oleh.*' => 'nullable|string|in:perawat,petugas_layanan_kesehatan',
             'operator_id_lanjutan' => 'nullable|exists:users,id',
             'permasalahan_lanjutan' => 'nullable|string|max:1000',
-            'tanggal_kunjungan' => 'nullable|date',
+            'tanggal_kunjungan' => 'nullable|date|after_or_equal:2025-01-01',
             'henti_layanan' => 'nullable|string|in:kenaikan_nilai_aks,meninggal,menolak,pindah_domisili',
         ]);
 

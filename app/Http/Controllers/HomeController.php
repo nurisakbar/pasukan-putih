@@ -891,6 +891,79 @@ class HomeController extends Controller
     }
 
     /**
+     * Get total pasien (Si Carik + Manual Input) using optimized SQL query
+     * This replaces: $carik_data['total_pasien'] + $manual_data['total_pasien']
+     * 
+     * @param User $user
+     * @param array $filters
+     * @return int
+     */
+    private function getTotalPasienCarikManual($user, $filters)
+    {
+        $sql = "
+            SELECT COUNT(DISTINCT p.id) as total_pasien
+            FROM pasiens p
+            INNER JOIN villages v ON p.village_id = v.id
+            INNER JOIN districts d ON v.district_id = d.id
+            INNER JOIN regencies r ON d.regency_id = r.id
+            INNER JOIN (
+                SELECT nik, MAX(id) as latest_id
+                FROM pasiens
+                WHERE deleted_at IS NULL 
+                AND nik IS NOT NULL
+                GROUP BY nik
+            ) latest ON p.id = latest.latest_id
+            WHERE (
+                p.flag_sicarik = 1  -- Si Carik
+                OR p.flag_sicarik = 0  -- Manual Input
+                OR p.flag_sicarik IS NULL  -- Manual Input (default)
+            )
+            AND p.deleted_at IS NULL
+            AND p.village_id IS NOT NULL
+            AND p.nik IS NOT NULL
+        ";
+        
+        $bindings = [];
+        
+        // Filter berdasarkan role user
+        switch ($user->role) {
+            case 'superadmin':
+                // No additional filtering for superadmin
+                break;
+                
+            case 'perawat':
+            case 'operator':
+                $districtId = $this->getUserDistrictId($user);
+                if ($districtId) {
+                    $sql .= " AND d.id = ?";
+                    $bindings[] = $districtId;
+                }
+                break;
+                
+            default: // regency role (sudinkes)
+                $regencyId = $user->regency_id;
+                if ($regencyId) {
+                    $sql .= " AND r.id = ?";
+                    $bindings[] = $regencyId;
+                }
+                break;
+        }
+        
+        // Apply additional filters
+        if (!empty($filters['district_id'])) {
+            $sql .= " AND d.id = ?";
+            $bindings[] = $filters['district_id'];
+        }
+        if (!empty($filters['village_id'])) {
+            $sql .= " AND p.village_id = ?";
+            $bindings[] = $filters['village_id'];
+        }
+        
+        $result = DB::selectOne($sql, $bindings);
+        return $result->total_pasien ?? 0;
+    }
+
+    /**
      * Clear cache for dashboard data
      * Call this method when data is updated
      */

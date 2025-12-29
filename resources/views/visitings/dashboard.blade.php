@@ -1952,6 +1952,7 @@
                                                                                 name="tanggal_kunjungan"
                                                                                 placeholder="Tanggal"
                                                                                 value="{{ $visiting->healthForms && $visiting->healthForms->tanggal_kunjungan ? $visiting->healthForms->tanggal_kunjungan->format('Y-m-d') : '' }}"
+                                                                                min="2025-01-01"
                                                                                 {{ auth()->user()->role == 'operator' ? 'readonly' : '' }}>
                                                                         </div>
                                                                     </div>

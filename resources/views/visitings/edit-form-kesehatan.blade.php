@@ -559,7 +559,21 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-medium">Tanggal kunjungan lanjutan</label>
-                                        <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ old('tanggal_kunjungan', isset($healthForm->tanggal_kunjungan) ? $healthForm->tanggal_kunjungan->format('Y-m-d') : '') }}">
+                                        @php
+                                            $tanggalValue = old('tanggal_kunjungan');
+                                            if (!$tanggalValue && $healthForm->tanggal_kunjungan) {
+                                                try {
+                                                    if ($healthForm->tanggal_kunjungan instanceof \Carbon\Carbon) {
+                                                        $tanggalValue = $healthForm->tanggal_kunjungan->format('Y-m-d');
+                                                    } elseif (is_string($healthForm->tanggal_kunjungan)) {
+                                                        $tanggalValue = \Carbon\Carbon::parse($healthForm->tanggal_kunjungan)->format('Y-m-d');
+                                                    }
+                                                } catch (\Exception $e) {
+                                                    $tanggalValue = '';
+                                                }
+                                            }
+                                        @endphp
+                                        <input type="date" class="form-control" name="tanggal_kunjungan" placeholder="Tanggal" value="{{ $tanggalValue ?? '' }}" min="2025-01-01">
                                     </div>
                                 </div>
                             </div>

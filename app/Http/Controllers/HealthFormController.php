@@ -39,7 +39,7 @@ class HealthFormController extends Controller
             'lung_disease_type' => 'nullable|required_if:diseases,lung_disease',
             'kunjungan_lanjutan' => 'nullable|string',
             'permasalahan_lanjutan' => 'nullable|required_if:kunjungan_lanjutan,ya|string',
-            'tanggal_kunjungan' => 'nullable|required_if:kunjungan_lanjutan,ya|date',
+            'tanggal_kunjungan' => 'nullable|required_if:kunjungan_lanjutan,ya|date|after_or_equal:2025-01-01',
             'pembinaan' => 'nullable|string',
             'perawatan' => 'nullable|string',
             'keluaran' => 'nullable|integer|between:1,3',
@@ -70,8 +70,8 @@ class HealthFormController extends Controller
             'kunjungan_lanjutan' => $request->input('kunjungan_lanjutan'),
             'dilakukan_oleh' => $request->input('dilakukan_oleh', []),
             'operator_id_lanjutan' => $request->input('operator_id_lanjutan'),
-            'permasalahan_lanjutan' => $request->input('permasalahan_lanjutan'),
-            'tanggal_kunjungan' => $request->input('tanggal_kunjungan'),
+            'permasalahan_lanjutan' => $request->input('kunjungan_lanjutan') === 'ya' ? $request->input('permasalahan_lanjutan') : null,
+            'tanggal_kunjungan' => $request->input('kunjungan_lanjutan') === 'ya' ? $request->input('tanggal_kunjungan') : null,
             'catatan_keperawatan' => $request->input('catatan_keperawatan'),
         ];
 
@@ -199,7 +199,7 @@ class HealthFormController extends Controller
             'lung_disease_type' => 'nullable|required_if:diseases,lung_disease',
             'kunjungan_lanjutan' => 'nullable|string',
             'permasalahan_lanjutan' => 'nullable|required_if:kunjungan_lanjutan,ya|string',
-            'tanggal_kunjungan' => 'nullable|required_if:kunjungan_lanjutan,ya|date',
+            'tanggal_kunjungan' => 'nullable|required_if:kunjungan_lanjutan,ya|date|after_or_equal:2025-01-01',
             'pembinaan' => 'nullable|string',
             'perawatan' => 'nullable|string',
             'keluaran' => 'nullable|integer|between:1,3',
