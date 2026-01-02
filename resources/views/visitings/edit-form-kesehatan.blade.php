@@ -54,7 +54,15 @@
                                 'leprosy' => 'Kusta',
                                 'stroke' => 'Stroke'
                             ];
-                            $selectedDiseases = $healthForm->diseases ?? []; // fallback array kosong
+                            // Ensure $selectedDiseases is always an array
+                            $selectedDiseases = $healthForm->diseases ?? [];
+                            if (is_string($selectedDiseases)) {
+                                $decoded = json_decode($selectedDiseases, true);
+                                $selectedDiseases = is_array($decoded) ? $decoded : [];
+                            }
+                            if (!is_array($selectedDiseases)) {
+                                $selectedDiseases = [];
+                            }
                             $cancerType = $healthForm->cancer_type ?? '';
                             $lungDiseaseType = $healthForm->lung_disease_type ?? '';
                         @endphp
@@ -482,7 +490,15 @@
                                         'melakukan_pencegahan' => 'Melaksanakan tindakan pencegahan secara aktif',
                                         'melakukan_promotif' => 'Melaksanakan tindakan promotif secara aktif'
                                     ];
+                                    // Ensure $selectedKemandirian is always an array
                                     $selectedKemandirian = $healthForm->kemandirian ?? [];
+                                    if (is_string($selectedKemandirian)) {
+                                        $decoded = json_decode($selectedKemandirian, true);
+                                        $selectedKemandirian = is_array($decoded) ? $decoded : [];
+                                    }
+                                    if (!is_array($selectedKemandirian)) {
+                                        $selectedKemandirian = [];
+                                    }
                                 @endphp
                                 @foreach($tingkat_kemandirian as $key => $label)
                                 <div class="col-md-6 mb-3">

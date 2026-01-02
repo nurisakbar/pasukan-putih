@@ -233,3 +233,4 @@ AND p.village_id = ?;  -- village_id parameter
 -- $totalPasien = $result->total_pasien ?? 0;
 
 
+
