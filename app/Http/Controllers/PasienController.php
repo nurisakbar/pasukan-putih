@@ -76,13 +76,37 @@ class PasienController extends Controller
                 'villages.name as village_name',
                 'districts.name as district_name',
                 'regencies.name as regency_name',
-                'pustus.jenis_faskes'
+                DB::raw('(
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v3
+                            WHERE v3.pasien_id = pasiens.id
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Berkelanjutan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM visitings v2 
+                            WHERE v2.pasien_id = pasiens.id 
+                            AND v2.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
+                        ELSE "Belum Dijadwalkan Kunjungan Awal"
+                    END
+                ) as status')
             )
-            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->whereNull('pasiens.deleted_at');
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->whereNull('pasiens.deleted_at')
+            ->whereNotNull('pasiens.village_id');
 
         // Apply user role restrictions
         if ($currentUser->role === 'sudinkes') {
@@ -91,11 +115,8 @@ class PasienController extends Controller
             if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
                 // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
-                $pasienIds = DB::table('pasiens')
-                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
-                    ->where('villages.district_id', $districtId)
-                    ->pluck('pasiens.id');
-                $query->whereIn('pasiens.id', $pasienIds);
+                // Termasuk pasien yang dibuat oleh operator lain di district yang sama
+                $query->where('districts.id', $districtId);
             } else {
                 // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('pasiens.user_id', $currentUser->id);
@@ -132,6 +153,74 @@ class PasienController extends Controller
             }
         }
 
+        // Apply status filter if provided
+        if ($request->filled('status_filter')) {
+            $statusFilter = $request->status_filter;
+            switch ($statusFilter) {
+                case 'belum_awal':
+                    // Exclude Henti Layanan always
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    });
+                    break;
+                case 'belum_lanjutan':
+                    // Exclude Henti Layanan always
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'belum_berkelanjutan':
+                    // Those who already had at least one lanjutan and not henti layanan
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    })->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'henti_layanan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    break;
+            }
+        }
+
         return DataTables::of($query)
             ->addColumn('rt_rw', function ($pasien) {
                 return $pasien->rt . '/' . $pasien->rw;
@@ -151,7 +240,7 @@ class PasienController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'nik' => 'required|string|min:16|max:16|unique:pasiens,nik',
+            'nik' => 'required|string|min:16|max:16',
             'alamat' => 'nullable|string|max:255',
             'jenis_kelamin' => 'required|string|max:255',
             'jenis_ktp' => 'required|string|max:255',
@@ -210,7 +299,7 @@ class PasienController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'nik' => 'required|string|min:16|max:16|unique:pasiens,nik,' . $pasien->id,
+            'nik' => 'required|string|min:16|max:16',
             'alamat' => 'nullable|string|max:255',
             'jenis_kelamin' => 'required|string|max:255',
             'jenis_ktp' => 'required|string|max:255',
@@ -293,6 +382,7 @@ class PasienController extends Controller
     {
         $search = $request->input('q');
         $currentUser = \Auth::user();
+        $visitType = $request->input('visit_type', 'awal'); // Default to 'awal' for backward compatibility
 
         $query = Pasien::with(['village', 'district', 'regency'])
             ->where(function ($query) use ($search) {
@@ -309,6 +399,7 @@ class PasienController extends Controller
             if ($currentUser->pustu) {
                 $districtId = $currentUser->pustu->district_id;
                 // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
+                // Termasuk pasien yang dibuat oleh operator lain di district yang sama
                 $query->whereHas('village.district', function ($q) use ($districtId) {
                     $q->where('id', $districtId);
                 });
@@ -318,6 +409,22 @@ class PasienController extends Controller
             }
         } elseif ($currentUser->role !== 'superadmin') {
             $query->where('user_id', $currentUser->id);
+        }
+
+        // Filter untuk kunjungan awal: hanya pasien yang belum pernah kunjungan awal
+        if ($visitType === 'awal') {
+            $query->whereDoesntHave('visitings', function ($q) {
+                $q->where('status', 'Kunjungan Awal');
+            });
+        }
+        
+        // Filter untuk kunjungan lanjutan: hanya pasien yang sudah pernah kunjungan awal dan tidak henti layanan
+        if ($visitType === 'lanjutan') {
+            $query->whereHas('visitings', function ($q) {
+                $q->where('status', 'Kunjungan Awal');
+            })->whereDoesntHave('visitings.healthForms', function ($q) {
+                $q->whereNotNull('henti_layanan');
+            });
         }
 
         $pasiens = $query->limit(10)->get();
@@ -391,7 +498,7 @@ class PasienController extends Controller
         }
 
         // Jika file tidak ditemukan
-        return redirect()->back()->with('error', 'Template tidak ditemukan.');
+        return redirect()->route('pasiens.index')->with('error', 'Template tidak ditemukan.');
     }
 
     public function getDataPasienCarik(Request $request)
@@ -568,7 +675,8 @@ class PasienController extends Controller
             $currentUser = auth()->user();
             $filters = [
                 'district_filter' => $request->input('district_filter'),
-                'search_input' => $request->input('search_input')
+                'search_input' => $request->input('search_input'),
+                'status_filter' => $request->input('status_filter')
             ];
 
             // Generate export ID
@@ -620,8 +728,8 @@ class PasienController extends Controller
 
             $exportProgress->updateProgress(90, 'Menyimpan file...');
 
-            // Get file URL
-            $fileUrl = asset('storage/' . $filePath);
+            // Get file URL - ensure proper URL generation
+            $fileUrl = url('storage/' . $filePath);
 
             $exportProgress->markCompleted('Export selesai!', [
                 'file_url' => $fileUrl,
@@ -713,15 +821,39 @@ class PasienController extends Controller
                 'districts.name as district_name',
                 'regencies.name as regency_name',
                 'provinces.name as province_name',
-                'pustus.jenis_faskes',
-                'pasiens.created_at'
+                'pasiens.created_at',
+                DB::raw('(
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM health_forms hf 
+                            JOIN visitings v ON hf.visiting_id = v.id 
+                            WHERE v.pasien_id = pasiens.id 
+                            AND hf.henti_layanan IS NOT NULL
+                        ) THEN "Henti Layanan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v3
+                            WHERE v3.pasien_id = pasiens.id
+                            AND v3.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Berkelanjutan"
+                        WHEN EXISTS (
+                            SELECT 1 FROM visitings v1 
+                            WHERE v1.pasien_id = pasiens.id 
+                            AND v1.status = "Kunjungan Awal"
+                        ) AND NOT EXISTS (
+                            SELECT 1 FROM visitings v2 
+                            WHERE v2.pasien_id = pasiens.id 
+                            AND v2.status = "Kunjungan Lanjutan"
+                        ) THEN "Belum Dijadwalkan Kunjungan Lanjutan Pertama"
+                        ELSE "Belum Dijadwalkan Kunjungan Awal"
+                    END
+                ) as status')
             )
-            ->leftJoin('pustus', 'pasiens.pustu_id', '=', 'pustus.id')
-            ->leftjoin('villages', 'villages.id', '=', 'pasiens.village_id')
-            ->leftjoin('districts', 'districts.id', '=', 'villages.district_id')
-            ->leftjoin('regencies', 'regencies.id', '=', 'districts.regency_id')
-            ->leftjoin('provinces', 'provinces.id', '=', 'regencies.province_id')
-            ->whereNull('pasiens.deleted_at');
+            ->join('villages', 'villages.id', '=', 'pasiens.village_id')
+            ->join('districts', 'districts.id', '=', 'villages.district_id')
+            ->join('regencies', 'regencies.id', '=', 'districts.regency_id')
+            ->join('provinces', 'provinces.id', '=', 'regencies.province_id')
+            ->whereNull('pasiens.deleted_at')
+            ->whereNotNull('pasiens.village_id');
 
         // Apply user role restrictions
         if ($user->role === 'sudinkes') {
@@ -730,11 +862,8 @@ class PasienController extends Controller
             if ($user->pustu) {
                 $districtId = $user->pustu->district_id;
                 // Ambil semua pasien dari district ini (baik puskesmas maupun non-puskesmas)
-                $pasienIds = DB::table('pasiens')
-                    ->leftJoin('villages', 'pasiens.village_id', '=', 'villages.id')
-                    ->where('villages.district_id', $districtId)
-                    ->pluck('pasiens.id');
-                $query->whereIn('pasiens.id', $pasienIds);
+                // Termasuk pasien yang dibuat oleh operator lain di district yang sama
+                $query->where('districts.id', $districtId);
             } else {
                 // Jika tidak ada pustu, hanya pasien milik dia sendiri
                 $query->where('pasiens.user_id', $user->id);
@@ -760,7 +889,101 @@ class PasienController extends Controller
             });
         }
 
+        // Apply status filter if provided
+        if (isset($filters['status_filter']) && !empty($filters['status_filter'])) {
+            $statusFilter = $filters['status_filter'];
+            switch ($statusFilter) {
+                case 'belum_awal':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    });
+                    break;
+                case 'belum_lanjutan':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Awal');
+                    })->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'belum_berkelanjutan':
+                    $query->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    })->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('visitings')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->where('visitings.status', 'Kunjungan Lanjutan');
+                    });
+                    break;
+                case 'henti_layanan':
+                    $query->whereExists(function ($q) {
+                        $q->select(DB::raw(1))
+                          ->from('health_forms')
+                          ->join('visitings', 'health_forms.visiting_id', '=', 'visitings.id')
+                          ->whereColumn('visitings.pasien_id', 'pasiens.id')
+                          ->whereNotNull('health_forms.henti_layanan');
+                    });
+                    break;
+            }
+        }
+
         return $query->orderBy('pasiens.created_at', 'desc');
+    }
+
+    /**
+     * Download exported file
+     */
+    public function downloadFile($filename)
+    {
+        try {
+            $filePath = storage_path('app/public/exports/' . $filename);
+            
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->download($filePath, $filename);
+        } catch (\Exception $e) {
+            Log::error('Download file failed: ' . $e->getMessage(), [
+                'filename' => $filename,
+                'user_id' => auth()->user()->id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengunduh file: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 }

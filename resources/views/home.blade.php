@@ -92,13 +92,20 @@
                 <div class="row g-4">
                     @php
                         $sasaran_data = [
-                            ['title' => 'Pasien dari Si Carik', 'value' => $carik_data['total_pasien'], 'icon' => 'bi-cloud-download', 'bg' => 'bg-primary', 'text' => 'text-white'],
-                            ['title' => 'Pasien Input Manual', 'value' => $manual_data['total_pasien'], 'icon' => 'bi-pencil-square', 'bg' => 'bg-secondary', 'text' => 'text-white'],
-                            ['title' => 'Pasien Sudah Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
-                            ['title' => 'Pasien Belum Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
-                            ['title' => 'Pasien Sudah Dikunjungi', 'value' => $data_sasaran_sudah_dikunjungi, 'icon' => 'bi-house-check', 'bg' => 'bg-success', 'text' => 'text-white'],
-                            ['title' => 'Pasien Belum Dikunjungi', 'value' => $data_sasaran_belum_dikunjungi, 'icon' => 'bi-house-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
-                            ['title' => 'Pasien Henti Layanan', 'value' => $data_sasaran_henti_layanan, 'icon' => 'bi-person-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
+                            [
+                                'title' => 'Total Semua Data Sasaran',
+                                'value' => $carik_data['total_pasien'] + $manual_data['total_pasien'],
+                                'icon' => 'bi-people',
+                                'bg' => 'bg-info',
+                                'text' => 'text-white'
+                            ],
+                            ['title' => 'Sasaran dari Si Carik', 'value' => $carik_data['total_pasien'], 'icon' => 'bi-cloud-download', 'bg' => 'bg-primary', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Input Manual', 'value' => $manual_data['total_pasien'], 'icon' => 'bi-pencil-square', 'bg' => 'bg-secondary', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Sudah Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_sudah_dijadwalkan, 'icon' => 'bi-calendar-check', 'bg' => 'bg-success', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Belum Memiliki Jadwal Kunjungan', 'value' => $data_sasaran_belum_dijadwalkan, 'icon' => 'bi-calendar-x', 'bg' => 'bg-warning', 'text' => 'text-dark'],
+                            ['title' => 'Sasaran Sudah Dikunjungi', 'value' => $data_sasaran_sudah_dikunjungi, 'icon' => 'bi-house-check', 'bg' => 'bg-success', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Belum Dikunjungi', 'value' => $data_sasaran_belum_dikunjungi, 'icon' => 'bi-house-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
+                            ['title' => 'Sasaran Henti Layanan', 'value' => $data_sasaran_henti_layanan, 'icon' => 'bi-person-x', 'bg' => 'bg-danger', 'text' => 'text-white'],
                         ];
                     @endphp
                     @foreach($sasaran_data as $data)
@@ -113,7 +120,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-light">
+                                {{-- <div class="card-footer bg-light">
                                     @if($data['title'] == 'Pasien dari Si Carik')
                                         <a href="{{ route('pasiens.index', ['flag_sicarik' => 1]) }}"
                                            class="text-primary text-decoration-none">
@@ -130,7 +137,7 @@
                                             More info <i class="bi bi-arrow-right-circle"></i>
                                         </a>
                                     @endif
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     @endforeach
@@ -149,9 +156,9 @@
                 @php
                     $kunjungan_data = [
                         ['title' => 'Total Kunjungan', 'value' => $jumlah_kunjungan, 'icon' => 'bi-bar-chart', 'bg' => 'bg-primary', 'text' => 'text-white'],
-                        ['title' => 'Kunjungan Berkelanjutan', 'value' => $jumlah_kunjungan_belum_selesai, 'icon' => 'bi-hourglass-split', 'bg' => 'bg-success', 'text' => 'text-white'],
                         ['title' => 'Kunjungan Pertama', 'value' => $jumlah_kunjungan_awal, 'icon' => 'bi-play-circle', 'bg' => 'bg-secondary', 'text' => 'text-white'],
                         ['title' => 'Yang Mendapatkan Kunjungan Lanjutan', 'value' => $jumlah_kunjungan_lanjutan, 'icon' => 'bi-arrow-repeat', 'bg' => 'bg-success', 'text' => 'text-white'],
+                        ['title' => 'Kunjungan Berkelanjutan', 'value' => $jumlah_kunjungan_belum_selesai, 'icon' => 'bi-hourglass-split', 'bg' => 'bg-success', 'text' => 'text-white'],
                         ['title' => 'Yang Berhenti Layanan', 'value' => $jumlah_kunjungan_selesai, 'icon' => 'bi-check-circle', 'bg' => 'bg-danger', 'text' => 'text-white'],
                     ];
                 @endphp
@@ -167,12 +174,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer bg-light">
+                            {{-- <div class="card-footer bg-light">
                                 <a href="{{ route('visitings.index') }}"
                                    class="text-primary text-decoration-none">
                                     More info <i class="bi bi-arrow-right-circle"></i>
                                 </a>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endforeach

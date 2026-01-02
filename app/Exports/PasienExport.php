@@ -7,9 +7,12 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class PasienExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
+class PasienExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithEvents
 {
     protected $pasiens;
 
@@ -30,6 +33,7 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             'Nama',
             'NIK',
             'Jenis Kelamin',
+            'Status',
             'Tanggal Lahir',
             'Alamat',
             'RT/RW',
@@ -49,8 +53,9 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
         return [
             $counter,
             $pasien->name,
-            $pasien->nik,
+            "'" . $pasien->nik, // Prefix dengan single quote agar Excel treat sebagai text
             $pasien->jenis_kelamin,
+            $pasien->status ?? 'Belum Dijadwalkan Kunjungan Awal',
             $pasien->tanggal_lahir ? \Carbon\Carbon::parse($pasien->tanggal_lahir)->format('d/m/Y') : '',
             $pasien->alamat,
             $pasien->rt . '/' . $pasien->rw,
@@ -77,14 +82,28 @@ class PasienExport implements FromCollection, WithHeadings, WithMapping, WithSty
             'B' => 25,  // Nama
             'C' => 20,  // NIK
             'D' => 15,  // Jenis Kelamin
-            'E' => 15,  // Tanggal Lahir
-            'F' => 30,  // Alamat
-            'G' => 10,  // RT/RW
-            'H' => 20,  // Provinsi
-            'I' => 20,  // Kabupaten/Kota
-            'J' => 20,  // Kecamatan
-            'K' => 20,  // Kelurahan
-            'L' => 20,  // Tanggal Dibuat
+            'E' => 35,  // Status
+            'F' => 15,  // Tanggal Lahir
+            'G' => 30,  // Alamat
+            'H' => 10,  // RT/RW
+            'I' => 20,  // Provinsi
+            'J' => 20,  // Kabupaten/Kota
+            'K' => 20,  // Kecamatan
+            'L' => 20,  // Kelurahan
+            'M' => 20,  // Tanggal Dibuat
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                // Format kolom NIK (kolom C) sebagai text agar tidak menjadi scientific notation
+                $highestRow = $event->sheet->getHighestRow();
+                $event->sheet->getStyle('C2:C' . $highestRow)
+                    ->getNumberFormat()
+                    ->setFormatCode(NumberFormat::FORMAT_TEXT);
+            },
         ];
     }
 }

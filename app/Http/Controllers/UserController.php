@@ -13,6 +13,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UserImport;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class UserController extends Controller
 {
@@ -67,15 +69,25 @@ class UserController extends Controller
     {
         $currentUser = Auth::user();
 
-        if(Auth::user()->role=='sudinkes'){
-            $pustus = \App\Models\Pustu::select('pustus.nama_pustu','pustus.id')->join('villages','villages.id','pustus.village_id')
-            ->join('districts','districts.id','villages.district_id')
-            ->join('regencies','regencies.id','districts.regency_id')
-            ->where('regencies.id',Auth::user()->regency_id)
-            ->get();
-        }else{
-            $pustus = \App\Models\Pustu::all();
+        // Get pustus data based on user role
+        if($currentUser->role == 'sudinkes'){
+            // For sudinkes, get pustus only from their regency
+            if($currentUser->regency_id) {
+                $pustus = \App\Models\Pustu::select('pustus.nama_pustu','pustus.id')
+                    ->join('villages','villages.id','pustus.village_id')
+                    ->join('districts','districts.id','villages.district_id')
+                    ->join('regencies','regencies.id','districts.regency_id')
+                    ->where('regencies.id', $currentUser->regency_id)
+                    ->get();
+            } else {
+                // If no regency_id, get all pustus
+                $pustus = \App\Models\Pustu::select('nama_pustu','id')->get();
+            }
+        } else {
+            // For other roles, get all pustus
+            $pustus = \App\Models\Pustu::select('nama_pustu','id')->get();
         }
+        
         $parents = collect();
 
         // If user is superadmin, get potential parents for dropdown
@@ -105,6 +117,21 @@ class UserController extends Controller
             'keterangan' => ['string', 'max:255', 'nullable'],
         ];
 
+        // Add conditional validation for pustu_id
+        if ($request->role == 'perawat' || $request->role == 'operator') {
+            $rules['pustu_id'] = ['required', 'exists:pustus,id'];
+        }
+        
+        // Add conditional validation for regency_id
+        if ($request->role == 'sudinkes') {
+            $rules['regency_id'] = ['required', 'exists:regencies,id'];
+        }
+        
+        // Add conditional validation for parent_id (for superadmin only when creating certain roles)
+        if ($currentUser->role == 'superadmin' && in_array($request->role, ['puskesmas', 'pustu', 'dokter', 'farmasi', 'pendaftaran'])) {
+            $rules['parent_id'] = ['required', 'exists:users,id'];
+        }
+
 
 
         $validator = Validator::make($request->all(), $rules);
@@ -116,16 +143,22 @@ class UserController extends Controller
                 ->withInput();
         }
 
-        // Determine pustu_id
-        $parentId = null;
+        // Determine pustu_id based on role and user type
+        $pustuId = null;
+        $regencyId = null;
 
-        // If superadmin and pustu_id provided, use it
-        if ($currentUser->role == 'superadmin' && $request->has('pustu_id') && !empty($request->pustu_id)) {
-            $parentId = $request->pustu_id;
-        }
-        // If not superadmin, use current user as parent
-        elseif ($currentUser->role != 'superadmin') {
-            $parentId = $currentUser->id;
+        if ($request->role == 'perawat' || $request->role == 'operator') {
+            // For perawat and operator, use pustu_id from request
+            $pustuId = $request->pustu_id;
+        } elseif ($request->role == 'sudinkes') {
+            // For sudinkes, use regency_id
+            $regencyId = $request->regency_id;
+        } elseif ($currentUser->role == 'superadmin' && $request->has('parent_id') && !empty($request->parent_id)) {
+            // For superadmin creating other roles, use provided parent_id as pustu_id
+            $pustuId = $request->parent_id;
+        } elseif ($currentUser->role == 'superadmin' && in_array($request->role, ['perawat', 'operator']) && $request->has('pustu_id') && !empty($request->pustu_id)) {
+            // For superadmin creating perawat/operator, use provided pustu_id
+            $pustuId = $request->pustu_id;
         }
 
         // Role access validation
@@ -138,9 +171,9 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'pustu_id' => ($request->role=='perawat' || $request->role=='operator')?$request->pustu_id:null,
+            'pustu_id' => $pustuId,
             'no_wa' => $request->no_wa,
-            'regency_id'=>$request->role=='sudinkes'?$request->regency_id:null,
+            'regency_id' => $regencyId,
             'keterangan' => $request->keterangan,
             'status_pegawai' => $request->status_pegawai
         ]);
@@ -355,6 +388,69 @@ class UserController extends Controller
     }
 
     /**
+     * Download template Excel for user import
+     */
+    public function downloadTemplate()
+    {
+        // Generate Excel file using Laravel Excel
+        $templateData = [
+            ['email', 'pustu', 'user', 'phone', 'role', 'status_pegawai', 'keterangan', 'wilayah_2'],
+            ['operator1@example.com', 'PUSTU Klinik ABC', 'John Doe', '08123456789', 'operator', 'PNS', 'Operator Klinik ABC', 'Kecamatan XYZ'],
+            ['operator2@example.com', 'PUSTU Klinik DEF', 'Jane Smith', '08123456790', 'operator', 'Honorer', 'Operator Klinik DEF', 'Kecamatan ABC'],
+            ['perawat1@example.com', 'PUSTU Klinik GHI', 'Bob Wilson', '08123456791', 'perawat', 'PNS', 'Perawat Klinik GHI', 'Kecamatan DEF'],
+            ['dokter1@example.com', 'PUSTU Klinik JKL', 'Dr. Alice Brown', '08123456792', 'dokter', 'PNS', 'Dokter Klinik JKL', 'Kecamatan GHI'],
+            ['farmasi1@example.com', 'PUSTU Klinik MNO', 'Carol Davis', '08123456793', 'farmasi', 'PNS', 'Petugas Farmasi Klinik MNO', 'Kecamatan JKL'],
+        ];
+
+        $filename = 'template_import_user_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        // Create Excel file
+        $excel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $excel->getActiveSheet();
+        
+        // Set headers
+        $headers = ['Email', 'PUSTU', 'User', 'Phone', 'Role', 'Status Pegawai', 'Keterangan', 'Wilayah 2'];
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $sheet->getStyle($col . '1')->getFont()->setBold(true);
+            $col++;
+        }
+        
+        // Set data
+        $row = 2;
+        foreach ($templateData as $index => $data) {
+            if ($index == 0) continue; // Skip header row
+            $col = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($col . $row, $value);
+                $col++;
+            }
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Create writer
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+        
+        // Set headers
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+        ];
+        
+        // Return response
+        return response()->stream(function() use ($writer) {
+            $writer->save('php://output');
+        }, 200, $headers);
+    }
+
+    /**
      * Show the form for editing current user's profile.
      */
     public function editProfile()
@@ -411,5 +507,56 @@ class UserController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Get operators for dropdown/select
+     */
+    public function getOperators(Request $request)
+    {
+        $currentUser = Auth::user();
+        
+        $query = User::select('users.id', 'users.name', 'users.role', 'users.pustu_id')
+            ->leftJoin('pustus', 'users.pustu_id', '=', 'pustus.id')
+            ->leftJoin('villages', 'pustus.village_id', '=', 'villages.id')
+            ->leftJoin('districts', 'villages.district_id', '=', 'districts.id')
+            ->whereNull('users.deleted_at')
+            ->where('users.role', 'operator');
+
+        // Filter berdasarkan pustu_id atau kecamatan yang sama
+        if ($currentUser->role === 'sudinkes') {
+            // Untuk sudinkes, filter berdasarkan regency
+            $query->where('users.regency_id', $currentUser->regency_id);
+        } elseif ($currentUser->role !== 'superadmin') {
+            // Untuk perawat/operator, filter berdasarkan pustu_id atau kecamatan yang sama
+            if ($currentUser->pustu_id) {
+                $currentUserPustu = \App\Models\Pustu::find($currentUser->pustu_id);
+                if ($currentUserPustu) {
+                    $query->where(function($q) use ($currentUser, $currentUserPustu) {
+                        // Filter berdasarkan pustu_id yang sama
+                        $q->where('users.pustu_id', $currentUser->pustu_id)
+                          // Atau kecamatan yang sama
+                          ->orWhere('districts.id', $currentUserPustu->district_id);
+                    });
+                } else {
+                    $query->where('users.pustu_id', $currentUser->pustu_id);
+                }
+            }
+        }
+
+        if ($request->filled('q')) {
+            $query->where('users.name', 'LIKE', '%' . $request->q . '%');
+        }
+
+        $operators = $query->orderBy('users.name')->get();
+
+        return response()->json($operators->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'text' => $user->name . ' (' . ucfirst($user->role) . ')',
+                'name' => $user->name,
+                'role' => $user->role
+            ];
+        }));
     }
 }

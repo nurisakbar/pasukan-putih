@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class LoginController extends Controller
@@ -35,10 +36,31 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
             'password' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            return redirect(url('/login'))->withErrors($validator)->withInput();
+        }
+
+        // Cek apakah email terdaftar
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Akun tidak terdaftar'], 401);
+            }
+            return redirect(url('/login'))->with('error', 'Akun tidak terdaftar')->withInput();
+        }
 
         $credentials = $request->only('email', 'password');
 
@@ -58,7 +80,7 @@ class LoginController extends Controller
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah']);
+        return redirect(url('/login'))->with('error', 'Email atau password salah')->withInput();
     }
 
     /**

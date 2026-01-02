@@ -71,7 +71,7 @@ class KunjunganController extends Controller
         $pasien = Pasien::find($request->pasien_id);
 
         if (!$pasien) {
-            return redirect()->back()->with('error', 'Pasien tidak ditemukan.');
+            return redirect()->route('kunjungans.create')->with('error', 'Pasien tidak ditemukan.');
         }
 
         // Cek apakah pasien sudah memiliki kunjungan di tanggal yang sama
@@ -80,7 +80,7 @@ class KunjunganController extends Controller
                         ->first();
 
         if ($existingVisit) {
-            return redirect()->back()->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
+            return redirect()->route('kunjungans.create')->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
         }
 
         // Reset semua opsi henti layanan ke false (0)
@@ -142,7 +142,7 @@ class KunjunganController extends Controller
                           ->first();
 
         if ($existingVisit) {
-            return redirect()->back()->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
+            return redirect()->route('kunjungans.edit', $kunjungan->id)->with('error', 'Pasien sudah memiliki kunjungan pada hari yang sama.');
         }
 
         $kunjungan->update($request->validated());
@@ -220,7 +220,7 @@ class KunjunganController extends Controller
             'sasaran_home_service' => $sasaran_home_service
         ]);
 
-        return redirect()->back()->with('success', 'Data Skrining ADL berhasil disimpan!');
+        return redirect()->route('kunjungans.index')->with('success', 'Data Skrining ADL berhasil disimpan!');
     }
 
     public function updateSkriningAdl(Request $request, $id)
@@ -275,7 +275,7 @@ class KunjunganController extends Controller
             'sasaran_home_service' => $sasaran_home_service
         ]); 
 
-        return redirect()->back()->with('success', 'Data Skrining ADL berhasil diupdate!');
+        return redirect()->route('kunjungans.index')->with('success', 'Data Skrining ADL berhasil diupdate!');
     }
 
     public function exportKunjungan() 
@@ -311,7 +311,7 @@ class KunjunganController extends Controller
     {
         $kunjungan = Kunjungan::findOrFail($id);
         $kunjungan->update($request->all());
-        return redirect()->back()->with('success', 'Data Kunjungan berhasil diupdate!');
+        return redirect()->route('kunjungans.index')->with('success', 'Data Kunjungan berhasil diupdate!');
     }
 }
 

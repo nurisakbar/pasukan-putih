@@ -4,18 +4,15 @@
 <div class="app-content-header py-3">
     <div class="container-fluid">
         <div class="row align-items-center">
-            <div class="col-md-6 col-12 mb-2 mb-md-0">
+            <div class="col-md-10 col-12 mb-2 mb-md-0">
                 <h3 class="mb-0">Data Sasaran</h3>
             </div>
-            <div class="col-md-6 col-12 text-md-end text-start">
-                @if (auth()->user()->role === 'superadmin')
-                    <a href="javascript:void(0)" id="startSync" class="btn btn-primary btn-md btn-sm shadow-sm">
-                        <i class="fas fa-sync me-1"></i> Sinkronisasi Si CARIK
+            <div class="col-md-2 col-12 text-md-end text-start">
+                @if (auth()->user()->role !== 'sudinkes' && auth()->user()->role !== 'operator')
+                    <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm d-block d-md-inline-block w-100 w-md-auto">
+                        <i class="fas fa-plus-circle me-1"></i> <span class="d-none d-sm-inline">Tambah Data Sasaran</span><span class="d-sm-none">Tambah</span>
                     </a>
                 @endif
-                <a href="{{ route('pasiens.create') }}" class="btn btn-primary btn-md btn-sm shadow-sm ">
-                    <i class="fas fa-plus-circle me-1"></i> Tambah Data Sasaran
-                </a>
             </div>
         </div>
     </div>
@@ -29,8 +26,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-3">
                                 <label for="district_filter" class="form-label">Filter Kecamatan:</label>
                                 <select id="district_filter" class="form-select">
                                     <option value="">Semua Kecamatan</option>
@@ -39,13 +36,23 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-md-3">
                                 <label for="search_input" class="form-label">Pencarian:</label>
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
                             </div>
-                            <div class="col d-flex align-items-end gap-2 mt-4">
-                                <button type="button" id="exportPasien" class="btn btn-success">
-                                    <i class="fas fa-file-excel me-1"></i> Export Excel
+                            <div class="col-12 col-md-3">
+                                <label for="status_filter" class="form-label">Filter Status:</label>
+                                <select id="status_filter" class="form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
+                                    <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="belum_berkelanjutan">Belum Dijadwalkan Kunjungan Berkelanjutan</option>
+                                    <option value="henti_layanan">Henti Layanan</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3 d-flex align-items-end">
+                                <button type="button" id="exportPasien" class="btn btn-success w-100">
+                                    <i class="fas fa-file-excel me-1"></i> <span class="d-none d-sm-inline">Export Excel</span><span class="d-sm-none">Export</span>
                                 </button>
                             </div>
                         </div>
@@ -63,21 +70,33 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
                                 <label for="search_input" class="form-label">Pencarian:</label>
                                 <input type="text" id="search_input" class="form-control" placeholder="Cari nama, NIK, atau alamat...">
                             </div>
-                            <div class="col-md-3">
-                                <button type="button" id="apply_filter" class="btn btn-primary mt-4">
-                                    <i class="fas fa-search me-1"></i> Cari
-                                </button>
-                                <button type="button" id="clear_filter" class="btn btn-secondary mt-4 ms-2">
-                                    <i class="fas fa-times me-1"></i> Reset
-                                </button>
-                                <button type="button" id="exportPasien" class="btn btn-success mt-4 ms-2">
-                                    <i class="fas fa-file-excel me-1"></i> Export Excel
-                                </button>
+                            <div class="col-12 col-md-3">
+                                <label for="status_filter" class="form-label">Filter Status:</label>
+                                <select id="status_filter" class="form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="belum_awal">Belum Dijadwalkan Kunjungan Awal</option>
+                                    <option value="belum_lanjutan">Belum Dijadwalkan Kunjungan Lanjutan Pertama</option>
+                                    <option value="belum_berkelanjutan">Belum Dijadwalkan Kunjungan Berkelanjutan</option>
+                                    <option value="henti_layanan">Henti Layanan</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-5">
+                                <div class="d-flex flex-column flex-md-row gap-2 mt-md-4">
+                                    <button type="button" id="apply_filter" class="btn btn-primary flex-fill">
+                                        <i class="fas fa-search me-1"></i> Cari
+                                    </button>
+                                    <button type="button" id="clear_filter" class="btn btn-secondary flex-fill">
+                                        <i class="fas fa-times me-1"></i> Reset
+                                    </button>
+                                    <button type="button" id="exportPasien" class="btn btn-success flex-fill">
+                                        <i class="fas fa-file-excel me-1"></i> <span class="d-none d-sm-inline">Export Excel</span><span class="d-sm-none">Export</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,21 +114,47 @@
                         <div class="card-body">
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <strong>Tips:</strong> Double-click pada baris data untuk melihat detail pasien.
+                                <strong>Tips:</strong> <span class="d-none d-sm-inline">Double-click pada baris data untuk melihat detail pasien.</span><span class="d-sm-none">Tap baris data untuk melihat detail pasien.</span>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                            <div class="table-responsive">
+                            
+                            <!-- Mobile Card View (Hidden on desktop) -->
+                            <div id="mobile-card-view" class="d-block d-lg-none">
+                                <!-- Cards will be populated by JavaScript -->
+                            </div>
+                            
+                            <!-- Desktop Table View (Hidden on mobile) -->
+                            <div class="table-responsive d-none d-lg-block">
                                 <table id="pasiens-table" class="table table-bordered table-striped table-hover">
                                     <thead>
                                         <tr>
+                                            <th>NO</th>
                                             <th>NAMA</th>
                                             <th>NIK</th>
                                             <th>JENIS KELAMIN</th>
+                                            <th>STATUS</th>
                                             <th>NAMA JALAN</th>
                                             <th>RT/ RW</th>
                                             <th>KABUPATEN</th>
                                             <th>KECAMATAN</th>
                                             <th>KELURAHAN</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be loaded via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Mobile Table View (Hidden on desktop) -->
+                            <div class="table-responsive d-lg-none">
+                                <table id="pasiens-table-mobile" class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>NO</th>
+                                            <th>NAMA</th>
+                                            <th>STATUS</th>
+                                            <th>ALAMAT</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -125,13 +170,13 @@
     </div>
 
     <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content border-0 shadow-lg rounded-lg">
             <div class="modal-header bg-primary text-white rounded-top">
               <h5 class="modal-title" id="importModalLabel">Import Excel</h5>
               <button type="button" class="btn-close text-white opacity-75 hover:opacity-100" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body px-5 py-4">
+            <div class="modal-body px-3 px-md-5 py-4">
               <p class="text-muted mb-4">Untuk memastikan proses impor berjalan lancar dengan format yang benar, silakan  <a href="/" target="_blank" class="text-primary text-decoration-underline">unduh template Excel</a> yang tersedia.</p>
               <form action="pasien/import" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -170,6 +215,91 @@
         .table td {
             font-size: 0.875rem;
             vertical-align: middle;
+        }
+        
+        /* Number column styling */
+        #pasiens-table thead th:first-child,
+        #pasiens-table tbody td:first-child {
+            text-align: center;
+            width: 50px;
+            max-width: 50px;
+            min-width: 50px;
+        }
+        
+        /* Hide arrow on responsive table */
+        #pasiens-table tbody td.dtr-control::before,
+        #pasiens-table tbody td.dtr-toggle::before {
+            display: none !important;
+        }
+        
+        /* Ensure number column is clean without arrow */
+        #pasiens-table tbody td:first-child {
+            position: relative;
+        }
+        
+        #pasiens-table tbody td:first-child::before {
+            display: none !important;
+        }
+        
+        /* Hide arrow on mobile table as well */
+        #pasiens-table-mobile tbody td.dtr-control::before,
+        #pasiens-table-mobile tbody td.dtr-toggle::before {
+            display: none !important;
+        }
+        
+        #pasiens-table-mobile tbody td:first-child::before {
+            display: none !important;
+        }
+        
+        /* Mobile Card View Styling */
+        .mobile-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            background: #fff;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.2s ease;
+        }
+        
+        .mobile-card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .mobile-card .card-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .mobile-card .card-body {
+            padding: 1rem;
+        }
+        
+        .mobile-card .card-body .row {
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-card .card-body .row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .mobile-card .label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .mobile-card .value {
+            color: #212529;
+            font-size: 0.875rem;
+        }
+        
+        .mobile-card .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
         }
         
         /* Responsive table styling */
@@ -243,32 +373,18 @@
         }
         
         /* Table row hover effect */
-        #pasiens-table tbody tr:hover {
+        #pasiens-table tbody tr:hover,
+        #pasiens-table-mobile tbody tr:hover {
             background-color: #f8f9fa !important;
             cursor: pointer;
         }
         
         /* Double-click hint */
-        #pasiens-table tbody tr {
+        #pasiens-table tbody tr,
+        #pasiens-table-mobile tbody tr {
             transition: background-color 0.2s ease;
         }
         
-        /* DataTables responsive modal */
-        .dtr-details {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            padding: 1rem;
-        }
-        
-        .dtr-details table {
-            margin-bottom: 0;
-        }
-        
-        .dtr-details td:first-child {
-            font-weight: 600;
-            width: 40%;
-        }
         
         /* DataTables Pagination Styling - Compact */
         .dataTables_wrapper .dataTables_paginate {
@@ -444,6 +560,61 @@
                 display: none;
             }
         }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 991px) {
+            .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            
+            .card-body {
+                padding: 0.75rem;
+            }
+            
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .form-control, .form-select {
+                font-size: 0.875rem;
+            }
+            
+            .alert {
+                font-size: 0.875rem;
+                padding: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding-left: 0.25rem;
+                padding-right: 0.25rem;
+            }
+            
+            .card-body {
+                padding: 0.5rem;
+            }
+            
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .form-control, .form-select {
+                font-size: 0.8rem;
+            }
+            
+            .alert {
+                font-size: 0.8rem;
+                padding: 0.6rem;
+            }
+            
+            h3 {
+                font-size: 1.25rem;
+            }
+        }
     </style>
     
     <!-- JavaScript Libraries -->
@@ -469,50 +640,83 @@
                         d.district_filter = $('#district_filter').val();
                         @endif
                         d.search_input = $('#search_input').val();
+                        d.status_filter = $('#status_filter').val();
                         d._token = '{{ csrf_token() }}';
                     }
                 },
                 columns: [
                     { 
+                        data: null,
+                        name: 'no',
+                        orderable: false,
+                        searchable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { 
                         data: 'name', 
                         name: 'name',
-                        responsivePriority: 1
+                        responsivePriority: 2
                     },
                     { 
                         data: 'nik', 
                         name: 'nik',
-                        responsivePriority: 1
+                        responsivePriority: 2
                     },
                     { 
                         data: 'jenis_kelamin', 
                         name: 'jenis_kelamin',
-                        responsivePriority: 2
+                        responsivePriority: 3
+                    },
+                    { 
+                        data: 'status', 
+                        name: 'status',
+                        searchable: false,
+                        responsivePriority: 4,
+                        render: function (data, type, row) {
+                            if (data === 'Belum Dijadwalkan Kunjungan Awal') {
+                                return '<span class="badge bg-warning">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Lanjutan Pertama') {
+                                return '<span class="badge bg-info">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Berkelanjutan') {
+                                return '<span class="badge bg-secondary">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Awal') {
+                                return '<span class="badge bg-success">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Lanjutan') {
+                                return '<span class="badge bg-primary">' + data + '</span>';
+                            } else if (data === 'Henti Layanan') {
+                                return '<span class="badge bg-danger">' + data + '</span>';
+                            }
+                            return '<span class="badge bg-secondary">' + data + '</span>';
+                        }
                     },
                     { 
                         data: 'alamat', 
                         name: 'alamat',
-                        responsivePriority: 3
+                        responsivePriority: 5
                     },
                     { 
                         data: 'rt_rw', 
                         name: 'rt_rw', 
                         orderable: false,
-                        responsivePriority: 4
+                        responsivePriority: 6
                     },
                     { 
                         data: 'regency_name', 
                         name: 'regencies.name',
-                        responsivePriority: 5
+                        responsivePriority: 7
                     },
                     { 
                         data: 'district_name', 
                         name: 'districts.name',
-                        responsivePriority: 6
+                        responsivePriority: 8
                     },
                     { 
                         data: 'village_name', 
                         name: 'villages.name',
-                        responsivePriority: 7
+                        responsivePriority: 9
                     }
                 ],
                 responsive: {
@@ -592,9 +796,118 @@
                 }
             });
 
+            // Initialize Mobile Table
+            var mobileTable = $('#pasiens-table-mobile').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('pasiens.data') }}",
+                    type: 'POST',
+                    data: function (d) {
+                        // Only include district filter for administrators
+                        @if(auth()->user()->role === 'superadmin')
+                        d.district_filter = $('#district_filter').val();
+                        @endif
+                        d.search_input = $('#search_input').val();
+                        d.status_filter = $('#status_filter').val();
+                        d._token = '{{ csrf_token() }}';
+                    }
+                },
+                columns: [
+                    { 
+                        data: null,
+                        name: 'no',
+                        orderable: false,
+                        searchable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { 
+                        data: 'name', 
+                        name: 'name',
+                        responsivePriority: 2
+                    },
+                    { 
+                        data: 'status', 
+                        name: 'status',
+                        searchable: false,
+                        responsivePriority: 3,
+                        render: function (data, type, row) {
+                            if (data === 'Belum Dijadwalkan Kunjungan Awal') {
+                                return '<span class="badge bg-warning status-badge">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Lanjutan Pertama') {
+                                return '<span class="badge bg-info status-badge">' + data + '</span>';
+                            } else if (data === 'Belum Dijadwalkan Kunjungan Berkelanjutan') {
+                                return '<span class="badge bg-secondary status-badge">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Awal') {
+                                return '<span class="badge bg-success status-badge">' + data + '</span>';
+                            } else if (data === 'Sudah Kunjungan Lanjutan') {
+                                return '<span class="badge bg-primary status-badge">' + data + '</span>';
+                            } else if (data === 'Henti Layanan') {
+                                return '<span class="badge bg-danger status-badge">' + data + '</span>';
+                            }
+                            return '<span class="badge bg-secondary status-badge">' + data + '</span>';
+                        }
+                    },
+                    { 
+                        data: 'alamat', 
+                        name: 'alamat',
+                        responsivePriority: 4,
+                        render: function (data, type, row) {
+                            return data + '<br><small class="text-muted">' + row.rt_rw + '</small>';
+                        }
+                    }
+                ],
+                autoWidth: false,
+                scrollX: true,
+                scrollCollapse: true,
+                order: [[1, 'asc']], // Order by name ascending
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                dom: '<"row mb-3"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json",
+                    emptyTable: "Belum ada data untuk ditampilkan",
+                    processing: "Memproses data...",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    },
+                    lengthMenu: "Tampilkan _MENU_ data per halaman",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                    infoFiltered: "(disaring dari _MAX_ total data)",
+                    search: "Cari:",
+                    zeroRecords: "Tidak ada data yang cocok ditemukan"
+                },
+                drawCallback: function() {
+                    // Add click handler to mobile table rows
+                    $('#pasiens-table-mobile tbody tr').off('click').on('click', function() {
+                        const data = mobileTable.row(this).data();
+                        if (data && data.id) {
+                            window.location.href = `{{ url('pasiens') }}/${data.id}`;
+                        }
+                    });
+                    
+                    // Add hover effect for better UX
+                    $('#pasiens-table-mobile tbody tr').css('cursor', 'pointer');
+                }
+            });
+
             // Apply filter button
             $('#apply_filter').click(function() {
-                table.ajax.reload();
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
             });
 
             // Clear filter button
@@ -603,22 +916,44 @@
                 $('#district_filter').val('');
                 @endif
                 $('#search_input').val('');
+                $('#status_filter').val('');
                 table.ajax.reload();
+                mobileTable.ajax.reload();
             });
 
             // Auto-reload when district filter changes (only for administrators)
             @if(auth()->user()->role === 'superadmin')
             $('#district_filter').change(function() {
-                table.ajax.reload();
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
             });
             @endif
+
+            // Auto-reload when status filter changes
+            $('#status_filter').change(function() {
+                table.ajax.reload(function(){
+                    table.columns.adjust();
+                }, false);
+                mobileTable.ajax.reload(function(){
+                    mobileTable.columns.adjust();
+                }, false);
+            });
 
             // Search functionality with debounce
             let searchTimeout;
             $('#search_input').on('keyup', function() {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(function() {
-                    table.ajax.reload();
+                    table.ajax.reload(function(){
+                        table.columns.adjust();
+                    }, false);
+                    mobileTable.ajax.reload(function(){
+                        mobileTable.columns.adjust();
+                    }, false);
                 }, 500); // Wait 500ms after user stops typing
             });
         });
@@ -841,7 +1176,8 @@
 
                 // Get current filters
                 let filters = {
-                    search_input: $('#search_input').val()
+                    search_input: $('#search_input').val(),
+                    status_filter: $('#status_filter').val()
                 };
 
                 @if(auth()->user()->role === 'superadmin')
@@ -860,7 +1196,8 @@
                         if (response.success) {
                             // Check if direct export completed immediately
                             if (response.file_url) {
-                                // Direct export completed
+                                // Direct export completed - close loading and show success
+                                Swal.close();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Export Berhasil!',
@@ -873,7 +1210,34 @@
                                     cancelButtonText: 'Tutup'
                                 }).then((result) => {
                                     if (result.isConfirmed && response.file_url) {
-                                        window.open(response.file_url, '_blank');
+                                        // Try multiple download methods
+                                        try {
+                                            // Method 1: Use direct download route
+                                            const downloadUrl = `{{ url('pasiens/download') }}/${response.file_name}`;
+                                            const link = document.createElement('a');
+                                            link.href = downloadUrl;
+                                            link.download = response.file_name || 'export_pasien.xlsx';
+                                            link.target = '_blank';
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        } catch (e) {
+                                            // Method 2: Fallback to original URL
+                                            console.log('Download route failed, trying original URL:', e);
+                                            try {
+                                                const link = document.createElement('a');
+                                                link.href = response.file_url;
+                                                link.download = response.file_name || 'export_pasien.xlsx';
+                                                link.target = '_blank';
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link);
+                                            } catch (e2) {
+                                                // Method 3: Final fallback to window.open
+                                                console.log('All methods failed, using window.open:', e2);
+                                                window.open(response.file_url, '_blank');
+                                            }
+                                        }
                                     }
                                 });
                                 return;
@@ -975,7 +1339,34 @@
                                                         // Handle download button click
                                                         Swal.getConfirmButton().onclick = function() {
                                                             if (progress.data && progress.data.file_url) {
-                                                                window.open(progress.data.file_url, '_blank');
+                                                                // Try multiple download methods
+                                                                try {
+                                                                    // Method 1: Use direct download route
+                                                                    const downloadUrl = `{{ url('pasiens/download') }}/${progress.data.file_name}`;
+                                                                    const link = document.createElement('a');
+                                                                    link.href = downloadUrl;
+                                                                    link.download = progress.data.file_name || 'export_pasien.xlsx';
+                                                                    link.target = '_blank';
+                                                                    document.body.appendChild(link);
+                                                                    link.click();
+                                                                    document.body.removeChild(link);
+                                                                } catch (e) {
+                                                                    // Method 2: Fallback to original URL
+                                                                    console.log('Download route failed, trying original URL:', e);
+                                                                    try {
+                                                                        const link = document.createElement('a');
+                                                                        link.href = progress.data.file_url;
+                                                                        link.download = progress.data.file_name || 'export_pasien.xlsx';
+                                                                        link.target = '_blank';
+                                                                        document.body.appendChild(link);
+                                                                        link.click();
+                                                                        document.body.removeChild(link);
+                                                                    } catch (e2) {
+                                                                        // Method 3: Final fallback to window.open
+                                                                        console.log('All methods failed, using window.open:', e2);
+                                                                        window.open(progress.data.file_url, '_blank');
+                                                                    }
+                                                                }
                                                             }
                                                             Swal.close();
                                                         };

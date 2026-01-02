@@ -352,16 +352,23 @@ class UserImport implements ToCollection, WithHeadingRow, WithChunkReading, With
                 // Cari pustu_id dari tabel pustus berdasarkan nama_puskesmas_pembantu
                 $pustu = Pustu::where('nama_pustu', $data['pustu'])->first();
                 $pustu_id = $pustu ? $pustu->id : null;
+                
+                // Tentukan role berdasarkan kolom 'role' atau default 'perawat'
+                $role = $data['role'] ?? 'perawat';
+                
+                // Tentukan password berdasarkan role
+                $password = $role === 'operator' ? 'operator123' : 'perawat123';
+                
                 // Insert ke tabel users pakai firstOrCreate
                 User::firstOrCreate(
                     ['email' => $data['email']], // Kolom unik untuk dicek
                     [
                         'name' => $data['user'],
-                        'password' => Hash::make('perawat123'),
+                        'password' => Hash::make($password),
                         'no_wa' => $data['phone']??'0',
-                        'role'=>'perawat',
-                        'status_pegawai' => 'PNS',
-                        'keterangan' => '-',
+                        'role' => $role,
+                        'status_pegawai' => $data['status_pegawai'] ?? 'PNS',
+                        'keterangan' => $data['keterangan'] ?? '-',
                         'pustu_id' => $pustu_id,
                     ]
                 );

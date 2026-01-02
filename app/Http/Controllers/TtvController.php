@@ -70,7 +70,7 @@ class TtvController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.index')
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -178,7 +178,7 @@ class TtvController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('visitings.index')
                 ->withErrors($validator)
                 ->withInput()
                 ->with('error', 'Validasi gagal. Periksa kembali input Anda.');
@@ -186,7 +186,7 @@ class TtvController extends Controller
 
         $ttv = Ttv::find($id);
         if (!$ttv) {
-            return redirect()->back()->with('error', 'Data tidak ditemukan.');
+            return redirect()->route('visitings.index')->with('error', 'Data tidak ditemukan.');
         }
         $data = $request->only([
             'temperature',
@@ -237,7 +237,7 @@ class TtvController extends Controller
         if ($ttv->update($data)) {
             return redirect()->route('visitings.index')->with('success', 'Pemeriksaan kesehatan berhasil diperbarui.');
         } else {
-            return redirect()->back()->with('error', 'Gagal memperbarui data.');
+            return redirect()->route('visitings.index')->with('error', 'Gagal memperbarui data.');
         }
     }
 

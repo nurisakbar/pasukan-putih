@@ -421,7 +421,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-medium">Tanggal kunjungan lanjutan</label>
-                                <input type="date" class="form-control" id="tanggal_kunjungan" name="tanggal_kunjungan">
+                                <input type="date" class="form-control" id="tanggal_kunjungan" name="tanggal_kunjungan" min="2025-01-01">
                             </div>
                         </div>
                     </div>

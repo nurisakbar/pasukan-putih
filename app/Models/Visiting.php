@@ -21,6 +21,7 @@ class Visiting extends Model
     protected $fillable = [
         'pasien_id',
         'user_id',
+        'operator_id',
         'tanggal',
         'status',
         'berat_badan',
@@ -52,6 +53,14 @@ class Visiting extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the operator that handled the kunjungan.
+     */
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_id');
+    }
+
     public function healthForms()
     {
         return $this->hasOne(HealthForm::class, 'visiting_id');
@@ -62,5 +71,8 @@ class Visiting extends Model
         return $this->hasMany(Ttv::class, 'kunjungan_id');
     }
 
-    
+    public function skriningAdl()
+    {
+        return $this->hasOne(SkriningAdl::class, 'visiting_id');
+    }
 }

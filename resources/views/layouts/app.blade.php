@@ -36,7 +36,7 @@
             @yield('content')
         </main>
         <footer class="app-footer">
-            <div class="float-end d-none d-sm-inline">Anything you want</div>
+            <div class="float-end d-none d-sm-inline">DINKES JAKARTA</div>
             <strong>
                 Copyright &copy; 2025&nbsp;
         </footer>

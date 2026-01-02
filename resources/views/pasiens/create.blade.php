@@ -40,7 +40,7 @@
                         <div class="card-header bg-white">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasara</h5>
+                                    <h5 class="card-title text-primary mb-0">Daftar Data Sasaran</h5>
                                 </div>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             @endif
-                            <form action="{{ route('pasiens.store') }}" method="POST" class="needs-validation" novalidate>
+                            <form action="{{ route('pasiens.store') }}" method="POST" class="needs-validation" novalidate id="pasien-form">
                                 @csrf
                                 
                                 <!-- NIK Section -->
@@ -232,11 +232,12 @@
                                     </div>
                                 </div>
 
+
                                 <!-- Action Buttons -->
                                 <div class="row mt-4">
                                     <div class="col-lg-2 col-md-4"></div>
                                     <div class="col-lg-9 col-md-8">
-                                        <button type="submit" class="btn btn-primary px-4">
+                                        <button type="submit" class="btn btn-primary px-4" id="submit-btn">
                                             <i class="bi bi-save me-2"></i>Simpan
                                         </button>
                                         <a href="{{ route('pasiens.index') }}" class="btn btn-secondary ms-2">
@@ -448,6 +449,290 @@
                 $('#district_id').val('');
                 $('#regency_id').val('');
                 $('#province_id').val('');
+            });
+
+            // Real-time validation for input fields
+            function validateField(fieldId, value, fieldName, rules) {
+                const field = $(`#${fieldId}`);
+                const feedback = field.siblings('.invalid-feedback');
+                
+                for (const rule of rules) {
+                    if (!rule.test(value)) {
+                        field.addClass('is-invalid');
+                        feedback.text(rule.message).show();
+                        return false;
+                    }
+                }
+                
+                field.removeClass('is-invalid');
+                feedback.hide();
+                return true;
+            }
+
+            // NIK validation
+            $('#nik').on('input', function() {
+                const value = $(this).val().trim();
+                const rules = [
+                    {
+                        test: (val) => val.length === 0 || val.length === 16,
+                        message: 'NIK harus 16 digit'
+                    },
+                    {
+                        test: (val) => val.length === 0 || /^\d+$/.test(val),
+                        message: 'NIK harus berupa angka'
+                    }
+                ];
+                validateField('nik', value, 'NIK', rules);
+            });
+
+            // Name validation
+            $('#name').on('input', function() {
+                const value = $(this).val().trim();
+                const rules = [
+                    {
+                        test: (val) => val.length === 0 || val.length >= 2,
+                        message: 'Nama minimal 2 karakter'
+                    }
+                ];
+                validateField('name', value, 'Nama', rules);
+            });
+
+            // RT validation
+            $('#rt').on('input', function() {
+                const value = $(this).val().trim();
+                const rules = [
+                    {
+                        test: (val) => val.length === 0 || /^\d+$/.test(val),
+                        message: 'RT harus berupa angka'
+                    }
+                ];
+                validateField('rt', value, 'RT', rules);
+            });
+
+            // RW validation
+            $('#rw').on('input', function() {
+                const value = $(this).val().trim();
+                const rules = [
+                    {
+                        test: (val) => val.length === 0 || /^\d+$/.test(val),
+                        message: 'RW harus berupa angka'
+                    }
+                ];
+                validateField('rw', value, 'RW', rules);
+            });
+
+            // WhatsApp validation
+            $('#nomor_whatsapp').on('input', function() {
+                const value = $(this).val().trim();
+                const rules = [
+                    {
+                        test: (val) => val.length === 0 || /^[0-9]{10,13}$/.test(val),
+                        message: 'Nomor WhatsApp harus 10-13 digit angka'
+                    }
+                ];
+                validateField('nomor_whatsapp', value, 'Nomor WhatsApp', rules);
+            });
+
+            // Tanggal Lahir validation
+            $('#tanggal_lahir').on('change', function() {
+                const value = $(this).val();
+                const field = $(this);
+                const feedback = field.siblings('.invalid-feedback');
+                
+                if (value) {
+                    const birthDate = new Date(value);
+                    const today = new Date();
+                    const age = today.getFullYear() - birthDate.getFullYear();
+                    
+                    if (age < 0 || age > 120) {
+                        field.addClass('is-invalid');
+                        feedback.text('Tanggal Lahir tidak valid').show();
+                    } else {
+                        field.removeClass('is-invalid');
+                        feedback.hide();
+                    }
+                } else {
+                    field.removeClass('is-invalid');
+                    feedback.hide();
+                }
+            });
+
+
+
+            // Frontend validation function
+            function validateForm() {
+                let isValid = true;
+                let errorMessages = [];
+                
+                // Validate NIK
+                const nik = $('#nik').val().trim();
+                if (!nik) {
+                    errorMessages.push('• NIK wajib diisi');
+                    isValid = false;
+                } else if (nik.length !== 16 || !/^\d+$/.test(nik)) {
+                    errorMessages.push('• NIK harus terdiri dari 16 digit angka');
+                    isValid = false;
+                }
+                
+                // Validate Name
+                const name = $('#name').val().trim();
+                if (!name) {
+                    errorMessages.push('• Nama wajib diisi');
+                    isValid = false;
+                } else if (name.length < 2) {
+                    errorMessages.push('• Nama minimal 2 karakter');
+                    isValid = false;
+                }
+                
+                // Validate Jenis KTP
+                const jenisKtp = $('#jenis_ktp').val();
+                if (!jenisKtp) {
+                    errorMessages.push('• Jenis KTP wajib diisi');
+                    isValid = false;
+                }
+                
+                // Validate Tanggal Lahir
+                const tanggalLahir = $('#tanggal_lahir').val();
+                if (!tanggalLahir) {
+                    errorMessages.push('• Tanggal Lahir wajib diisi');
+                    isValid = false;
+                } else {
+                    const birthDate = new Date(tanggalLahir);
+                    const today = new Date();
+                    const age = today.getFullYear() - birthDate.getFullYear();
+                    if (age < 0 || age > 120) {
+                        errorMessages.push('• Tanggal Lahir tidak valid');
+                        isValid = false;
+                    }
+                }
+                
+                // Validate Jenis Kelamin
+                const jenisKelamin = $('#jenis_kelamin').val();
+                if (!jenisKelamin) {
+                    errorMessages.push('• Jenis Kelamin wajib diisi');
+                    isValid = false;
+                }
+                
+                // Validate Alamat
+                const alamat = $('#alamat').val().trim();
+                if (!alamat) {
+                    errorMessages.push('• Alamat wajib diisi');
+                    isValid = false;
+                }
+                
+                // Validate RT
+                const rt = $('#rt').val().trim();
+                if (!rt) {
+                    errorMessages.push('• RT wajib diisi');
+                    isValid = false;
+                } else if (!/^\d+$/.test(rt)) {
+                    errorMessages.push('• RT harus berupa angka');
+                    isValid = false;
+                }
+                
+                // Validate RW
+                const rw = $('#rw').val().trim();
+                if (!rw) {
+                    errorMessages.push('• RW wajib diisi');
+                    isValid = false;
+                } else if (!/^\d+$/.test(rw)) {
+                    errorMessages.push('• RW harus berupa angka');
+                    isValid = false;
+                }
+                
+                // Validate Village
+                const villageId = $('#village_id').val();
+                if (!villageId) {
+                    errorMessages.push('• Kelurahan/Desa wajib dipilih');
+                    isValid = false;
+                }
+                
+                // Validate Nomor WhatsApp (if filled)
+                const nomorWhatsapp = $('#nomor_whatsapp').val().trim();
+                if (nomorWhatsapp && !/^[0-9]{10,13}$/.test(nomorWhatsapp)) {
+                    errorMessages.push('• Nomor WhatsApp harus 10-13 digit angka');
+                    isValid = false;
+                }
+                
+                return { isValid, errorMessages };
+            }
+
+            // Handle form submission with SweetAlert
+            $('#pasien-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Frontend validation
+                const validation = validateForm();
+                if (!validation.isValid) {
+                    Swal.fire({
+                        title: 'Validasi Error',
+                        html: `<div class="text-start">${validation.errorMessages.join('<br>')}</div>`,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+                
+                const formData = new FormData(this);
+                
+                Swal.fire({
+                    title: 'Menyimpan Data...',
+                    text: 'Harap tunggu sebentar.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.close();
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Data pasien berhasil disimpan.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '{{ route("pasiens.index") }}';
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            const errors = xhr.responseJSON.errors;
+                            let errorMessages = [];
+                            
+                            for (const field in errors) {
+                                errorMessages.push(`• ${errors[field].join(', ')}`);
+                            }
+                            
+                            Swal.fire({
+                                title: 'Validasi Error',
+                                html: `<div class="text-start">${errorMessages.join('<br>')}</div>`,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            // Other errors
+                            const errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data.';
+                            Swal.fire({
+                                title: 'Error',
+                                text: errorMessage,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    }
+                });
             });
         });
     </script>

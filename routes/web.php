@@ -29,6 +29,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('/pasien/search', [App\Http\Controllers\PasienController::class, 'autofill'])->name('pasiens.search');
     Route::get('/pasien/nik', [App\Http\Controllers\PasienController::class, 'getPasienByNik'])->name('pasiens.nik');
     Route::get('/pasien/carik/nik', [App\Http\Controllers\PasienController::class, 'getDataPasienCarik'])->name('pasiens.carik');
+    Route::get('/users/operators', [App\Http\Controllers\UserController::class, 'getOperators'])->name('users.operators');
     Route::resource('/pasiens', App\Http\Controllers\PasienController::class);
     Route::get('/pasiens/{id}/asuhan-keluarga', [App\Http\Controllers\PasienController::class, 'createAsuhanKeluarga'])->name('pasiens.asuhanKeluarga');
     // Route::get('/pasiens/search-village', [App\Http\Controllers\PasienController::class, 'searchVillage'])->name('pasiens.searchVillage');
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     // Export routes
     Route::post('/pasiens/export', [App\Http\Controllers\PasienController::class, 'exportPasien'])->name('pasiens.export');
     Route::get('/export-progress/{exportId}', [App\Http\Controllers\PasienController::class, 'checkExportProgress'])->name('export.progress');
+    Route::get('/pasiens/download/{filename}', [App\Http\Controllers\PasienController::class, 'downloadFile'])->name('pasiens.download');
 
     // Save Form Asuhan Keluarga
     Route::post('/Kondisi-rumah', [App\Http\Controllers\AsuhanKeluargaController::class, 'saveKondisiRumah'])->name('form.saveKondisiRumah');
@@ -65,6 +67,7 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::put('/profile', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('users.updateProfile');
 
     Route::post('/import-users', [App\Http\Controllers\UserController::class, 'importUsers'])->name('import.users');
+    Route::get('/users/download-template', [App\Http\Controllers\UserController::class, 'downloadTemplate'])->name('users.download-template');
 
     // Login by email routes
     Route::get('/login-by-email', [App\Http\Controllers\Auth\LoginController::class, 'showLoginByEmailForm'])->name('login.email.form');
@@ -100,16 +103,44 @@ Route::middleware(['auth', 'dashboard.only'])->group(function () {
     Route::get('kohort-hs/export', [\App\Http\Controllers\ExportController::class, 'exportKohortHs'])->name('export.kohort-hs');
 
     //visiting
+    // API: get scheduled counts per date untuk kalender (harus sebelum resource)
+    Route::get('/visitings/scheduled-counts', [\App\Http\Controllers\VisitingController::class, 'getScheduledCounts'])
+        ->name('visitings.scheduledCounts');
+    
+    // API: get detailed scheduled patients for a specific date
+    Route::get('/visitings/scheduled-patients', [\App\Http\Controllers\VisitingController::class, 'getScheduledPatients'])
+        ->name('visitings.scheduledPatients');
+    
+    // Export route (harus sebelum resource)
+    Route::get('/visitings/export', [\App\Http\Controllers\VisitingController::class, 'export'])->name('visitings.export');
+    
     Route::resource('visitings', \App\Http\Controllers\VisitingController::class);
     Route::get('/visitings/{id}/edit-form-pasien', [\App\Http\Controllers\VisitingController::class, 'editKunjunganFromPasiens'])->name('visitings.editKunjunganFromPasiens');
+    Route::get('/visitings/{id}/dashboard', [\App\Http\Controllers\VisitingController::class, 'dashboard'])->name('visitings.dashboard');
+    Route::post('/visitings/{id}/ttv', [\App\Http\Controllers\VisitingController::class, 'storeTtv'])->name('visitings.storeTtv');
+    Route::post('/visitings/{id}/health-form', [\App\Http\Controllers\VisitingController::class, 'storeHealthForm'])->name('visitings.storeHealthForm');
+    Route::get('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'skriningAdl'])->name('visitings.skriningAdl');
+    Route::post('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdl'])->name('visitings.storeSkriningAdl');
+    Route::put('/visitings/{id}/skrining-adl', [\App\Http\Controllers\VisitingController::class, 'updateSkriningAdl'])->name('visitings.updateSkriningAdl');
+    Route::post('/visitings/{id}/skrining-adl-ajax', [\App\Http\Controllers\VisitingController::class, 'storeSkriningAdlAjax'])->name('visitings.storeSkriningAdlAjax');
 
     //health form
     Route::resource('health-form', \App\Http\Controllers\HealthFormController::class);
     Route::get('/health-form/create/{visiting}', [\App\Http\Controllers\HealthFormController::class, 'create'])->name('health-form.create');
 
+    // API: get scheduled follow-up dates for a pasien from health forms
+    Route::get('/pasiens/{pasien}/scheduled-dates', [\App\Http\Controllers\VisitingController::class, 'getScheduledDates'])
+        ->name('pasiens.scheduledDates');
+
     //pustu
     Route::resource('pustu', \App\Http\Controllers\PustuController::class);
 
+    // Report Pasien by Wilayah
+    Route::get('/reports/pasien-wilayah', [App\Http\Controllers\PasienWilayahReportController::class, 'index'])->name('reports.pasien-wilayah');
+    Route::post('/reports/pasien-wilayah/data', [App\Http\Controllers\PasienWilayahReportController::class, 'getData'])->name('reports.pasien-wilayah.data');
+    Route::get('/reports/pasien-wilayah/wilayah-options', [App\Http\Controllers\PasienWilayahReportController::class, 'getWilayahOptions'])->name('reports.pasien-wilayah.wilayah-options');
+    Route::post('/reports/pasien-wilayah/export', [App\Http\Controllers\PasienWilayahReportController::class, 'export'])->name('reports.pasien-wilayah.export');
+    Route::get('/reports/pasien-wilayah/export-progress/{exportId}', [App\Http\Controllers\PasienWilayahReportController::class, 'checkExportProgress'])->name('reports.pasien-wilayah.export-progress');
     
 });
 
@@ -128,6 +159,11 @@ Route::get('/get-villages/{district_id}', function ($district_id) {
 });
 
 Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+
+// Debug route untuk Skrining ILP
+Route::get('/debug/skrining-log', function () {
+    return view('debug.skrining-log');
+})->name('debug.skrining-log');
 
 Route::get('/export/test', [App\Http\Controllers\ExportController::class, 'test']);
 
